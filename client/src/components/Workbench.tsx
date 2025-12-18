@@ -699,7 +699,7 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
   );
 };
 
-export default function Workbench() {
+export function Workbench() {
   const [view, setView] = useState<WorkbenchView>('targets');
   const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
