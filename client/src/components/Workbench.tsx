@@ -30,6 +30,50 @@ const TrafficChart = ({ data }: { data: number[] }) => {
   );
 };
 
+const URLPreview = ({ url }: { url: string }) => {
+  const [showPreview, setShowPreview] = useState(false);
+
+  const getPreviewImageUrl = (domain: string) => {
+    return `https://api.microlink.io/?url=https://${domain}&screenshot=true&meta=false&force=true&viewport.width=1024&viewport.height=768`;
+  };
+
+  return (
+    <div className="relative inline-block group">
+      <a 
+        href={`https://${url}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={() => setShowPreview(false)}
+        className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hover:border-slate-600 transition-colors cursor-pointer"
+        data-testid={`url-preview-${url}`}
+      >
+        {url} <ExternalLink size={10} />
+      </a>
+      
+      {showPreview && (
+        <div className="absolute left-0 top-full mt-2 z-50 pointer-events-auto">
+          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl" style={{ width: '600px', height: '400px' }}>
+            <div className="relative w-full h-full bg-slate-900">
+              <img 
+                src={getPreviewImageUrl(url)}
+                alt={`Preview of ${url}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%231e293b' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='18' font-family='monospace'%3ELoading preview...%3C/text%3E%3C/svg%3E`;
+                }}
+              />
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/50 to-transparent p-3">
+                <p className="text-xs text-white font-mono">{url}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -464,13 +508,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                                  {signal.name}
                                </h4>
                                <div className="flex items-center gap-2 flex-wrap">
-                                  <a 
-                                    href={`https://${signal.website}`}
-                                    target="_blank"
-                                    className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hover:border-slate-600 transition-colors"
-                                  >
-                                    {signal.website} <ExternalLink size={10} />
-                                  </a>
+                                  <URLPreview url={signal.website} />
                                   {signal.score > 90 && (
                                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 flex items-center gap-1">
                                       <Zap size={10} className="fill-current" /> Hot
