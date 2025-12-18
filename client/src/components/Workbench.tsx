@@ -825,17 +825,63 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
                   </div>
                   
-                  {/* Card Content - Signals */}
-                  <div className="px-4 py-2.5 space-y-2">
+                  {/* Card Content - Signals with Timeline (Scrollable) */}
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    {/* Signal Item 1 - Most Recent */}
                     <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
                       <div className="flex items-start justify-between gap-2 mb-1.5">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page: New "Enterprise" Tier</p>
-                          <p className="text-[10px] text-slate-500 line-clamp-1">High search volume and low difficulty for "wizard ai"</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
                         </div>
                         <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
                       </div>
                       <p className="text-[10px] text-slate-400 line-clamp-2">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
+                      </button>
+                    </div>
+
+                    {/* Signal Item 2 */}
+                    <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Homepage Copy Changes</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">2 hours ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Updated hero section tagline to emphasize "Enterprise-grade" capabilities and compliance features.</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
+                      </button>
+                    </div>
+
+                    {/* Signal Item 3 */}
+                    <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Feature Section Added</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">1 day ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">New "AI-Powered Analytics" section added to features page with video demo and comparison charts.</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
+                      </button>
+                    </div>
+
+                    {/* Signal Item 4 */}
+                    <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page Restructured</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Restructured pricing table layout and added annual billing discount highlight with up to 25% savings.</p>
                       <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
                         View Impact & Next Action <ChevronRight size={10} />
                       </button>
@@ -861,17 +907,48 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
                   </div>
                   
-                  {/* Card Content - Signals */}
-                  <div className="px-4 py-2.5 space-y-2">
+                  {/* Card Content - Signals with Timeline (Scrollable) */}
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    {/* Signal Item 1 - Most Recent */}
                     <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
                       <div className="flex items-start justify-between gap-2 mb-1.5">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Homepage: New Hero Headline</p>
-                          <p className="text-[10px] text-slate-500 line-clamp-1">Changed from "Design for everyone" to "Design for teams that scale"</p>
+                          <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Referring Domain Detected</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">High-authority tech blog linked to product page. Domain Authority increased to 58 from 54.</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
+                      </button>
+                    </div>
+
+                    {/* Signal Item 2 */}
+                    <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Backlink Lost</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">6 hours ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">One referring domain removed link from resource page. Likely due to content update or reorganization.</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
+                      </button>
+                    </div>
+
+                    {/* Signal Item 3 */}
+                    <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Domain Authority Update</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
                         </div>
                         <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 line-clamp-2">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Monthly domain authority refresh. Overall score remains stable. Spam score decreased by 1 point.</p>
                       <button className="mt-1.5 text-[10px] font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5 transition-colors">
                         View Impact & Next Action <ChevronRight size={10} />
                       </button>
