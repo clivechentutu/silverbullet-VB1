@@ -615,6 +615,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTargetName, setNewTargetName] = useState('');
   const [newTargetUrl, setNewTargetUrl] = useState('');
+  const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks']);
+  const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
@@ -631,6 +633,33 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       setNewTargetUrl('');
       setShowAddModal(false);
     }
+  };
+
+  const handleDragStart = (e: React.DragEvent, trackerId: string) => {
+    setDraggedTracker(trackerId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetTrackerId: string) => {
+    e.preventDefault();
+    if (!draggedTracker || draggedTracker === targetTrackerId) return;
+    
+    const draggedIndex = trackerOrder.indexOf(draggedTracker);
+    const targetIndex = trackerOrder.indexOf(targetTrackerId);
+    const newOrder = [...trackerOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedTracker);
+    setTrackerOrder(newOrder);
+    setDraggedTracker(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTracker(null);
   };
 
   if (targets.length === 0) {
@@ -766,7 +795,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Signals - By Tracking Dimension */}
+            {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -777,9 +806,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </button>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-max">
                 {/* Website Tracker Card */}
-                <div className="bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/40 rounded-lg overflow-hidden hover:border-cyan-500/60 transition-all">
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'website')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'website')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/40 rounded-lg overflow-hidden hover:border-cyan-500/60 transition-all cursor-move ${draggedTracker === 'website' ? 'opacity-50' : ''}`}>
                   {/* Card Header - Tracker Type */}
                   <div className="px-4 py-3 border-b border-cyan-500/20 bg-cyan-500/5 flex items-center gap-2.5">
                     <Globe size={16} className="text-cyan-400 shrink-0" />
@@ -809,7 +844,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </div>
 
                 {/* Backlinks Tracker Card */}
-                <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/40 rounded-lg overflow-hidden hover:border-emerald-500/60 transition-all">
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'backlinks')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'backlinks')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/40 rounded-lg overflow-hidden hover:border-emerald-500/60 transition-all cursor-move ${draggedTracker === 'backlinks' ? 'opacity-50' : ''}`}>
                   {/* Card Header - Tracker Type */}
                   <div className="px-4 py-3 border-b border-emerald-500/20 bg-emerald-500/5 flex items-center gap-2.5">
                     <LinkIcon size={16} className="text-emerald-400 shrink-0" />
