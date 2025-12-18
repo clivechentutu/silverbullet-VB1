@@ -1462,10 +1462,31 @@ export const Workbench: React.FC = () => {
   const [researchPrompt, setResearchPrompt] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
+  const [dataInitialized, setDataInitialized] = useState(false);
 
   const { data: targets = [], isLoading: targetsLoading } = useQuery<Target[]>({
     queryKey: ['/api/targets'],
   });
+
+  // Initialize demo data on first load
+  useEffect(() => {
+    const initDemo = async () => {
+      if (!dataInitialized && targets.length === 0) {
+        try {
+          const response = await fetch('/api/init-demo-data', { method: 'POST' });
+          if (response.ok) {
+            setDataInitialized(true);
+            queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/reports'] });
+            queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+          }
+        } catch (error) {
+          console.error('Failed to initialize demo data:', error);
+        }
+      }
+    };
+    initDemo();
+  }, [dataInitialized, targets.length]);
 
   const addTargetMutation = useMutation({
     mutationFn: async (target: { name: string; url: string; icon: string }) => {

@@ -378,5 +378,126 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
     }
   });
 
+  // Demo data initialization
+  app.post("/api/init-demo-data", async (req, res) => {
+    try {
+      // Create sample targets
+      const targets = await Promise.all([
+        storage.createTarget({
+          name: "Figma",
+          url: "https://figma.com",
+          addedAt: new Date()
+        }),
+        storage.createTarget({
+          name: "Sketch",
+          url: "https://sketch.com",
+          addedAt: new Date()
+        }),
+        storage.createTarget({
+          name: "Adobe XD",
+          url: "https://adobe.com/products/xd",
+          addedAt: new Date()
+        }),
+        storage.createTarget({
+          name: "Framer",
+          url: "https://framer.com",
+          addedAt: new Date()
+        }),
+        storage.createTarget({
+          name: "Miro",
+          url: "https://miro.com",
+          addedAt: new Date()
+        })
+      ]);
+
+      // Create sample reports
+      await Promise.all([
+        storage.createReport({
+          url: "https://figma.com",
+          title: "Figma Competitive Analysis",
+          summary: "Figma remains the market leader in collaborative design tools with strong product-market fit.",
+          competitors: ["Sketch", "Adobe XD", "Framer", "Penpot"],
+          swot: {
+            strengths: ["Excellent collaboration features", "Intuitive interface", "Strong community"],
+            weaknesses: ["Higher pricing than competitors", "Limited design assets"],
+            opportunities: ["Enterprise market expansion", "AI-powered features"],
+            threats: ["Adobe's aggressive pricing", "Open-source alternatives"]
+          },
+          battleCard: {
+            killPoints: ["Real-time multiplayer editing", "Seamless web-based workflow", "Best-in-class prototyping"],
+            objectionHandling: ["Pricing: Industry-standard for premium features", "Learning curve: Comprehensive tutorials available"]
+          },
+          scenarios: ["product", "pricing"]
+        }),
+        storage.createReport({
+          url: "https://sketch.com",
+          title: "Sketch Market Position Analysis",
+          summary: "Sketch maintains strong presence in Mac-first design community but facing pressure from web-based alternatives.",
+          competitors: ["Figma", "Adobe XD", "Framer"],
+          swot: {
+            strengths: ["Mac performance", "Strong plugin ecosystem", "Design-focused tools"],
+            weaknesses: ["Limited collaboration", "Mac-only platform", "Expensive plugins"],
+            opportunities: ["Web version launch", "Enterprise partnerships"],
+            threats: ["Figma's collaboration dominance", "Cross-platform solutions"]
+          },
+          battleCard: {
+            killPoints: ["Superior Mac performance", "Advanced plugins", "Design professional focus"],
+            objectionHandling: ["Collaboration: Native support coming soon", "Platform: Strategic expansion planned"]
+          },
+          scenarios: ["product", "marketing"]
+        })
+      ]);
+
+      // Create sample research sessions
+      await Promise.all([
+        storage.createSession({
+          title: "Figma Pricing Strategy Analysis",
+          agent: "market-analyst",
+          messages: [
+            {
+              id: "1",
+              role: "user",
+              content: "What are Figma's current pricing tiers and how do they compare to competitors?",
+              timestamp: new Date().toISOString()
+            },
+            {
+              id: "2",
+              role: "agent",
+              content: "Figma offers three main tiers: Free ($0), Professional ($12/month), and Organization (custom pricing). Their pricing strategy focuses on value-based tiers targeting different user segments.",
+              timestamp: new Date().toISOString()
+            }
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }),
+        storage.createSession({
+          title: "Market Expansion Opportunities",
+          agent: "growth-strategist",
+          messages: [
+            {
+              id: "1",
+              role: "user",
+              content: "Analyze key market expansion opportunities for design collaboration tools in enterprise sector.",
+              timestamp: new Date().toISOString()
+            },
+            {
+              id: "2",
+              role: "agent",
+              content: "Enterprise opportunities include: 1) Vertical-specific solutions for fashion, architecture, engineering. 2) AI-powered design automation. 3) Governance and compliance features for regulated industries.",
+              timestamp: new Date().toISOString()
+            }
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+      ]);
+
+      res.json({ message: "Demo data initialized successfully", targetsCount: targets.length });
+    } catch (error: any) {
+      console.error("Demo data initialization error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   return httpServer;
 }
