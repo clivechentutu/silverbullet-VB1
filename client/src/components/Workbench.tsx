@@ -811,9 +811,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Signals - By Category */}
+            {/* Signals - By Tracking Dimension */}
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <AlertZap size={16} className="text-brand-500" /> Signals (2 Found)
                 </h3>
@@ -822,48 +822,48 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </button>
               </div>
 
-              {/* HIGH Priority Signals */}
-              <div className="mb-6">
-                <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span> High Priority
-                </h4>
-                <div className="space-y-2">
-                  <div className="bg-gradient-to-r from-red-500/10 to-transparent border border-red-500/30 hover:border-red-500/60 rounded-lg p-4 transition-all group cursor-pointer">
+              {/* Website Tracker Dimension */}
+              <div className="bg-gradient-to-br from-cyan-500/5 to-transparent border border-cyan-500/30 rounded-lg p-5 mb-4">
+                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-cyan-500/20">
+                  <Globe size={16} className="text-cyan-400" />
+                  <h4 className="text-sm font-bold text-white">Website Tracker</h4>
+                  <span className="ml-auto text-xs text-slate-500">On-page copy, pricing, features</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-slate-900/40 border border-cyan-500/20 rounded-lg p-3 hover:border-cyan-500/40 transition-all cursor-pointer">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <p className="font-bold text-white text-base group-hover:text-red-300 transition-colors">Pricing Page: New "Enterprise" Tier</p>
-                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                          <span>Pricing Page Changes</span> • <span>2 days ago</span>
-                        </p>
+                        <p className="font-semibold text-white text-sm">Pricing Page: New "Enterprise" Tier</p>
+                        <p className="text-xs text-slate-500 mt-1">2 days ago</p>
                       </div>
-                      <span className="px-3 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      <span className="px-2 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full">HIGH</span>
                     </div>
-                    <p className="text-sm text-slate-400 leading-relaxed">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
-                    <button className="mt-3 text-xs font-medium text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
+                    <p className="text-xs text-slate-400">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
+                    <button className="mt-2 text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
                       View Impact & Next Action <ChevronRight size={12} />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* LOW Priority Signals */}
-              <div>
-                <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span> Low Priority
-                </h4>
-                <div className="space-y-2">
-                  <div className="bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/30 hover:border-blue-500/60 rounded-lg p-4 transition-all group cursor-pointer">
+              {/* Backlinks Tracker Dimension */}
+              <div className="bg-gradient-to-br from-emerald-500/5 to-transparent border border-emerald-500/30 rounded-lg p-5 mb-4">
+                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-emerald-500/20">
+                  <LinkIcon size={16} className="text-emerald-400" />
+                  <h4 className="text-sm font-bold text-white">Backlinks Tracker</h4>
+                  <span className="ml-auto text-xs text-slate-500">Domain ranking, backlinks</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-slate-900/40 border border-emerald-500/20 rounded-lg p-3 hover:border-emerald-500/40 transition-all cursor-pointer">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
-                        <p className="font-bold text-white text-base group-hover:text-blue-300 transition-colors">Homepage: New Hero Headline</p>
-                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                          <span>Homepage Copy</span> • <span>1 week ago</span>
-                        </p>
+                        <p className="font-semibold text-white text-sm">Homepage: New Hero Headline</p>
+                        <p className="text-xs text-slate-500 mt-1">1 week ago</p>
                       </div>
-                      <span className="px-3 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                      <span className="px-2 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full">LOW</span>
                     </div>
-                    <p className="text-sm text-slate-400 leading-relaxed">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
-                    <button className="mt-3 text-xs font-medium text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors">
+                    <p className="text-xs text-slate-400">Changed from "Design for everyone" to "Design for teams that scale".</p>
+                    <button className="mt-2 text-xs font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
                       View Impact & Next Action <ChevronRight size={12} />
                     </button>
                   </div>
@@ -876,41 +876,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         )}
       </div>
 
-      {/* RIGHT: All Tracking Dimensions */}
-      <div className="w-56 border-l border-slate-800 bg-[#020617] flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
-        <div className="sticky top-0 bg-[#020617] border-b border-slate-800 p-4">
-          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Tracking Dimensions</h3>
-        </div>
-        
-        <div className="p-4 space-y-4">
-          {[
-            { title: 'Keywords Tracker', desc: 'Monitor new keyword opportunities', items: ['Pricing', 'Features', 'Integrations', 'Enterprise', 'Security'], icon: Search },
-            { title: 'Website Tracker', desc: 'Monitor on-page copy and pricing', items: ['Homepage', 'Pricing', 'Features', 'Security'], icon: Globe },
-            { title: 'Backlinks Tracker', desc: 'Monitor domain ranking', items: ['Domain', 'Authority', 'Competitors'], icon: LinkIcon },
-            { title: 'News Tracker', desc: 'Monitor news sources', items: ['Press', 'Articles', 'Coverage'], icon: Search }
-          ].map((dimension, idx) => {
-            const DimIcon = dimension.icon;
-            return (
-              <div key={idx} className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <DimIcon size={14} className="text-brand-500 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-white">{dimension.title}</p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2">{dimension.desc}</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-1 ml-5">
-                  {dimension.items.map(item => (
-                    <span key={item} className="text-[10px] px-2 py-1 rounded bg-slate-900/50 border border-slate-800/50 text-slate-400 hover:text-slate-200 hover:border-slate-700 transition-colors cursor-pointer">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 };
