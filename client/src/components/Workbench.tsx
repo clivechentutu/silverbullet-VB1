@@ -548,6 +548,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   setSelectedTargetId: (id: number | null) => void;
   onAddTarget: (name: string, url: string) => void;
 }) => {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newTargetName, setNewTargetName] = useState('');
+  const [newTargetUrl, setNewTargetUrl] = useState('');
+
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
         setSelectedTargetId(targets[0].id);
@@ -556,12 +560,78 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
 
   const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
 
+  const handleAddTarget = async () => {
+    if (newTargetName.trim() && newTargetUrl.trim()) {
+      await onAddTarget(newTargetName.trim(), newTargetUrl.trim());
+      setNewTargetName('');
+      setNewTargetUrl('');
+      setShowAddModal(false);
+    }
+  };
+
+  if (targets.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-full animate-fade-in-up">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 mx-auto">
+            <Crosshair size={32} className="text-brand-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2">No Competitors Tracked</h2>
+          <p className="text-slate-400 mb-6">Start by adding a competitor to monitor. Track their pricing, features, and market movements.</p>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 mx-auto"
+            data-testid="button-add-first-target"
+          >
+            <Plus size={18} /> Add First Competitor
+          </button>
+          
+          {showAddModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div className="bg-slate-900 border border-slate-800 rounded-lg p-6 max-w-sm w-full">
+                <h3 className="text-lg font-bold text-white mb-4">Add Competitor</h3>
+                <input
+                  type="text"
+                  placeholder="Competitor Name"
+                  value={newTargetName}
+                  onChange={(e) => setNewTargetName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 mb-3"
+                />
+                <input
+                  type="url"
+                  placeholder="Website URL (https://...)"
+                  value={newTargetUrl}
+                  onChange={(e) => setNewTargetUrl(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 mb-4"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddTarget}
+                    className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full -m-8 animate-fade-in-up"> 
        <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
           <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
              <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
-             <button className="text-slate-500 hover:text-brand-400 transition-colors" data-testid="button-add-target">
+             <button onClick={() => setShowAddModal(true)} className="text-slate-500 hover:text-brand-400 transition-colors" data-testid="button-add-target">
                <Plus size={14} />
              </button>
           </div>
@@ -1055,6 +1125,26 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
             return sort === 'latest' ? dateB - dateA : dateA - dateB;
         });
 
+    if (reports.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-full animate-fade-in-up">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 mx-auto">
+              <Book size={32} className="text-brand-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">No Reports Yet</h2>
+            <p className="text-slate-400 mb-6">Start by analyzing a competitor using the Research section. Your generated reports will appear here for easy access.</p>
+            <button
+              className="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 mx-auto"
+              data-testid="button-start-research"
+            >
+              <Bot size={18} /> Start Research
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     return (
         <div className="animate-fade-in-up space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-end gap-4">
@@ -1062,7 +1152,7 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                     <h2 className="text-xl font-bold text-white flex items-center gap-2">
                         <Book className="text-brand-500" size={20} /> Research Library
                     </h2>
-                    <p className="text-xs text-slate-400 mt-1">Archive of generated intelligence reports.</p>
+                    <p className="text-xs text-slate-400 mt-1">Archive of generated intelligence reports. ({reports.length})</p>
                 </div>
                 
                 <div className="flex items-center gap-3 flex-wrap">
