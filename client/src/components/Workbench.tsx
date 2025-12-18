@@ -766,51 +766,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Active Intelligence Trackers */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Crosshair size={16} className="text-brand-500" /> Active Trackers
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: Globe, title: 'Website Tracker', desc: 'On-page copy, pricing, features, SEO and more.', active: true, color: 'from-cyan-500/10 border-cyan-500/30' },
-                  { icon: LinkIcon, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true, color: 'from-emerald-500/10 border-emerald-500/30' },
-                  { icon: Search, title: 'News Tracker', desc: 'News sources and coverage of current events.', active: false, color: 'from-slate-500/10 border-slate-700' },
-                  { icon: Chrome, title: 'Google Ads Tracker', desc: 'New and existing Google Ads creatives.', active: false, color: 'from-slate-500/10 border-slate-700' }
-                ].map((tracker, i) => {
-                  const Icon = tracker.icon;
-                  return (
-                    <div key={i} className={`bg-gradient-to-br ${tracker.color} border rounded-lg p-4 transition-all hover:shadow-lg`}>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
-                          <Icon size={16} className={tracker.active ? 'text-brand-500' : 'text-slate-500'} />
-                        </div>
-                        <div className="flex items-center justify-center">
-                          <div className={`w-2 h-2 rounded-full ${tracker.active ? 'bg-brand-500 animate-pulse' : 'bg-slate-600'}`}></div>
-                        </div>
-                      </div>
-                      <p className="font-semibold text-white text-sm mb-1">{tracker.title}</p>
-                      <p className="text-xs text-slate-400 leading-tight">{tracker.desc}</p>
-                      <div className="mt-3 pt-3 border-t border-slate-800/30">
-                        <p className={`text-[10px] font-medium uppercase tracking-wider ${tracker.active ? 'text-brand-400' : 'text-slate-600'}`}>
-                          {tracker.active ? '● Active' : '○ Inactive'}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-4 p-3 bg-brand-500/5 border border-brand-500/20 rounded-lg">
-                <p className="text-xs text-slate-300 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse"></span>
-                  Well notify you when we find new signals.
-                </p>
-              </div>
-            </div>
-
             {/* Signals - By Tracking Dimension */}
             <div>
               <div className="flex items-center justify-between mb-6">
