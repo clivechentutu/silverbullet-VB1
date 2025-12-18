@@ -627,87 +627,144 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   }
 
   return (
-    <div className="flex h-full -m-8 animate-fade-in-up"> 
-       <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
-          <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
-             <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
-             <button onClick={() => setShowAddModal(true)} className="text-slate-500 hover:text-brand-400 transition-colors" data-testid="button-add-target">
-               <Plus size={14} />
-             </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-             {targets.map(t => (
-                <div 
-                   key={t.id} 
-                   onClick={() => setSelectedTargetId(t.id)}
-                   className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
-                   data-testid={`target-item-${t.id}`}
-                >
-                   <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden">
-                     <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
-                   </div>
-                   <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
-                      {t.name}
-                   </h4>
-                </div>
-             ))}
-          </div>
-       </div>
+    <div className="flex h-full -m-8 animate-fade-in-up gap-0">
+      {/* LEFT: Monitored Products */}
+      <div className="w-48 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+        <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
+          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
+          <button onClick={() => setShowAddModal(true)} className="text-slate-500 hover:text-brand-400 transition-colors" data-testid="button-add-target">
+            <Plus size={14} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+          {targets.map(t => (
+            <div 
+              key={t.id} 
+              onClick={() => setSelectedTargetId(t.id)}
+              className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
+              data-testid={`target-item-${t.id}`}
+            >
+              <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden">
+                <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
+              </div>
+              <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+                {t.name}
+              </h4>
+            </div>
+          ))}
+        </div>
+      </div>
 
-       <div className="flex-1 bg-[#0b0c0f] overflow-y-auto custom-scrollbar p-8">
-          {selectedTarget ? (
-              <div>
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
-                       <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold text-white tracking-tight leading-tight">{selectedTarget.name}</h1>
-                        <a href={selectedTarget.url} target="_blank" className="text-xs text-slate-500 hover:text-brand-400 flex items-center gap-1.5 font-mono">
-                            {selectedTarget.url} <ExternalLink size={8} />
-                        </a>
-                    </div>
+      {/* MIDDLE: Target Details */}
+      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-y-auto custom-scrollbar p-6 flex flex-col">
+        {selectedTarget ? (
+          <div className="space-y-6">
+            {/* Header with logo and info */}
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
+                  <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
                 </div>
-
-                <div className="flex gap-4 mb-6">
-                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
-                     <div className="p-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                        <ShieldAlert size={16} />
-                     </div>
-                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Trackers</p>
-                        <p className="text-lg font-bold text-white">4<span className="text-xs text-slate-600 font-medium ml-1">/6</span></p>
-                     </div>
-                  </div>
-                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
-                     <div className="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
-                        <Zap size={16} />
-                     </div>
-                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">High Priority Alerts</p>
-                        <p className="text-lg font-bold text-white">2</p>
-                     </div>
-                  </div>
-                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
-                     <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        <TrendingUpIcon size={16} />
-                     </div>
-                     <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Signals Found (7d)</p>
-                        <p className="text-lg font-bold text-brand-400">12</p>
-                     </div>
-                  </div>
-                </div>
-
-                <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 text-center text-slate-500">
-                  <Bot size={48} className="mx-auto mb-4 text-slate-700" />
-                  <p>Intelligence trackers and signals will appear here.</p>
+                <div>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">{selectedTarget.name}</h1>
+                  <a href={selectedTarget.url} target="_blank" className="text-xs text-slate-500 hover:text-brand-400 flex items-center gap-1.5 font-mono mt-1">
+                    {selectedTarget.url} <ExternalLink size={10} />
+                  </a>
                 </div>
               </div>
-          ) : (
-             <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
-          )}
-       </div>
+              <div className="flex gap-2">
+                <button className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors" data-testid="button-edit-config">
+                  Edit Configuration
+                </button>
+                <button className="px-4 py-2 text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors" data-testid="button-generate-report">
+                  Generate Report
+                </button>
+              </div>
+            </div>
+
+            {/* Metrics Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Health Score</p>
+                <p className="text-2xl font-bold text-white">100</p>
+              </div>
+              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Active Trackers</p>
+                <p className="text-2xl font-bold text-white">7<span className="text-sm text-slate-600 font-medium ml-1">/10</span></p>
+              </div>
+              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">New Signals (70)</p>
+                <p className="text-2xl font-bold text-white">6</p>
+              </div>
+              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Last Scan</p>
+                <p className="text-lg font-bold text-white">Just now</p>
+              </div>
+            </div>
+
+            {/* Active Intelligence Trackers */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white">Active Intelligence Trackers</h2>
+                <span className="text-xs text-slate-500">Auto-refresh active</span>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Globe size={18} className="text-slate-500" />
+                    <div>
+                      <p className="font-medium text-white">Website Change Detection</p>
+                      <p className="text-xs text-slate-500">Monitoring homepage, pricing page, and feature announcements.</p>
+                    </div>
+                  </div>
+                  <div className="w-10 h-6 bg-brand-500/30 rounded-full border border-brand-500/50 flex items-center justify-end px-1">
+                    <div className="w-4 h-4 bg-brand-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Signals */}
+            <div>
+              <h3 className="text-sm font-bold text-brand-400 uppercase tracking-wider mb-3">Signals (2 Found)</h3>
+              <div className="space-y-2">
+                <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-medium text-white">Pricing Page: New "Enterprise" Tier</p>
+                    <span className="px-2 py-0.5 text-xs font-bold bg-red-900/30 text-red-400 rounded border border-red-500/20">HIGH</span>
+                  </div>
+                  <p className="text-xs text-slate-400">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
+                  <p className="text-xs text-slate-600 mt-2">2 days ago</p>
+                </div>
+                <div className="bg-slate-900/40 border border-slate-800 rounded-lg p-3">
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-medium text-white">Homepage: New Hero Headline</p>
+                    <span className="px-2 py-0.5 text-xs font-bold bg-blue-900/30 text-blue-400 rounded border border-blue-500/20">LOW</span>
+                  </div>
+                  <p className="text-xs text-slate-400">Changed from "Design for everyone" to "Design for teams that scale".</p>
+                  <p className="text-xs text-slate-600 mt-2">1 week ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
+        )}
+      </div>
+
+      {/* RIGHT: Keywords Trackers (Optional panel) */}
+      <div className="w-48 border-l border-slate-800 bg-[#020617] flex flex-col shrink-0 p-4 overflow-y-auto custom-scrollbar">
+        <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider mb-4">Keywords Trackers</h3>
+        <div className="space-y-2">
+          {['Pricing', 'Features', 'Integrations', 'Enterprise', 'Security'].map(keyword => (
+            <div key={keyword} className="flex items-center justify-between p-2 bg-slate-900/40 border border-slate-800 rounded-lg text-xs">
+              <span className="text-slate-300">{keyword}</span>
+              <div className="w-2 h-2 rounded-full bg-brand-500"></div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
