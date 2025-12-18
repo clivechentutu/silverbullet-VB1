@@ -659,6 +659,34 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
+            {/* AI Summary Section */}
+            <div className="bg-gradient-to-br from-brand-500/10 to-blue-500/5 border border-brand-500/30 rounded-lg p-5 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-brand-500/20 rounded-lg shrink-0">
+                  <BrainCircuit size={16} className="text-brand-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white text-sm mb-1">AI Intelligence Summary</h3>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Detected <span className="text-brand-400 font-semibold">6 critical signals</span> across competitor products in the last 24 hours. Most significant: new enterprise pricing tier launch and major press coverage. Recommended immediate action: analyze pricing impact and feature comparisons.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 flex-wrap pt-2">
+                <span className="px-2.5 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-xs font-medium">1 High Priority</span>
+                <span className="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded text-xs font-medium">3 Medium</span>
+                <span className="px-2.5 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded text-xs font-medium">2 Low</span>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button className="flex-1 text-xs px-3 py-1.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-1">
+                  <Sparkles size={12} /> Generate Deep Analysis
+                </button>
+                <button className="text-xs px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium transition-colors">
+                  View Full Report
+                </button>
+              </div>
+            </div>
+
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
