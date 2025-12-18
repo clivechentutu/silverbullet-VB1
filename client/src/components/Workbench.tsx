@@ -1317,62 +1317,62 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {filteredReports.map(report => (
-                    <div key={report.id} className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-5 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col aspect-[3/4] overflow-hidden shadow-2xl" data-testid={`report-card-${report.id}`}>
-                        <FileText className="absolute -right-6 -bottom-6 text-slate-800/10 group-hover:text-brand-500/5 w-32 h-32 transition-colors pointer-events-none" />
+                    <div key={report.id} className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-3 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col aspect-square overflow-hidden shadow-2xl" data-testid={`report-card-${report.id}`}>
+                        <FileText className="absolute -right-4 -bottom-4 text-slate-800/10 group-hover:text-brand-500/5 w-24 h-24 transition-colors pointer-events-none" />
 
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-tight group-hover:border-brand-500/30 group-hover:text-brand-400 transition-colors">
+                        <div className="flex justify-between items-start mb-2 relative z-10">
+                            <span className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-[8px] font-bold text-slate-400 uppercase tracking-tight group-hover:border-brand-500/30 group-hover:text-brand-400 transition-colors">
                                 {report.product}
                             </span>
                             
                             <button 
                                 onClick={(e) => { e.stopPropagation(); toggleFavorite(report.id); }}
-                                className={`p-1 rounded transition-colors hover:bg-slate-800 ${report.isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
+                                className={`p-0.5 rounded transition-colors hover:bg-slate-800 ${report.isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
                             >
-                                <Star size={14} className={report.isFavorite ? 'fill-yellow-400' : ''} />
+                                <Star size={12} className={report.isFavorite ? 'fill-yellow-400' : ''} />
                             </button>
                         </div>
 
                         <div className="flex-1 relative z-10 flex flex-col">
-                            <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-brand-400 group-hover:border-brand-900/50 transition-colors w-fit mb-4">
-                                <FileText size={20} />
+                            <div className="p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-brand-400 group-hover:border-brand-900/50 transition-colors w-fit mb-2">
+                                <FileText size={14} />
                             </div>
                             
-                            <h3 className="text-sm font-bold text-white group-hover:text-brand-100 transition-colors line-clamp-3 leading-tight mb-3">
+                            <h3 className="text-xs font-bold text-white group-hover:text-brand-100 transition-colors line-clamp-2 leading-tight mb-1.5">
                                 {report.title}
                             </h3>
                             
-                            <p className="text-[11px] text-slate-500 line-clamp-6 group-hover:text-slate-400 transition-colors leading-relaxed">
+                            <p className="text-[9px] text-slate-500 line-clamp-3 group-hover:text-slate-400 transition-colors leading-relaxed">
                                 {report.summary}
                             </p>
 
-                            <div className="mt-auto pt-4 flex items-center justify-between">
-                                <span className="text-[9px] text-slate-600 font-mono font-medium">{report.date}</span>
-                                <div className="flex items-center gap-1">
+                            <div className="mt-auto pt-2 flex items-center justify-between gap-1">
+                                <span className="text-[8px] text-slate-600 font-mono font-medium truncate">{report.date}</span>
+                                <div className="flex items-center gap-0.5">
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/csv`, '_blank'); }}
-                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-green-400 hover:border-green-900/50"
+                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-green-400 hover:border-green-900/50"
                                         title="Export CSV"
                                         data-testid={`button-export-csv-${report.id}`}
                                     >
-                                        <Download size={12} />
+                                        <Download size={10} />
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/text`, '_blank'); }}
-                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-blue-400 hover:border-blue-900/50"
+                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-blue-400 hover:border-blue-900/50"
                                         title="Export Text"
                                         data-testid={`button-export-text-${report.id}`}
                                     >
-                                        <FileText size={12} />
+                                        <FileText size={10} />
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
-                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
+                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
                                         title="Research"
                                     >
-                                        <MessageSquareText size={14} className="group-hover/jump:scale-110 transition-transform" />
+                                        <MessageSquareText size={12} className="group-hover/jump:scale-110 transition-transform" />
                                     </button>
                                 </div>
                             </div>
