@@ -777,32 +777,32 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {/* Website Tracker Card */}
                 <div className="bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/40 rounded-lg overflow-hidden hover:border-cyan-500/60 transition-all">
                   {/* Card Header - Tracker Type */}
-                  <div className="px-5 py-4 border-b border-cyan-500/20 bg-cyan-500/5 flex items-center gap-3">
-                    <Globe size={18} className="text-cyan-400" />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-white text-sm">Website Tracker</h4>
-                      <p className="text-xs text-slate-400">On-page copy, pricing, features, SEO and more.</p>
+                  <div className="px-4 py-3 border-b border-cyan-500/20 bg-cyan-500/5 flex items-center gap-2.5">
+                    <Globe size={16} className="text-cyan-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">Website Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">On-page copy, pricing, features, SEO and more.</p>
                     </div>
-                    <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
                   </div>
                   
                   {/* Card Content - Signals */}
-                  <div className="px-5 py-4 space-y-3">
-                    <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-3 hover:bg-slate-900/70 transition-all cursor-pointer group">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <p className="font-semibold text-white group-hover:text-cyan-300 transition-colors">Pricing Page: New "Enterprise" Tier</p>
-                          <p className="text-xs text-slate-500 mt-1">High search volume and low difficulty for "wizard ai"</p>
+                  <div className="px-4 py-2.5 space-y-2">
+                    <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page: New "Enterprise" Tier</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">High search volume and low difficulty for "wizard ai"</p>
                         </div>
-                        <span className="px-2 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0 ml-2">HIGH</span>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
-                      <button className="mt-3 text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors">
-                        View Impact & Next Action <ChevronRight size={12} />
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
                       </button>
                     </div>
                   </div>
@@ -811,28 +811,28 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 {/* Backlinks Tracker Card */}
                 <div className="bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/40 rounded-lg overflow-hidden hover:border-emerald-500/60 transition-all">
                   {/* Card Header - Tracker Type */}
-                  <div className="px-5 py-4 border-b border-emerald-500/20 bg-emerald-500/5 flex items-center gap-3">
-                    <LinkIcon size={18} className="text-emerald-400" />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-white text-sm">Backlinks Tracker</h4>
-                      <p className="text-xs text-slate-400">Domain ranking, backlinks and referring domains.</p>
+                  <div className="px-4 py-3 border-b border-emerald-500/20 bg-emerald-500/5 flex items-center gap-2.5">
+                    <LinkIcon size={16} className="text-emerald-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">Backlinks Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">Domain ranking, backlinks and referring domains.</p>
                     </div>
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
                   </div>
                   
                   {/* Card Content - Signals */}
-                  <div className="px-5 py-4 space-y-3">
-                    <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-3 hover:bg-slate-900/70 transition-all cursor-pointer group">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex-1">
-                          <p className="font-semibold text-white group-hover:text-emerald-300 transition-colors">Homepage: New Hero Headline</p>
-                          <p className="text-xs text-slate-500 mt-1">Changed from "Design for everyone" to "Design for teams that scale"</p>
+                  <div className="px-4 py-2.5 space-y-2">
+                    <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Homepage: New Hero Headline</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Changed from "Design for everyone" to "Design for teams that scale"</p>
                         </div>
-                        <span className="px-2 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0 ml-2">LOW</span>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
-                      <button className="mt-3 text-xs font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors">
-                        View Impact & Next Action <ChevronRight size={12} />
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
+                      <button className="mt-1.5 text-[10px] font-medium text-emerald-400 hover:text-emerald-300 flex items-center gap-0.5 transition-colors">
+                        View Impact & Next Action <ChevronRight size={10} />
                       </button>
                     </div>
                   </div>
