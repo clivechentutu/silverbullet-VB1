@@ -6,26 +6,13 @@ import { ScenarioSelector } from './ScenarioSelector';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 
-function DebugButton() {
-  const [, navigate] = useLocation();
-  
-  return (
-    <button
-      onClick={() => navigate('/debug')}
-      className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
-      data-testid="button-debug"
-    >
-      Debug: Preview Workbench
-    </button>
-  );
-}
-
 export const LandingPage = () => {
   const [url, setUrl] = useState('');
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [, navigate] = useLocation();
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
@@ -125,7 +112,13 @@ export const LandingPage = () => {
               </div>
             </div>
             <div className="mt-4 flex justify-center gap-2">
-              <DebugButton />
+              <button
+                onClick={() => navigate('/debug')}
+                className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
+                data-testid="button-debug"
+              >
+                Debug: Preview Workbench
+              </button>
             </div>
             {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
               <div className="absolute top-full left-0 mt-2 text-red-400 text-sm flex items-center gap-1 animate-fade-in-up" data-testid="text-error">
