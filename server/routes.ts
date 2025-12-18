@@ -386,27 +386,27 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
         storage.createTarget({
           name: "Figma",
           url: "https://figma.com",
-          addedAt: new Date()
+          icon: "F"
         }),
         storage.createTarget({
           name: "Sketch",
           url: "https://sketch.com",
-          addedAt: new Date()
+          icon: "S"
         }),
         storage.createTarget({
           name: "Adobe XD",
           url: "https://adobe.com/products/xd",
-          addedAt: new Date()
+          icon: "A"
         }),
         storage.createTarget({
           name: "Framer",
           url: "https://framer.com",
-          addedAt: new Date()
+          icon: "F"
         }),
         storage.createTarget({
           name: "Miro",
           url: "https://miro.com",
-          addedAt: new Date()
+          icon: "M"
         })
       ]);
 
