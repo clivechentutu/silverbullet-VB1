@@ -46,6 +46,9 @@ function AuthenticatedRouter() {
       <Route path="/workbench">
         <ProtectedRoute component={Workbench} />
       </Route>
+      <Route path="/debug">
+        <Workbench />
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
