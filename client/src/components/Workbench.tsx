@@ -774,76 +774,96 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </h2>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {[
-                  { icon: Globe, title: 'Website Tracker', desc: 'On-page copy, pricing, features, SEO and more.', active: true },
-                  { icon: LinkIcon, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true },
-                  { icon: Search, title: 'News Tracker', desc: 'News sources and coverage of current events.', active: false },
-                  { icon: Chrome, title: 'Google Ads Tracker', desc: 'New and existing Google Ads creatives.', active: false }
+                  { icon: Globe, title: 'Website Tracker', desc: 'On-page copy, pricing, features, SEO and more.', active: true, color: 'from-cyan-500/10 border-cyan-500/30' },
+                  { icon: LinkIcon, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true, color: 'from-emerald-500/10 border-emerald-500/30' },
+                  { icon: Search, title: 'News Tracker', desc: 'News sources and coverage of current events.', active: false, color: 'from-slate-500/10 border-slate-700' },
+                  { icon: Chrome, title: 'Google Ads Tracker', desc: 'New and existing Google Ads creatives.', active: false, color: 'from-slate-500/10 border-slate-700' }
                 ].map((tracker, i) => {
                   const Icon = tracker.icon;
                   return (
-                    <div key={i} className="bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-lg p-3 transition-all">
-                      <div className="flex items-start justify-between mb-2">
-                        <Icon size={16} className="text-slate-500" />
-                        <div className="w-8 h-4 bg-slate-800 rounded-full border border-slate-700 flex items-center px-0.5">
-                          <div className={`w-3 h-3 rounded-full transition-all ${tracker.active ? 'bg-brand-500 ml-auto' : 'bg-slate-600'}`}></div>
+                    <div key={i} className={`bg-gradient-to-br ${tracker.color} border rounded-lg p-4 transition-all hover:shadow-lg`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center">
+                          <Icon size={16} className={tracker.active ? 'text-brand-500' : 'text-slate-500'} />
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <div className={`w-2 h-2 rounded-full ${tracker.active ? 'bg-brand-500 animate-pulse' : 'bg-slate-600'}`}></div>
                         </div>
                       </div>
-                      <p className="font-medium text-white text-sm mb-1">{tracker.title}</p>
-                      <p className="text-xs text-slate-500 line-clamp-2">{tracker.desc}</p>
+                      <p className="font-semibold text-white text-sm mb-1">{tracker.title}</p>
+                      <p className="text-xs text-slate-400 leading-tight">{tracker.desc}</p>
+                      <div className="mt-3 pt-3 border-t border-slate-800/30">
+                        <p className={`text-[10px] font-medium uppercase tracking-wider ${tracker.active ? 'text-brand-400' : 'text-slate-600'}`}>
+                          {tracker.active ? '● Active' : '○ Inactive'}
+                        </p>
+                      </div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-3 p-3 bg-slate-900/20 border border-slate-800/50 rounded-lg">
-                <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
+              <div className="mt-4 p-3 bg-brand-500/5 border border-brand-500/20 rounded-lg">
+                <p className="text-xs text-slate-300 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse"></span>
                   Well notify you when we find new signals.
                 </p>
               </div>
             </div>
 
-            {/* Signals */}
+            {/* Signals - By Category */}
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <BarChart3 size={16} className="text-brand-500" /> Signals (2 Found)
+                  <AlertZap size={16} className="text-brand-500" /> Signals (2 Found)
                 </h3>
                 <button className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors">
                   View Full Feed
                 </button>
               </div>
-              <div className="space-y-3">
-                <div className="bg-gradient-to-r from-red-500/5 to-transparent border border-slate-800 hover:border-red-500/50 rounded-lg p-4 transition-all group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-bold text-white text-base group-hover:text-red-300 transition-colors">Pricing Page: New "Enterprise" Tier</p>
-                      <p className="text-sm text-slate-400 mt-1">High search volume and low difficulty for "wizard ai"</p>
+
+              {/* HIGH Priority Signals */}
+              <div className="mb-6">
+                <h4 className="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span> High Priority
+                </h4>
+                <div className="space-y-2">
+                  <div className="bg-gradient-to-r from-red-500/10 to-transparent border border-red-500/30 hover:border-red-500/60 rounded-lg p-4 transition-all group cursor-pointer">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-bold text-white text-base group-hover:text-red-300 transition-colors">Pricing Page: New "Enterprise" Tier</p>
+                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                          <span>Pricing Page Changes</span> • <span>2 days ago</span>
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
                     </div>
-                    <span className="px-2.5 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0 ml-3">HIGH</span>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-3">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-800/50">
-                    <span className="text-xs text-slate-600">2 days ago</span>
-                    <button className="text-xs font-medium text-slate-400 hover:text-brand-400 flex items-center gap-1 transition-colors">
+                    <p className="text-sm text-slate-400 leading-relaxed">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
+                    <button className="mt-3 text-xs font-medium text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
                       View Impact & Next Action <ChevronRight size={12} />
                     </button>
                   </div>
                 </div>
+              </div>
 
-                <div className="bg-gradient-to-r from-blue-500/5 to-transparent border border-slate-800 hover:border-blue-500/50 rounded-lg p-4 transition-all group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-bold text-white text-base group-hover:text-blue-300 transition-colors">Homepage: New Hero Headline</p>
-                      <p className="text-sm text-slate-400 mt-1">Changed from "Design for everyone" to "Design for teams"</p>
+              {/* LOW Priority Signals */}
+              <div>
+                <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span> Low Priority
+                </h4>
+                <div className="space-y-2">
+                  <div className="bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/30 hover:border-blue-500/60 rounded-lg p-4 transition-all group cursor-pointer">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <p className="font-bold text-white text-base group-hover:text-blue-300 transition-colors">Homepage: New Hero Headline</p>
+                        <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                          <span>Homepage Copy</span> • <span>1 week ago</span>
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
                     </div>
-                    <span className="px-2.5 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0 ml-3">LOW</span>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-3">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-800/50">
-                    <span className="text-xs text-slate-600">1 week ago</span>
-                    <button className="text-xs font-medium text-slate-400 hover:text-brand-400 flex items-center gap-1 transition-colors">
+                    <p className="text-sm text-slate-400 leading-relaxed">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
+                    <button className="mt-3 text-xs font-medium text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors">
                       View Impact & Next Action <ChevronRight size={12} />
                     </button>
                   </div>
