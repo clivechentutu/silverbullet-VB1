@@ -955,6 +955,166 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     </div>
                   </div>
                 </div>
+
+                {/* SEO Tracker Card */}
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'seo')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'seo')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/40 rounded-lg overflow-hidden hover:border-blue-500/60 transition-all cursor-move ${draggedTracker === 'seo' ? 'opacity-50' : ''}`}>
+                  <div className="px-4 py-3 border-b border-blue-500/20 bg-blue-500/5 flex items-center gap-2.5">
+                    <Search size={16} className="text-blue-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">SEO Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">Rankings, keywords, and search visibility.</p>
+                    </div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
+                  </div>
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Keyword Ranking Change</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">"AI analytics" ranking dropped from #3 to #8. Competitor gained ground with new content.</p>
+                    </div>
+                    <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">New Meta Tags Added</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">8 hours ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Updated meta descriptions and schema markup on product pages for better SERP display.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media Tracker Card */}
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'social')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'social')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/40 rounded-lg overflow-hidden hover:border-purple-500/60 transition-all cursor-move ${draggedTracker === 'social' ? 'opacity-50' : ''}`}>
+                  <div className="px-4 py-3 border-b border-purple-500/20 bg-purple-500/5 flex items-center gap-2.5">
+                    <Megaphone size={16} className="text-purple-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">Social Media Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">Posts, engagement, and follower growth.</p>
+                    </div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
+                  </div>
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Launch Announcement</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Major product launch announced across LinkedIn, Twitter, and TikTok. 15K+ engagement.</p>
+                    </div>
+                    <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Follower Spike</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">LinkedIn followers increased by 8,200. Likely due to viral thought leadership post.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* News Mentions Tracker Card */}
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'news')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'news')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/40 rounded-lg overflow-hidden hover:border-rose-500/60 transition-all cursor-move ${draggedTracker === 'news' ? 'opacity-50' : ''}`}>
+                  <div className="px-4 py-3 border-b border-rose-500/20 bg-rose-500/5 flex items-center gap-2.5">
+                    <FileText size={16} className="text-rose-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">News Mentions Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">Press coverage and brand mentions.</p>
+                    </div>
+                    <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
+                  </div>
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">TechCrunch Feature</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">"How Company X is Disrupting the Enterprise AI Space" - Major coverage reach 2.3M readers.</p>
+                    </div>
+                    <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Industry Report Mention</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Featured in Gartner's "Magic Quadrant for AI Analytics" as a Leader for 2024.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google Ads Tracker Card */}
+                <div 
+                  draggable 
+                  onDragStart={(e) => handleDragStart(e, 'ads')}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, 'ads')}
+                  onDragEnd={handleDragEnd}
+                  className={`bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/40 rounded-lg overflow-hidden hover:border-orange-500/60 transition-all cursor-move ${draggedTracker === 'ads' ? 'opacity-50' : ''}`}>
+                  <div className="px-4 py-3 border-b border-orange-500/20 bg-orange-500/5 flex items-center gap-2.5">
+                    <DollarSign size={16} className="text-orange-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-xs">Google Ads Tracker</h4>
+                      <p className="text-[11px] text-slate-400 line-clamp-1">Ad spend, keywords, and campaign changes.</p>
+                    </div>
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse shrink-0"></div>
+                  </div>
+                  <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+                    <div className="bg-slate-900/50 border border-orange-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-orange-300 transition-colors line-clamp-1">New Campaign Launched</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">Enterprise segment campaign launched with $500K budget. Targeting "AI analytics" and related keywords.</p>
+                    </div>
+                    <div className="bg-slate-900/50 border border-orange-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-white text-xs group-hover:text-orange-300 transition-colors line-clamp-1">Bid Increase Detected</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 line-clamp-2">CPC increased 23% on main branded keywords. Likely responding to competitive pressure.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
