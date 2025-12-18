@@ -32,19 +32,37 @@ const TrafficChart = ({ data }: { data: number[] }) => {
 
 const URLPreview = ({ url }: { url: string }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLAnchorElement>(null);
 
   const getPreviewImageUrl = (domain: string) => {
-    return `https://api.microlink.io/?url=https://${domain}&screenshot=true&meta=false&force=true&viewport.width=1024&viewport.height=768`;
+    return `https://api.microlink.io/?url=https://${domain}&screenshot=true&meta=false&force=true&viewport.width=1400&viewport.height=900`;
+  };
+
+  const handleMouseEnter = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + 12,
+        left: Math.min(rect.left, window.innerWidth - 900)
+      });
+    }
+    setShowPreview(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowPreview(false);
   };
 
   return (
-    <div className="relative inline-block group">
+    <div className="inline-block">
       <a 
+        ref={triggerRef}
         href={`https://${url}`}
         target="_blank"
         rel="noopener noreferrer"
-        onMouseEnter={() => setShowPreview(true)}
-        onMouseLeave={() => setShowPreview(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hover:border-slate-600 transition-colors cursor-pointer"
         data-testid={`url-preview-${url}`}
       >
@@ -52,19 +70,27 @@ const URLPreview = ({ url }: { url: string }) => {
       </a>
       
       {showPreview && (
-        <div className="absolute left-0 top-full mt-2 z-50 pointer-events-auto">
-          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl" style={{ width: '600px', height: '400px' }}>
+        <div 
+          className="fixed z-50 pointer-events-none"
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto" style={{ width: '900px', height: '600px' }}>
             <div className="relative w-full h-full bg-slate-900">
               <img 
                 src={getPreviewImageUrl(url)}
                 alt={`Preview of ${url}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%231e293b' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='18' font-family='monospace'%3ELoading preview...%3C/text%3E%3C/svg%3E`;
+                  (e.target as HTMLImageElement).src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Crect fill='%231e293b' width='900' height='600'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='20' font-family='monospace'%3ELoading preview...%3C/text%3E%3C/svg%3E`;
                 }}
               />
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/50 to-transparent p-3">
-                <p className="text-xs text-white font-mono">{url}</p>
+              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-4">
+                <p className="text-sm text-white font-mono font-bold">{url}</p>
               </div>
             </div>
           </div>
