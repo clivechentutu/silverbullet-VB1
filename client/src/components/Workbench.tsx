@@ -777,7 +777,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { icon: Globe, title: 'Website Tracker', desc: 'On-page copy, pricing, features, SEO and more.', active: true },
-                  { icon: Link as any, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true },
+                  { icon: LinkIcon, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true },
                   { icon: Search, title: 'News Tracker', desc: 'News sources and coverage of current events.', active: false },
                   { icon: Chrome, title: 'Google Ads Tracker', desc: 'New and existing Google Ads creatives.', active: false }
                 ].map((tracker, i) => {
@@ -866,7 +866,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           {[
             { title: 'Keywords Tracker', desc: 'Monitor new keyword opportunities', items: ['Pricing', 'Features', 'Integrations', 'Enterprise', 'Security'], icon: Search },
             { title: 'Website Tracker', desc: 'Monitor on-page copy and pricing', items: ['Homepage', 'Pricing', 'Features', 'Security'], icon: Globe },
-            { title: 'Backlinks Tracker', desc: 'Monitor domain ranking', items: ['Domain', 'Authority', 'Competitors'], icon: Link as any },
+            { title: 'Backlinks Tracker', desc: 'Monitor domain ranking', items: ['Domain', 'Authority', 'Competitors'], icon: LinkIcon },
             { title: 'News Tracker', desc: 'Monitor news sources', items: ['Press', 'Articles', 'Coverage'], icon: Search }
           ].map((dimension, idx) => {
             const DimIcon = dimension.icon;
