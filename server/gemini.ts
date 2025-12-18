@@ -131,3 +131,61 @@ Provide realistic, actionable intelligence based on publicly available informati
     };
   }
 }
+
+export async function chatWithGemini(message: string, history: { role: string; content: string }[]): Promise<string> {
+  const systemPrompt = `You are CompetiScope's Deep Research Agent - an expert competitive intelligence analyst. 
+You help users understand competitors, analyze market dynamics, and generate actionable insights.
+Your responses should be:
+- Concise but comprehensive
+- Data-driven when possible
+- Actionable and strategic
+- Professional in tone
+
+When asked about specific companies, provide realistic competitive intelligence based on public information.
+If you don't have specific data, clearly state assumptions and provide framework-based analysis.`;
+
+  const conversationHistory = history.map(msg => 
+    `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+  ).join('\n\n');
+
+  const fullPrompt = `${systemPrompt}
+
+Previous conversation:
+${conversationHistory}
+
+User: ${message}
+
+Provide a helpful, strategic response:`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-05-20",
+      contents: fullPrompt,
+    });
+
+    return response.text || "I apologize, but I couldn't generate a response. Please try again.";
+  } catch (error: any) {
+    console.error('Gemini chat error:', error);
+    
+    // Fallback response for common queries
+    if (message.toLowerCase().includes('competitor') || message.toLowerCase().includes('analysis')) {
+      return `Based on your query about competitive analysis, here are some key strategic considerations:
+
+**Market Positioning Analysis:**
+When analyzing competitors, focus on these dimensions:
+1. **Value Proposition** - What unique benefits do they offer?
+2. **Target Audience** - Who are their ideal customers?
+3. **Pricing Strategy** - How do they position against alternatives?
+4. **Technology Stack** - What enables their product capabilities?
+
+**Recommended Next Steps:**
+- Use our Radar view to discover competitors in your market
+- Set up tracking for key competitor websites
+- Generate battle cards for your sales team
+
+Would you like me to dive deeper into any specific aspect of competitive analysis?`;
+    }
+    
+    return "I'm currently experiencing connection issues with my analysis engine. Please try again in a moment, or use the Radar feature to discover competitors automatically.";
+  }
+}

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { WorkbenchView, TargetCompany } from '@shared/schema';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
+import { WorkbenchView, TargetCompany, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
 import { 
   Radar, Crosshair, Bot, Book, Library, Link as LinkIcon, Hexagon, Settings, User, 
   Plus, TrendingUp, Activity, ExternalLink, Zap, Search, ToggleRight, 
@@ -670,7 +672,7 @@ interface ResearchSession {
 }
 
 const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -681,32 +683,44 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
     }
   }, [initialPrompt]);
 
-  const [history, setHistory] = useState<ResearchSession[]>([
-    {
-      id: 'session-1',
-      title: 'Figma Pricing Analysis',
-      agent: 'Pricing Analyst',
-      date: '2:30 PM',
-      group: 'Today',
-      status: 'completed',
-      messages: [],
-    },
-    {
-      id: 'session-2',
-      title: 'Arc Browser Growth',
-      agent: 'Market Scout',
-      date: 'Yesterday',
-      group: 'Yesterday',
-      status: 'completed',
-      messages: [],
-    }
-  ]);
+  const { data: sessionsData = [] } = useQuery<DBResearchSession[]>({
+    queryKey: ['/api/sessions'],
+  });
+
+  const history: ResearchSession[] = sessionsData.map((s) => {
+    const createdAt = new Date(s.createdAt);
+    const today = new Date();
+    const isToday = createdAt.toDateString() === today.toDateString();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const isYesterday = createdAt.toDateString() === yesterday.toDateString();
+    
+    return {
+      id: String(s.id),
+      title: s.title,
+      agent: s.agent,
+      date: createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      group: isToday ? 'Today' : isYesterday ? 'Yesterday' : 'Previous',
+      status: s.status as 'active' | 'completed',
+      messages: (s.messages || []) as ChatMessage[],
+    };
+  });
 
   const [activeSession, setActiveSession] = useState<ResearchSession | null>(null);
 
+  const chatMutation = useMutation({
+    mutationFn: async ({ sessionId, message }: { sessionId?: number; message: string }) => {
+      const res = await apiRequest('POST', '/api/chat', { sessionId, message });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+    }
+  });
+
   const startNewSession = () => {
     const newSession: ResearchSession = {
-      id: `session-${Date.now()}`,
+      id: `temp-${Date.now()}`,
       title: 'New Investigation',
       agent: 'Deep Research Agent',
       date: 'Just now',
@@ -715,12 +729,11 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       messages: [],
     };
     setActiveSession(newSession);
-    setCurrentSessionId(newSession.id);
-    setHistory(prev => [newSession, ...prev]);
+    setCurrentSessionId(null);
   };
 
-  const handleSendMessage = () => {
-    if (!input.trim() || !activeSession) return;
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
     
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
@@ -729,86 +742,83 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     
-    const updatedSession = { 
-       ...activeSession, 
-       title: activeSession.messages.length === 0 ? input : activeSession.title,
-       messages: [...activeSession.messages, userMsg] 
-    };
+    const messageToSend = input;
+    const updatedSession: ResearchSession = activeSession 
+      ? { 
+          ...activeSession, 
+          title: activeSession.messages.length === 0 ? input.substring(0, 50) : activeSession.title,
+          messages: [...activeSession.messages, userMsg] 
+        }
+      : {
+          id: `temp-${Date.now()}`,
+          title: input.substring(0, 50),
+          agent: 'Deep Research Agent',
+          date: 'Just now',
+          group: 'Today',
+          status: 'active',
+          messages: [userMsg],
+        };
+    
     setActiveSession(updatedSession);
     setInput('');
     setIsTyping(true);
 
-    setTimeout(() => {
-        const agentThinkingMsg: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            role: 'agent',
-            content: '',
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isThinking: true,
-            reasoning: [
-                { id: 'r1', desc: 'Analyzing query context...', status: 'active' },
-                { id: 'r2', desc: 'Searching internal knowledge base...', status: 'pending' },
-                { id: 'r3', desc: 'Synthesizing competitive data...', status: 'pending' }
-            ]
+    const thinkingMsg: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'agent',
+        content: '',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isThinking: true,
+        reasoning: [
+            { id: 'r1', desc: 'Analyzing query context...', status: 'active' },
+            { id: 'r2', desc: 'Searching internal knowledge base...', status: 'pending' },
+            { id: 'r3', desc: 'Synthesizing competitive data...', status: 'pending' }
+        ]
+    };
+    
+    setActiveSession(prev => prev ? ({...prev, messages: [...prev.messages, thinkingMsg]}) : null);
+
+    try {
+      const result = await chatMutation.mutateAsync({
+        sessionId: currentSessionId ?? undefined,
+        message: messageToSend
+      });
+
+      if (result.sessionId && !currentSessionId) {
+        setCurrentSessionId(result.sessionId);
+      }
+
+      setActiveSession(prev => {
+        if (!prev) return null;
+        const msgs = prev.messages.slice(0, -1);
+        const agentMsg: ChatMessage = {
+          id: result.message.id,
+          role: 'agent',
+          content: result.message.content,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          reasoning: [
+            { id: 'r1', desc: 'Analyzing query context...', status: 'done' },
+            { id: 'r2', desc: 'Searching internal knowledge base...', status: 'done' },
+            { id: 'r3', desc: 'Synthesizing competitive data...', status: 'done' }
+          ]
         };
-        setActiveSession(prev => prev ? ({...prev, messages: [...prev.messages, agentThinkingMsg]}) : null);
-
-        setTimeout(() => {
-            setActiveSession(prev => {
-                if(!prev) return null;
-                const msgs = [...prev.messages];
-                const lastMsg = msgs[msgs.length - 1];
-                if(lastMsg.reasoning) {
-                    lastMsg.reasoning[0].status = 'done';
-                    lastMsg.reasoning[1].status = 'active';
-                }
-                return {...prev, messages: msgs};
-            });
-        }, 1500);
-
-         setTimeout(() => {
-            setActiveSession(prev => {
-                if(!prev) return null;
-                const msgs = [...prev.messages];
-                const lastMsg = msgs[msgs.length - 1];
-                if(lastMsg.reasoning) {
-                    lastMsg.reasoning[1].status = 'done';
-                    lastMsg.reasoning[2].status = 'active';
-                }
-                return {...prev, messages: msgs};
-            });
-        }, 3000);
-
-        setTimeout(() => {
-            setActiveSession(prev => {
-                if(!prev) return null;
-                const msgs = [...prev.messages];
-                const lastMsg = msgs[msgs.length - 1];
-                lastMsg.isThinking = false;
-                if(lastMsg.reasoning) lastMsg.reasoning.forEach(r => r.status = 'done');
-                
-                const reportContent = `Based on the latest data, I've identified a significant shift in their enterprise strategy.
-                
-### Executive Summary
-The competitor has aggressively moved upmarket, targeting enterprise customers with new compliance features and dedicated support tiers.
-
-### Key Findings
-*   **Pricing Changes**: Enterprise tier now requires annual commitment starting at $50k/yr.
-*   **Feature Rollout**: Launched "Advanced Security" module last week.
-*   **Market Sentiment**: Positive reception from IT admins, but mixed reviews from SMBs due to price hikes.
-
-### Next Steps
-1.  **Counter-Positioning**: Highlight our flexible month-to-month plans for SMBs.
-2.  **Feature Audit**: Compare our security features against their new module.
-`;
-                lastMsg.content = reportContent;
-                
-                return {...prev, messages: msgs};
-            });
-            setIsTyping(false);
-        }, 4500);
-
-    }, 600);
+        return { ...prev, messages: [...msgs, agentMsg] };
+      });
+    } catch (error) {
+      setActiveSession(prev => {
+        if (!prev) return null;
+        const msgs = prev.messages.slice(0, -1);
+        const errorMsg: ChatMessage = {
+          id: Date.now().toString(),
+          role: 'agent',
+          content: 'I apologize, but I encountered an error processing your request. Please try again.',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        return { ...prev, messages: [...msgs, errorMsg] };
+      });
+    }
+    
+    setIsTyping(false);
   };
 
   useEffect(() => {
@@ -836,11 +846,11 @@ The competitor has aggressively moved upmarket, targeting enterprise customers w
                       {history.filter(h => h.group === group).map(session => (
                          <div 
                            key={session.id}
-                           onClick={() => { setActiveSession(session); setCurrentSessionId(session.id); }}
-                           className={`p-2.5 rounded-lg text-sm cursor-pointer transition-colors truncate flex items-center gap-3 group ${currentSessionId === session.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-300'}`}
+                           onClick={() => { setActiveSession(session); setCurrentSessionId(parseInt(session.id) || null); }}
+                           className={`p-2.5 rounded-lg text-sm cursor-pointer transition-colors truncate flex items-center gap-3 group ${String(currentSessionId) === session.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-300'}`}
                            data-testid={`session-${session.id}`}
                          >
-                            <MessageSquare size={14} className={currentSessionId === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            <MessageSquare size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
                             <span className="truncate">{session.title}</span>
                          </div>
                       ))}
@@ -1000,19 +1010,35 @@ The competitor has aggressively moved upmarket, targeting enterprise customers w
 };
 
 const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: string) => void }) => {
-    const [reports, setReports] = useState([
-        { id: 1, title: "Figma Pricing Strategy Analysis", product: "Figma", date: "Oct 24, 2024", summary: "Analysis of the new enterprise tier constraints and Dev Mode impact.", isFavorite: false },
-        { id: 2, title: "Arc Browser Growth Tactics", product: "Arc", date: "Oct 22, 2024", summary: "Breakdown of the 'Boosts' feature and its viral loop mechanisms.", isFavorite: false },
-        { id: 3, title: "Adobe XD Feature Gap Audit", product: "Adobe XD", date: "Oct 15, 2024", summary: "Detailed comparison of lack of variables and advanced prototyping vs Figma.", isFavorite: false },
-        { id: 4, title: "Miro Enterprise Security Review", product: "Miro", date: "Sep 28, 2024", summary: "Evaluation of SSO enforcement and data residency options.", isFavorite: false }
-    ]);
+    const { data: dbReports = [] } = useQuery<AnalysisReport[]>({
+      queryKey: ['/api/reports'],
+    });
+
+    const [localFavorites, setLocalFavorites] = useState<Set<number>>(new Set());
+    
+    const reports = dbReports.map(r => ({
+      id: r.id,
+      title: r.title,
+      product: new URL(r.url).hostname.replace('www.', ''),
+      date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      summary: r.summary.substring(0, 150) + (r.summary.length > 150 ? '...' : ''),
+      isFavorite: localFavorites.has(r.id)
+    }));
 
     const [filter, setFilter] = useState<'all' | 'favorites'>('all');
     const [sort, setSort] = useState<'latest' | 'oldest'>('latest');
     const [searchQuery, setSearchQuery] = useState('');
 
     const toggleFavorite = (id: number) => {
-        setReports(prev => prev.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r));
+        setLocalFavorites(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
     };
 
     const filteredReports = reports
@@ -1113,12 +1139,31 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
 
                             <div className="mt-auto pt-4 flex items-center justify-between">
                                 <span className="text-[9px] text-slate-600 font-mono font-medium">{report.date}</span>
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
-                                    className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
-                                >
-                                    <MessageSquareText size={14} className="group-hover/jump:scale-110 transition-transform" />
-                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/csv`, '_blank'); }}
+                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-green-400 hover:border-green-900/50"
+                                        title="Export CSV"
+                                        data-testid={`button-export-csv-${report.id}`}
+                                    >
+                                        <Download size={12} />
+                                    </button>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/text`, '_blank'); }}
+                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-blue-400 hover:border-blue-900/50"
+                                        title="Export Text"
+                                        data-testid={`button-export-text-${report.id}`}
+                                    >
+                                        <FileText size={12} />
+                                    </button>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
+                                        className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
+                                        title="Research"
+                                    >
+                                        <MessageSquareText size={14} className="group-hover/jump:scale-110 transition-transform" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -1265,21 +1310,25 @@ const LinkWorkspaceView = () => (
   </div>
 );
 
-const INITIAL_TARGETS: TargetCompany[] = [
-    { id: 1, name: 'Figma', url: 'https://figma.com', icon: 'F' },
-    { id: 2, name: 'Sketch', url: 'https://sketch.com', icon: 'S' },
-    { id: 3, name: 'Adobe XD', url: 'https://adobe.com', icon: 'A' },
-    { id: 4, name: 'Framer', url: 'https://framer.com', icon: 'F' },
-    { id: 5, name: 'Miro', url: 'https://miro.com', icon: 'M' },
-];
-
 export const Workbench: React.FC = () => {
   const [activeView, setActiveView] = useState<WorkbenchView>(WorkbenchView.RADAR);
   const [researchPrompt, setResearchPrompt] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const [targets, setTargets] = useState<TargetCompany[]>(INITIAL_TARGETS);
   const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
+
+  const { data: targets = [], isLoading: targetsLoading } = useQuery<Target[]>({
+    queryKey: ['/api/targets'],
+  });
+
+  const addTargetMutation = useMutation({
+    mutationFn: async (target: { name: string; url: string; icon: string }) => {
+      const res = await apiRequest('POST', '/api/targets', target);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+    },
+  });
 
   const NAV_ITEMS = [
     { id: WorkbenchView.RADAR, label: 'Radar', icon: Radar, description: 'Discover market trends and new competitors using AI scanning.' },
@@ -1290,19 +1339,21 @@ export const Workbench: React.FC = () => {
     { id: WorkbenchView.LINK_WORKSPACE, label: 'Link Workspace', icon: LinkIcon, description: 'Integrate with your CRM, Slack, and other tools to sync intelligence.' },
   ];
 
-  const handleTrackSignal = (signal: any) => {
-      let target = targets.find(t => t.name === signal.name);
+  const handleTrackSignal = async (signal: any) => {
+      const existingTarget = targets.find(t => t.name === signal.name);
       
-      if (!target) {
-          target = {
-              id: signal.id, 
+      if (!existingTarget) {
+          const result = await addTargetMutation.mutateAsync({
               name: signal.name,
               url: `https://${signal.website}`,
               icon: signal.name[0]
-          };
-          setTargets(prev => [...prev, target!]);
+          });
+          if (result && result.id) {
+            setSelectedTargetId(result.id);
+          }
+      } else {
+          setSelectedTargetId(existingTarget.id);
       }
-      setSelectedTargetId(target.id);
       setActiveView(WorkbenchView.TARGETS);
   };
 
@@ -1316,15 +1367,15 @@ export const Workbench: React.FC = () => {
       setActiveView(WorkbenchView.RESEARCH);
   };
 
-  const handleAddTarget = (name: string, url: string) => {
-      const newTarget: TargetCompany = {
-          id: Date.now(),
+  const handleAddTarget = async (name: string, url: string) => {
+      const result = await addTargetMutation.mutateAsync({
           name,
           url,
           icon: name[0]
-      };
-      setTargets(prev => [...prev, newTarget]);
-      setSelectedTargetId(newTarget.id);
+      });
+      if (result && result.id) {
+          setSelectedTargetId(result.id);
+      }
   };
 
   const renderContent = () => {
