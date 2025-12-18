@@ -1,0 +1,1428 @@
+import { useState, useRef, useEffect } from 'react';
+import { WorkbenchView, TargetCompany } from '@shared/schema';
+import { 
+  Radar, Crosshair, Bot, Book, Library, Link as LinkIcon, Hexagon, Settings, User, 
+  Plus, TrendingUp, Activity, ExternalLink, Zap, Search, ToggleRight, 
+  Key, Trash2, Download, CreditCard, Shield, Sparkles, ChevronLeft,
+  ShieldAlert, Check, Megaphone, Globe, DollarSign, Briefcase, X,
+  MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
+  FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
+  PieChart, BarChart3, Chrome, ChevronDown, ChevronRight
+} from 'lucide-react';
+
+const AlertZap = Zap;
+const TrendingUpIcon = TrendingUp;
+
+const TrafficChart = ({ data }: { data: number[] }) => {
+  const max = Math.max(...data);
+  return (
+    <div className="flex items-end h-8 gap-1">
+      {data.map((val, i) => (
+        <div 
+          key={i}
+          className="flex-1 bg-brand-500/50 rounded-sm"
+          style={{ height: `${(val / max) * 100}%` }}
+        />
+      ))}
+    </div>
+  );
+};
+
+interface SettingsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+  const [activeTab, setActiveTab] = useState('general');
+  
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Settings className="text-brand-500" size={20} /> Settings
+          </h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-white p-2 hover:bg-slate-800 rounded-lg transition-all" data-testid="button-close-settings">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="flex flex-1 overflow-hidden">
+          <nav className="w-48 shrink-0 border-r border-slate-800 bg-slate-950/50 p-3 space-y-1">
+            {['general', 'api', 'billing', 'security'].map(tab => (
+              <button 
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all capitalize ${activeTab === tab ? 'bg-slate-800 text-white font-medium' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
+              >
+                {tab === 'general' && <User size={14} />}
+                {tab === 'api' && <Key size={14} />}
+                {tab === 'billing' && <CreditCard size={14} />}
+                {tab === 'security' && <Shield size={14} />}
+                {tab}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            {activeTab === 'general' && (
+              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-white">User Profile</h4>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-xl font-bold">
+                      AI
+                    </div>
+                    <button className="px-3 py-1.5 text-sm bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-colors">
+                      Upload Photo
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Name</label>
+                    <input type="text" defaultValue="AI Strategist" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Company</label>
+                    <input type="text" defaultValue="Acme Corp" className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 transition-colors" />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
+                  <div className="relative">
+                    <input type="email" defaultValue="strategist@acme.com" disabled className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-400 focus:outline-none opacity-70 cursor-not-allowed" />
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-800">
+                  <h4 className="text-sm font-bold text-white">Notification Preferences</h4>
+                  <div className="space-y-3">
+                    {[
+                      { label: 'Weekly Intelligence Digest', desc: 'Summary of all tracked signals and market shifts.' },
+                      { label: 'Immediate Target Alerts', desc: 'Get notified instantly when a competitor changes pricing.' },
+                      { label: 'AI Agent Reports', desc: 'Notifications when deep research investigations are complete.' }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl">
+                        <div>
+                          <p className="text-sm font-medium text-slate-200">{item.label}</p>
+                          <p className="text-xs text-slate-500">{item.desc}</p>
+                        </div>
+                        <button className="text-brand-500 hover:text-brand-400 transition-colors">
+                          <ToggleRight size={32} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'api' && (
+              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+                <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-brand-500/20 rounded-lg text-brand-400">
+                      <Sparkles size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white mb-1">AI Intelligence Keys</h4>
+                      <p className="text-sm text-slate-400">CompetiScope uses Gemini 3 Flash for deep market analysis. Configure your keys to manage usage and specialized research agents.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase">Active Keys</h4>
+                    <button className="text-xs font-bold text-brand-500 hover:text-brand-400 uppercase tracking-widest flex items-center gap-1">
+                      <Plus size={12} /> Create Key
+                    </button>
+                  </div>
+                  
+                  <div className="bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800">
+                    <div className="p-4 flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <Key size={16} className="text-slate-600" />
+                        <div>
+                          <p className="text-sm font-medium text-white">Market-Scanner-Prod</p>
+                          <p className="text-[10px] text-slate-500 font-mono">Last used: 2 mins ago</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
+                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                    <div className="p-4 flex items-center justify-between group">
+                      <div className="flex items-center gap-3">
+                        <Key size={16} className="text-slate-600" />
+                        <div>
+                          <p className="text-sm font-medium text-white">Research-Agent-Beta</p>
+                          <p className="text-[10px] text-slate-500 font-mono">Never used</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
+                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'billing' && (
+              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300 text-center py-10">
+                <div className="w-16 h-16 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <CreditCard size={32} className="text-slate-600" />
+                </div>
+                <h4 className="text-xl font-bold text-white">Enterprise Plan</h4>
+                <p className="text-sm text-slate-400 max-w-sm mx-auto">You are currently on the Enterprise tier with unlimited tracking and research investigators.</p>
+                <div className="pt-4">
+                  <button className="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition-all">Manage Subscription</button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'security' && (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+                <Shield size={48} className="mb-4 text-slate-800" />
+                <p className="text-sm">Security logs and workspace permissions are restricted to administrators.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <footer className="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">Discard</button>
+          <button onClick={onClose} className="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg shadow-lg shadow-brand-900/20 transition-all">Save Changes</button>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+interface TrackingConfigurationModalProps {
+  signal: any;
+  onClose: () => void;
+  onStart: (selectedScenarios: string[]) => void;
+}
+
+const TrackingConfigurationModal: React.FC<TrackingConfigurationModalProps> = ({ signal, onClose, onStart }) => {
+  const [selected, setSelected] = useState<string[]>([]);
+  
+  const scenarios = [
+    { id: 'marketing', title: 'Marketing & SEO', channels: ['SimilarWeb', 'Semrush', 'Social Media'], icon: Megaphone },
+    { id: 'product', title: 'Product Updates', channels: ['Homepage Changes', 'Changelogs', 'Docs'], icon: Globe },
+    { id: 'pricing', title: 'Pricing Strategy', channels: ['Pricing Page', 'Checkout Flow'], icon: DollarSign },
+    { id: 'hiring', title: 'Talent & Hiring', channels: ['Careers Page', 'LinkedIn Jobs'], icon: Briefcase },
+  ];
+
+  const toggle = (id: string) => {
+    if (selected.includes(id)) setSelected(selected.filter(x => x !== id));
+    else setSelected([...selected, id]);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+           <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white rounded-lg p-1.5 flex items-center justify-center border border-slate-700 overflow-hidden">
+                 <img src={`https://www.google.com/s2/favicons?domain=${signal.website}&sz=128`} className="w-full h-full object-contain" alt={signal.name} />
+              </div>
+              <div>
+                 <h3 className="text-lg font-bold text-white">Track {signal.name}</h3>
+                 <p className="text-sm text-slate-400">{signal.website}</p>
+              </div>
+           </div>
+           <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+              <X size={20} />
+           </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+           <p className="text-sm text-slate-400 font-medium">Select intelligence scenarios to monitor:</p>
+           <div className="grid grid-cols-1 gap-3">
+              {scenarios.map(s => (
+                <div 
+                  key={s.id}
+                  onClick={() => toggle(s.id)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all flex items-start gap-3 group select-none
+                    ${selected.includes(s.id) 
+                      ? 'bg-brand-900/10 border-brand-500/50' 
+                      : 'bg-slate-950/30 border-slate-800 hover:border-slate-700 hover:bg-slate-900'}`}
+                >
+                   <div className={`mt-0.5 p-1 rounded border transition-colors ${selected.includes(s.id) ? 'bg-brand-500 border-brand-500' : 'border-slate-600 bg-transparent'}`}>
+                      <Check size={10} className={`text-white transition-opacity ${selected.includes(s.id) ? 'opacity-100' : 'opacity-0'}`} />
+                   </div>
+                   <div className="flex-1">
+                      <h4 className={`text-sm font-bold mb-0.5 ${selected.includes(s.id) ? 'text-white' : 'text-slate-300'}`}>{s.title}</h4>
+                      <div className="flex flex-wrap gap-2 mt-1.5">
+                         {s.channels.map(c => (
+                           <span key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-500 uppercase tracking-wide font-medium">
+                              {c}
+                           </span>
+                         ))}
+                      </div>
+                   </div>
+                   <s.icon size={18} className={`${selected.includes(s.id) ? 'text-brand-500' : 'text-slate-600'}`} />
+                </div>
+              ))}
+           </div>
+        </div>
+
+        <div className="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end gap-3">
+           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white transition-colors">
+              Cancel
+           </button>
+           <button 
+             onClick={() => onStart(selected)}
+             disabled={selected.length === 0}
+             className="px-6 py-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg text-sm font-bold shadow-lg transition-all flex items-center gap-2"
+           >
+              <Activity size={16} /> Start Tracking
+           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
+  const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
+
+  const scopes = [
+    {
+      id: 1,
+      name: "ChampSignal",
+      url: "champsignal.com",
+      status: "Scanning",
+      signals: [
+        { 
+          id: 101, 
+          name: "CompetiShark", 
+          website: "competishark.com",
+          desc: "Automated competitive analysis platform with similar UI patterns.", 
+          score: 92, 
+          trafficData: [15000, 22000, 45000],
+          date: "2h ago",
+          regDate: "2023-09-15"
+        },
+        { 
+          id: 102, 
+          name: "MarketMind", 
+          website: "marketmind.io",
+          desc: "AI-driven market intelligence specifically for enterprise sales teams.", 
+          score: 85, 
+          trafficData: [8000, 8500, 9200],
+          date: "5h ago",
+          regDate: "2023-10-02" 
+        },
+      ]
+    },
+    {
+      id: 2,
+      name: "OpusClip",
+      url: "opus.pro",
+      status: "Scanning",
+      signals: [
+        { 
+          id: 201, 
+          name: "Vizard.ai", 
+          website: "vizard.ai",
+          desc: "AI video editor optimized for social media clips and virality.", 
+          score: 98, 
+          trafficData: [450000, 680000, 1200000],
+          date: "1d ago",
+          regDate: "2023-05-20" 
+        },
+        { 
+          id: 202, 
+          name: "Munch", 
+          website: "getmunch.com",
+          desc: "Repurpose long-form video into shorts using generative AI.", 
+          score: 94, 
+          trafficData: [300000, 420000, 580000],
+          date: "1d ago",
+          regDate: "2023-06-11"
+        },
+      ]
+    }
+  ];
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  };
+
+  const handleStartTracking = (scenarios: string[]) => {
+    if (trackingSignal) {
+      onTrackSignal(trackingSignal);
+      setTrackingSignal(null);
+    }
+  };
+
+  return (
+    <div className="animate-fade-in-up">
+      {trackingSignal && (
+        <TrackingConfigurationModal 
+          signal={trackingSignal} 
+          onClose={() => setTrackingSignal(null)} 
+          onStart={handleStartTracking}
+        />
+      )}
+      <div className="space-y-10">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                 <Radar className="text-brand-500" /> Market Radar
+              </h2>
+              <p className="text-slate-400 mt-1">
+                Active surveillance across <span className="text-white font-medium">2 product scopes</span>.
+              </p>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 flex items-center gap-2" data-testid="button-filter-feed">
+                 Filter Feed
+              </button>
+              <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
+                 <Plus size={16} /> Add Product Scope
+              </button>
+            </div>
+         </div>
+
+         <div className="flex flex-col gap-10">
+            {scopes.map(scope => (
+              <div key={scope.id} className="space-y-6">
+                 <div className="flex justify-between items-center border-b border-slate-800/50 pb-4">
+                    <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
+                          {scope.name[0]}
+                       </div>
+                       <div>
+                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                             {scope.name}
+                             <a 
+                               href={`https://${scope.url}`}
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               onClick={(e) => e.stopPropagation()}
+                               className="text-[10px] font-mono font-normal text-slate-500 border border-slate-800 rounded px-2 py-0.5 bg-slate-950 hover:text-brand-400 hover:border-brand-500/50 hover:bg-slate-900 transition-all flex items-center gap-1 group/link"
+                             >
+                               {scope.url}
+                               <ExternalLink size={8} className="opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                             </a>
+                          </h3>
+                          <div className="flex items-center gap-2 mt-0.5">
+                             <span className="relative flex h-2 w-2">
+                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+                             </span>
+                             <span className="text-xs text-brand-400 font-medium">{scope.status}</span>
+                             <span className="text-xs text-slate-600">-</span>
+                             <span className="text-xs text-slate-500">{scope.signals.length} new signals found</span>
+                          </div>
+                       </div>
+                    </div>
+                    <button className="text-slate-500 hover:text-white p-2">
+                       <Settings size={16} />
+                    </button>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {scope.signals.map(signal => (
+                      <div key={signal.id} className="group bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-xl overflow-hidden flex flex-col transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]">
+                         <div className="p-5 flex-1 flex flex-col gap-4">
+                            <div className="flex justify-between items-start">
+                               <div className="w-12 h-12 rounded-lg bg-white p-1.5 flex items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
+                                  <img 
+                                      src={`https://www.google.com/s2/favicons?domain=${signal.website}&sz=128`} 
+                                      alt={signal.name} 
+                                      className="w-full h-full object-contain"
+                                  />
+                               </div>
+                               <div className="flex flex-col items-end">
+                                  <span className={`text-xl font-bold ${signal.score > 90 ? 'text-brand-400' : 'text-slate-200'}`}>
+                                     {signal.score}%
+                                  </span>
+                                  <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Similarity</span>
+                               </div>
+                            </div>
+
+                            <div>
+                               <h4 className="text-lg font-bold text-white mb-1 group-hover:text-brand-400 transition-colors truncate pr-2">
+                                 {signal.name}
+                               </h4>
+                               <div className="flex items-center gap-2 flex-wrap">
+                                  <a 
+                                    href={`https://${signal.website}`}
+                                    target="_blank"
+                                    className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hover:border-slate-600 transition-colors"
+                                  >
+                                    {signal.website} <ExternalLink size={10} />
+                                  </a>
+                                  {signal.score > 90 && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 flex items-center gap-1">
+                                      <Zap size={10} className="fill-current" /> Hot
+                                      </span>
+                                  )}
+                               </div>
+                            </div>
+
+                            <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 h-10">
+                               {signal.desc}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-slate-800/50 border-dashed relative">
+                               <div className="relative group/traffic">
+                                  <span className="cursor-help text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-400 border border-slate-700/50 flex items-center gap-1 hover:bg-slate-800 hover:text-brand-400 transition-colors">
+                                    <TrendingUp size={10} /> Traffic
+                                  </span>
+                                  <div className="absolute bottom-full left-0 mb-3 w-48 bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-2xl opacity-0 translate-y-2 group-hover/traffic:opacity-100 group-hover/traffic:translate-y-0 transition-all duration-300 pointer-events-none z-50">
+                                     <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-950 border-r border-b border-slate-800 rotate-45"></div>
+                                     <div className="flex justify-between items-end mb-3">
+                                        <div>
+                                           <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Monthly Visits</p>
+                                           <p className="text-sm font-bold text-white flex items-center gap-1">
+                                              {formatNumber(signal.trafficData[signal.trafficData.length-1])}
+                                              <span className="text-[10px] text-brand-500 bg-brand-500/10 px-1 rounded">
+                                                 +12%
+                                              </span>
+                                           </p>
+                                        </div>
+                                        <Activity size={14} className="text-slate-600 mb-1" />
+                                     </div>
+                                     <TrafficChart data={signal.trafficData} />
+                                  </div>
+                               </div>
+
+                               <span className="text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-400 border border-slate-700/50">
+                                  Reg: {signal.regDate}
+                               </span>
+                               <span className="text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-500 border border-slate-700/50 ml-auto">
+                                  {signal.date}
+                               </span>
+                            </div>
+                         </div>
+
+                         <div className="px-4 py-3 border-t border-slate-800 flex gap-2">
+                            <button 
+                              onClick={() => setTrackingSignal(signal)}
+                              className="flex-1 text-xs font-medium py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors flex items-center justify-center gap-1"
+                              data-testid={`button-track-${signal.id}`}
+                            >
+                               <Crosshair size={12} /> Track
+                            </button>
+                            <button 
+                              onClick={() => onResearch(signal)}
+                              className="flex-1 text-xs font-medium py-1.5 rounded-md bg-brand-900/50 hover:bg-brand-800/50 text-brand-400 hover:text-brand-300 transition-colors border border-brand-500/20 flex items-center justify-center gap-1"
+                              data-testid={`button-research-${signal.id}`}
+                            >
+                               <Bot size={12} /> Research
+                            </button>
+                         </div>
+                      </div>
+                    ))}
+                 </div>
+              </div>
+            ))}
+         </div>
+      </div>
+    </div>
+  );
+};
+
+const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget }: {
+  targets: TargetCompany[];
+  selectedTargetId: number | null;
+  setSelectedTargetId: (id: number | null) => void;
+  onAddTarget: (name: string, url: string) => void;
+}) => {
+  useEffect(() => {
+    if (!selectedTargetId && targets.length > 0) {
+        setSelectedTargetId(targets[0].id);
+    }
+  }, [targets, selectedTargetId, setSelectedTargetId]);
+
+  const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
+
+  return (
+    <div className="flex h-full -m-8 animate-fade-in-up"> 
+       <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+          <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
+             <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
+             <button className="text-slate-500 hover:text-brand-400 transition-colors" data-testid="button-add-target">
+               <Plus size={14} />
+             </button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+             {targets.map(t => (
+                <div 
+                   key={t.id} 
+                   onClick={() => setSelectedTargetId(t.id)}
+                   className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
+                   data-testid={`target-item-${t.id}`}
+                >
+                   <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden">
+                     <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
+                   </div>
+                   <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+                      {t.name}
+                   </h4>
+                </div>
+             ))}
+          </div>
+       </div>
+
+       <div className="flex-1 bg-[#0b0c0f] overflow-y-auto custom-scrollbar p-8">
+          {selectedTarget ? (
+              <div>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
+                       <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-white tracking-tight leading-tight">{selectedTarget.name}</h1>
+                        <a href={selectedTarget.url} target="_blank" className="text-xs text-slate-500 hover:text-brand-400 flex items-center gap-1.5 font-mono">
+                            {selectedTarget.url} <ExternalLink size={8} />
+                        </a>
+                    </div>
+                </div>
+
+                <div className="flex gap-4 mb-6">
+                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
+                     <div className="p-2 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                        <ShieldAlert size={16} />
+                     </div>
+                     <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Trackers</p>
+                        <p className="text-lg font-bold text-white">4<span className="text-xs text-slate-600 font-medium ml-1">/6</span></p>
+                     </div>
+                  </div>
+                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
+                     <div className="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                        <Zap size={16} />
+                     </div>
+                     <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">High Priority Alerts</p>
+                        <p className="text-lg font-bold text-white">2</p>
+                     </div>
+                  </div>
+                  <div className="flex-1 bg-slate-900/40 border border-slate-800 p-3 rounded-xl flex items-center gap-4 transition-all hover:bg-slate-900/60">
+                     <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        <TrendingUpIcon size={16} />
+                     </div>
+                     <div>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Signals Found (7d)</p>
+                        <p className="text-lg font-bold text-brand-400">12</p>
+                     </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-6 text-center text-slate-500">
+                  <Bot size={48} className="mx-auto mb-4 text-slate-700" />
+                  <p>Intelligence trackers and signals will appear here.</p>
+                </div>
+              </div>
+          ) : (
+             <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
+          )}
+       </div>
+    </div>
+  );
+};
+
+interface ResearchViewProps {
+  initialPrompt?: string;
+}
+
+interface ReasoningStep {
+  id: string;
+  desc: string;
+  status: 'pending' | 'active' | 'done';
+}
+
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: string;
+  reasoning?: ReasoningStep[];
+  isThinking?: boolean;
+}
+
+interface ResearchSession {
+  id: string;
+  title: string;
+  agent: string;
+  date: string;
+  group: 'Today' | 'Yesterday' | 'Previous';
+  status: 'active' | 'completed';
+  messages: ChatMessage[];
+}
+
+const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (initialPrompt) {
+        setInput(initialPrompt);
+    }
+  }, [initialPrompt]);
+
+  const [history, setHistory] = useState<ResearchSession[]>([
+    {
+      id: 'session-1',
+      title: 'Figma Pricing Analysis',
+      agent: 'Pricing Analyst',
+      date: '2:30 PM',
+      group: 'Today',
+      status: 'completed',
+      messages: [],
+    },
+    {
+      id: 'session-2',
+      title: 'Arc Browser Growth',
+      agent: 'Market Scout',
+      date: 'Yesterday',
+      group: 'Yesterday',
+      status: 'completed',
+      messages: [],
+    }
+  ]);
+
+  const [activeSession, setActiveSession] = useState<ResearchSession | null>(null);
+
+  const startNewSession = () => {
+    const newSession: ResearchSession = {
+      id: `session-${Date.now()}`,
+      title: 'New Investigation',
+      agent: 'Deep Research Agent',
+      date: 'Just now',
+      group: 'Today',
+      status: 'active',
+      messages: [],
+    };
+    setActiveSession(newSession);
+    setCurrentSessionId(newSession.id);
+    setHistory(prev => [newSession, ...prev]);
+  };
+
+  const handleSendMessage = () => {
+    if (!input.trim() || !activeSession) return;
+    
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    
+    const updatedSession = { 
+       ...activeSession, 
+       title: activeSession.messages.length === 0 ? input : activeSession.title,
+       messages: [...activeSession.messages, userMsg] 
+    };
+    setActiveSession(updatedSession);
+    setInput('');
+    setIsTyping(true);
+
+    setTimeout(() => {
+        const agentThinkingMsg: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            role: 'agent',
+            content: '',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isThinking: true,
+            reasoning: [
+                { id: 'r1', desc: 'Analyzing query context...', status: 'active' },
+                { id: 'r2', desc: 'Searching internal knowledge base...', status: 'pending' },
+                { id: 'r3', desc: 'Synthesizing competitive data...', status: 'pending' }
+            ]
+        };
+        setActiveSession(prev => prev ? ({...prev, messages: [...prev.messages, agentThinkingMsg]}) : null);
+
+        setTimeout(() => {
+            setActiveSession(prev => {
+                if(!prev) return null;
+                const msgs = [...prev.messages];
+                const lastMsg = msgs[msgs.length - 1];
+                if(lastMsg.reasoning) {
+                    lastMsg.reasoning[0].status = 'done';
+                    lastMsg.reasoning[1].status = 'active';
+                }
+                return {...prev, messages: msgs};
+            });
+        }, 1500);
+
+         setTimeout(() => {
+            setActiveSession(prev => {
+                if(!prev) return null;
+                const msgs = [...prev.messages];
+                const lastMsg = msgs[msgs.length - 1];
+                if(lastMsg.reasoning) {
+                    lastMsg.reasoning[1].status = 'done';
+                    lastMsg.reasoning[2].status = 'active';
+                }
+                return {...prev, messages: msgs};
+            });
+        }, 3000);
+
+        setTimeout(() => {
+            setActiveSession(prev => {
+                if(!prev) return null;
+                const msgs = [...prev.messages];
+                const lastMsg = msgs[msgs.length - 1];
+                lastMsg.isThinking = false;
+                if(lastMsg.reasoning) lastMsg.reasoning.forEach(r => r.status = 'done');
+                
+                const reportContent = `Based on the latest data, I've identified a significant shift in their enterprise strategy.
+                
+### Executive Summary
+The competitor has aggressively moved upmarket, targeting enterprise customers with new compliance features and dedicated support tiers.
+
+### Key Findings
+*   **Pricing Changes**: Enterprise tier now requires annual commitment starting at $50k/yr.
+*   **Feature Rollout**: Launched "Advanced Security" module last week.
+*   **Market Sentiment**: Positive reception from IT admins, but mixed reviews from SMBs due to price hikes.
+
+### Next Steps
+1.  **Counter-Positioning**: Highlight our flexible month-to-month plans for SMBs.
+2.  **Feature Audit**: Compare our security features against their new module.
+`;
+                lastMsg.content = reportContent;
+                
+                return {...prev, messages: msgs};
+            });
+            setIsTyping(false);
+        }, 4500);
+
+    }, 600);
+  };
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [activeSession?.messages, isTyping]);
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-[#020617] -m-8 animate-fade-in-up"> 
+       <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 z-20">
+          <div className="p-4 border-b border-slate-800/50">
+             <button 
+               onClick={startNewSession}
+               className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(13,148,136,0.2)]"
+               data-testid="button-new-research"
+             >
+                <Plus size={16} /> New Research
+             </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
+             {['Today', 'Yesterday'].map(group => (
+                <div key={group}>
+                   <h4 className="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">{group}</h4>
+                   <div className="space-y-1">
+                      {history.filter(h => h.group === group).map(session => (
+                         <div 
+                           key={session.id}
+                           onClick={() => { setActiveSession(session); setCurrentSessionId(session.id); }}
+                           className={`p-2.5 rounded-lg text-sm cursor-pointer transition-colors truncate flex items-center gap-3 group ${currentSessionId === session.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-300'}`}
+                           data-testid={`session-${session.id}`}
+                         >
+                            <MessageSquare size={14} className={currentSessionId === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            <span className="truncate">{session.title}</span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             ))}
+          </div>
+
+          <div className="p-4 border-t border-slate-800 flex items-center justify-between text-slate-500">
+             <div className="flex items-center gap-2 text-xs hover:text-white cursor-pointer transition-colors">
+                <History size={14} /> Archived
+             </div>
+             <Settings size={14} className="hover:text-white cursor-pointer transition-colors" />
+          </div>
+       </div>
+
+       <div className="flex-1 flex flex-col relative min-w-0 bg-[#0b0c0f]">
+          {activeSession && (
+             <header className="h-14 border-b border-slate-800/50 flex items-center justify-between px-6 bg-[#0b0c0f]/80 backdrop-blur z-10">
+                <div className="flex items-center gap-2">
+                   <span className="text-sm font-medium text-slate-200">{activeSession.title}</span>
+                   <span className="text-xs text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">{activeSession.agent}</span>
+                </div>
+             </header>
+          )}
+
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 scroll-smooth">
+             {!activeSession || activeSession.messages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center animate-fade-in-up">
+                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-brand-500/20 mb-6">
+                      <Bot size={32} className="text-white" />
+                   </div>
+                   <h2 className="text-3xl font-bold text-white mb-3">What shall we investigate?</h2>
+                   <p className="text-slate-400 text-lg mb-8 max-w-lg">I can analyze competitors, track pricing shifts, or synthesize market trends into actionable reports.</p>
+                   
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                      {[
+                        "Analyze Figma's new enterprise pricing",
+                        "Compare Arc Browser vs Chrome features",
+                        "Find weaknesses in Adobe XD's latest release",
+                        "Summarize G2 reviews for Miro"
+                      ].map((prompt, i) => (
+                         <button 
+                           key={i} 
+                           onClick={() => { setInput(prompt); }}
+                           className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all text-left text-sm text-slate-300 hover:text-white"
+                           data-testid={`prompt-suggestion-${i}`}
+                         >
+                            {prompt}
+                         </button>
+                      ))}
+                   </div>
+                </div>
+             ) : (
+                <div className="max-w-3xl mx-auto space-y-8 pb-32">
+                   {activeSession.messages.map((msg) => (
+                      <div key={msg.id} className="animate-fade-in-up">
+                         {msg.role === 'user' ? (
+                            <div className="flex justify-end mb-8">
+                               <div className="bg-slate-800 text-slate-200 px-5 py-3 rounded-2xl rounded-tr-sm max-w-[80%] text-sm leading-relaxed border border-slate-700">
+                                  {msg.content}
+                               </div>
+                            </div>
+                         ) : (
+                            <div className="flex gap-4 items-start">
+                               <div className="w-8 h-8 rounded-lg bg-brand-900/20 border border-brand-500/20 flex items-center justify-center shrink-0 mt-1">
+                                  <Bot size={16} className="text-brand-400" />
+                               </div>
+                               <div className="flex-1 space-y-3">
+                                  {msg.reasoning && msg.reasoning.length > 0 && (
+                                     <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 max-w-md">
+                                        <div className="flex items-center gap-2 mb-2 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                                           <BrainCircuit size={12} /> 
+                                           {msg.isThinking ? 'Thinking Process...' : 'Reasoning Chain'}
+                                        </div>
+                                        <div className="space-y-2">
+                                           {msg.reasoning.map(step => (
+                                              <div key={step.id} className="flex items-start gap-2.5 text-xs transition-all">
+                                                 <div className={`mt-0.5 w-3 h-3 flex items-center justify-center shrink-0`}>
+                                                    {step.status === 'done' && <Check size={12} className="text-emerald-500" />}
+                                                    {step.status === 'active' && <Loader2 size={12} className="text-brand-500 animate-spin" />}
+                                                    {step.status === 'pending' && <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />}
+                                                 </div>
+                                                 <span className={`${step.status === 'active' ? 'text-brand-200' : step.status === 'done' ? 'text-slate-400' : 'text-slate-600'}`}>
+                                                    {step.desc}
+                                                 </span>
+                                              </div>
+                                           ))}
+                                        </div>
+                                     </div>
+                                  )}
+                                  
+                                  {msg.content && (
+                                     <div className="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap prose prose-invert prose-sm max-w-none">
+                                        {msg.content.split('\n').map((line, i) => (
+                                            <p key={i} className={line.startsWith('#') ? 'font-bold text-lg text-white mt-4 mb-2' : 'mb-2'}>
+                                                {line.replace(/^#+\s/, '')}
+                                            </p>
+                                        ))}
+                                     </div>
+                                  )}
+                               </div>
+                            </div>
+                         )}
+                      </div>
+                   ))}
+                   <div ref={chatEndRef} />
+                </div>
+             )}
+          </div>
+
+          <div className="absolute bottom-6 left-0 right-0 px-4 md:px-8 z-20">
+             <div className="max-w-3xl mx-auto relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 to-purple-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col">
+                   <textarea
+                     value={input}
+                     onChange={(e) => setInput(e.target.value)}
+                     onKeyDown={(e) => {
+                       if (e.key === 'Enter' && !e.shiftKey) {
+                         e.preventDefault();
+                         if(!activeSession) startNewSession(); 
+                         setTimeout(handleSendMessage, 0);
+                       }
+                     }}
+                     placeholder="Message Deep Research Agent..."
+                     className="w-full bg-transparent border-none text-slate-200 text-sm p-4 focus:outline-none resize-none h-14 max-h-32 custom-scrollbar placeholder-slate-500"
+                     data-testid="input-research"
+                   />
+                   <div className="flex justify-between items-center px-2 pb-2">
+                      <div className="flex items-center gap-1">
+                         <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Attach">
+                            <Paperclip size={16} />
+                         </button>
+                         <button className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors" title="Deep Search">
+                            <Globe size={16} />
+                         </button>
+                      </div>
+                      <button 
+                        onClick={() => { if(!activeSession) startNewSession(); setTimeout(handleSendMessage, 0); }}
+                        disabled={!input.trim()}
+                        className="p-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg transition-all"
+                        data-testid="button-send-research"
+                      >
+                         <ArrowRight size={16} />
+                      </button>
+                   </div>
+                </div>
+                <div className="text-center mt-2">
+                   <p className="text-[10px] text-slate-500 font-medium">CompetiScope Agent v2.5 - AI can make mistakes.</p>
+                </div>
+             </div>
+          </div>
+       </div>
+    </div>
+  );
+};
+
+const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: string) => void }) => {
+    const [reports, setReports] = useState([
+        { id: 1, title: "Figma Pricing Strategy Analysis", product: "Figma", date: "Oct 24, 2024", summary: "Analysis of the new enterprise tier constraints and Dev Mode impact.", isFavorite: false },
+        { id: 2, title: "Arc Browser Growth Tactics", product: "Arc", date: "Oct 22, 2024", summary: "Breakdown of the 'Boosts' feature and its viral loop mechanisms.", isFavorite: false },
+        { id: 3, title: "Adobe XD Feature Gap Audit", product: "Adobe XD", date: "Oct 15, 2024", summary: "Detailed comparison of lack of variables and advanced prototyping vs Figma.", isFavorite: false },
+        { id: 4, title: "Miro Enterprise Security Review", product: "Miro", date: "Sep 28, 2024", summary: "Evaluation of SSO enforcement and data residency options.", isFavorite: false }
+    ]);
+
+    const [filter, setFilter] = useState<'all' | 'favorites'>('all');
+    const [sort, setSort] = useState<'latest' | 'oldest'>('latest');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const toggleFavorite = (id: number) => {
+        setReports(prev => prev.map(r => r.id === id ? { ...r, isFavorite: !r.isFavorite } : r));
+    };
+
+    const filteredReports = reports
+        .filter(r => filter === 'all' || (filter === 'favorites' && r.isFavorite))
+        .filter(r => 
+           searchQuery === '' || 
+           r.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           r.product.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           r.summary.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            return sort === 'latest' ? dateB - dateA : dateA - dateB;
+        });
+
+    return (
+        <div className="animate-fade-in-up space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+                <div>
+                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                        <Book className="text-brand-500" size={20} /> Research Library
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1">Archive of generated intelligence reports.</p>
+                </div>
+                
+                <div className="flex items-center gap-3 flex-wrap">
+                    <div className="relative">
+                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" size={12} />
+                       <input 
+                          type="text" 
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search reports..." 
+                          className="bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-[11px] font-medium text-white focus:outline-none focus:border-brand-500 w-40 md:w-56 transition-all placeholder-slate-600"
+                          data-testid="input-search-library"
+                       />
+                    </div>
+
+                    <div className="bg-slate-900 border border-slate-800 rounded-lg p-0.5 flex">
+                        <button 
+                            onClick={() => setFilter('all')}
+                            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${filter === 'all' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                            data-testid="button-filter-all"
+                        >
+                            All
+                        </button>
+                        <button 
+                            onClick={() => setFilter('favorites')}
+                            className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all flex items-center gap-1 ${filter === 'favorites' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                            data-testid="button-filter-favorites"
+                        >
+                            <Star size={10} className={filter === 'favorites' ? 'fill-yellow-400 text-yellow-400' : ''} /> Favorites
+                        </button>
+                    </div>
+
+                    <button 
+                        onClick={() => setSort(prev => prev === 'latest' ? 'oldest' : 'latest')}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
+                        data-testid="button-sort"
+                    >
+                        <ArrowUpDown size={12} />
+                        {sort === 'latest' ? 'Latest' : 'Oldest'}
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                {filteredReports.map(report => (
+                    <div key={report.id} className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-5 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col aspect-[3/4] overflow-hidden shadow-2xl" data-testid={`report-card-${report.id}`}>
+                        <FileText className="absolute -right-6 -bottom-6 text-slate-800/10 group-hover:text-brand-500/5 w-32 h-32 transition-colors pointer-events-none" />
+
+                        <div className="flex justify-between items-start mb-4 relative z-10">
+                            <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-tight group-hover:border-brand-500/30 group-hover:text-brand-400 transition-colors">
+                                {report.product}
+                            </span>
+                            
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); toggleFavorite(report.id); }}
+                                className={`p-1 rounded transition-colors hover:bg-slate-800 ${report.isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
+                            >
+                                <Star size={14} className={report.isFavorite ? 'fill-yellow-400' : ''} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 relative z-10 flex flex-col">
+                            <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-brand-400 group-hover:border-brand-900/50 transition-colors w-fit mb-4">
+                                <FileText size={20} />
+                            </div>
+                            
+                            <h3 className="text-sm font-bold text-white group-hover:text-brand-100 transition-colors line-clamp-3 leading-tight mb-3">
+                                {report.title}
+                            </h3>
+                            
+                            <p className="text-[11px] text-slate-500 line-clamp-6 group-hover:text-slate-400 transition-colors leading-relaxed">
+                                {report.summary}
+                            </p>
+
+                            <div className="mt-auto pt-4 flex items-center justify-between">
+                                <span className="text-[9px] text-slate-600 font-mono font-medium">{report.date}</span>
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
+                                    className="p-1.5 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
+                                >
+                                    <MessageSquareText size={14} className="group-hover/jump:scale-110 transition-transform" />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-brand-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                    </div>
+                ))}
+            </div>
+            
+            {filteredReports.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+                    <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-3">
+                        <Search size={24} />
+                    </div>
+                    <p className="text-xs font-medium">No reports found{searchQuery ? ` matching "${searchQuery}"` : ''}.</p>
+                    {(filter === 'favorites' || searchQuery) && (
+                        <button 
+                            onClick={() => { setFilter('all'); setSearchQuery(''); }} 
+                            className="mt-3 text-brand-400 hover:text-brand-300 text-[11px] font-bold uppercase tracking-wider"
+                        >
+                            Reset view
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
+const ActsTemplateView = () => {
+   const templates = [
+      { id: 1, title: 'Competitor Battle Card', category: 'Sales Enablement', desc: 'One-pager highlighting kill points, objection handling, and pricing traps.', icon: Swords, color: 'text-red-400' },
+      { id: 2, title: 'Feature Comparison Matrix', category: 'Product Strategy', desc: 'Detailed side-by-side breakdown of feature availability and limits.', icon: LayoutGrid, color: 'text-blue-400' },
+      { id: 3, title: 'Quarterly Market Report', category: 'Executive', desc: 'High-level slide deck summary of market movements and threats.', icon: PieChart, color: 'text-purple-400' },
+      { id: 4, title: 'Pricing Tear-down', category: 'Strategy', desc: 'Analysis of competitor pricing tiers, psychology, and hidden costs.', icon: DollarSign, color: 'text-green-400' },
+      { id: 5, title: 'Win/Loss Analysis', category: 'Sales', desc: 'Template for analyzing CRM data to understand why deals are won or lost.', icon: BarChart3, color: 'text-orange-400' },
+      { id: 6, title: 'SEO Gap Analysis', category: 'Marketing', desc: 'Identify keywords where competitors are outranking you.', icon: Search, color: 'text-pink-400' },
+   ];
+
+   const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive'];
+   const [activeCat, setActiveCat] = useState('All');
+
+   return (
+      <div className="space-y-8 animate-fade-in-up">
+         <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 group">
+            <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
+            <div className="absolute -right-16 -top-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-colors duration-500"></div>
+            
+            <div className="flex items-center gap-5 relative z-10">
+               <div className="w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Chrome size={28} />
+               </div>
+               <div>
+                  <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                     Capture Intelligence Anywhere 
+                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500 text-slate-950 uppercase tracking-wide">New</span>
+                  </h3>
+                  <p className="text-sm text-slate-400 max-w-xl leading-relaxed">
+                     Don't just track from here. Install our browser extension to grab pricing, screenshots, and copy directly from competitor websites.
+                  </p>
+               </div>
+            </div>
+            
+            <button className="relative z-10 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap" data-testid="button-add-chrome">
+               <Chrome size={18} /> Add to Chrome
+            </button>
+         </div>
+
+         <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+            <div>
+               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Library className="text-brand-500" /> Intelligence Acts Library
+               </h2>
+               <p className="text-slate-400 mt-1">Proven templates to turn raw data into actionable business assets.</p>
+            </div>
+            <div className="relative">
+               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+               <input 
+                  type="text" 
+                  placeholder="Search templates..." 
+                  className="bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 w-64"
+                  data-testid="input-search-templates"
+               />
+            </div>
+         </div>
+
+         <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800">
+            {categories.map(cat => (
+               <button 
+                  key={cat}
+                  onClick={() => setActiveCat(cat)}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${activeCat === cat ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                  data-testid={`button-category-${cat.replace(/\s+/g, '-').toLowerCase()}`}
+               >
+                  {cat}
+               </button>
+            ))}
+         </div>
+
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {templates.filter(t => activeCat === 'All' || t.category === activeCat).map(template => (
+               <div key={template.id} className="group bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:bg-slate-900/60 hover:border-slate-700 transition-all flex flex-col h-full" data-testid={`template-card-${template.id}`}>
+                  <div className="flex items-start justify-between mb-4">
+                     <div className={`p-3 rounded-lg bg-slate-950 border border-slate-800 ${template.color} group-hover:scale-110 transition-transform`}>
+                        <template.icon size={24} />
+                     </div>
+                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-950 px-2 py-1 rounded">
+                        {template.category}
+                     </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{template.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed mb-6 flex-1">
+                     {template.desc}
+                  </p>
+                  <button className="w-full py-2.5 bg-slate-950 hover:bg-brand-600 hover:text-white border border-slate-700 hover:border-brand-500 text-slate-300 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2">
+                     <FileText size={16} /> Use Template
+                  </button>
+               </div>
+            ))}
+            
+            <div className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" data-testid="button-create-template">
+               <div className="p-4 rounded-full bg-slate-900 mb-4">
+                  <Plus size={24} />
+               </div>
+               <h3 className="font-medium mb-1">Create Custom Template</h3>
+               <p className="text-xs max-w-[200px]">Design a new intelligence output format for your team.</p>
+            </div>
+         </div>
+      </div>
+   );
+};
+
+const LinkWorkspaceView = () => (
+  <div className="flex flex-col items-center justify-center h-[60vh] text-center animate-fade-in-up">
+    <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mb-6 border border-slate-800">
+      <LinkIcon size={32} className="text-brand-500" />
+    </div>
+    <h2 className="text-2xl font-bold text-white mb-2">Integrations & Links</h2>
+    <p className="text-slate-400 max-w-md">
+      Connect CompetiScope to your CRM, Slack, or Notion workspace to sync intelligence automatically.
+    </p>
+    <button className="mt-8 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full font-medium transition-colors border border-slate-700" data-testid="button-connect-app">
+      Connect App
+    </button>
+  </div>
+);
+
+const INITIAL_TARGETS: TargetCompany[] = [
+    { id: 1, name: 'Figma', url: 'https://figma.com', icon: 'F' },
+    { id: 2, name: 'Sketch', url: 'https://sketch.com', icon: 'S' },
+    { id: 3, name: 'Adobe XD', url: 'https://adobe.com', icon: 'A' },
+    { id: 4, name: 'Framer', url: 'https://framer.com', icon: 'F' },
+    { id: 5, name: 'Miro', url: 'https://miro.com', icon: 'M' },
+];
+
+export const Workbench: React.FC = () => {
+  const [activeView, setActiveView] = useState<WorkbenchView>(WorkbenchView.RADAR);
+  const [researchPrompt, setResearchPrompt] = useState<string>('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const [targets, setTargets] = useState<TargetCompany[]>(INITIAL_TARGETS);
+  const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
+
+  const NAV_ITEMS = [
+    { id: WorkbenchView.RADAR, label: 'Radar', icon: Radar, description: 'Discover market trends and new competitors using AI scanning.' },
+    { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
+    { id: WorkbenchView.RESEARCH, label: 'Research', icon: Bot, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
+    { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
+    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Acts Template', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
+    { id: WorkbenchView.LINK_WORKSPACE, label: 'Link Workspace', icon: LinkIcon, description: 'Integrate with your CRM, Slack, and other tools to sync intelligence.' },
+  ];
+
+  const handleTrackSignal = (signal: any) => {
+      let target = targets.find(t => t.name === signal.name);
+      
+      if (!target) {
+          target = {
+              id: signal.id, 
+              name: signal.name,
+              url: `https://${signal.website}`,
+              icon: signal.name[0]
+          };
+          setTargets(prev => [...prev, target!]);
+      }
+      setSelectedTargetId(target.id);
+      setActiveView(WorkbenchView.TARGETS);
+  };
+
+  const handleResearchFromRadar = (signal: any) => {
+      setResearchPrompt(`Deep dive analysis for ${signal.name} (${signal.website})`);
+      setActiveView(WorkbenchView.RESEARCH);
+  };
+
+  const handleJumpToResearch = (reportTitle: string) => {
+      setResearchPrompt(`Follow up on: ${reportTitle}`);
+      setActiveView(WorkbenchView.RESEARCH);
+  };
+
+  const handleAddTarget = (name: string, url: string) => {
+      const newTarget: TargetCompany = {
+          id: Date.now(),
+          name,
+          url,
+          icon: name[0]
+      };
+      setTargets(prev => [...prev, newTarget]);
+      setSelectedTargetId(newTarget.id);
+  };
+
+  const renderContent = () => {
+    switch (activeView) {
+      case WorkbenchView.RADAR:
+        return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
+      case WorkbenchView.TARGETS:
+        return <TargetsView targets={targets} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} />;
+      case WorkbenchView.RESEARCH:
+        return <ResearchView initialPrompt={researchPrompt} />;
+      case WorkbenchView.LIBRARY:
+        return <LibraryView onJumpToResearch={handleJumpToResearch} />;
+      case WorkbenchView.ACTS_TEMPLATE:
+        return <ActsTemplateView />;
+      case WorkbenchView.LINK_WORKSPACE:
+        return <LinkWorkspaceView />;
+      default:
+        return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-[#020617]">
+      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
+      <nav className="w-64 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+        <div className="p-6 flex items-center gap-2 group cursor-pointer">
+          <Hexagon className="text-brand-500 fill-brand-500/20 group-hover:rotate-90 transition-transform duration-500" size={28} />
+          <span className="text-lg font-bold tracking-tight text-white">Competi<span className="text-brand-500">Scope</span></span>
+        </div>
+
+        <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                ${activeView === item.id 
+                  ? 'bg-slate-800/80 text-white' 
+                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                }
+              `}
+            >
+              <item.icon 
+                size={18} 
+                className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+              />
+              <span className="text-sm font-medium">{item.label}</span>
+              
+              {activeView === item.id && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="p-3 space-y-1 border-t border-slate-800">
+          <button 
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            data-testid="nav-settings"
+          >
+            <Settings size={18} className="text-slate-500" />
+            <span className="text-sm font-medium">Settings</span>
+          </button>
+          <button 
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            data-testid="nav-profile"
+          >
+            <div className="w-6 h-6 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[10px] font-bold">
+              AI
+            </div>
+            <span className="text-sm font-medium">AI Strategist</span>
+          </button>
+        </div>
+      </nav>
+
+      <main className="flex-1 flex flex-col overflow-hidden">
+        <header className="h-16 border-b border-slate-800 bg-[#020617] flex items-center justify-between px-8">
+          <div>
+            <h1 className="text-xl font-bold text-white" data-testid="text-view-title">{NAV_ITEMS.find(n => n.id === activeView)?.label}</h1>
+            <p className="text-xs text-slate-500">{NAV_ITEMS.find(n => n.id === activeView)?.description}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button className="px-4 py-2 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" data-testid="button-help">
+              Help & Docs
+            </button>
+            <button className="px-4 py-2 text-xs font-medium text-slate-950 bg-brand-500 rounded-lg hover:bg-brand-400 transition-colors shadow-[0_0_15px_rgba(20,184,166,0.2)]" data-testid="button-upgrade">
+              Upgrade
+            </button>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#0b0c0f]">
+          {renderContent()}
+        </div>
+      </main>
+    </div>
+  );
+};
