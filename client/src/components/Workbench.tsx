@@ -766,129 +766,78 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Active Intelligence Trackers */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Crosshair size={16} className="text-brand-500" /> Active Trackers
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: Globe, title: 'Website Tracker', desc: 'On-page copy, pricing, features, SEO and more.', active: true },
-                  { icon: LinkIcon, title: 'Backlinks Tracker', desc: 'Domain ranking, backlinks and referring domains.', active: true },
-                  { icon: Search, title: 'News Tracker', desc: 'News sources and coverage of current events.', active: false },
-                  { icon: Chrome, title: 'Google Ads Tracker', desc: 'New and existing Google Ads creatives.', active: false }
-                ].map((tracker, i) => {
-                  const Icon = tracker.icon;
-                  return (
-                    <div key={i} className="bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-lg p-3 transition-all">
-                      <div className="flex items-start justify-between mb-2">
-                        <Icon size={16} className="text-slate-500" />
-                        <div className="w-8 h-4 bg-slate-800 rounded-full border border-slate-700 flex items-center px-0.5">
-                          <div className={`w-3 h-3 rounded-full transition-all ${tracker.active ? 'bg-brand-500 ml-auto' : 'bg-slate-600'}`}></div>
-                        </div>
-                      </div>
-                      <p className="font-medium text-white text-sm mb-1">{tracker.title}</p>
-                      <p className="text-xs text-slate-500 line-clamp-2">{tracker.desc}</p>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-3 p-3 bg-slate-900/20 border border-slate-800/50 rounded-lg">
-                <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
-                  Well notify you when we find new signals.
-                </p>
-              </div>
-            </div>
-
-            {/* Signals */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <BarChart3 size={16} className="text-brand-500" /> Signals (2 Found)
-                </h3>
-                <button className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors">
-                  View Full Feed
-                </button>
-              </div>
-              <div className="space-y-3">
-                <div className="bg-gradient-to-r from-red-500/5 to-transparent border border-slate-800 hover:border-red-500/50 rounded-lg p-4 transition-all group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-bold text-white text-base group-hover:text-red-300 transition-colors">Pricing Page: New "Enterprise" Tier</p>
-                      <p className="text-sm text-slate-400 mt-1">High search volume and low difficulty for "wizard ai"</p>
-                    </div>
-                    <span className="px-2.5 py-1 text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0 ml-3">HIGH</span>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-3">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-800/50">
-                    <span className="text-xs text-slate-600">2 days ago</span>
-                    <button className="text-xs font-medium text-slate-400 hover:text-brand-400 flex items-center gap-1 transition-colors">
-                      View Impact & Next Action <ChevronRight size={12} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-blue-500/5 to-transparent border border-slate-800 hover:border-blue-500/50 rounded-lg p-4 transition-all group">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-bold text-white text-base group-hover:text-blue-300 transition-colors">Homepage: New Hero Headline</p>
-                      <p className="text-sm text-slate-400 mt-1">Changed from "Design for everyone" to "Design for teams"</p>
-                    </div>
-                    <span className="px-2.5 py-1 text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0 ml-3">LOW</span>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-3">Updated messaging on homepage hero section to reflect new market positioning and target audience.</p>
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-800/50">
-                    <span className="text-xs text-slate-600">1 week ago</span>
-                    <button className="text-xs font-medium text-slate-400 hover:text-brand-400 flex items-center gap-1 transition-colors">
-                      View Impact & Next Action <ChevronRight size={12} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
         )}
       </div>
 
-      {/* RIGHT: All Tracking Dimensions */}
-      <div className="w-56 border-l border-slate-800 bg-[#020617] flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
-        <div className="sticky top-0 bg-[#020617] border-b border-slate-800 p-4">
-          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Tracking Dimensions</h3>
-        </div>
-        
-        <div className="p-4 space-y-4">
-          {[
-            { title: 'Keywords Tracker', desc: 'Monitor new keyword opportunities', items: ['Pricing', 'Features', 'Integrations', 'Enterprise', 'Security'], icon: Search },
-            { title: 'Website Tracker', desc: 'Monitor on-page copy and pricing', items: ['Homepage', 'Pricing', 'Features', 'Security'], icon: Globe },
-            { title: 'Backlinks Tracker', desc: 'Monitor domain ranking', items: ['Domain', 'Authority', 'Competitors'], icon: LinkIcon },
-            { title: 'News Tracker', desc: 'Monitor news sources', items: ['Press', 'Articles', 'Coverage'], icon: Search }
-          ].map((dimension, idx) => {
-            const DimIcon = dimension.icon;
-            return (
-              <div key={idx} className="space-y-2">
-                <div className="flex items-start gap-2">
-                  <DimIcon size={14} className="text-brand-500 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-white">{dimension.title}</p>
-                    <p className="text-[10px] text-slate-500 line-clamp-2">{dimension.desc}</p>
+      {/* RIGHT: Tracking Dimensions & Signals (Combined Scrollable Card) */}
+      <div className="w-72 border-l border-slate-800 bg-[#020617] flex flex-col shrink-0 overflow-hidden">
+        {/* Tracking Dimensions Header Section */}
+        <div className="border-b border-slate-800 bg-[#020617] p-4 shrink-0">
+          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider mb-3">Active Trackers</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { icon: Globe, title: 'Website', active: true },
+              { icon: LinkIcon, title: 'Backlinks', active: true },
+              { icon: Search, title: 'News', active: false },
+              { icon: Chrome, title: 'Ads', active: false }
+            ].map((tracker, i) => {
+              const Icon = tracker.icon;
+              return (
+                <div key={i} className="bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-lg p-2 transition-all cursor-pointer">
+                  <div className="flex items-start justify-between mb-1">
+                    <Icon size={14} className="text-slate-500" />
+                    <div className={`w-1.5 h-1.5 rounded-full ${tracker.active ? 'bg-brand-500' : 'bg-slate-600'}`}></div>
                   </div>
+                  <p className="font-medium text-white text-[10px]">{tracker.title}</p>
                 </div>
-                <div className="flex flex-wrap gap-1 ml-5">
-                  {dimension.items.map(item => (
-                    <span key={item} className="text-[10px] px-2 py-1 rounded bg-slate-900/50 border border-slate-800/50 text-slate-400 hover:text-slate-200 hover:border-slate-700 transition-colors cursor-pointer">
-                      {item}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Scrollable Signals Section */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
+          <div className="space-y-3">
+            <div className="pb-2 border-b border-slate-800/50">
+              <h4 className="text-xs font-bold text-white flex items-center gap-2 mb-2">
+                <BarChart3 size={12} className="text-brand-500" /> Recent Signals
+              </h4>
+            </div>
+
+            {[
+              { title: 'Pricing Page: New "Enterprise" Tier', desc: 'Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".', severity: 'HIGH', date: '2 days ago', color: 'red' },
+              { title: 'Homepage: New Hero Headline', desc: 'Changed from "Design for everyone" to "Design for teams". Updated messaging for new market positioning.', severity: 'LOW', date: '1 week ago', color: 'blue' },
+              { title: 'New Blog Post Published', desc: 'Article about "AI-Powered Design Tools". Discusses competitive advantages and market trends.', severity: 'MEDIUM', date: '3 days ago', color: 'amber' },
+              { title: 'Pricing Plan Updated', desc: 'Modified the "Pro" plan features. Added unlimited exports and collaborative features.', severity: 'HIGH', date: '5 days ago', color: 'red' },
+              { title: 'Security Page Refresh', desc: 'Enhanced security features description. Added SOC2 and ISO 27001 certifications highlighting.', severity: 'LOW', date: '1 week ago', color: 'blue' }
+            ].map((signal, idx) => {
+              const colors = {
+                red: 'from-red-500/5 border-slate-800 hover:border-red-500/50',
+                blue: 'from-blue-500/5 border-slate-800 hover:border-blue-500/50',
+                amber: 'from-amber-500/5 border-slate-800 hover:border-amber-500/50'
+              };
+              const severityColors = {
+                HIGH: 'bg-red-500/20 text-red-400 border border-red-500/30',
+                MEDIUM: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+                LOW: 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+              };
+              return (
+                <div key={idx} className={`bg-gradient-to-r ${colors[signal.color as keyof typeof colors]} rounded-lg p-3 transition-all group cursor-pointer hover:shadow-lg`}>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <p className="font-medium text-white text-xs line-clamp-2 group-hover:text-brand-300 transition-colors">{signal.title}</p>
+                    <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full shrink-0 ${severityColors[signal.severity as keyof typeof severityColors]}`}>
+                      {signal.severity}
                     </span>
-                  ))}
+                  </div>
+                  <p className="text-[11px] text-slate-400 line-clamp-2 mb-2">{signal.desc}</p>
+                  <p className="text-[9px] text-slate-600">{signal.date}</p>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
