@@ -775,23 +775,23 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Metrics Cards */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Health Score</p>
-                <p className="text-2xl font-bold text-white">100</p>
+            {/* Metrics Cards - Single Row */}
+            <div className="grid grid-cols-4 gap-3">
+              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Active Trackers</p>
+                <p className="text-xl font-bold text-white">7<span className="text-xs text-slate-600 font-medium ml-1">/10</span></p>
               </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Active Trackers</p>
-                <p className="text-2xl font-bold text-white">7<span className="text-sm text-slate-600 font-medium ml-1">/10</span></p>
+              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">New Signals</p>
+                <p className="text-xl font-bold text-white">6<span className="text-xs text-slate-600 font-medium ml-1">today</span></p>
               </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">New Signals (70)</p>
-                <p className="text-2xl font-bold text-white">6</p>
+              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Severity</p>
+                <p className="text-xl font-bold"><span className="text-red-400">1H</span> <span className="text-blue-400 ml-1">1L</span></p>
               </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Last Scan</p>
-                <p className="text-lg font-bold text-white">Just now</p>
+              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
+                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Avg Response Time</p>
+                <p className="text-xl font-bold text-white">2.3<span className="text-xs text-slate-600 font-medium ml-1">days</span></p>
               </div>
             </div>
 
