@@ -1125,6 +1125,7 @@ interface ResearchSession {
   id: string;
   title: string;
   agent: string;
+  type: string;
   date: string;
   group: 'Today' | 'Yesterday' | 'Previous';
   status: 'active' | 'completed';
@@ -1159,6 +1160,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       id: String(s.id),
       title: s.title,
       agent: s.agent,
+      type: (s as any).type || 'general',
       date: createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       group: isToday ? 'Today' : isYesterday ? 'Yesterday' : 'Previous',
       status: s.status as 'active' | 'completed',
@@ -1170,7 +1172,11 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
 
   const chatMutation = useMutation({
     mutationFn: async ({ sessionId, message }: { sessionId?: number; message: string }) => {
-      const res = await apiRequest('POST', '/api/chat', { sessionId, message });
+      const res = await apiRequest('POST', '/api/chat', { 
+        sessionId, 
+        message,
+        type: activeSession?.type || researchInitialType || 'general'
+      });
       return res.json();
     },
     onSuccess: () => {
@@ -1183,6 +1189,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       id: `temp-${Date.now()}`,
       title: 'New Investigation',
       agent: 'Deep Research Agent',
+      type: researchInitialType || 'general',
       date: 'Just now',
       group: 'Today',
       status: 'active',
@@ -1190,6 +1197,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
     };
     setActiveSession(newSession);
     setCurrentSessionId(null);
+    setResearchInitialType('general');
   };
 
   const handleSendMessage = async () => {
@@ -1213,6 +1221,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
           id: `temp-${Date.now()}`,
           title: input.substring(0, 50),
           agent: 'Deep Research Agent',
+          type: researchInitialType || 'general',
           date: 'Just now',
           group: 'Today',
           status: 'active',
@@ -1310,7 +1319,15 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
                            className={`p-2.5 rounded-lg text-sm cursor-pointer transition-colors truncate flex items-center gap-3 group ${String(currentSessionId) === session.id ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-300'}`}
                            data-testid={`session-${session.id}`}
                          >
-                            <MessageSquare size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            {session.type === 'radar' ? (
+                               <Radar size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : session.type === 'acts' ? (
+                               <Library size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : session.type === 'track' ? (
+                               <Crosshair size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : (
+                               <MessageSquare size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            )}
                             <span className="truncate">{session.title}</span>
                          </div>
                       ))}
@@ -1888,13 +1905,23 @@ export const Workbench: React.FC = () => {
       setActiveView(WorkbenchView.TARGETS);
   };
 
+  const [researchInitialType, setResearchInitialType] = useState<string>('general');
+
   const handleResearchFromRadar = (signal: any) => {
       setResearchPrompt(`Deep dive analysis for ${signal.name} (${signal.website})`);
+      setResearchInitialType('radar');
       setActiveView(WorkbenchView.RESEARCH);
   };
 
   const handleJumpToResearch = (reportTitle: string) => {
       setResearchPrompt(`Follow up on: ${reportTitle}`);
+      setResearchInitialType('acts');
+      setActiveView(WorkbenchView.RESEARCH);
+  };
+
+  const handleTrackResearch = (targetName: string) => {
+      setResearchPrompt(`Strategic tracking analysis for ${targetName}`);
+      setResearchInitialType('track');
       setActiveView(WorkbenchView.RESEARCH);
   };
 

@@ -71,6 +71,7 @@ export const researchSessions = pgTable("research_sessions", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   agent: text("agent").notNull().default("Deep Research Agent"),
+  type: text("type").notNull().default("general"), // general, radar, acts, track
   messages: jsonb("messages").$type<ChatMessage[]>().notNull().default([]),
   status: text("status").notNull().default("active"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

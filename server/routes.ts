@@ -177,7 +177,7 @@ export async function registerRoutes(
   // Chat endpoint - real Gemini integration
   app.post("/api/chat", async (req, res) => {
     try {
-      const { sessionId, message } = chatRequestSchema.parse(req.body);
+      const { sessionId, message, type } = req.body;
       
       let session;
       if (sessionId) {
@@ -189,6 +189,7 @@ export async function registerRoutes(
         session = await storage.createSession({
           title: message.substring(0, 50) + (message.length > 50 ? "..." : ""),
           agent: "Deep Research Agent",
+          type: type || "general",
           messages: [],
           status: "active"
         });
@@ -453,6 +454,7 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
         storage.createSession({
           title: "Figma Pricing Strategy Analysis",
           agent: "market-analyst",
+          type: "general",
           messages: [
             {
               id: "1",
