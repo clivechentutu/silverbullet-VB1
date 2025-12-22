@@ -40,15 +40,25 @@ const URLPreview = ({ url }: { url: string }) => {
   };
 
   const handleMouseEnter = () => {
+    // We remove position calculation logic since it's now centered fixed
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
     setShowPreview(true);
   };
 
   const handleMouseLeave = () => {
-    setShowPreview(false);
+    // Add a small delay to prevent flickering when mouse passes through overlay boundaries
+    leaveTimeoutRef.current = setTimeout(() => {
+      setShowPreview(false);
+    }, 100);
   };
 
+  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   return (
-    <div className="inline-block">
+    <div className="inline-block relative">
       <a 
         ref={triggerRef}
         href={`https://${url}`}
@@ -64,9 +74,14 @@ const URLPreview = ({ url }: { url: string }) => {
       
       {showPreview && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-none"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-none"
         >
-          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200" style={{ width: '900px', height: '600px' }}>
+          <div 
+            className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200" 
+            style={{ width: '900px', height: '600px' }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <div className="relative w-full h-full bg-slate-900">
               <img 
                 src={getPreviewImageUrl(url)}
