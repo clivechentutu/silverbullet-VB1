@@ -654,15 +654,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     { id: 8, type: 'hiring', category: 'Team Expansion', time: '5d ago', content: 'Opening 15 new engineering positions for cloud infrastructure team.', domain: 'miro.com', color: 'text-orange-400', bgColor: 'bg-orange-500' },
   ];
 
-  const filteredSignals = feedFilter === 'all' ? allSignals : allSignals.filter(s => s.type === feedFilter);
+  const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
+  const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
+  const targetSignals = allSignals.filter(s => s.domain === targetDomain);
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
         setSelectedTargetId(targets[0].id);
     }
   }, [targets, selectedTargetId, setSelectedTargetId]);
-
-  const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
 
   const handleAddTarget = async () => {
     if (newTargetName.trim() && newTargetUrl.trim()) {
@@ -1129,44 +1129,44 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   <SheetContent side="right" className="w-full sm:max-w-xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
                     <SheetHeader className="p-6 border-b border-slate-800 shrink-0">
                       <SheetTitle className="text-xl font-bold text-white flex items-center gap-2">
-                        <AlertZap size={20} className="text-brand-500" /> All Intelligence Signals
+                        <AlertZap size={20} className="text-brand-500" /> {selectedTarget?.name} Intelligence Signals
                       </SheetTitle>
-                      <p className="text-xs text-slate-500 mt-1">Real-time intelligence feed from all tracked sources.</p>
+                      <p className="text-xs text-slate-500 mt-1">Real-time intelligence feed for {selectedTarget?.name}.</p>
                       <div className="flex flex-wrap gap-2 mt-4">
                         <button 
                           onClick={() => setFeedFilter('all')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                           data-testid="filter-all"
                         >
-                          All ({allSignals.length})
+                          All ({targetSignals.length})
                         </button>
                         <button 
                           onClick={() => setFeedFilter('pricing')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                           data-testid="filter-pricing"
                         >
-                          <DollarSign size={12} /> Pricing ({allSignals.filter(s => s.type === 'pricing').length})
+                          <DollarSign size={12} /> Pricing ({targetSignals.filter(s => s.type === 'pricing').length})
                         </button>
                         <button 
                           onClick={() => setFeedFilter('product')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                           data-testid="filter-product"
                         >
-                          <Globe size={12} /> Product ({allSignals.filter(s => s.type === 'product').length})
+                          <Globe size={12} /> Product ({targetSignals.filter(s => s.type === 'product').length})
                         </button>
                         <button 
                           onClick={() => setFeedFilter('marketing')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                           data-testid="filter-marketing"
                         >
-                          <Megaphone size={12} /> Marketing ({allSignals.filter(s => s.type === 'marketing').length})
+                          <Megaphone size={12} /> Marketing ({targetSignals.filter(s => s.type === 'marketing').length})
                         </button>
                         <button 
                           onClick={() => setFeedFilter('hiring')}
                           className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                           data-testid="filter-hiring"
                         >
-                          <Briefcase size={12} /> Hiring ({allSignals.filter(s => s.type === 'hiring').length})
+                          <Briefcase size={12} /> Hiring ({targetSignals.filter(s => s.type === 'hiring').length})
                         </button>
                       </div>
                     </SheetHeader>
