@@ -10,7 +10,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Pencil
+  Edit2
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -1903,13 +1903,13 @@ const ActsTemplateView = () => {
                     <Sheet>
                       <SheetTrigger asChild>
                         <button className="px-3 py-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white rounded-lg transition-all flex items-center justify-center group/edit">
-                          <Pencil size={16} className="group-hover/edit:text-brand-500 transition-colors" />
+                          <Edit2 size={16} className="group-hover/edit:text-brand-500 transition-colors" />
                         </button>
                       </SheetTrigger>
                       <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
                         <SheetHeader className="mb-6">
                           <SheetTitle className="text-white flex items-center gap-2">
-                            <Pencil className="text-brand-500" size={20} />
+                            <Edit2 className="text-brand-500" size={20} />
                             Edit Template Prompt
                           </SheetTitle>
                           <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
