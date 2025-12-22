@@ -624,10 +624,17 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       <SimilarityRing value={signal.score} />
                     </div>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 group/desc relative">
                     <p className="text-xs text-slate-400 line-clamp-2 max-w-[200px]">
                       {signal.features.join(', ')}
                     </p>
+                    <div className="absolute left-4 top-0 -translate-y-full mb-2 hidden group-hover/desc:block z-[60] pointer-events-none">
+                      <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 shadow-2xl max-w-xs animate-in fade-in zoom-in-95 duration-200">
+                        <p className="text-xs text-white leading-relaxed">
+                          {signal.features.join(', ')}
+                        </p>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
