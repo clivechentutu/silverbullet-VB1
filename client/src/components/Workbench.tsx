@@ -668,7 +668,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
 
   const [insightSignal, setInsightSignal] = useState<typeof signalsData[0] | null>(null);
 
-  const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
+  const selectedTarget = (targets as any).find((t: any) => t.id === selectedTargetId) || targets[0];
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
@@ -2286,6 +2286,9 @@ export const Workbench: React.FC = () => {
     { id: WorkbenchView.RESEARCH, label: 'Research', icon: Bot, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
     { id: WorkbenchView.ACTS_TEMPLATE, label: 'Acts Template', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
+  ];
+
+  const BOTTOM_NAV_ITEMS = [
     { id: WorkbenchView.LINK_WORKSPACE, label: 'Link Workspace', icon: LinkIcon, description: 'Integrate with your CRM, Slack, and other tools to sync intelligence.' },
   ];
 
@@ -2343,7 +2346,7 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.RADAR:
         return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
       case WorkbenchView.TARGETS:
-        return <TargetsView targets={targets} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} />;
+        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} />;
       case WorkbenchView.RESEARCH:
         return (
           <ResearchView 
@@ -2400,6 +2403,29 @@ export const Workbench: React.FC = () => {
         </div>
 
         <div className="p-3 space-y-1 border-t border-slate-800">
+          {BOTTOM_NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id)}
+              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                ${activeView === item.id 
+                  ? 'bg-slate-800/80 text-white' 
+                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                }
+              `}
+            >
+              <item.icon 
+                size={18} 
+                className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+              />
+              <span className="text-sm font-medium">{item.label}</span>
+              
+              {activeView === item.id && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+              )}
+            </button>
+          ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
