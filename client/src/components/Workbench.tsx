@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { WorkbenchView, TargetCompany, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
+import { WorkbenchView, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
 import { 
   Radar, Crosshair, Bot, Book, Library, Link as LinkIcon, Hexagon, Settings, User, 
   Plus, TrendingUp, Activity, ExternalLink, Zap, Search, ToggleRight, 
@@ -634,8 +634,21 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   );
 };
 
+interface Signal {
+  id: number;
+  type: string;
+  category: string;
+  time: string;
+  content: string;
+  domain: string;
+  color: string;
+  bgColor: string;
+  value: string;
+  sourceUrl: string;
+}
+
 const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch }: {
-  targets: TargetCompany[];
+  targets: Target[];
   selectedTargetId: number | null;
   setSelectedTargetId: (id: number | null) => void;
   onAddTarget: (name: string, url: string) => void;
@@ -652,7 +665,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
 
-  const signalsData = [
+  const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
     { id: 2, type: 'product', category: 'Feature Launch', time: '5h ago', content: 'Beta release of "AI Vision" for automated asset categorization.', domain: 'adobe.com', color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'high', sourceUrl: 'https://adobe.com/products' },
     { id: 3, type: 'pricing', category: 'Price Increase', time: '1d ago', content: 'Legacy Professional plan increasing from $12 to $15 per editor.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'medium', sourceUrl: 'https://figma.com/blog' },
@@ -669,9 +682,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     { id: 14, type: 'pricing', category: 'Discount', time: '2w ago', content: 'Limited time 20% annual discount for new education users.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'low', sourceUrl: 'https://figma.com/education' },
   ];
 
-  const [insightSignal, setInsightSignal] = useState<typeof signalsData[0] | null>(null);
+  const [insightSignal, setInsightSignal] = useState<Signal | null>(null);
 
-  const selectedTarget = (targets as any).find((t: any) => t.id === selectedTargetId) || targets[0];
+  const selectedTarget = targets.find((t) => t.id === selectedTargetId) || targets[0];
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
