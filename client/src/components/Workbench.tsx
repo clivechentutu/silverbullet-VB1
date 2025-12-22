@@ -437,6 +437,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [sortBy, setSortBy] = useState<'similarity' | 'date' | 'name'>('similarity');
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
+  const [activeScope, setActiveScope] = useState<string>('ChampSignal');
+
+  const targetScopes = [
+    { name: 'ChampSignal', url: 'champsignal.com' },
+    { name: 'OpusClip', url: 'opus.pro' }
+  ];
 
   const allSignals = [
     { id: 101, name: "CompetiShark", website: "competishark.com", features: ["Real-time pricing", "Feature comparison", "Automated reports"], score: 92, trafficData: [15000, 22000, 45000, 52000, 48000], date: "2h ago", status: "new" as const, scope: "ChampSignal" },
@@ -452,6 +458,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   ];
 
   const filteredSignals = allSignals
+    .filter(s => s.scope === activeScope)
     .filter(s => s.score >= similarityMin)
     .filter(s => searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase())))
     .sort((a, b) => {
@@ -461,9 +468,9 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     });
 
   const stats = {
-    newDiscoveries: allSignals.filter(s => s.status === 'new').length,
-    highPriority: allSignals.filter(s => s.score >= 90).length,
-    totalMonitored: allSignals.length,
+    newDiscoveries: allSignals.filter(s => s.scope === activeScope && s.status === 'new').length,
+    highPriority: allSignals.filter(s => s.scope === activeScope && s.score >= 90).length,
+    totalMonitored: allSignals.filter(s => s.scope === activeScope).length,
   };
 
   const handleStartTracking = (scenarios: string[]) => {
@@ -511,6 +518,23 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
           <Plus size={16} /> Add Product Scope
         </button>
+      </div>
+
+      <div className="flex items-center justify-between mb-4 bg-slate-900/40 p-1 rounded-xl border border-slate-800/50 w-fit">
+        {targetScopes.map((scope) => (
+          <button
+            key={scope.name}
+            onClick={() => setActiveScope(scope.name)}
+            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeScope === scope.name
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                : 'text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+            data-testid={`tab-scope-${scope.name}`}
+          >
+            {scope.name}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
