@@ -67,7 +67,17 @@ export async function registerRoutes(
     }
   });
 
-  // Targets CRUD
+  app.delete("/api/sessions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSession(id);
+      res.sendStatus(200);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get all targets
   app.get("/api/targets", async (req, res) => {
     try {
       const targets = await storage.getTargets();

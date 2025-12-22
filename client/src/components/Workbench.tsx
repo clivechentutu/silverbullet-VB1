@@ -10,7 +10,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2
+  Edit2, MoreVertical, Trash2
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -109,6 +109,13 @@ const URLPreview = ({ url }: { url: string }) => {
     </div>
   );
 };
+
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -1336,7 +1343,53 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                             ) : (
                                <MessageSquare size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
                             )}
-                            <span className="truncate">{session.title}</span>
+                            <span className="truncate flex-1">{session.title}</span>
+                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                               <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                     <button 
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          e.preventDefault();
+                                       }}
+                                       className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-500 hover:text-slate-300"
+                                     >
+                                        <MoreVertical size={14} />
+                                     </button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
+                                     <DropdownMenuItem 
+                                       className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          // Toggle favorite logic (UI only for now)
+                                          (session as any).isFavorite = !(session as any).isFavorite;
+                                          queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                                       }}
+                                     >
+                                        <Star size={14} className={(session as any).isFavorite ? "fill-yellow-400 text-yellow-400" : ""} />
+                                        <span>收藏</span>
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem 
+                                       className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
+                                       onClick={async (e) => {
+                                          e.stopPropagation();
+                                          if (confirm('确定要删除这条对话吗？')) {
+                                             await apiRequest('DELETE', `/api/sessions/${session.id}`);
+                                             queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                                             if (String(currentSessionId) === session.id) {
+                                                setActiveSession(null);
+                                                setCurrentSessionId(null);
+                                             }
+                                          }
+                                       }}
+                                     >
+                                        <Trash2 size={14} />
+                                        <span>删除</span>
+                                     </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                               </DropdownMenu>
+                            </div>
                          </div>
                       ))}
                    </div>
