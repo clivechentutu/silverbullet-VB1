@@ -465,6 +465,7 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
           title: "Figma Pricing Strategy Analysis",
           agent: "market-analyst",
           type: "general",
+          status: "active",
           messages: [
             {
               id: "1",
@@ -478,13 +479,13 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
               content: "Figma offers three main tiers: Free ($0), Professional ($12/month), and Organization (custom pricing). Their pricing strategy focuses on value-based tiers targeting different user segments.",
               timestamp: new Date().toISOString()
             }
-          ],
-          createdAt: new Date(),
-          updatedAt: new Date()
+          ]
         }),
         storage.createSession({
           title: "Market Expansion Opportunities",
           agent: "growth-strategist",
+          type: "general",
+          status: "active",
           messages: [
             {
               id: "1",
@@ -498,9 +499,7 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
               content: "Enterprise opportunities include: 1) Vertical-specific solutions for fashion, architecture, engineering. 2) AI-powered design automation. 3) Governance and compliance features for regulated industries.",
               timestamp: new Date().toISOString()
             }
-          ],
-          createdAt: new Date(),
-          updatedAt: new Date()
+          ]
         })
       ]);
 

@@ -459,6 +459,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     }
   };
 
+  const handleTrackResearch = (signal: any) => {
+    onResearch(signal);
+  };
+
+  const dummy = "fix lsp";
+
   return (
     <div className="animate-fade-in-up">
       {trackingSignal && (
