@@ -1577,13 +1577,13 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        }}
                                      >
                                         <Star size={14} className={(session as any).isFavorite ? "fill-yellow-400 text-yellow-400" : ""} />
-                                        <span>收藏</span>
+                                        <span>Favorite</span>
                                      </DropdownMenuItem>
                                      <DropdownMenuItem 
                                        className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
                                        onClick={async (e) => {
                                           e.stopPropagation();
-                                          if (confirm('确定要删除这条对话吗？')) {
+                                          if (confirm('Are you sure you want to delete this session?')) {
                                              await apiRequest('DELETE', `/api/sessions/${session.id}`);
                                              queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
                                              if (String(currentSessionId) === session.id) {
@@ -1594,7 +1594,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        }}
                                      >
                                         <Trash2 size={14} />
-                                        <span>删除</span>
+                                        <span>Delete</span>
                                      </DropdownMenuItem>
                                   </DropdownMenuContent>
                                </DropdownMenu>
