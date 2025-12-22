@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { analyzeCompetitor, chatWithGemini } from "./gemini";
+import { analyzeCompetitor, chatWithGemini, generateSignalInsight } from "./gemini";
 import { generateIntelligenceRequestSchema, chatRequestSchema, insertTargetSchema, insertResearchSessionSchema } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -74,6 +74,23 @@ export async function registerRoutes(
       res.sendStatus(200);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Signal insight endpoint
+  app.post("/api/signal-insight", async (req, res) => {
+    try {
+      const { signal, category, type, domain } = req.body;
+      
+      if (!signal || !category || !type || !domain) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const insight = await generateSignalInsight(signal, category, type, domain);
+      res.json({ insight });
+    } catch (error: any) {
+      console.error("Signal insight error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate insight" });
     }
   });
 

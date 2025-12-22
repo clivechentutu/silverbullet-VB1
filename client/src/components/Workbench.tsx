@@ -10,7 +10,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2, MoreVertical
+  Edit2, MoreVertical, Lightbulb
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -19,6 +19,13 @@ import {
   SheetTitle, 
   SheetTrigger 
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
@@ -643,6 +650,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring'>('all');
+  const [insightSignal, setInsightSignal] = useState<typeof allSignals[0] | null>(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [insightContent, setInsightContent] = useState('');
 
   const allSignals = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -1174,62 +1184,128 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </div>
                     </SheetHeader>
                     
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                      {filteredSignals.length > 0 ? filteredSignals.map(signal => (
-                        <div key={signal.id} className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group animate-in slide-in-from-right-4 duration-300">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
-                                <img src={`https://www.google.com/s2/favicons?domain=${signal.domain}&sz=32`} className="w-full h-full object-contain" alt={signal.domain} />
+                    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                      {filteredSignals.length > 0 ? (
+                        <div className="relative">
+                          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-500/50 via-slate-700 to-transparent" />
+                          <div className="space-y-4 pl-10">
+                            {filteredSignals.map((signal, index) => (
+                              <div key={signal.id} className="relative animate-in slide-in-from-right-4 duration-300">
+                                <div className="absolute -left-10 top-4 flex flex-col items-center">
+                                  <div className={`w-3 h-3 rounded-full ${signal.bgColor} ring-4 ring-slate-950 z-10`} />
+                                  <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
+                                </div>
+                                <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group">
+                                  <div className="flex justify-between items-start mb-3">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
+                                        <img src={`https://www.google.com/s2/favicons?domain=${signal.domain}&sz=32`} className="w-full h-full object-contain" alt={signal.domain} />
+                                      </div>
+                                      <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
+                                    </div>
+                                  </div>
+                                  <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
+                                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${signal.bgColor}/20 ${signal.color} border ${signal.bgColor.replace('bg-', 'border-')}/30`}>
+                                      {signal.category}
+                                    </span>
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                                      signal.value === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                                      signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                      'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                    }`}>
+                                      {signal.value === 'high' ? 'High Value' : signal.value === 'medium' ? 'Medium Value' : 'Low Value'}
+                                    </span>
+                                    <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800 text-slate-500 border border-slate-700`}>
+                                      {signal.type}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <button 
+                                      onClick={async () => {
+                                        setInsightSignal(signal);
+                                        setInsightLoading(true);
+                                        setInsightContent('');
+                                        try {
+                                          const res = await apiRequest('POST', '/api/signal-insight', {
+                                            signal: signal.content,
+                                            category: signal.category,
+                                            type: signal.type,
+                                            domain: signal.domain
+                                          });
+                                          const data = await res.json();
+                                          setInsightContent(data.insight);
+                                        } catch (e) {
+                                          setInsightContent('Unable to generate insight at this time. Please try again later.');
+                                        }
+                                        setInsightLoading(false);
+                                      }}
+                                      className="flex-1 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all border border-brand-500 flex items-center justify-center gap-1.5"
+                                      data-testid={`signal-insight-${signal.id}`}
+                                    >
+                                      <Lightbulb size={12} /> Insight
+                                    </button>
+                                    <a 
+                                      href={signal.sourceUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="p-1.5 text-slate-500 hover:text-brand-400 transition-colors flex items-center gap-1" 
+                                      data-testid={`link-signal-source-${signal.id}`}
+                                      title="View Original Source"
+                                    >
+                                      <ExternalLink size={14} />
+                                    </a>
+                                  </div>
+                                </div>
                               </div>
-                              <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
-                              <span className="text-[10px] text-slate-600">-</span>
-                              <span className="text-[10px] text-slate-500">{signal.time}</span>
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
-                          <div className="flex items-center gap-2 mb-3 flex-wrap">
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${signal.bgColor}/20 ${signal.color} border ${signal.bgColor.replace('bg-', 'border-')}/30`}>
-                              {signal.category}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                              signal.value === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                              signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                              'bg-slate-500/20 text-slate-400 border border-slate-500/30'
-                            }`}>
-                              {signal.value === 'high' ? 'High Value' : signal.value === 'medium' ? 'Medium Value' : 'Low Value'}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800 text-slate-500 border border-slate-700`}>
-                              {signal.type}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => setShowFullFeed(false)}
-                              className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all border border-slate-700"
-                              data-testid={`signal-investigate-${signal.id}`}
-                            >
-                              Investigate
-                            </button>
-                            <a 
-                              href={signal.sourceUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="p-1.5 text-slate-500 hover:text-brand-400 transition-colors flex items-center gap-1" 
-                              data-testid={`link-signal-source-${signal.id}`}
-                              title="View Original Source"
-                            >
-                              <ExternalLink size={14} />
-                            </a>
+                            ))}
                           </div>
                         </div>
-                      )) : (
+                      ) : (
                         <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4 py-20">
                           <Search size={48} className="opacity-20" />
                           <p className="text-sm font-medium">No intelligence signals found in this category.</p>
                         </div>
                       )}
                     </div>
+
+                    <Dialog open={!!insightSignal} onOpenChange={(open) => !open && setInsightSignal(null)}>
+                      <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2 text-white">
+                            <Lightbulb className="text-brand-400" size={20} />
+                            AI Insight
+                          </DialogTitle>
+                          <DialogDescription className="text-slate-400">
+                            {insightSignal?.category} - {insightSignal?.domain}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="mt-4">
+                          {insightLoading ? (
+                            <div className="flex items-center justify-center py-8">
+                              <div className="flex items-center gap-3 text-slate-400">
+                                <Loader2 className="animate-spin" size={20} />
+                                <span className="text-sm">Analyzing signal...</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-lg">
+                                <p className="text-sm text-slate-300 mb-3 italic">"{insightSignal?.content}"</p>
+                              </div>
+                              <div className="p-4 bg-brand-950/30 border border-brand-900/50 rounded-lg">
+                                <h4 className="text-sm font-bold text-brand-400 mb-2 flex items-center gap-2">
+                                  <BrainCircuit size={14} /> Analysis & Recommendations
+                                </h4>
+                                <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                  {insightContent || 'Generating insight...'}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </SheetContent>
                 </Sheet>
               </div>

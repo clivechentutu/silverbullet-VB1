@@ -189,3 +189,76 @@ Would you like me to dive deeper into any specific aspect of competitive analysi
     return "I'm currently experiencing connection issues with my analysis engine. Please try again in a moment, or use the Radar feature to discover competitors automatically.";
   }
 }
+
+export async function generateSignalInsight(signal: string, category: string, type: string, domain: string): Promise<string> {
+  const prompt = `You are a competitive intelligence analyst. Analyze this competitive signal and provide actionable insights.
+
+Signal: "${signal}"
+Category: ${category}
+Type: ${type}
+Source: ${domain}
+
+Provide a concise analysis (150-200 words) covering:
+1. **Strategic Implication**: What does this signal mean for the competitive landscape?
+2. **Potential Impact**: How might this affect our market position?
+3. **Recommended Actions**: What should we do in response?
+
+Be specific, actionable, and strategic. Avoid generic advice.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-05-20",
+      contents: prompt,
+    });
+
+    return response.text || "Unable to generate insight at this time.";
+  } catch (error: any) {
+    console.error('Gemini signal insight error:', error);
+    
+    // Fallback response
+    const fallbackResponses: Record<string, string> = {
+      pricing: `**Strategic Implication**
+This pricing change from ${domain} suggests a shift in their market positioning strategy. They may be targeting a different customer segment or responding to competitive pressure.
+
+**Potential Impact**
+This could affect our win rates in competitive deals, particularly in the mid-market segment where pricing sensitivity is high.
+
+**Recommended Actions**
+1. Review our own pricing structure for competitiveness
+2. Update sales battlecards with this new intelligence
+3. Monitor customer sentiment about this change`,
+      product: `**Strategic Implication**
+This product development from ${domain} indicates investment in innovation. It may signal their strategic direction for the next 6-12 months.
+
+**Potential Impact**
+New features could attract customers seeking these specific capabilities, potentially creating competitive displacement opportunities.
+
+**Recommended Actions**
+1. Assess our product roadmap for comparable capabilities
+2. Brief product team on this competitive move
+3. Prepare positioning responses for sales conversations`,
+      hiring: `**Strategic Implication**
+This hiring activity at ${domain} reveals their growth strategy and areas of investment focus.
+
+**Potential Impact**
+Talent acquisition in key areas could accelerate their product development or market expansion.
+
+**Recommended Actions**
+1. Track leadership changes for strategic insights
+2. Consider competitive hiring for key roles
+3. Update our understanding of their organizational structure`,
+      marketing: `**Strategic Implication**
+This marketing initiative from ${domain} signals a potential push for market share or brand awareness.
+
+**Potential Impact**
+Increased competitive visibility could affect our lead generation and brand perception.
+
+**Recommended Actions**
+1. Review our own marketing strategy and messaging
+2. Consider counter-positioning campaigns
+3. Monitor the effectiveness and reach of their campaign`
+    };
+
+    return fallbackResponses[type] || fallbackResponses.product;
+  }
+}
