@@ -21,7 +21,7 @@ export const Header = () => {
 
         <div className="flex items-center gap-4 flex-wrap">
           <button 
-            onClick={() => navigate('/debug')}
+            onClick={() => navigate('/app')}
             className="text-sm font-medium text-brand-400 hover:text-brand-300 transition-colors" 
             data-testid="link-workbench"
           >
