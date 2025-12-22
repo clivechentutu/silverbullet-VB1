@@ -434,7 +434,7 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
-  const [sortBy, setSortBy] = useState<'similarity' | 'date' | 'name'>('similarity');
+  const [sortBy, setSortBy] = useState<'similarity' | 'newest' | 'oldest' | 'name'>('similarity');
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
   const [activeScope, setActiveScope] = useState<string>('ChampSignal');
@@ -464,6 +464,28 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     .sort((a, b) => {
       if (sortBy === 'similarity') return b.score - a.score;
       if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'newest') {
+        const getDays = (d: string) => {
+          if (d.includes('h ago')) return 0;
+          if (d === 'Yesterday') return 1;
+          const match = d.match(/(\d+) day/);
+          if (match) return parseInt(match[1]);
+          if (d === '1 week ago') return 7;
+          return 999;
+        };
+        return getDays(a.date) - getDays(b.date);
+      }
+      if (sortBy === 'oldest') {
+        const getDays = (d: string) => {
+          if (d.includes('h ago')) return 0;
+          if (d === 'Yesterday') return 1;
+          const match = d.match(/(\d+) day/);
+          if (match) return parseInt(match[1]);
+          if (d === '1 week ago') return 7;
+          return 999;
+        };
+        return getDays(b.date) - getDays(a.date);
+      }
       return 0;
     });
 
@@ -584,7 +606,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             data-testid="select-sort"
           >
             <option value="similarity">Similarity</option>
-            <option value="date">Date</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
             <option value="name">Name</option>
           </select>
         </div>
