@@ -893,6 +893,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Linked in a new "Best AI Tools of 2024" comparison list.</p>
           </div>
+          <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">G2 Review Spike</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Received 25+ new 5-star reviews on G2 following the recent update.</p>
+          </div>
         </div>
       </div>
     ),
@@ -949,6 +959,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Homepage load time reduced by 40% globally.</p>
           </div>
+          <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Featured Snippet Won</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Successfully captured the featured snippet for "SaaS SEO automation".</p>
+          </div>
         </div>
       </div>
     ),
@@ -992,6 +1012,26 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Popular tech influencer published a comparison video.</p>
           </div>
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Hunt Launch</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Instagram Campaign</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">New aesthetic design showcase campaign targeting Gen Z designers.</p>
+          </div>
         </div>
       </div>
     ),
@@ -1034,6 +1074,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Named in the "Top 50 AI Startups to Watch" list.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Wired Analysis</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Wired discusses the implications of their new AI-driven design engine.</p>
           </div>
         </div>
       </div>
@@ -1089,6 +1139,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Bidding heavily on high-intent transactional keywords in the UK market.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">YouTube Video Ads</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">2 weeks ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Started a new video ad series featuring customer success stories.</p>
           </div>
         </div>
       </div>
