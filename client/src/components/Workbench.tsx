@@ -9,8 +9,15 @@ import {
   ShieldAlert, Check, Megaphone, Globe, DollarSign, Briefcase, X,
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
-  PieChart, BarChart3, Chrome, ChevronDown, ChevronRight
+  PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon
 } from 'lucide-react';
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetHeader, 
+  SheetTitle, 
+  SheetTrigger 
+} from "@/components/ui/sheet";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
@@ -807,9 +814,79 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
                     AI Intelligence Summary <span className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 text-[10px] uppercase tracking-wider">Auto-Generated</span>
                   </h3>
-                  <button className="text-[10px] font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1">
-                    <Activity size={10} /> Refresh Analysis
-                  </button>
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <button className="text-[10px] font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1.5 px-2 py-1 bg-slate-900/50 border border-slate-800 rounded-md hover:border-brand-500/30">
+                        <History size={10} className="text-brand-400" /> History Summary
+                      </button>
+                    </SheetTrigger>
+                    <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md custom-scrollbar overflow-y-auto">
+                      <SheetHeader className="mb-6">
+                        <SheetTitle className="text-white flex items-center gap-2">
+                          <History className="text-brand-500" size={20} />
+                          Intelligence History
+                        </SheetTitle>
+                        <p className="text-xs text-slate-500">Timeline of AI-generated competitor insights and alerts.</p>
+                      </SheetHeader>
+                      <div className="relative space-y-6 before:absolute before:inset-0 before:left-[11px] before:w-px before:bg-slate-800 before:h-full">
+                        {/* History Item 1 */}
+                        <div className="relative pl-8">
+                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/50 flex items-center justify-center z-10">
+                            <TrendingUp size={12} className="text-emerald-400" />
+                          </div>
+                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Market Pivot</span>
+                              <span className="text-[10px] text-slate-500">2 hours ago</span>
+                            </div>
+                            <p className="text-xs text-slate-300">Detected shift in core messaging from "Simple Design" to "Enterprise Infrastructure".</p>
+                          </div>
+                        </div>
+
+                        {/* History Item 2 */}
+                        <div className="relative pl-8">
+                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-red-500/50 flex items-center justify-center z-10">
+                            <ShieldAlert size={12} className="text-red-400" />
+                          </div>
+                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Risk</span>
+                              <span className="text-[10px] text-slate-500">Yesterday, 4:30 PM</span>
+                            </div>
+                            <p className="text-xs text-slate-300">Launched new "Scale" plan with unlimited seats, directly targeting mid-market customers.</p>
+                          </div>
+                        </div>
+
+                        {/* History Item 3 */}
+                        <div className="relative pl-8">
+                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-amber-500/50 flex items-center justify-center z-10">
+                            <Zap size={12} className="text-amber-400" />
+                          </div>
+                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Signal</span>
+                              <span className="text-[10px] text-slate-500">Dec 20, 2024</span>
+                            </div>
+                            <p className="text-xs text-slate-300">Published extensive series of case studies focusing on Fortune 500 implementations.</p>
+                          </div>
+                        </div>
+
+                        {/* History Item 4 */}
+                        <div className="relative pl-8">
+                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-blue-500/50 flex items-center justify-center z-10">
+                            <TargetIcon size={12} className="text-blue-400" />
+                          </div>
+                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Strategic Move</span>
+                              <span className="text-[10px] text-slate-500">Dec 18, 2024</span>
+                            </div>
+                            <p className="text-xs text-slate-300">Acquired a small AI startup specialized in natural language processing for dashboards.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
