@@ -635,7 +635,26 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-white truncate">{signal.name}</p>
-                        <p className="text-[10px] text-slate-500 truncate">{signal.website}</p>
+                        <div 
+                          className="relative group/url"
+                          onMouseEnter={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            // Centered on screen logic for URLPreview would need global state or context
+                            // For now, keeping it robust with local trigger
+                          }}
+                        >
+                          <a 
+                            href={signal.website.startsWith('http') ? signal.website : `https://${signal.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[10px] text-slate-500 hover:text-brand-400 transition-colors truncate block"
+                          >
+                            {signal.website}
+                          </a>
+                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/url:opacity-100 pointer-events-none transition-opacity z-50">
+                            <URLPreview url={signal.website} />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </td>
