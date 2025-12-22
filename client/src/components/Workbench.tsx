@@ -1110,6 +1110,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
 
 interface ResearchViewProps {
   initialPrompt?: string;
+  researchType?: string;
+  onTypeReset?: () => void;
 }
 
 interface ReasoningStep {
@@ -1138,7 +1140,7 @@ interface ResearchSession {
   messages: ChatMessage[];
 }
 
-const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
+const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchViewProps) => {
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -1181,7 +1183,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       const res = await apiRequest('POST', '/api/chat', { 
         sessionId, 
         message,
-        type: activeSession?.type || researchInitialType || 'general'
+        type: activeSession?.type || researchType || 'general'
       });
       return res.json();
     },
@@ -1195,7 +1197,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
       id: `temp-${Date.now()}`,
       title: 'New Investigation',
       agent: 'Deep Research Agent',
-      type: researchInitialType || 'general',
+      type: researchType || 'general',
       date: 'Just now',
       group: 'Today',
       status: 'active',
@@ -1203,7 +1205,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
     };
     setActiveSession(newSession);
     setCurrentSessionId(null);
-    setResearchInitialType('general');
+    if (onTypeReset) onTypeReset();
   };
 
   const handleSendMessage = async () => {
@@ -1227,7 +1229,7 @@ const ResearchView = ({ initialPrompt }: ResearchViewProps) => {
           id: `temp-${Date.now()}`,
           title: input.substring(0, 50),
           agent: 'Deep Research Agent',
-          type: researchInitialType || 'general',
+          type: researchType || 'general',
           date: 'Just now',
           group: 'Today',
           status: 'active',
@@ -1949,7 +1951,13 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.TARGETS:
         return <TargetsView targets={targets} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} />;
       case WorkbenchView.RESEARCH:
-        return <ResearchView initialPrompt={researchPrompt} />;
+        return (
+          <ResearchView 
+            initialPrompt={researchPrompt} 
+            researchType={researchInitialType}
+            onTypeReset={() => setResearchInitialType('general')}
+          />
+        );
       case WorkbenchView.LIBRARY:
         return <LibraryView onJumpToResearch={handleJumpToResearch} />;
       case WorkbenchView.ACTS_TEMPLATE:
