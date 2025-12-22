@@ -2453,6 +2453,11 @@ export const Workbench: React.FC = () => {
             <p className="text-xs text-slate-500">{NAV_ITEMS.find(n => n.id === activeView)?.description}</p>
           </div>
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg" data-testid="container-credits">
+              <Sparkles size={14} className="text-brand-400" />
+              <span className="text-xs font-bold text-white">2,450</span>
+              <span className="text-[10px] text-slate-500 font-medium">Credits</span>
+            </div>
             <button className="px-4 py-2 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" data-testid="button-help">
               Help & Docs
             </button>
