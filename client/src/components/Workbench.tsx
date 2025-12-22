@@ -651,11 +651,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring'>('all');
-  const [insightSignal, setInsightSignal] = useState<typeof allSignals[0] | null>(null);
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
 
-  const allSignals = [
+  const signalsData = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
     { id: 2, type: 'product', category: 'Feature Launch', time: '5h ago', content: 'Beta release of "AI Vision" for automated asset categorization.', domain: 'adobe.com', color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'high', sourceUrl: 'https://adobe.com/products' },
     { id: 3, type: 'pricing', category: 'Price Increase', time: '1d ago', content: 'Legacy Professional plan increasing from $12 to $15 per editor.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'medium', sourceUrl: 'https://figma.com/blog' },
@@ -666,10 +666,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     { id: 8, type: 'hiring', category: 'Team Expansion', time: '5d ago', content: 'Opening 15 new engineering positions for cloud infrastructure team.', domain: 'miro.com', color: 'text-orange-400', bgColor: 'bg-orange-500', value: 'medium', sourceUrl: 'https://miro.com/careers' },
   ];
 
+  const [insightSignal, setInsightSignal] = useState<typeof signalsData[0] | null>(null);
+
   const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
-  const targetSignals = allSignals.filter(s => s.domain === targetDomain);
+  const targetSignals = signalsData.filter(s => s.domain === targetDomain);
   const filteredSignals = feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter);
 
   useEffect(() => {
@@ -677,6 +679,28 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         setSelectedTargetId(targets[0].id);
     }
   }, [targets, selectedTargetId, setSelectedTargetId]);
+
+  useEffect(() => {
+    if (showFullFeed && selectedSignalId) {
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`signal-feed-${selectedSignalId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          element.classList.add('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
+          setTimeout(() => {
+            element.classList.remove('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
+          }, 2000);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showFullFeed, selectedSignalId, feedFilter]);
+
+  const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
+    setFeedFilter(category);
+    setSelectedSignalId(signalId);
+    setShowFullFeed(true);
+  };
 
   const handleAddTarget = async () => {
     if (newTargetName.trim() && newTargetUrl.trim()) {
@@ -1227,7 +1251,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <AlertZap size={16} className="text-brand-500" /> Signals ({allSignals.length} Found)
+                  <AlertZap size={16} className="text-brand-500" /> Signals ({signalsData.length} Found)
                 </h3>
                 <Sheet open={showFullFeed} onOpenChange={setShowFullFeed}>
                   <SheetTrigger asChild>
