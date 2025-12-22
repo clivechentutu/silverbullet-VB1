@@ -40,13 +40,6 @@ const URLPreview = ({ url }: { url: string }) => {
   };
 
   const handleMouseEnter = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + 12,
-        left: Math.min(rect.left, window.innerWidth - 900)
-      });
-    }
     setShowPreview(true);
   };
 
@@ -71,15 +64,9 @@ const URLPreview = ({ url }: { url: string }) => {
       
       {showPreview && (
         <div 
-          className="fixed z-50 pointer-events-none"
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`
-          }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-none"
         >
-          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto" style={{ width: '900px', height: '600px' }}>
+          <div className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200" style={{ width: '900px', height: '600px' }}>
             <div className="relative w-full h-full bg-slate-900">
               <img 
                 src={getPreviewImageUrl(url)}
