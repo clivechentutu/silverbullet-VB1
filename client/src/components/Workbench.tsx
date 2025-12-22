@@ -620,7 +620,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-800 text-left">
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Product</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Find</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
