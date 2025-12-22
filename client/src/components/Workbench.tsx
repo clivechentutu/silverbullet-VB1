@@ -493,9 +493,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               </p>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <button className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 flex items-center gap-2" data-testid="button-filter-feed">
-                 Filter Feed
-              </button>
               <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
                  <Plus size={16} /> Add Product Scope
               </button>
