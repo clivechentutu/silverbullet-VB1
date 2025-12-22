@@ -735,7 +735,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div 
+            onClick={() => handleSignalClick('web-1', 'product')}
+            className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page: New "Enterprise" Tier</p>
@@ -748,7 +751,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               View Impact & Next Action <ChevronRight size={10} />
             </button>
           </div>
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div 
+            onClick={() => handleSignalClick('web-2', 'product')}
+            className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Homepage Copy Changes</p>
@@ -782,7 +788,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
-          <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div 
+            onClick={() => handleSignalClick('backlink-1', 'marketing')}
+            className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Referring Domain Detected</p>
@@ -813,7 +822,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
-          <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div 
+            onClick={() => handleSignalClick('seo-1', 'product')}
+            className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Keyword Ranking Change</p>
@@ -1277,7 +1289,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-500/50 via-slate-700 to-transparent" />
                           <div className="space-y-4 pl-10">
                             {filteredSignals.map((signal, index) => (
-                              <div key={signal.id} className="relative animate-in slide-in-from-right-4 duration-300">
+                              <div key={signal.id} id={`signal-feed-${signal.id}`} className="relative animate-in slide-in-from-right-4 duration-300 scroll-mt-20">
                                 <div className="absolute -left-10 top-4 flex flex-col items-center">
                                   <div className={`w-3 h-3 rounded-full ${signal.bgColor} ring-4 ring-slate-950 z-10`} />
                                   <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
@@ -1444,7 +1456,31 @@ interface ResearchSession {
 }
 
 const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchViewProps) => {
-  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (showFullFeed && selectedSignalId) {
+      // Small delay to ensure the Sheet has rendered and filteredSignals are updated
+      const timer = setTimeout(() => {
+        const element = document.getElementById(`signal-feed-${selectedSignalId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Optional: highlight effect
+          element.classList.add('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
+          setTimeout(() => {
+            element.classList.remove('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
+          }, 2000);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showFullFeed, selectedSignalId, feedFilter]);
+
+  const handleSignalClick = (signalId: string, category: string) => {
+    setFeedFilter(category.toLowerCase());
+    setSelectedSignalId(signalId);
+    setShowFullFeed(true);
+  };
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
