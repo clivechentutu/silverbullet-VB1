@@ -797,6 +797,46 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
+            {/* AI Summary Area */}
+            <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-4 flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center shrink-0">
+                <Sparkles size={20} className="text-brand-400 animate-pulse" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    AI Intelligence Summary <span className="px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 text-[10px] uppercase tracking-wider">Auto-Generated</span>
+                  </h3>
+                  <button className="text-[10px] font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1">
+                    <Activity size={10} /> Refresh Analysis
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Competitor <span className="text-white font-medium">{selectedTarget.name}</span> is aggressively shifting towards enterprise market. Key signals indicate a 25% increase in high-authority backlinks and a pivot in messaging to "Team Scaling". Pricing structure has been simplified to encourage longer retention.
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <TrendingUp size={10} className="text-emerald-400" /> Market Pivot
+                    </p>
+                    <p className="text-[11px] text-slate-300">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <ShieldAlert size={10} className="text-red-400" /> Pricing Risk
+                    </p>
+                    <p className="text-[11px] text-slate-300">New "Enterprise" tier competes directly with your Pro offering.</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <Zap size={10} className="text-amber-400" /> Growth Signal
+                    </p>
+                    <p className="text-[11px] text-slate-300">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
             <div>
               <div className="flex items-center justify-between mb-6">
