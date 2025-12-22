@@ -959,11 +959,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             >
               <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative">
                 <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
-                <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${
-                  t.status === 'active' ? 'bg-emerald-500' : 
-                  t.status === 'paused' ? 'bg-amber-500' : 
-                  t.status === 'stopped' ? 'bg-red-500' : 
-                  'bg-slate-500'
+              </div>
+              <div className="flex-1 min-w-0 flex items-center gap-2">
+                <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+                  {t.name}
+                </h4>
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  t.status === 'active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
+                  t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
+                  t.status === 'stopped' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
+                  'bg-slate-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]'
                 }`} title={
                   t.status === 'active' ? 'Active' : 
                   t.status === 'paused' ? 'Paused' : 
@@ -971,9 +976,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   'Archived'
                 } />
               </div>
-              <h4 className={`text-sm font-medium truncate flex-1 ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
-                {t.name}
-              </h4>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button 
