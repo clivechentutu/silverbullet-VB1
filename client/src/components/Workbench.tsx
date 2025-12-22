@@ -10,7 +10,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2, MoreVertical, Lightbulb
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -121,7 +121,8 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
 interface SettingsModalProps {
@@ -959,9 +960,50 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden">
                 <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
-              <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
+              <h4 className={`text-sm font-medium truncate flex-1 ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                 {t.name}
               </h4>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button 
+                    onClick={(e) => e.stopPropagation()}
+                    className="p-1 hover:bg-slate-700 rounded transition-colors text-slate-500 hover:text-slate-300 opacity-0 group-hover:opacity-100"
+                  >
+                    <MoreVertical size={14} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
+                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
+                    <ChevronUp size={14} />
+                    <span>Pin to Top</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
+                    <Pause size={14} />
+                    <span>Pause Tracking</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
+                    <Archive size={14} />
+                    <span>Archive</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-slate-800" />
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (confirm('Are you sure you want to delete this target?')) {
+                        await apiRequest('DELETE', `/api/targets/${t.id}`);
+                        queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                        if (selectedTargetId === t.id) {
+                          setSelectedTargetId(null);
+                        }
+                      }
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ))}
         </div>
