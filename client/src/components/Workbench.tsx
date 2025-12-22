@@ -1456,31 +1456,7 @@ interface ResearchSession {
 }
 
 const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchViewProps) => {
-  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (showFullFeed && selectedSignalId) {
-      // Small delay to ensure the Sheet has rendered and filteredSignals are updated
-      const timer = setTimeout(() => {
-        const element = document.getElementById(`signal-feed-${selectedSignalId}`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Optional: highlight effect
-          element.classList.add('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
-          setTimeout(() => {
-            element.classList.remove('ring-2', 'ring-brand-500', 'ring-offset-2', 'ring-offset-slate-950');
-          }, 2000);
-        }
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [showFullFeed, selectedSignalId, feedFilter]);
-
-  const handleSignalClick = (signalId: string, category: string) => {
-    setFeedFilter(category.toLowerCase());
-    setSelectedSignalId(signalId);
-    setShowFullFeed(true);
-  };
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -2235,6 +2211,15 @@ export const Workbench: React.FC = () => {
   const [researchPrompt, setResearchPrompt] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
+  const [showFullFeed, setShowFullFeed] = useState(false);
+  const [feedFilter, setFeedFilter] = useState('all');
+  const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+
+  const handleSignalClick = (signalId: string, category: string) => {
+    setFeedFilter(category.toLowerCase());
+    setSelectedSignalId(signalId);
+    setShowFullFeed(true);
+  };
   const [dataInitialized, setDataInitialized] = useState(false);
 
   const { data: targets = [], isLoading: targetsLoading } = useQuery<Target[]>({

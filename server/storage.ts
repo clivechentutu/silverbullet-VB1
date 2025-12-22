@@ -18,7 +18,7 @@ export interface IStorage {
   // Targets
   getTargets(): Promise<Target[]>;
   getTarget(id: number): Promise<Target | undefined>;
-  updateTargetStatus(id: number, status: 'active' | 'paused' | 'stopped' | 'archived'): Promise<Target | undefined>;
+  updateTargetStatus(id: number, status: string): Promise<Target | undefined>;
   createTarget(target: InsertTarget): Promise<Target>;
   deleteTarget(id: number): Promise<void>;
   
@@ -73,7 +73,7 @@ export class DatabaseStorage implements IStorage {
     return target;
   }
 
-  async updateTargetStatus(id: number, status: 'active' | 'paused' | 'stopped' | 'archived'): Promise<Target | undefined> {
+  async updateTargetStatus(id: number, status: string): Promise<Target | undefined> {
     const [updated] = await db
       .update(targets)
       .set({ status })
