@@ -2461,9 +2461,6 @@ export const Workbench: React.FC = () => {
             <button className="px-4 py-2 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" data-testid="button-help">
               Help & Docs
             </button>
-            <button className="px-4 py-2 text-xs font-medium text-slate-950 bg-brand-500 rounded-lg hover:bg-brand-400 transition-colors shadow-[0_0_15px_rgba(20,184,166,0.2)]" data-testid="button-upgrade">
-              Upgrade
-            </button>
           </div>
         </header>
 
