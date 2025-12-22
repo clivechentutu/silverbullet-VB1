@@ -764,9 +764,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
-            onClick={() => handleSignalClick('web-1', 'product')}
+            onClick={() => handleSignalClick('web-1', 'pricing')}
             className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
             <div className="flex items-start justify-between gap-2 mb-1.5">
@@ -797,6 +797,46 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               View Impact & Next Action <ChevronRight size={10} />
             </button>
           </div>
+          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Solutions Page</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Launched vertical-specific solution pages for Fintech and Healthcare.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Cookie Policy Update</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full shrink-0">INFO</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Minor updates to compliance documentation and cookie consent.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Blog Post: AI Ethics</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Published a comprehensive guide on ethical AI implementation in design.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Career Page: 15 New Openings</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Significant expansion in the engineering and product teams announced.</p>
+          </div>
         </div>
       </div>
     ),
@@ -817,7 +857,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
             onClick={() => handleSignalClick('backlink-1', 'marketing')}
             className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
@@ -843,6 +883,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Previous link from "Top SaaS Trends" article was removed or changed.</p>
           </div>
+          <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Competitor Comparison</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Linked in a new "Best AI Tools of 2024" comparison list.</p>
+          </div>
         </div>
       </div>
     ),
@@ -863,7 +913,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
             onClick={() => handleSignalClick('seo-1', 'product')}
             className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
@@ -889,6 +939,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Added 12 new documentation pages for specialized API integrations.</p>
           </div>
+          <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Site Speed Improvement</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Homepage load time reduced by 40% globally.</p>
+          </div>
         </div>
       </div>
     ),
@@ -909,7 +969,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
             className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
@@ -921,6 +981,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">A user's review of their new collaborative features is trending on X (Twitter).</p>
+          </div>
+          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">New YouTube Review</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Popular tech influencer published a comparison video.</p>
           </div>
         </div>
       </div>
@@ -942,7 +1012,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
             className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
@@ -954,6 +1024,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Comprehensive deep-dive article on their recent $50M series B funding.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Forbes Listing</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Named in the "Top 50 AI Startups to Watch" list.</p>
           </div>
         </div>
       </div>
@@ -975,7 +1055,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
           <div 
             className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
@@ -999,6 +1079,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Increased spend by 15% on retargeting ads for users who visited the pricing page.</p>
+          </div>
+          <div className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Google Search Ad Expansion</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Bidding heavily on high-intent transactional keywords in the UK market.</p>
           </div>
         </div>
       </div>
