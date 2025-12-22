@@ -674,17 +674,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     setDraggedTracker(null);
   };
 
-  const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
-
-  const handleAddTarget = async () => {
-    if (newTargetName.trim() && newTargetUrl.trim()) {
-      await onAddTarget(newTargetName.trim(), newTargetUrl.trim());
-      setNewTargetName('');
-      setNewTargetUrl('');
-      setShowAddModal(false);
-    }
-  };
-
   const trackers: Record<string, React.ReactNode> = {
     website: (
       <div 
