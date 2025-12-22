@@ -944,6 +944,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </div>
               </div>
               <div className="flex gap-2">
+                <button 
+                  onClick={() => handleTrackResearch(selectedTarget.name)}
+                  className="px-4 py-2 text-sm font-medium bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg transition-all flex items-center gap-2"
+                >
+                  <Bot size={14} /> Analyze with AI
+                </button>
                 <button className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors" data-testid="button-edit-config">
                   Edit Configuration
                 </button>
@@ -1047,7 +1053,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Strategic Move</span>
                               <span className="text-[10px] text-slate-500">Dec 18, 2024</span>
                             </div>
-                            <p className="text-xs text-slate-300">Acquired a small AI startup specialized in natural language processing for dashboards.</p>
+                            <p className="text-xs text-slate-300">Quietly updated Enterprise SLA terms, matching your recent platform uptime guarantee.</p>
                           </div>
                         </div>
                       </div>
