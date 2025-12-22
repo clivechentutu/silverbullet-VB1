@@ -426,6 +426,15 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
   // Demo data initialization
   app.post("/api/init-demo-data", async (req, res) => {
     try {
+      // Check if targets already exist - only initialize if empty
+      const existingTargets = await storage.getTargets();
+      if (existingTargets.length > 0) {
+        return res.json({ 
+          message: "Demo data already exists", 
+          targetsCount: existingTargets.length 
+        });
+      }
+
       // Create sample targets
       const targets = await Promise.all([
         storage.createTarget({
