@@ -47,42 +47,21 @@ const TrafficChart = ({ data }: { data: number[] }) => {
 
 const URLPreview = ({ url }: { url: string }) => {
   const [showPreview, setShowPreview] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLAnchorElement>(null);
-
-  const getPreviewImageUrl = (domain: string) => {
-    return `https://api.microlink.io/?url=https://${domain}&screenshot=true&meta=false&force=true&viewport.width=1400&viewport.height=900`;
-  };
-
-  const handleMouseEnter = () => {
-    // We remove position calculation logic since it's now centered fixed
-    if (leaveTimeoutRef.current) {
-      clearTimeout(leaveTimeoutRef.current);
-      leaveTimeoutRef.current = null;
-    }
-    setShowPreview(true);
-  };
-
-  const handleMouseLeave = () => {
-    // Add a small delay to prevent flickering when mouse passes through overlay boundaries
-    leaveTimeoutRef.current = setTimeout(() => {
-      setShowPreview(false);
-    }, 100);
-  };
-
-  const leaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
+  
+  // Using microlink for screenshots as a robust way to get a visual preview
+  const previewUrl = `https://api.microlink.io/?url=${encodeURIComponent(normalizedUrl)}&screenshot=true&embed=screenshot.url`;
 
   return (
     <div className="inline-block relative">
       <a 
-        ref={triggerRef}
-        href={`https://${url}`}
+        href={normalizedUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        className="text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1 bg-slate-950 px-2 py-0.5 rounded border border-slate-800 hover:border-slate-600 transition-colors cursor-pointer"
-        data-testid={`url-preview-${url}`}
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={() => setShowPreview(false)}
+        className="text-xs font-mono text-slate-400 hover:text-brand-400 flex items-center gap-1 transition-colors cursor-pointer"
+        data-testid={`url-preview-trigger-${url}`}
       >
         {url} <ExternalLink size={10} />
       </a>
@@ -92,23 +71,24 @@ const URLPreview = ({ url }: { url: string }) => {
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-none"
         >
           <div 
-            className="bg-slate-950 border border-slate-700 rounded-lg overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200" 
-            style={{ width: '900px', height: '600px' }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            className="bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200 flex flex-col" 
+            style={{ width: '800px', height: '500px' }}
           >
-            <div className="relative w-full h-full bg-slate-900">
-              <img 
-                src={getPreviewImageUrl(url)}
-                alt={`Preview of ${url}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Crect fill='%231e293b' width='900' height='600'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%2394a3b8' font-size='20' font-family='monospace'%3ELoading preview...%3C/text%3E%3C/svg%3E`;
-                }}
-              />
-              <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/60 to-transparent p-4">
-                <p className="text-sm text-white font-mono font-bold">{url}</p>
+            <div className="px-4 py-2 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Globe size={14} className="text-slate-400" />
+                <span className="text-xs font-mono text-white">{url}</span>
               </div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Live Preview</span>
+            </div>
+            <div className="relative flex-1 bg-slate-900 overflow-hidden">
+              <img 
+                src={previewUrl}
+                alt={`Preview of ${url}`}
+                className="w-full h-full object-cover object-top"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/20" />
             </div>
           </div>
         </div>
@@ -635,26 +615,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-white truncate">{signal.name}</p>
-                        <div 
-                          className="relative group/url"
-                          onMouseEnter={(e) => {
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            // Centered on screen logic for URLPreview would need global state or context
-                            // For now, keeping it robust with local trigger
-                          }}
-                        >
-                          <a 
-                            href={signal.website.startsWith('http') ? signal.website : `https://${signal.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[10px] text-slate-500 hover:text-brand-400 transition-colors truncate block"
-                          >
-                            {signal.website}
-                          </a>
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover/url:opacity-100 pointer-events-none transition-opacity z-50">
-                            <URLPreview url={signal.website} />
-                          </div>
-                        </div>
+                        <URLPreview url={signal.website} />
                       </div>
                     </div>
                   </td>
