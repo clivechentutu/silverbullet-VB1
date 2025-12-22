@@ -512,29 +512,36 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           </div>
           <div>
             <h2 className="text-xl font-bold text-white">Market Radar</h2>
-            <p className="text-sm text-slate-400">Active surveillance across <span className="text-white font-medium">2 product scopes</span></p>
+            <p className="text-sm text-slate-400">Active surveillance across <span className="text-white font-medium">{targetScopes.length} product scopes</span></p>
           </div>
         </div>
-        <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
-          <Plus size={16} /> Add Product Scope
-        </button>
       </div>
 
-      <div className="flex items-center justify-between mb-4 bg-slate-900/40 p-1 rounded-xl border border-slate-800/50 w-fit">
-        {targetScopes.map((scope) => (
-          <button
-            key={scope.name}
-            onClick={() => setActiveScope(scope.name)}
-            className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeScope === scope.name
-                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800'
-            }`}
-            data-testid={`tab-scope-${scope.name}`}
-          >
-            {scope.name}
-          </button>
-        ))}
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center bg-slate-900/40 p-1 rounded-xl border border-slate-800/50 w-fit">
+          {targetScopes.map((scope) => (
+            <button
+              key={scope.name}
+              onClick={() => setActiveScope(scope.name)}
+              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all ${
+                activeScope === scope.name
+                  ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
+              }`}
+              data-testid={`tab-scope-${scope.name}`}
+            >
+              {scope.name}
+            </button>
+          ))}
+        </div>
+        
+        <button 
+          className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900/40 border border-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+          data-testid="button-add-scope"
+          title="Add Product Scope"
+        >
+          <Plus size={18} />
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
