@@ -113,11 +113,11 @@ export const LandingPage = () => {
             </div>
             <div className="mt-4 flex justify-center gap-2">
               <button
-                onClick={() => navigate('/debug')}
+                onClick={() => navigate('/app')}
                 className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
                 data-testid="button-debug"
               >
-                Debug: Preview Workbench
+                Go to Workbench
               </button>
             </div>
             {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (

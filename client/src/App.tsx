@@ -46,7 +46,7 @@ function AuthenticatedRouter() {
       <Route path="/workbench">
         <ProtectedRoute component={Workbench} />
       </Route>
-      <Route path="/debug">
+      <Route path="/app">
         <Workbench />
       </Route>
       <Route component={NotFound} />
