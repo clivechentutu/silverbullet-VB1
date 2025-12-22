@@ -629,11 +629,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   );
 };
 
-const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget }: {
+const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch }: {
   targets: TargetCompany[];
   selectedTargetId: number | null;
   setSelectedTargetId: (id: number | null) => void;
   onAddTarget: (name: string, url: string) => void;
+  onTrackResearch: (targetName: string) => void;
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTargetName, setNewTargetName] = useState('');
@@ -658,6 +659,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
   const targetSignals = allSignals.filter(s => s.domain === targetDomain);
+  const filteredSignals = feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter);
+
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
         setSelectedTargetId(targets[0].id);
@@ -973,7 +976,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <div className="flex gap-2">
                 <button 
-                  onClick={() => handleTrackResearch(selectedTarget.name)}
+                  onClick={() => onTrackResearch(selectedTarget.name)}
                   className="px-4 py-2 text-sm font-medium bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg transition-all flex items-center gap-2"
                 >
                   <Bot size={14} /> Analyze with AI
@@ -2113,7 +2116,7 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.RADAR:
         return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
       case WorkbenchView.TARGETS:
-        return <TargetsView targets={targets} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} />;
+        return <TargetsView targets={targets} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} />;
       case WorkbenchView.RESEARCH:
         return (
           <ResearchView 
