@@ -455,7 +455,6 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState<'similarity' | 'date' | 'name'>('similarity');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'monitoring' | 'new' | 'archived'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
 
@@ -474,7 +473,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
 
   const filteredSignals = allSignals
     .filter(s => s.score >= similarityMin)
-    .filter(s => statusFilter === 'all' || s.status === statusFilter)
     .filter(s => searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase())))
     .sort((a, b) => {
       if (sortBy === 'similarity') return b.score - a.score;
@@ -580,21 +578,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">Status:</span>
-          <select 
-            value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-500"
-            data-testid="select-status"
-          >
-            <option value="all">All</option>
-            <option value="new">New</option>
-            <option value="monitoring">Monitoring</option>
-            <option value="review">Under Review</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500">Similarity:</span>
           <span className="text-xs text-brand-400 font-medium">{similarityMin}%+</span>
           <input 
@@ -631,7 +614,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Trend</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
@@ -680,9 +662,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       data={signal.trafficData} 
                       color={signal.trafficData[signal.trafficData.length - 1] > signal.trafficData[0] ? '#14b8a6' : '#ef4444'} 
                     />
-                  </td>
-                  <td className="px-4 py-3">
-                    {getStatusBadge(signal.status)}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
