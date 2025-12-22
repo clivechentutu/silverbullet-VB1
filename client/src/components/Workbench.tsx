@@ -778,9 +778,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <button className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors" data-testid="button-edit-config">
                   Edit Configuration
                 </button>
-                <button className="px-4 py-2 text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors" data-testid="button-generate-report">
-                  Generate Report
-                </button>
               </div>
             </div>
 
