@@ -957,8 +957,19 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
               data-testid={`target-item-${t.id}`}
             >
-              <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative">
                 <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
+                <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${
+                  t.status === 'active' ? 'bg-emerald-500' : 
+                  t.status === 'paused' ? 'bg-amber-500' : 
+                  t.status === 'stopped' ? 'bg-red-500' : 
+                  'bg-slate-500'
+                }`} title={
+                  t.status === 'active' ? 'Active' : 
+                  t.status === 'paused' ? 'Paused' : 
+                  t.status === 'stopped' ? 'Stopped' : 
+                  'Archived'
+                } />
               </div>
               <h4 className={`text-sm font-medium truncate flex-1 ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                 {t.name}
@@ -973,16 +984,48 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
-                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                    <ChevronUp size={14} />
-                    <span>Pin to Top</span>
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'active' });
+                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                    }}
+                  >
+                    <Activity size={14} className="text-emerald-500" />
+                    <span>Activate</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                    <Pause size={14} />
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'paused' });
+                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                    }}
+                  >
+                    <Pause size={14} className="text-amber-500" />
                     <span>Pause Tracking</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800">
-                    <Archive size={14} />
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'stopped' });
+                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                    }}
+                  >
+                    <X size={14} className="text-red-500" />
+                    <span>Stop Tracking</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'archived' });
+                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                    }}
+                  >
+                    <Archive size={14} className="text-slate-500" />
                     <span>Archive</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-slate-800" />

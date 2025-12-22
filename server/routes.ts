@@ -126,6 +126,23 @@ export async function registerRoutes(
     }
   });
 
+  app.patch("/api/targets/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      const updated = await storage.updateTargetStatus(id, status);
+      if (!updated) {
+        return res.status(404).json({ error: "Target not found" });
+      }
+      res.json(updated);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Reports CRUD
   app.get("/api/reports", async (req, res) => {
     try {

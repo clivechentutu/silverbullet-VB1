@@ -18,6 +18,7 @@ export interface IStorage {
   // Targets
   getTargets(): Promise<Target[]>;
   getTarget(id: number): Promise<Target | undefined>;
+  updateTargetStatus(id: number, status: 'active' | 'paused' | 'stopped' | 'archived'): Promise<Target | undefined>;
   createTarget(target: InsertTarget): Promise<Target>;
   deleteTarget(id: number): Promise<void>;
   
@@ -70,6 +71,15 @@ export class DatabaseStorage implements IStorage {
   async getTarget(id: number): Promise<Target | undefined> {
     const [target] = await db.select().from(targets).where(eq(targets.id, id));
     return target;
+  }
+
+  async updateTargetStatus(id: number, status: 'active' | 'paused' | 'stopped' | 'archived'): Promise<Target | undefined> {
+    const [updated] = await db
+      .update(targets)
+      .set({ status })
+      .where(eq(targets.id, id))
+      .returning();
+    return updated;
   }
 
   async createTarget(target: InsertTarget): Promise<Target> {

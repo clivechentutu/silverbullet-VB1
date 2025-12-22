@@ -34,6 +34,7 @@ export const targets = pgTable("targets", {
   name: text("name").notNull(),
   url: text("url").notNull(),
   icon: text("icon").notNull(),
+  status: text("status").notNull().default("active"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -142,6 +143,7 @@ export interface TargetCompany {
   name: string;
   url: string;
   icon: string;
+  status: 'active' | 'paused' | 'stopped' | 'archived';
 }
 
 export interface ReasoningStep {
