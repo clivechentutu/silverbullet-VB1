@@ -645,14 +645,14 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring'>('all');
 
   const allSignals = [
-    { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500' },
-    { id: 2, type: 'product', category: 'Feature Launch', time: '5h ago', content: 'Beta release of "AI Vision" for automated asset categorization.', domain: 'adobe.com', color: 'text-blue-400', bgColor: 'bg-blue-500' },
-    { id: 3, type: 'pricing', category: 'Price Increase', time: '1d ago', content: 'Legacy Professional plan increasing from $12 to $15 per editor.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500' },
-    { id: 4, type: 'hiring', category: 'Key Hire', time: '2d ago', content: 'New VP of Engineering hired from Canva to lead AI initiatives.', domain: 'sketch.com', color: 'text-orange-400', bgColor: 'bg-orange-500' },
-    { id: 5, type: 'marketing', category: 'Campaign Start', time: '3d ago', content: 'Major outdoor campaign launched in SF targeting design agencies.', domain: 'miro.com', color: 'text-purple-400', bgColor: 'bg-purple-500' },
-    { id: 6, type: 'product', category: 'New Integration', time: '3d ago', content: 'Slack integration now supports real-time design updates and comments.', domain: 'figma.com', color: 'text-blue-400', bgColor: 'bg-blue-500' },
-    { id: 7, type: 'marketing', category: 'Content Push', time: '4d ago', content: 'Published 12 new case studies featuring Fortune 500 companies.', domain: 'adobe.com', color: 'text-purple-400', bgColor: 'bg-purple-500' },
-    { id: 8, type: 'hiring', category: 'Team Expansion', time: '5d ago', content: 'Opening 15 new engineering positions for cloud infrastructure team.', domain: 'miro.com', color: 'text-orange-400', bgColor: 'bg-orange-500' },
+    { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
+    { id: 2, type: 'product', category: 'Feature Launch', time: '5h ago', content: 'Beta release of "AI Vision" for automated asset categorization.', domain: 'adobe.com', color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'high', sourceUrl: 'https://adobe.com/products' },
+    { id: 3, type: 'pricing', category: 'Price Increase', time: '1d ago', content: 'Legacy Professional plan increasing from $12 to $15 per editor.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'medium', sourceUrl: 'https://figma.com/blog' },
+    { id: 4, type: 'hiring', category: 'Key Hire', time: '2d ago', content: 'New VP of Engineering hired from Canva to lead AI initiatives.', domain: 'sketch.com', color: 'text-orange-400', bgColor: 'bg-orange-500', value: 'high', sourceUrl: 'https://linkedin.com/company/sketch' },
+    { id: 5, type: 'marketing', category: 'Campaign Start', time: '3d ago', content: 'Major outdoor campaign launched in SF targeting design agencies.', domain: 'miro.com', color: 'text-purple-400', bgColor: 'bg-purple-500', value: 'medium', sourceUrl: 'https://miro.com/campaigns' },
+    { id: 6, type: 'product', category: 'New Integration', time: '3d ago', content: 'Slack integration now supports real-time design updates and comments.', domain: 'figma.com', color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://figma.com/integrations' },
+    { id: 7, type: 'marketing', category: 'Content Push', time: '4d ago', content: 'Published 12 new case studies featuring Fortune 500 companies.', domain: 'adobe.com', color: 'text-purple-400', bgColor: 'bg-purple-500', value: 'low', sourceUrl: 'https://adobe.com/case-studies' },
+    { id: 8, type: 'hiring', category: 'Team Expansion', time: '5d ago', content: 'Opening 15 new engineering positions for cloud infrastructure team.', domain: 'miro.com', color: 'text-orange-400', bgColor: 'bg-orange-500', value: 'medium', sourceUrl: 'https://miro.com/careers' },
   ];
 
   const selectedTarget = targets.find(t => t.id === selectedTargetId) || targets[0];
@@ -1177,20 +1177,32 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
                       {filteredSignals.length > 0 ? filteredSignals.map(signal => (
                         <div key={signal.id} className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group animate-in slide-in-from-right-4 duration-300">
-                          <div className="flex justify-between items-start mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-[10px] font-bold uppercase tracking-wider ${signal.color}`}>{signal.category}</span>
-                              <span className="text-[10px] text-slate-600">|</span>
-                              <span className="text-[10px] text-slate-500">{signal.time}</span>
-                            </div>
+                          <div className="flex justify-between items-start mb-3">
                             <div className="flex items-center gap-2">
                               <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
                                 <img src={`https://www.google.com/s2/favicons?domain=${signal.domain}&sz=32`} className="w-full h-full object-contain" alt={signal.domain} />
                               </div>
                               <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
+                              <span className="text-[10px] text-slate-600">-</span>
+                              <span className="text-[10px] text-slate-500">{signal.time}</span>
                             </div>
                           </div>
-                          <p className="text-sm text-slate-200 leading-relaxed mb-4">{signal.content}</p>
+                          <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
+                          <div className="flex items-center gap-2 mb-3 flex-wrap">
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${signal.bgColor}/20 ${signal.color} border ${signal.bgColor.replace('bg-', 'border-')}/30`}>
+                              {signal.category}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                              signal.value === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                              signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                              'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                            }`}>
+                              {signal.value === 'high' ? 'High Value' : signal.value === 'medium' ? 'Medium Value' : 'Low Value'}
+                            </span>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800 text-slate-500 border border-slate-700`}>
+                              {signal.type}
+                            </span>
+                          </div>
                           <div className="flex items-center gap-2">
                             <button 
                               onClick={() => setShowFullFeed(false)}
@@ -1199,9 +1211,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                             >
                               Investigate
                             </button>
-                            <button className="p-1.5 text-slate-500 hover:text-white transition-colors" data-testid={`button-signal-history-${signal.id}`}>
-                              <History size={14} />
-                            </button>
+                            <a 
+                              href={signal.sourceUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="p-1.5 text-slate-500 hover:text-brand-400 transition-colors flex items-center gap-1" 
+                              data-testid={`link-signal-source-${signal.id}`}
+                              title="View Original Source"
+                            >
+                              <ExternalLink size={14} />
+                            </a>
                           </div>
                         </div>
                       )) : (
