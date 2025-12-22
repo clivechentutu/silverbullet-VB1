@@ -640,6 +640,21 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [newTargetUrl, setNewTargetUrl] = useState('');
   const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads']);
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
+  const [showFullFeed, setShowFullFeed] = useState(false);
+  const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring'>('all');
+
+  const allSignals = [
+    { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500' },
+    { id: 2, type: 'product', category: 'Feature Launch', time: '5h ago', content: 'Beta release of "AI Vision" for automated asset categorization.', domain: 'adobe.com', color: 'text-blue-400', bgColor: 'bg-blue-500' },
+    { id: 3, type: 'pricing', category: 'Price Increase', time: '1d ago', content: 'Legacy Professional plan increasing from $12 to $15 per editor.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500' },
+    { id: 4, type: 'hiring', category: 'Key Hire', time: '2d ago', content: 'New VP of Engineering hired from Canva to lead AI initiatives.', domain: 'sketch.com', color: 'text-orange-400', bgColor: 'bg-orange-500' },
+    { id: 5, type: 'marketing', category: 'Campaign Start', time: '3d ago', content: 'Major outdoor campaign launched in SF targeting design agencies.', domain: 'miro.com', color: 'text-purple-400', bgColor: 'bg-purple-500' },
+    { id: 6, type: 'product', category: 'New Integration', time: '3d ago', content: 'Slack integration now supports real-time design updates and comments.', domain: 'figma.com', color: 'text-blue-400', bgColor: 'bg-blue-500' },
+    { id: 7, type: 'marketing', category: 'Content Push', time: '4d ago', content: 'Published 12 new case studies featuring Fortune 500 companies.', domain: 'adobe.com', color: 'text-purple-400', bgColor: 'bg-purple-500' },
+    { id: 8, type: 'hiring', category: 'Team Expansion', time: '5d ago', content: 'Opening 15 new engineering positions for cloud infrastructure team.', domain: 'miro.com', color: 'text-orange-400', bgColor: 'bg-orange-500' },
+  ];
+
+  const filteredSignals = feedFilter === 'all' ? allSignals : allSignals.filter(s => s.type === feedFilter);
 
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
@@ -1100,11 +1115,101 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <AlertZap size={16} className="text-brand-500" /> Signals (2 Found)
+                  <AlertZap size={16} className="text-brand-500" /> Signals ({allSignals.length} Found)
                 </h3>
-                <button className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors">
-                  View Full Feed
-                </button>
+                <Sheet open={showFullFeed} onOpenChange={setShowFullFeed}>
+                  <SheetTrigger asChild>
+                    <button 
+                      className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                      data-testid="button-view-full-feed"
+                    >
+                      View Full Feed
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-full sm:max-w-xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
+                    <SheetHeader className="p-6 border-b border-slate-800 shrink-0">
+                      <SheetTitle className="text-xl font-bold text-white flex items-center gap-2">
+                        <AlertZap size={20} className="text-brand-500" /> All Intelligence Signals
+                      </SheetTitle>
+                      <p className="text-xs text-slate-500 mt-1">Real-time intelligence feed from all tracked sources.</p>
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        <button 
+                          onClick={() => setFeedFilter('all')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="filter-all"
+                        >
+                          All ({allSignals.length})
+                        </button>
+                        <button 
+                          onClick={() => setFeedFilter('pricing')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="filter-pricing"
+                        >
+                          <DollarSign size={12} /> Pricing ({allSignals.filter(s => s.type === 'pricing').length})
+                        </button>
+                        <button 
+                          onClick={() => setFeedFilter('product')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="filter-product"
+                        >
+                          <Globe size={12} /> Product ({allSignals.filter(s => s.type === 'product').length})
+                        </button>
+                        <button 
+                          onClick={() => setFeedFilter('marketing')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="filter-marketing"
+                        >
+                          <Megaphone size={12} /> Marketing ({allSignals.filter(s => s.type === 'marketing').length})
+                        </button>
+                        <button 
+                          onClick={() => setFeedFilter('hiring')}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="filter-hiring"
+                        >
+                          <Briefcase size={12} /> Hiring ({allSignals.filter(s => s.type === 'hiring').length})
+                        </button>
+                      </div>
+                    </SheetHeader>
+                    
+                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                      {filteredSignals.length > 0 ? filteredSignals.map(signal => (
+                        <div key={signal.id} className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group animate-in slide-in-from-right-4 duration-300">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-bold uppercase tracking-wider ${signal.color}`}>{signal.category}</span>
+                              <span className="text-[10px] text-slate-600">|</span>
+                              <span className="text-[10px] text-slate-500">{signal.time}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
+                                <img src={`https://www.google.com/s2/favicons?domain=${signal.domain}&sz=32`} className="w-full h-full object-contain" alt={signal.domain} />
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
+                            </div>
+                          </div>
+                          <p className="text-sm text-slate-200 leading-relaxed mb-4">{signal.content}</p>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setShowFullFeed(false)}
+                              className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all border border-slate-700"
+                              data-testid={`signal-investigate-${signal.id}`}
+                            >
+                              Investigate
+                            </button>
+                            <button className="p-1.5 text-slate-500 hover:text-white transition-colors" data-testid={`button-signal-history-${signal.id}`}>
+                              <History size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4 py-20">
+                          <Search size={48} className="opacity-20" />
+                          <p className="text-sm font-medium">No intelligence signals found in this category.</p>
+                        </div>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-max">
