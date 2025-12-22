@@ -831,6 +831,18 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">High-authority tech blog linked to product page.</p>
           </div>
+          <div 
+            className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Lost Backlink: Forbes Tech</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Previous link from "Top SaaS Trends" article was removed or changed.</p>
+          </div>
         </div>
       </div>
     ),
@@ -863,6 +875,19 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Main competitor jumped to #1 for "AI Design Tools".</p>
+          </div>
+          <div 
+            className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">New Indexed Pages: 12</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">3 hours ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Added 12 new documentation pages for specialized API integrations.</p>
           </div>
         </div>
       </div>
@@ -884,6 +909,20 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
         </div>
+        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+          <div 
+            className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Viral Thread Detected</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">1 hour ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">A user's review of their new collaborative features is trending on X (Twitter).</p>
+          </div>
+        </div>
       </div>
     ),
     news: (
@@ -901,6 +940,21 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">News Mentions</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Press coverage.</p>
           </div>
+          <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
+        </div>
+        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+          <div 
+            className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">TechCrunch Feature</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">4 hours ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Comprehensive deep-dive article on their recent $50M series B funding.</p>
+          </div>
         </div>
       </div>
     ),
@@ -912,16 +966,43 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'ads')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/40 rounded-lg overflow-hidden hover:border-orange-500/60 transition-all cursor-move ${draggedTracker === 'ads' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
-        <div className="px-4 py-3 border-b border-orange-500/20 bg-orange-500/5 flex items-center gap-2.5">
-          <DollarSign size={16} className="text-orange-400 shrink-0" />
+        className={`bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/40 rounded-lg overflow-hidden hover:border-amber-500/60 transition-all cursor-move ${draggedTracker === 'ads' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        <div className="px-4 py-3 border-b border-amber-500/20 bg-amber-500/5 flex items-center gap-2.5">
+          <DollarSign size={16} className="text-amber-400 shrink-0" />
           <div className="flex-1 min-w-0">
             <h4 className="font-bold text-white text-xs">Ads Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Ad spend.</p>
           </div>
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
+        </div>
+        <div className="px-4 py-2.5 max-h-80 overflow-y-auto custom-scrollbar space-y-2">
+          <div 
+            className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">New LinkedIn Ad Campaign</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Targeting decision makers at mid-market design agencies with "Free Enterprise Trial".</p>
+          </div>
+          <div 
+            className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Facebook Retargeting Boost</p>
+                <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+              </div>
+              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </div>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Increased spend by 15% on retargeting ads for users who visited the pricing page.</p>
+          </div>
         </div>
       </div>
-    )
+    ),
   };
 
   if (targets.length === 0) {
