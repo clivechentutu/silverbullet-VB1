@@ -10,7 +10,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -392,72 +392,100 @@ const TrackingConfigurationModal: React.FC<TrackingConfigurationModalProps> = ({
   );
 };
 
+const SimilarityRing = ({ value, size = 32 }: { value: number; size?: number }) => {
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (value / 100) * circumference;
+  const color = value >= 90 ? '#14b8a6' : value >= 75 ? '#3b82f6' : value >= 60 ? '#eab308' : '#64748b';
+  
+  return (
+    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg className="transform -rotate-90" width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-slate-800"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="absolute text-[10px] font-bold text-white">{value}%</span>
+    </div>
+  );
+};
+
+const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const width = 80;
+  const height = 24;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * height;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return (
+    <svg width={width} height={height} className="opacity-80">
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        points={points}
+      />
+    </svg>
+  );
+};
+
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
+  const [sortBy, setSortBy] = useState<'similarity' | 'date' | 'name'>('similarity');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'monitoring' | 'new' | 'archived'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [similarityMin, setSimilarityMin] = useState(60);
 
-  const scopes = [
-    {
-      id: 1,
-      name: "ChampSignal",
-      url: "champsignal.com",
-      status: "Scanning",
-      signals: [
-        { 
-          id: 101, 
-          name: "CompetiShark", 
-          website: "competishark.com",
-          desc: "Automated competitive analysis platform with similar UI patterns.", 
-          score: 92, 
-          trafficData: [15000, 22000, 45000],
-          date: "2h ago",
-          regDate: "2023-09-15"
-        },
-        { 
-          id: 102, 
-          name: "MarketMind", 
-          website: "marketmind.io",
-          desc: "AI-driven market intelligence specifically for enterprise sales teams.", 
-          score: 85, 
-          trafficData: [8000, 8500, 9200],
-          date: "5h ago",
-          regDate: "2023-10-02" 
-        },
-      ]
-    },
-    {
-      id: 2,
-      name: "OpusClip",
-      url: "opus.pro",
-      status: "Scanning",
-      signals: [
-        { 
-          id: 201, 
-          name: "Vizard.ai", 
-          website: "vizard.ai",
-          desc: "AI video editor optimized for social media clips and virality.", 
-          score: 98, 
-          trafficData: [450000, 680000, 1200000],
-          date: "1d ago",
-          regDate: "2023-05-20" 
-        },
-        { 
-          id: 202, 
-          name: "Munch", 
-          website: "getmunch.com",
-          desc: "Repurpose long-form video into shorts using generative AI.", 
-          score: 94, 
-          trafficData: [300000, 420000, 580000],
-          date: "1d ago",
-          regDate: "2023-06-11"
-        },
-      ]
-    }
+  const allSignals = [
+    { id: 101, name: "CompetiShark", website: "competishark.com", features: ["Real-time pricing", "Feature comparison", "Automated reports"], score: 92, trafficData: [15000, 22000, 45000, 52000, 48000], date: "2h ago", status: "new" as const, scope: "ChampSignal" },
+    { id: 102, name: "MarketMind", website: "marketmind.io", features: ["Predictive analytics", "Sentiment analysis", "Competitive alerts"], score: 85, trafficData: [8000, 8500, 9200, 9800, 10200], date: "Yesterday", status: "review" as const, scope: "ChampSignal" },
+    { id: 103, name: "VisionaryLens", website: "visionarylens.ai", features: ["Visual recognition", "Ad tracking", "Trend forecasting"], score: 78, trafficData: [12000, 11000, 13500, 14200, 15000], date: "3 days ago", status: "monitoring" as const, scope: "ChampSignal" },
+    { id: 104, name: "DataDrivers", website: "datadrivers.io", features: ["Data aggregation", "Market sizing", "Competitor profiling"], score: 72, trafficData: [5000, 5200, 4800, 5500, 5300], date: "1 week ago", status: "archived" as const, scope: "ChampSignal" },
+    { id: 201, name: "Vizard.ai", website: "vizard.ai", features: ["AI video editing", "Social clips", "Virality scoring"], score: 98, trafficData: [450000, 680000, 890000, 1050000, 1200000], date: "1d ago", status: "monitoring" as const, scope: "OpusClip" },
+    { id: 202, name: "Munch", website: "getmunch.com", features: ["Long-form to shorts", "Generative AI", "Auto-captioning"], score: 94, trafficData: [300000, 350000, 420000, 510000, 580000], date: "1d ago", status: "monitoring" as const, scope: "OpusClip" },
+    { id: 203, name: "TrendSpotter", website: "trendspotter.com", features: ["Predictive analytics", "Sentiment analysis", "Competitive alerts"], score: 80, trafficData: [25000, 28000, 32000, 29000, 35000], date: "3 days ago", status: "monitoring" as const, scope: "OpusClip" },
+    { id: 204, name: "InsightEdge", website: "insightedge.io", features: ["Predictive analytics", "Ad tracking", "Competitor profiling"], score: 78, trafficData: [18000, 19500, 21000, 20000, 22500], date: "3 days ago", status: "review" as const, scope: "OpusClip" },
+    { id: 205, name: "RivalWatch", website: "rivalwatch.com", features: ["Real-time pricing", "Feature comparison", "Automated alerts"], score: 63, trafficData: [9000, 8500, 9200, 8800, 9500], date: "3 days ago", status: "monitoring" as const, scope: "OpusClip" },
+    { id: 206, name: "AlphaScope", website: "alphascope.ai", features: ["Data aggregation", "Market sizing", "Competitor profiling"], score: 62, trafficData: [7000, 7200, 6800, 7500, 7300], date: "1 week ago", status: "monitoring" as const, scope: "ChampSignal" },
   ];
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
+  const filteredSignals = allSignals
+    .filter(s => s.score >= similarityMin)
+    .filter(s => statusFilter === 'all' || s.status === statusFilter)
+    .filter(s => searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase())))
+    .sort((a, b) => {
+      if (sortBy === 'similarity') return b.score - a.score;
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+  const stats = {
+    newDiscoveries: allSignals.filter(s => s.status === 'new').length,
+    highPriority: allSignals.filter(s => s.score >= 90).length,
+    totalMonitored: allSignals.length,
   };
 
   const handleStartTracking = (scenarios: string[]) => {
@@ -467,14 +495,23 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     }
   };
 
-  const handleTrackResearch = (signal: any) => {
-    onResearch(signal);
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'new':
+        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">New</span>;
+      case 'monitoring':
+        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">Monitoring</span>;
+      case 'review':
+        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Under Review</span>;
+      case 'archived':
+        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-slate-500/20 text-slate-400 border border-slate-500/30">Archived</span>;
+      default:
+        return null;
+    }
   };
 
-  const dummy = "fix lsp";
-
   return (
-    <div className="animate-fade-in-up">
+    <div className="animate-fade-in-up space-y-6">
       {trackingSignal && (
         <TrackingConfigurationModal 
           signal={trackingSignal} 
@@ -482,153 +519,211 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           onStart={handleStartTracking}
         />
       )}
-      <div className="space-y-10">
-         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                 <Radar className="text-brand-500" /> Market Radar
-              </h2>
-              <p className="text-slate-400 mt-1">
-                Active surveillance across <span className="text-white font-medium">2 product scopes</span>.
-              </p>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
-                 <Plus size={16} /> Add Product Scope
-              </button>
-            </div>
-         </div>
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+            <Radar className="text-brand-500" size={24} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Market Radar</h2>
+            <p className="text-sm text-slate-400">Active surveillance across <span className="text-white font-medium">2 product scopes</span></p>
+          </div>
+        </div>
+        <button className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(13,148,136,0.2)]" data-testid="button-add-scope">
+          <Plus size={16} /> Add Product Scope
+        </button>
+      </div>
 
-         <div className="flex flex-col gap-10">
-            {scopes.map(scope => (
-              <div key={scope.id} className="space-y-6">
-                 <div className="flex justify-between items-center border-b border-slate-800/50 pb-4">
-                    <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-bold">
-                          {scope.name[0]}
-                       </div>
-                       <div>
-                          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                             {scope.name}
-                             <a 
-                               href={`https://${scope.url}`}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               onClick={(e) => e.stopPropagation()}
-                               className="text-[10px] font-mono font-normal text-slate-500 border border-slate-800 rounded px-2 py-0.5 bg-slate-950 hover:text-brand-400 hover:border-brand-500/50 hover:bg-slate-900 transition-all flex items-center gap-1 group/link"
-                             >
-                               {scope.url}
-                               <ExternalLink size={8} className="opacity-0 group-hover/link:opacity-100 transition-opacity" />
-                             </a>
-                          </h3>
-                          <div className="flex items-center gap-2 mt-0.5">
-                             <span className="relative flex h-2 w-2">
-                               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                               <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
-                             </span>
-                             <span className="text-xs text-brand-400 font-medium">{scope.status}</span>
-                             <span className="text-xs text-slate-600">-</span>
-                             <span className="text-xs text-slate-500">{scope.signals.length} new signals found</span>
-                          </div>
-                       </div>
-                    </div>
-                    <button className="text-slate-500 hover:text-white p-2">
-                       <Settings size={16} />
-                    </button>
-                 </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-2xl font-bold text-white">{stats.newDiscoveries}</p>
+            <p className="text-xs text-slate-400">New Discoveries This Week</p>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center">
+            <TrendingUp className="text-brand-500" size={20} />
+          </div>
+        </div>
+        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-2xl font-bold text-white">{stats.highPriority}</p>
+            <p className="text-xs text-slate-400">High Priority Signals</p>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
+            <Zap className="text-red-500" size={20} />
+          </div>
+        </div>
+        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-2xl font-bold text-white">{stats.totalMonitored}</p>
+            <p className="text-xs text-slate-400">Products Monitored</p>
+          </div>
+          <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+            <Eye className="text-blue-500" size={20} />
+          </div>
+        </div>
+      </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {scope.signals.map(signal => (
-                      <div key={signal.id} className="group bg-slate-900/40 border border-slate-800 hover:border-slate-700 rounded-xl overflow-hidden flex flex-col transition-all hover:shadow-[0_0_20px_rgba(0,0,0,0.3)]">
-                         <div className="p-5 flex-1 flex flex-col gap-4">
-                            <div className="flex justify-between items-start">
-                               <div className="w-12 h-12 rounded-lg bg-white p-1.5 flex items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
-                                  <img 
-                                      src={`https://www.google.com/s2/favicons?domain=${signal.website}&sz=128`} 
-                                      alt={signal.name} 
-                                      className="w-full h-full object-contain"
-                                  />
-                               </div>
-                               <div className="flex flex-col items-end">
-                                  <span className={`text-xl font-bold ${signal.score > 90 ? 'text-brand-400' : 'text-slate-200'}`}>
-                                     {signal.score}%
-                                  </span>
-                                  <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Similarity</span>
-                               </div>
-                            </div>
+      <div className="flex flex-wrap items-center gap-3 py-3 border-y border-slate-800/50">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Sort by:</span>
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-500"
+            data-testid="select-sort"
+          >
+            <option value="similarity">Similarity</option>
+            <option value="date">Date</option>
+            <option value="name">Name</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Status:</span>
+          <select 
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-500"
+            data-testid="select-status"
+          >
+            <option value="all">All</option>
+            <option value="new">New</option>
+            <option value="monitoring">Monitoring</option>
+            <option value="review">Under Review</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Similarity:</span>
+          <span className="text-xs text-brand-400 font-medium">{similarityMin}%+</span>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            value={similarityMin}
+            onChange={(e) => setSimilarityMin(Number(e.target.value))}
+            className="w-24 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-brand-500"
+            data-testid="slider-similarity"
+          />
+        </div>
+        <div className="flex-1" />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+          <input 
+            type="text"
+            placeholder="Search products, features..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
+            data-testid="input-search-radar"
+          />
+        </div>
+      </div>
 
-                            <div>
-                               <h4 className="text-lg font-bold text-white mb-1 group-hover:text-brand-400 transition-colors truncate pr-2">
-                                 {signal.name}
-                               </h4>
-                               <div className="flex items-center gap-2 flex-wrap">
-                                  <URLPreview url={signal.website} />
-                                  {signal.score > 90 && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 flex items-center gap-1">
-                                      <Zap size={10} className="fill-current" /> Hot
-                                      </span>
-                                  )}
-                               </div>
-                            </div>
-
-                            <p className="text-sm text-slate-400 leading-relaxed line-clamp-2 h-10">
-                               {signal.desc}
-                            </p>
-
-                            <div className="flex flex-wrap gap-2 mt-auto pt-2 border-t border-slate-800/50 border-dashed relative">
-                               <div className="relative group/traffic">
-                                  <span className="cursor-help text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-400 border border-slate-700/50 flex items-center gap-1 hover:bg-slate-800 hover:text-brand-400 transition-colors">
-                                    <TrendingUp size={10} /> Traffic
-                                  </span>
-                                  <div className="absolute bottom-full left-0 mb-3 w-48 bg-slate-950 border border-slate-800 rounded-xl p-4 shadow-2xl opacity-0 translate-y-2 group-hover/traffic:opacity-100 group-hover/traffic:translate-y-0 transition-all duration-300 pointer-events-none z-50">
-                                     <div className="absolute bottom-[-6px] left-4 w-3 h-3 bg-slate-950 border-r border-b border-slate-800 rotate-45"></div>
-                                     <div className="flex justify-between items-end mb-3">
-                                        <div>
-                                           <p className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Monthly Visits</p>
-                                           <p className="text-sm font-bold text-white flex items-center gap-1">
-                                              {formatNumber(signal.trafficData[signal.trafficData.length-1])}
-                                              <span className="text-[10px] text-brand-500 bg-brand-500/10 px-1 rounded">
-                                                 +12%
-                                              </span>
-                                           </p>
-                                        </div>
-                                        <Activity size={14} className="text-slate-600 mb-1" />
-                                     </div>
-                                     <TrafficChart data={signal.trafficData} />
-                                  </div>
-                               </div>
-
-                               <span className="text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-400 border border-slate-700/50">
-                                  Reg: {signal.regDate}
-                               </span>
-                               <span className="text-[10px] px-2 py-1 rounded bg-slate-800/50 text-slate-500 border border-slate-700/50 ml-auto">
-                                  {signal.date}
-                               </span>
-                            </div>
-                         </div>
-
-                         <div className="px-4 py-3 border-t border-slate-800 flex gap-2">
-                            <button 
-                              onClick={() => setTrackingSignal(signal)}
-                              className="flex-1 text-xs font-medium py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-colors flex items-center justify-center gap-1"
-                              data-testid={`button-track-${signal.id}`}
-                            >
-                               <Crosshair size={12} /> Track
-                            </button>
-                            <button 
-                              onClick={() => onResearch(signal)}
-                              className="flex-1 text-xs font-medium py-1.5 rounded-md bg-brand-900/50 hover:bg-brand-800/50 text-brand-400 hover:text-brand-300 transition-colors border border-brand-500/20 flex items-center justify-center gap-1"
-                              data-testid={`button-research-${signal.id}`}
-                            >
-                               <Bot size={12} /> Research
-                            </button>
-                         </div>
+      <div className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-800 text-left">
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Product</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Trend</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSignals.map((signal, idx) => (
+                <tr 
+                  key={signal.id} 
+                  className={`border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors ${idx % 2 === 0 ? 'bg-slate-900/20' : ''}`}
+                  data-testid={`radar-row-${signal.id}`}
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shrink-0">
+                        <img 
+                          src={`https://www.google.com/s2/favicons?domain=${signal.website}&sz=128`} 
+                          alt={signal.name} 
+                          className="w-full h-full object-contain"
+                        />
                       </div>
-                    ))}
-                 </div>
-              </div>
-            ))}
-         </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{signal.name}</p>
+                        <p className="text-[10px] text-slate-500 truncate">{signal.website}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-center">
+                      <SimilarityRing value={signal.score} />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <p className="text-xs text-slate-400 line-clamp-2 max-w-[200px]">
+                      {signal.features.join(', ')}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">{signal.date}</span>
+                      {signal.status === 'new' && (
+                        <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-brand-500 text-white">NEW</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <MiniSparkline 
+                      data={signal.trafficData} 
+                      color={signal.trafficData[signal.trafficData.length - 1] > signal.trafficData[0] ? '#14b8a6' : '#ef4444'} 
+                    />
+                  </td>
+                  <td className="px-4 py-3">
+                    {getStatusBadge(signal.status)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={() => setTrackingSignal(signal)}
+                        className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 flex items-center gap-1"
+                        data-testid={`button-track-${signal.id}`}
+                      >
+                        <Crosshair size={12} /> Track
+                      </button>
+                      <button 
+                        onClick={() => onResearch(signal)}
+                        className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-brand-900/50 hover:bg-brand-800/50 text-brand-400 hover:text-brand-300 transition-colors border border-brand-500/30 flex items-center gap-1"
+                        data-testid={`button-research-${signal.id}`}
+                      >
+                        <Bot size={12} /> Research
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        {filteredSignals.length === 0 && (
+          <div className="py-12 text-center">
+            <Search className="mx-auto text-slate-600 mb-3" size={32} />
+            <p className="text-slate-400">No products match your filters</p>
+            <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filter criteria</p>
+          </div>
+        )}
+
+        <div className="px-4 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+          <span>Showing {filteredSignals.length} of {allSignals.length} products</span>
+          <div className="flex items-center gap-2">
+            <button className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">Previous</button>
+            <span className="px-3 py-1 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">1</span>
+            <button className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">Next</button>
+          </div>
+        </div>
       </div>
     </div>
   );
