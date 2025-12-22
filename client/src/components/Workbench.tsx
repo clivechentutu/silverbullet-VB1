@@ -435,6 +435,8 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState<'similarity' | 'newest' | 'oldest' | 'name'>('similarity');
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
   const [activeScope, setActiveScope] = useState<string>('ChampSignal');
@@ -459,6 +461,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
 
   const filteredSignals = allSignals
     .filter(s => s.scope === activeScope)
+    .filter(s => !showOnlyFavorites || favorites.includes(s.id))
     .filter(s => s.score >= similarityMin)
     .filter(s => searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase())))
     .sort((a, b) => {
@@ -596,20 +599,39 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 py-3 border-y border-slate-800/50">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500">Sort by:</span>
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-brand-500"
-            data-testid="select-sort"
-          >
-            <option value="similarity">Similarity</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="name">Name</option>
-          </select>
+      <div className="flex flex-wrap items-center gap-6 py-3 border-y border-slate-800/50">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Sort:</span>
+            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5 h-8">
+              <button 
+                onClick={() => setSortBy('similarity')}
+                className={`px-3 h-full text-[10px] font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'similarity' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+                data-testid="sort-similarity"
+              >
+                Similarity
+              </button>
+              <button 
+                onClick={() => setSortBy('newest')}
+                className={`px-3 h-full text-[10px] font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'newest' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+                data-testid="sort-newest"
+              >
+                Newest
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 border-l border-slate-800 pl-4">
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Filter:</span>
+            <button
+              onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+              className={`flex items-center gap-2 px-3 h-8 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-all ${showOnlyFavorites ? 'bg-brand-500/10 border-brand-500/50 text-brand-400' : 'bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+              data-testid="filter-favorites"
+            >
+              <Star size={12} className={showOnlyFavorites ? 'fill-brand-400' : ''} />
+              Favorites Only
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500">Similarity:</span>
@@ -643,6 +665,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-800 text-left">
+                <th className="px-4 py-3 w-10"></th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Find</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
@@ -658,6 +681,21 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   className={`border-b border-slate-800/50 hover:bg-slate-800/30 transition-colors ${idx % 2 === 0 ? 'bg-slate-900/20' : ''}`}
                   data-testid={`radar-row-${signal.id}`}
                 >
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => {
+                        if (favorites.includes(signal.id)) {
+                          setFavorites(favorites.filter(id => id !== signal.id));
+                        } else {
+                          setFavorites([...favorites, signal.id]);
+                        }
+                      }}
+                      className={`transition-colors ${favorites.includes(signal.id) ? 'text-amber-400 hover:text-amber-300' : 'text-slate-600 hover:text-slate-400'}`}
+                      data-testid={`button-favorite-${signal.id}`}
+                    >
+                      <Star size={16} className={favorites.includes(signal.id) ? 'fill-amber-400' : ''} />
+                    </button>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shrink-0">
