@@ -811,9 +811,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     <Activity size={10} /> Refresh Analysis
                   </button>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Competitor <span className="text-white font-medium">{selectedTarget.name}</span> is aggressively shifting towards enterprise market. Key signals indicate a 25% increase in high-authority backlinks and a pivot in messaging to "Team Scaling". Pricing structure has been simplified to encourage longer retention.
-                </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
                     <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
