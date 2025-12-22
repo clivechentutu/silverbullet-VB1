@@ -1895,9 +1895,39 @@ const ActsTemplateView = () => {
                   <p className="text-sm text-slate-400 leading-relaxed mb-6 flex-1">
                      {template.desc}
                   </p>
-                  <button className="w-full py-2.5 bg-slate-950 hover:bg-brand-600 hover:text-white border border-slate-700 hover:border-brand-500 text-slate-300 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2">
-                     <FileText size={16} /> Use Template
-                  </button>
+                  <div className="flex gap-2">
+                    <button className="flex-1 py-2.5 bg-slate-950 hover:bg-brand-600 hover:text-white border border-slate-700 hover:border-brand-500 text-slate-300 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2">
+                       <FileText size={16} /> Use
+                    </button>
+                    <Sheet>
+                      <SheetTrigger asChild>
+                        <button className="px-3 py-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-white rounded-lg transition-all flex items-center justify-center">
+                          <Settings size={16} />
+                        </button>
+                      </SheetTrigger>
+                      <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
+                        <SheetHeader className="mb-6">
+                          <SheetTitle className="text-white flex items-center gap-2">
+                            <Settings className="text-brand-500" size={20} />
+                            Edit Template Prompt
+                          </SheetTitle>
+                          <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
+                        </SheetHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">System Instruction / Prompt Task</label>
+                            <textarea 
+                              className="w-full h-64 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500/50 resize-none custom-scrollbar"
+                              defaultValue={`Analyze the competitor's recent signals and generate a comprehensive ${template.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
+                            />
+                          </div>
+                          <button className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.2)]">
+                            Save Template Configuration
+                          </button>
+                        </div>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
                </div>
             ))}
             
