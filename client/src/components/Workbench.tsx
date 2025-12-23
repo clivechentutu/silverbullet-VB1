@@ -2252,7 +2252,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-          {targets.map(t => (
+          {[...targets].sort((a, b) => {
+            const statusOrder: Record<string, number> = { active: 0, paused: 1, stopped: 2, archived: 3 };
+            return (statusOrder[a.status] ?? 999) - (statusOrder[b.status] ?? 999);
+          }).map(t => (
             <div 
               key={t.id} 
               onClick={() => setSelectedTargetId(t.id)}
