@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -3152,53 +3152,85 @@ export const Workbench: React.FC = () => {
 
         <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
           {NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
-                ${activeView === item.id 
-                  ? 'bg-slate-800/80 text-white' 
-                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                }
-              `}
-            >
-              <item.icon 
-                size={18} 
-                className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
-              />
-              <span className="text-sm font-medium">{item.label}</span>
+            <div key={item.id} className="relative group/tooltip">
+              <button
+                onClick={() => setActiveView(item.id)}
+                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                  ${activeView === item.id 
+                    ? 'bg-slate-800/80 text-white' 
+                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                  }
+                `}
+              >
+                <item.icon 
+                  size={18} 
+                  className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+                />
+                <span className="text-sm font-medium flex-1">{item.label}</span>
+                <HelpCircle 
+                  size={14} 
+                  className={`shrink-0 transition-colors ${
+                    activeView === item.id 
+                      ? 'text-brand-400/60 group-hover:text-brand-400' 
+                      : 'text-slate-600 group-hover:text-slate-400'
+                  }`}
+                  data-testid={`help-icon-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                />
+                
+                {activeView === item.id && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+                )}
+              </button>
               
-              {activeView === item.id && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
-              )}
-            </button>
+              <div className="absolute left-full top-0 ml-3 hidden group-hover/tooltip:block z-50 pointer-events-none">
+                <div className="bg-slate-950 border border-slate-700 rounded-lg p-2.5 shadow-xl animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap">
+                  <p className="text-xs text-slate-300">{item.description}</p>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
 
         <div className="p-3 space-y-1 border-t border-slate-800">
           {BOTTOM_NAV_ITEMS.map(item => (
-            <button
-              key={item.id}
-              onClick={() => setActiveView(item.id)}
-              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
-                ${activeView === item.id 
-                  ? 'bg-slate-800/80 text-white' 
-                  : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                }
-              `}
-            >
-              <item.icon 
-                size={18} 
-                className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
-              />
-              <span className="text-sm font-medium">{item.label}</span>
+            <div key={item.id} className="relative group/tooltip">
+              <button
+                onClick={() => setActiveView(item.id)}
+                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                  ${activeView === item.id 
+                    ? 'bg-slate-800/80 text-white' 
+                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                  }
+                `}
+              >
+                <item.icon 
+                  size={18} 
+                  className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+                />
+                <span className="text-sm font-medium flex-1">{item.label}</span>
+                <HelpCircle 
+                  size={14} 
+                  className={`shrink-0 transition-colors ${
+                    activeView === item.id 
+                      ? 'text-brand-400/60 group-hover:text-brand-400' 
+                      : 'text-slate-600 group-hover:text-slate-400'
+                  }`}
+                  data-testid={`help-icon-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                />
+                
+                {activeView === item.id && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+                )}
+              </button>
               
-              {activeView === item.id && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
-              )}
-            </button>
+              <div className="absolute left-full top-0 ml-3 hidden group-hover/tooltip:block z-50 pointer-events-none">
+                <div className="bg-slate-950 border border-slate-700 rounded-lg p-2.5 shadow-xl animate-in fade-in zoom-in-95 duration-200 whitespace-nowrap">
+                  <p className="text-xs text-slate-300">{item.description}</p>
+                </div>
+              </div>
+            </div>
           ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
