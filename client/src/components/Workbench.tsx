@@ -1603,7 +1603,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [newTargetUrl, setNewTargetUrl] = useState('');
   const [editTargetName, setEditTargetName] = useState('');
   const [editTargetUrl, setEditTargetUrl] = useState('');
-  const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads', 'personnel']);
+  const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads', 'talent']);
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
@@ -2293,18 +2293,18 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         </div>
       </div>
     ),
-    personnel: (
+    talent: (
       <div 
-        key="personnel"
+        key="talent"
         draggable 
-        onDragStart={(e) => handleDragStart(e, 'personnel')}
+        onDragStart={(e) => handleDragStart(e, 'talent')}
         onDragOver={handleDragOver}
-        onDrop={(e) => handleDrop(e, 'personnel')}
+        onDrop={(e) => handleDrop(e, 'talent')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'personnel' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'personnel' ? 'border-pink-500/70' : 'hover:border-pink-500/60'}`}>
+        className={`bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'talent' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'talent' ? 'border-pink-500/70' : 'hover:border-pink-500/60'}`}>
         <div className="px-4 py-3 border-b border-pink-500/20 bg-pink-500/5 flex items-center gap-2.5">
           <button
-            onMouseDown={() => handleDragHandleMouseDown('personnel')}
+            onMouseDown={() => handleDragHandleMouseDown('talent')}
             className="text-slate-500 hover:text-pink-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -2312,51 +2312,51 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </button>
           <Users size={16} className="text-pink-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <h4 className="font-bold text-white text-xs">Personnel Tracker</h4>
-            <p className="text-[11px] text-slate-400 line-clamp-1">Leadership changes and hiring announcements.</p>
+            <h4 className="font-bold text-white text-xs">Talent Intelligence</h4>
+            <p className="text-[11px] text-slate-400 line-clamp-1">Recruitment activity and org changes.</p>
           </div>
           <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
-          <div onClick={() => handleSignalClick('personnel-1', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('talent-1', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">New CTO Appointed</p>
+                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">New CTO Posted on LinkedIn</p>
                 <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
               </div>
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Former Google VP Engineering hired as new Chief Technology Officer.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2">CTO position posted; actively recruiting for leadership vacancy in engineering.</p>
           </div>
-          <div onClick={() => handleSignalClick('personnel-2', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('talent-2', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">VP of Sales Departing</p>
+                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">VP Sales Role Announced</p>
                 <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
               </div>
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Long-time SVP Sales leaving to join competitor; transition period 3 months.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2">VP of Sales position opened on LinkedIn; suggests leadership restructuring underway.</p>
           </div>
-          <div onClick={() => handleSignalClick('personnel-3', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('talent-3', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Engineering Team Expansion</p>
+                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Engineering Hiring Surge</p>
                 <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
               </div>
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Hiring 25 engineers globally; major push for AI and ML talent.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2">25+ engineer roles posted; major expansion in AI/ML and platform teams detected.</p>
           </div>
-          <div onClick={() => handleSignalClick('personnel-4', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('talent-4', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Product Lead Promoted</p>
+                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Product Org Restructure</p>
                 <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
               </div>
               <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Senior Product Manager elevated to VP Product; restructuring team reporting.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2">Multiple new director-level roles posted; signals org restructuring in product division.</p>
           </div>
         </div>
       </div>
