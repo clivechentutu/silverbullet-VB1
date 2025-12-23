@@ -1477,6 +1477,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
+  const [activeTrackerType, setActiveTrackerType] = useState<string | null>(null);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -1501,7 +1502,30 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
-  const filteredSignals = feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter);
+  
+  // Get tracker signals based on active tracker type
+  const getTrackerSignals = (trackerType: string | null): Signal[] => {
+    if (!trackerType) return [];
+    const prefixMap: Record<string, string> = {
+      'website': 'web-',
+      'backlinks': 'backlink-',
+      'seo': 'seo-',
+      'social': 'social-',
+      'news': 'news-',
+      'ads': 'ads-'
+    };
+    const prefix = prefixMap[trackerType];
+    if (!prefix) return [];
+    return Object.entries(trackerSignalsData)
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([, signal]) => signal);
+  };
+
+  // Use tracker signals when activeTrackerType is set, otherwise use domain signals
+  const activeTrackerSignals = getTrackerSignals(activeTrackerType);
+  const filteredSignals = activeTrackerType 
+    ? activeTrackerSignals 
+    : (feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter));
 
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
@@ -1564,6 +1588,22 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     setFeedFilter(category);
     setSelectedSignalId(signalId);
     setShowFullFeed(true);
+    
+    // Determine tracker type from signalId prefix
+    const trackerTypeMap: Record<string, string> = {
+      'web-': 'website',
+      'backlink-': 'backlinks',
+      'seo-': 'seo',
+      'social-': 'social',
+      'news-': 'news',
+      'ads-': 'ads'
+    };
+    
+    const matchedPrefix = Object.keys(trackerTypeMap).find(prefix => signalId.startsWith(prefix));
+    if (matchedPrefix) {
+      setActiveTrackerType(trackerTypeMap[matchedPrefix]);
+    }
+    
     // Auto-select the signal to show detail panel with demo data
     const trackerSignal = trackerSignalsData[signalId];
     if (trackerSignal) {
@@ -2443,7 +2483,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <AlertZap size={16} className="text-brand-500" /> Signals ({signalsData.length} Found)
                 </h3>
-                <Sheet open={showFullFeed} onOpenChange={setShowFullFeed}>
+                <Sheet open={showFullFeed} onOpenChange={(open) => {
+                    setShowFullFeed(open);
+                    if (!open) {
+                      setActiveTrackerType(null);
+                      setSelectedSignal(null);
+                    }
+                  }}>
                   <SheetTrigger asChild>
                     <button 
                       className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
@@ -2455,46 +2501,61 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   <SheetContent side="right" className="w-full sm:max-w-4xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
                     <SheetHeader className="p-6 border-b border-slate-800 shrink-0">
                       <SheetTitle className="text-xl font-bold text-white flex items-center gap-2">
-                        <AlertZap size={20} className="text-brand-500" /> {selectedTarget?.name} Intelligence Signals
+                        <AlertZap size={20} className="text-brand-500" /> 
+                        {activeTrackerType ? (
+                          <>
+                            {activeTrackerType.charAt(0).toUpperCase() + activeTrackerType.slice(1)} Tracker Signals
+                            <span className="text-sm font-normal text-slate-500">({filteredSignals.length})</span>
+                          </>
+                        ) : (
+                          <>{selectedTarget?.name} Intelligence Signals</>
+                        )}
                       </SheetTitle>
-                      <p className="text-xs text-slate-500 mt-1">Real-time intelligence feed for {selectedTarget?.name}.</p>
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        <button 
-                          onClick={() => setFeedFilter('all')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="filter-all"
-                        >
-                          All ({targetSignals.length})
-                        </button>
-                        <button 
-                          onClick={() => setFeedFilter('pricing')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="filter-pricing"
-                        >
-                          <DollarSign size={12} /> Pricing ({targetSignals.filter(s => s.type === 'pricing').length})
-                        </button>
-                        <button 
-                          onClick={() => setFeedFilter('product')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="filter-product"
-                        >
-                          <Globe size={12} /> Product ({targetSignals.filter(s => s.type === 'product').length})
-                        </button>
-                        <button 
-                          onClick={() => setFeedFilter('marketing')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="filter-marketing"
-                        >
-                          <Megaphone size={12} /> Marketing ({targetSignals.filter(s => s.type === 'marketing').length})
-                        </button>
-                        <button 
-                          onClick={() => setFeedFilter('hiring')}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="filter-hiring"
-                        >
-                          <Briefcase size={12} /> Hiring ({targetSignals.filter(s => s.type === 'hiring').length})
-                        </button>
-                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {activeTrackerType 
+                          ? `Timeline of ${activeTrackerType} tracker signals for ${selectedTarget?.name}. Click any item to view details.`
+                          : `Real-time intelligence feed for ${selectedTarget?.name}.`
+                        }
+                      </p>
+                      {!activeTrackerType && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <button 
+                            onClick={() => setFeedFilter('all')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-all"
+                          >
+                            All ({targetSignals.length})
+                          </button>
+                          <button 
+                            onClick={() => setFeedFilter('pricing')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-pricing"
+                          >
+                            <DollarSign size={12} /> Pricing ({targetSignals.filter(s => s.type === 'pricing').length})
+                          </button>
+                          <button 
+                            onClick={() => setFeedFilter('product')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-product"
+                          >
+                            <Globe size={12} /> Product ({targetSignals.filter(s => s.type === 'product').length})
+                          </button>
+                          <button 
+                            onClick={() => setFeedFilter('marketing')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-marketing"
+                          >
+                            <Megaphone size={12} /> Marketing ({targetSignals.filter(s => s.type === 'marketing').length})
+                          </button>
+                          <button 
+                            onClick={() => setFeedFilter('hiring')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-hiring"
+                          >
+                            <Briefcase size={12} /> Hiring ({targetSignals.filter(s => s.type === 'hiring').length})
+                          </button>
+                        </div>
+                      )}
                     </SheetHeader>
                     
                     <div className="flex-1 overflow-hidden flex">
