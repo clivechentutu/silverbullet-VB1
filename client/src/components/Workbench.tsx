@@ -1498,7 +1498,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads']);
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
-  const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring'>('all');
+  const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
+  const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
@@ -1618,7 +1619,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const activeTrackerSignals = getTrackerSignals(activeTrackerType);
   const filteredSignals = activeTrackerType 
     ? activeTrackerSignals 
-    : (feedFilter === 'all' ? comprehensiveSignals : comprehensiveSignals.filter(s => s.type === feedFilter));
+    : (feedFilter === 'all' ? comprehensiveSignals 
+        : feedFilter === 'favorites' ? comprehensiveSignals.filter(s => signalFavorites.includes(s.id))
+        : comprehensiveSignals.filter(s => s.type === feedFilter));
 
   const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
     setFeedFilter(category);
@@ -2593,6 +2596,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           >
                             <Briefcase size={12} /> Hiring ({comprehensiveSignals.filter(s => s.type === 'hiring').length})
                           </button>
+                          <button 
+                            onClick={() => setFeedFilter('favorites')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            data-testid="filter-favorites"
+                          >
+                            <Star size={12} /> Favorites ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
+                          </button>
                         </div>
                       )}
                     </SheetHeader>
@@ -2623,6 +2633,20 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                       </div>
                                       <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
                                     </div>
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (signalFavorites.includes(signal.id)) {
+                                          setSignalFavorites(signalFavorites.filter(id => id !== signal.id));
+                                        } else {
+                                          setSignalFavorites([...signalFavorites, signal.id]);
+                                        }
+                                      }}
+                                      className={`transition-colors ${signalFavorites.includes(signal.id) ? 'text-amber-400' : 'text-slate-600 hover:text-slate-400'}`}
+                                      data-testid={`button-favorite-signal-${signal.id}`}
+                                    >
+                                      <Star size={14} className={signalFavorites.includes(signal.id) ? 'fill-amber-400' : ''} />
+                                    </button>
                                   </div>
                                   <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
                                   <div className="flex items-center gap-2 mb-3 flex-wrap">
