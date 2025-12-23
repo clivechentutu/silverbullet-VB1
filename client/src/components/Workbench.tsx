@@ -648,17 +648,22 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [editableTaskName, setEditableTaskName] = useState('');
   const [editablePrompt, setEditablePrompt] = useState('');
   const [analysisError, setAnalysisError] = useState<string | null>(null);
-  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
+  const [updateSuccessState, setUpdateSuccessState] = useState<'idle' | 'adjusting' | 'completed'>('idle');
 
-  // Auto-hide update success message after 2 seconds
+  // Auto-transition and hide update success message
   useEffect(() => {
-    if (showUpdateSuccess) {
+    if (updateSuccessState === 'adjusting') {
       const timer = setTimeout(() => {
-        setShowUpdateSuccess(false);
-      }, 2000);
+        setUpdateSuccessState('completed');
+      }, 3000);
+      return () => clearTimeout(timer);
+    } else if (updateSuccessState === 'completed') {
+      const timer = setTimeout(() => {
+        setUpdateSuccessState('idle');
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [showUpdateSuccess]);
+  }, [updateSuccessState]);
 
   const handleAnalyzeUrl = async () => {
     if (!newTaskUrl.trim()) return;
@@ -968,7 +973,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             </button>
             <button
               onClick={() => {
-                setShowUpdateSuccess(true);
+                setUpdateSuccessState('adjusting');
                 setTimeout(() => {
                   setEditingScopeName(null);
                 }, 300);
@@ -982,16 +987,42 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </DialogContent>
       </Dialog>
 
-      {showUpdateSuccess && (
+      {updateSuccessState !== 'idle' && (
         <div className="fixed inset-0 flex items-center justify-center z-[200] pointer-events-none">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 animate-in fade-in duration-300">
-            <div className="w-12 h-12 rounded-full bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-              <Radar className="text-brand-500 animate-spin" size={24} />
-            </div>
-            <div className="text-center">
-              <p className="text-white font-medium mb-1">Discovery Strategy Adjusted</p>
-              <p className="text-sm text-slate-400">Radar is recalibrating for optimal signal tracking</p>
-            </div>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 transition-all duration-300 opacity-100 animate-in fade-in">
+            {updateSuccessState === 'adjusting' ? (
+              <>
+                <div className="relative w-16 h-16">
+                  {/* Radar base */}
+                  <div className="absolute inset-0 rounded-full bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                    {/* Rotating radar */}
+                    <div className="absolute inset-2 rounded-full border-2 border-transparent border-t-brand-500 border-r-brand-500 animate-spin" />
+                    {/* Center dot */}
+                    <div className="w-2 h-2 rounded-full bg-brand-500" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-medium mb-1">Adjusting Discovery Strategy</p>
+                  <p className="text-sm text-slate-400">Radar is recalibrating for optimal signal tracking</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative w-16 h-16">
+                  {/* Radar base */}
+                  <div className="absolute inset-0 rounded-full bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                    {/* Static radar in new direction */}
+                    <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-brand-500 border-l-brand-500" />
+                    {/* Center dot */}
+                    <div className="w-2 h-2 rounded-full bg-brand-500" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-medium mb-1">Strategy Adjustment Complete</p>
+                  <p className="text-sm text-slate-400">Radar repositioned for enhanced tracking</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
