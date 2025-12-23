@@ -946,18 +946,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               />
               <p className="mt-1.5 text-xs text-slate-500">This prompt guides the AI in discovering related competitors and market signals.</p>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Tracking Status</label>
-              <div className="space-y-2">
-                {['Website Changes', 'Backlink Growth', 'SEO Rankings', 'Social Mentions', 'News Coverage', 'Ad Campaigns'].map((dim) => (
-                  <label key={dim} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
-                    <span className="text-sm text-slate-300">{dim}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
 
           <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
@@ -972,7 +960,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
             >
               <Check size={16} />
-              Save Configuration
+              更新任务
             </button>
           </div>
         </DialogContent>
