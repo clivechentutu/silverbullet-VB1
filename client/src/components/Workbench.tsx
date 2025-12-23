@@ -925,7 +925,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 </span>
               </label>
               <textarea
-                defaultValue="Find competitors and similar products in the competitive intelligence space. Focus on companies offering market discovery, signal tracking, and competitive analysis. Include both direct competitors and adjacent solutions."
+                defaultValue="Find competitors and similar finds in the competitive intelligence space. Focus on companies offering market discovery, signal tracking, and competitive analysis. Include both direct competitors and adjacent solutions."
                 rows={4}
                 placeholder="Discovery prompt..."
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
@@ -1251,7 +1251,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
                       data-testid="textarea-discovery-prompt"
                     />
-                    <p className="mt-1.5 text-xs text-slate-500">This prompt will be used to discover similar products and competitors.</p>
+                    <p className="mt-1.5 text-xs text-slate-500">This prompt will be used to discover similar finds and competitors.</p>
                   </div>
                 </div>
               )}
@@ -1400,7 +1400,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
           <input 
             type="text"
-            placeholder="Search products, features..."
+            placeholder="Search finds, features..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
@@ -1550,14 +1550,14 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     <Radar className="text-brand-400 animate-spin" size={28} />
                   </div>
                 </div>
-                <p className="text-white font-semibold mb-1">Discovering Similar Products</p>
+                <p className="text-white font-semibold mb-1">Discovering Similar Finds</p>
                 <p className="text-sm text-slate-400 mb-3">Our AI is continuously scanning the market for competitors and alternatives</p>
                 <p className="text-xs text-slate-500">You can safely leave this page • Results will be notified to you</p>
               </>
             ) : (
               <>
                 <Search className="mx-auto text-slate-600 mb-3" size={32} />
-                <p className="text-slate-400">No products match your filters</p>
+                <p className="text-slate-400">No finds match your filters</p>
                 <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filter criteria</p>
               </>
             )}
@@ -1565,7 +1565,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         )}
 
         <div className="px-4 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
-          <span>Showing {filteredSignals.length} of {allSignals.length} products</span>
+          <span>Showing {filteredSignals.length} of {allSignals.length} finds</span>
           <div className="flex items-center gap-2">
             <button className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">Previous</button>
             <span className="px-3 py-1 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">1</span>
