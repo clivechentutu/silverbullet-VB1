@@ -869,12 +869,55 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
       )}
 
       <Dialog open={!!editingScopeName} onOpenChange={(open) => !open && setEditingScopeName(null)}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-white">Configure Scope: {editingScopeName}</DialogTitle>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="mb-4">
+            <DialogTitle className="text-white text-lg">Configure Scope: {editingScopeName}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
+            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <TargetIcon size={16} className="text-brand-400" />
+                <h4 className="text-sm font-bold text-white">Scope Configuration</h4>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Positioning</p>
+                  <p className="text-sm text-slate-300">Leading AI-powered competitive intelligence platform for market discovery and signal tracking across multiple dimensions.</p>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Domain / Industry</p>
+                  <span className="inline-block px-2.5 py-1 bg-brand-500/10 border border-brand-500/30 rounded-lg text-xs font-medium text-brand-400">
+                    Competitive Intelligence
+                  </span>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Tracking Dimensions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((feature) => (
+                      <span key={feature} className="px-2.5 py-1 bg-slate-700/50 border border-slate-600 rounded-lg text-xs text-slate-300">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Active Signals</p>
+                  <div className="flex flex-wrap gap-2">
+                    {['Competitor Discovery', 'Feature Tracking', 'Pricing Analysis', 'Market Trends', 'Signal Feed'].map((scenario) => (
+                      <span key={scenario} className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-400">
+                        {scenario}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
               <input
@@ -887,9 +930,27 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Tracking Dimensions</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                <span className="flex items-center gap-2">
+                  <Bot size={14} className="text-brand-400" />
+                  Discovery Prompt
+                  <span className="text-xs text-slate-500 font-normal">(Editable)</span>
+                </span>
+              </label>
+              <textarea
+                defaultValue="Find competitors and similar products in the competitive intelligence space. Focus on companies offering market discovery, signal tracking, and competitive analysis. Include both direct competitors and adjacent solutions."
+                rows={4}
+                placeholder="Discovery prompt..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
+                data-testid="textarea-scope-prompt"
+              />
+              <p className="mt-1.5 text-xs text-slate-500">This prompt guides the AI in discovering related competitors and market signals.</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-3">Tracking Status</label>
               <div className="space-y-2">
-                {['Website Changes', 'Backlinks', 'SEO Rankings', 'Social Mentions', 'News Coverage', 'Ad Campaigns'].map((dim) => (
+                {['Website Changes', 'Backlink Growth', 'SEO Rankings', 'Social Mentions', 'News Coverage', 'Ad Campaigns'].map((dim) => (
                   <label key={dim} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
                     <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
                     <span className="text-sm text-slate-300">{dim}</span>
@@ -897,19 +958,9 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 ))}
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Update Frequency</label>
-              <select className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-all">
-                <option>Real-time</option>
-                <option>Hourly</option>
-                <option>Daily</option>
-                <option>Weekly</option>
-              </select>
-            </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
             <button
               onClick={() => setEditingScopeName(null)}
               className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
@@ -921,7 +972,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
             >
               <Check size={16} />
-              Save Settings
+              Save Configuration
             </button>
           </div>
         </DialogContent>
