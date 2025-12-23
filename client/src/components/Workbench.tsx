@@ -476,6 +476,10 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
     setShowPreview(true);
   };
 
+  const handleBackdropClick = () => {
+    setShowPreview(false);
+  };
+
   return (
     <div>
       <div 
@@ -488,10 +492,10 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
       
       {showPreview && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - solid dark background */}
           <div 
-            className="fixed inset-0 bg-black/20 z-[99]"
-            onMouseLeave={() => setShowPreview(false)}
+            className="fixed inset-0 bg-slate-950/90 z-[99]"
+            onClick={handleBackdropClick}
           />
           {/* Preview centered on screen */}
           <div 
@@ -501,6 +505,7 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
               left: `${position.left}px`,
               width: `${chartWidth}px`
             }}
+            onMouseEnter={() => setShowPreview(true)}
             onMouseLeave={() => setShowPreview(false)}
           >
             <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
