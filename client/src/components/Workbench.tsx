@@ -4008,127 +4008,94 @@ const LinkWorkspaceView = () => (
   </div>
 );
 
-const BillingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+const BillingPopover: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
-  const planTiers = [
-    { name: 'Starter', credits: 10000, current: true, icon: '🚀' },
-    { name: 'Entrepreneur', credits: 50000, current: false, icon: '💼' },
-    { name: 'Business', credits: 250000, current: false, icon: '🏢' }
-  ];
-
-  const topUpPackages = [
-    { amount: 5000, price: 49 },
-    { amount: 10000, price: 89 },
-    { amount: 25000, price: 199 },
-    { amount: 50000, price: 349 }
-  ];
-
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-slate-700 bg-slate-900/50 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Sparkles className="text-brand-500" size={20} /> Billing & Credits
-          </h2>
+    <div className="fixed inset-0 z-[140] flex items-start justify-end pt-20 pr-8 pointer-events-none">
+      <div 
+        className="pointer-events-auto w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex items-center justify-between">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <Sparkles size={14} className="text-brand-400" /> Account
+          </h3>
           <button 
             onClick={onClose}
-            className="p-1 hover:bg-slate-800 rounded-lg transition-colors"
-            data-testid="button-close-billing"
+            className="p-0.5 hover:bg-slate-800 rounded transition-colors"
+            data-testid="button-close-billing-popover"
           >
-            <X size={20} className="text-slate-400" />
+            <X size={16} className="text-slate-400" />
           </button>
         </div>
 
-        <div className="p-6 max-h-[80vh] overflow-y-auto space-y-6">
-          {/* Current Plan Section */}
-          <div>
-            <h3 className="text-sm font-bold text-white mb-3">Current Plan</h3>
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-lg font-bold text-white mb-1">Starter Plan</p>
-                  <p className="text-xs text-slate-400">Perfect for getting started with competitive intelligence</p>
-                </div>
-                <span className="px-3 py-1 bg-brand-500/20 text-brand-400 text-xs font-medium rounded-full border border-brand-500/30">Current</span>
-              </div>
+        {/* Content */}
+        <div className="p-4 space-y-4">
+          {/* Current Plan */}
+          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-slate-400">Current Plan</p>
+              <span className="px-2 py-0.5 bg-brand-500/20 text-brand-400 text-[10px] font-bold rounded border border-brand-500/30">Starter</span>
+            </div>
+            <p className="text-xs text-slate-300">10,000 credits/month</p>
+          </div>
+
+          {/* Credits Info */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">Total Credits</p>
+              <p className="text-sm font-bold text-white">10,000</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">Remaining Balance</p>
+              <p className="text-sm font-bold text-brand-400">2,450</p>
+            </div>
+            <div className="w-full bg-slate-800/30 rounded-full h-2 mt-2">
+              <div className="bg-gradient-to-r from-brand-500 to-brand-400 h-2 rounded-full" style={{width: '24.5%'}}></div>
             </div>
           </div>
 
-          {/* Credits Overview */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Total Credits</p>
-              <p className="text-2xl font-bold text-white">10,000</p>
-            </div>
-            <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Remaining Balance</p>
-              <p className="text-2xl font-bold text-brand-400">2,450</p>
-            </div>
-          </div>
-
-          {/* All Plans */}
-          <div>
-            <h3 className="text-sm font-bold text-white mb-3">Available Plans</h3>
-            <div className="space-y-3">
-              {planTiers.map((plan) => (
-                <div key={plan.name} className={`border rounded-xl p-4 cursor-pointer transition-colors ${
-                  plan.current 
-                    ? 'bg-brand-500/10 border-brand-500/50' 
-                    : 'bg-slate-800/30 border-slate-700 hover:border-slate-600'
-                }`} data-testid={`button-plan-${plan.name.toLowerCase()}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-bold text-white">{plan.name} Plan</p>
-                      <p className="text-xs text-slate-400 mt-1">{plan.credits.toLocaleString()} credits per month</p>
-                    </div>
-                    {plan.current && <Check size={18} className="text-brand-400" />}
-                  </div>
-                </div>
-              ))}
+          {/* Top-Up Options */}
+          <div className="border-t border-slate-700 pt-3">
+            <p className="text-xs font-bold text-white mb-2">Quick Top-Up</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button className="border border-slate-700 rounded-lg p-2 hover:bg-slate-800/50 transition-colors text-center" data-testid="topup-5k">
+                <p className="text-xs font-bold text-white">5K</p>
+                <p className="text-[10px] text-slate-400">$49</p>
+              </button>
+              <button className="border border-slate-700 rounded-lg p-2 hover:bg-slate-800/50 transition-colors text-center" data-testid="topup-10k">
+                <p className="text-xs font-bold text-white">10K</p>
+                <p className="text-[10px] text-slate-400">$89</p>
+              </button>
+              <button className="border border-slate-700 rounded-lg p-2 hover:bg-slate-800/50 transition-colors text-center" data-testid="topup-25k">
+                <p className="text-xs font-bold text-white">25K</p>
+                <p className="text-[10px] text-slate-400">$199</p>
+              </button>
+              <button className="border border-slate-700 rounded-lg p-2 hover:bg-slate-800/50 transition-colors text-center" data-testid="topup-50k">
+                <p className="text-xs font-bold text-white">50K</p>
+                <p className="text-[10px] text-slate-400">$349</p>
+              </button>
             </div>
           </div>
 
-          {/* Credit Top-Up Packages */}
-          <div>
-            <h3 className="text-sm font-bold text-white mb-3">Credit Top-Up Packages</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {topUpPackages.map((pkg) => (
-                <button 
-                  key={pkg.amount}
-                  className="border border-slate-700 rounded-xl p-3 hover:bg-slate-800/50 transition-colors hover-elevate"
-                  data-testid={`button-topup-${pkg.amount}`}
-                >
-                  <p className="text-sm font-bold text-white">{pkg.amount.toLocaleString()}</p>
-                  <p className="text-xs text-brand-400 font-semibold mt-1">${pkg.price}</p>
-                </button>
-              ))}
-            </div>
+          {/* Action Buttons */}
+          <div className="border-t border-slate-700 pt-3 flex gap-2">
+            <button 
+              onClick={onClose}
+              className="flex-1 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
+              data-testid="button-close-popover"
+            >
+              Close
+            </button>
+            <button 
+              className="flex-1 px-3 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition-colors"
+              data-testid="button-upgrade-popover"
+            >
+              Upgrade
+            </button>
           </div>
-
-          {/* Usage Info */}
-          <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">About Credits</p>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Credits are used for AI analysis, radar scanning, and signal tracking. Each radar task scan, research report generation, and competitor discovery scan consumes credits based on complexity.
-            </p>
-          </div>
-        </div>
-
-        <div className="p-4 border-t border-slate-700 bg-slate-900/50 flex items-center justify-end gap-3">
-          <button 
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors"
-            data-testid="button-close-billing-footer"
-          >
-            Close
-          </button>
-          <button 
-            className="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-bold transition-colors"
-            data-testid="button-upgrade-plan"
-          >
-            Upgrade Plan
-          </button>
         </div>
       </div>
     </div>
@@ -4411,7 +4378,7 @@ export const Workbench: React.FC = () => {
         </div>
       </main>
 
-      <BillingModal isOpen={showBillingModal} onClose={() => setShowBillingModal(false)} />
+      <BillingPopover isOpen={showBillingModal} onClose={() => setShowBillingModal(false)} />
     </div>
   );
 };
