@@ -4009,7 +4009,79 @@ const LinkWorkspaceView = () => (
 );
 
 const BillingPopover: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  const [showUsageDetails, setShowUsageDetails] = useState(false);
+
   if (!isOpen) return null;
+
+  // Mock usage data
+  const usageData = [
+    { date: '2024-12-23', action: 'Radar Task Scan - ChampSignal', credits: -450, type: 'radar' },
+    { date: '2024-12-22', action: 'Research Report - Full Analysis', credits: -800, type: 'research' },
+    { date: '2024-12-21', action: 'Competitor Discovery Scan', credits: -300, type: 'discovery' },
+    { date: '2024-12-20', action: 'Track Signal Generation', credits: -200, type: 'track' },
+    { date: '2024-12-19', action: 'SWOT Analysis Report', credits: -500, type: 'analysis' },
+  ];
+
+  const getIconForType = (type: string) => {
+    switch(type) {
+      case 'radar': return <Radar size={12} />;
+      case 'research': return <BrainCircuit size={12} />;
+      case 'discovery': return <Search size={12} />;
+      case 'track': return <TrendingUp size={12} />;
+      case 'analysis': return <BarChart3 size={12} />;
+      default: return <Zap size={12} />;
+    }
+  };
+
+  if (showUsageDetails) {
+    return (
+      <div className="fixed inset-0 z-[140] flex items-start justify-end pt-20 pr-8 pointer-events-none">
+        <div 
+          className="pointer-events-auto w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="p-4 border-b border-slate-700 bg-slate-900/50 flex items-center justify-between shrink-0">
+            <button
+              onClick={() => setShowUsageDetails(false)}
+              className="p-0.5 hover:bg-slate-800 rounded transition-colors mr-2"
+              data-testid="button-back-usage"
+            >
+              <ChevronLeft size={16} className="text-slate-400" />
+            </button>
+            <h3 className="text-sm font-bold text-white flex-1">Usage Details</h3>
+            <button 
+              onClick={onClose}
+              className="p-0.5 hover:bg-slate-800 rounded transition-colors"
+              data-testid="button-close-usage"
+            >
+              <X size={16} className="text-slate-400" />
+            </button>
+          </div>
+
+          {/* Usage List */}
+          <div className="overflow-y-auto flex-1 custom-scrollbar">
+            <div className="space-y-2 p-3">
+              {usageData.map((item, idx) => (
+                <div key={idx} className="bg-slate-800/30 border border-slate-700 rounded-lg p-3 hover:bg-slate-800/50 transition-colors">
+                  <div className="flex items-start justify-between mb-1">
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="text-slate-500">{getIconForType(item.type)}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-white truncate">{item.action}</p>
+                        <p className="text-[10px] text-slate-500">{item.date}</p>
+                      </div>
+                    </div>
+                    <p className="text-xs font-bold text-red-400 ml-2 shrink-0">{item.credits}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[140] flex items-start justify-end pt-20 pr-8 pointer-events-none">
@@ -4048,9 +4120,18 @@ const BillingPopover: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
               <p className="text-xs text-slate-400">Total Credits</p>
               <p className="text-sm font-bold text-white">10,000</p>
             </div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-slate-400">Remaining Balance</p>
-              <p className="text-sm font-bold text-brand-400">2,450</p>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1">
+                <p className="text-xs text-slate-400">Remaining Balance</p>
+                <p className="text-sm font-bold text-brand-400">2,450</p>
+              </div>
+              <button
+                onClick={() => setShowUsageDetails(true)}
+                className="px-2 py-1 rounded text-[10px] text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
+                data-testid="button-view-usage"
+              >
+                Details
+              </button>
             </div>
             <div className="w-full bg-slate-800/30 rounded-full h-2 mt-2">
               <div className="bg-gradient-to-r from-brand-500 to-brand-400 h-2 rounded-full" style={{width: '24.5%'}}></div>
