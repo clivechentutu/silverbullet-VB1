@@ -696,6 +696,20 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     .filter(s => s.score >= similarityMin)
     .filter(s => searchQuery === '' || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.features.some(f => f.toLowerCase().includes(searchQuery.toLowerCase())))
     .sort((a, b) => {
+      // 1. Favorites first (highest priority)
+      const aIsFavorite = favorites.includes(a.id);
+      const bIsFavorite = favorites.includes(b.id);
+      if (aIsFavorite && !bIsFavorite) return -1;
+      if (!aIsFavorite && bIsFavorite) return 1;
+      
+      // 2. New discoveries second (sorted by similarity high to low)
+      const aIsNew = a.status === 'new';
+      const bIsNew = b.status === 'new';
+      if (aIsNew && !bIsNew) return -1;
+      if (!aIsNew && bIsNew) return 1;
+      if (aIsNew && bIsNew) return b.score - a.score; // New items sorted by similarity descending
+      
+      // 3. Then apply the selected sort order for remaining items
       if (sortBy === 'similarity') return b.score - a.score;
       if (sortBy === 'name') return a.name.localeCompare(b.name);
       if (sortBy === 'newest') {
