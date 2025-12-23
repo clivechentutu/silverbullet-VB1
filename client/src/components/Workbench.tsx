@@ -960,7 +960,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
             >
               <Check size={16} />
-              更新任务
+              Update Task
             </button>
           </div>
         </DialogContent>
