@@ -434,12 +434,13 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const [positionAbove, setPositionAbove] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   
-  // Generate date labels for the last N days
   const today = new Date();
   const dates = data.map((_, i) => {
     const d = new Date(today);
@@ -447,26 +448,35 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
   
-  // SVG dimensions
   const chartWidth = 280;
   const chartHeight = 180;
   const padding = { top: 20, right: 20, bottom: 40, left: 50 };
   const plotWidth = chartWidth - padding.left - padding.right;
   const plotHeight = chartHeight - padding.top - padding.bottom;
   
-  // Calculate points for the curve
   const points = data.map((v, i) => {
     const x = padding.left + (i / (data.length - 1)) * plotWidth;
     const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
     return `${x},${y}`;
   }).join(' ');
   
-  // Y-axis labels
   const yLabels = [
     { value: max, label: `${(max / 1000).toFixed(0)}K` },
     { value: (max + min) / 2, label: `${((max + min) / 2000).toFixed(0)}K` },
     { value: min, label: `${(min / 1000).toFixed(0)}K` }
   ];
+
+  const handleMouseEnter = () => {
+    setShowPreview(true);
+    setTimeout(() => {
+      if (containerRef.current && previewRef.current) {
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const previewHeight = chartHeight + 80;
+        const spaceBelow = window.innerHeight - containerRect.bottom;
+        setPositionAbove(spaceBelow < previewHeight + 20);
+      }
+    }, 0);
+  };
 
   const handleMouseLeave = () => {
     setShowPreview(false);
@@ -475,7 +485,7 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   return (
     <div
       ref={containerRef}
-      onMouseEnter={() => setShowPreview(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className="relative"
     >
@@ -485,7 +495,10 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
       
       {showPreview && (
         <div 
-          className="absolute top-full right-0 mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-auto"
+          ref={previewRef}
+          className={`absolute bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-auto ${
+            positionAbove ? 'bottom-full mb-2' : 'top-full mt-2'
+          } right-0`}
           style={{
             width: `${chartWidth + 32}px`,
             minHeight: `${chartHeight + 80}px`
@@ -494,89 +507,83 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
           onMouseLeave={handleMouseLeave}
         >
           <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
-              {/* Grid lines */}
-              {yLabels.map((_, i) => {
-                const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
-                return (
-                  <line
-                    key={`grid-${i}`}
-                    x1={padding.left}
-                    y1={y}
-                    x2={chartWidth - padding.right}
-                    y2={y}
-                    stroke="#334155"
-                    strokeWidth="0.5"
-                    strokeDasharray="2,2"
-                  />
-                );
-              })}
-              
-              {/* Y-axis labels */}
-              {yLabels.map((label, i) => (
+            {yLabels.map((_, i) => {
+              const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
+              return (
+                <line
+                  key={`grid-${i}`}
+                  x1={padding.left}
+                  y1={y}
+                  x2={chartWidth - padding.right}
+                  y2={y}
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                  strokeDasharray="2,2"
+                />
+              );
+            })}
+            
+            {yLabels.map((label, i) => (
+              <text
+                key={`ylabel-${i}`}
+                x={padding.left - 8}
+                y={padding.top + (i / (yLabels.length - 1)) * plotHeight + 4}
+                textAnchor="end"
+                fill="#94a3b8"
+                fontSize="11"
+                fontFamily="system-ui"
+              >
+                {label.label}
+              </text>
+            ))}
+            
+            <line
+              x1={padding.left}
+              y1={chartHeight - padding.bottom}
+              x2={chartWidth - padding.right}
+              y2={chartHeight - padding.bottom}
+              stroke="#475569"
+              strokeWidth="1"
+            />
+            
+            {dates.map((date, i) => {
+              const x = padding.left + (i / (data.length - 1)) * plotWidth;
+              return (
                 <text
-                  key={`ylabel-${i}`}
-                  x={padding.left - 8}
-                  y={padding.top + (i / (yLabels.length - 1)) * plotHeight + 4}
-                  textAnchor="end"
-                  fill="#94a3b8"
-                  fontSize="11"
+                  key={`xlabel-${i}`}
+                  x={x}
+                  y={chartHeight - padding.bottom + 20}
+                  textAnchor="middle"
+                  fill="#64748b"
+                  fontSize="10"
                   fontFamily="system-ui"
                 >
-                  {label.label}
+                  {date}
                 </text>
-              ))}
-              
-              {/* X-axis */}
-              <line
-                x1={padding.left}
-                y1={chartHeight - padding.bottom}
-                x2={chartWidth - padding.right}
-                y2={chartHeight - padding.bottom}
-                stroke="#475569"
-                strokeWidth="1"
-              />
-              
-              {/* X-axis labels */}
-              {dates.map((date, i) => {
-                const x = padding.left + (i / (data.length - 1)) * plotWidth;
-                return (
-                  <text
-                    key={`xlabel-${i}`}
-                    x={x}
-                    y={chartHeight - padding.bottom + 20}
-                    textAnchor="middle"
-                    fill="#64748b"
-                    fontSize="10"
-                    fontFamily="system-ui"
-                  >
-                    {date}
-                  </text>
-                );
-              })}
-              
-              {/* Curve */}
-              <polyline
-                fill="none"
-                stroke={color}
-                strokeWidth="2"
-                points={points}
-              />
-              
-              {/* Data points */}
-              {data.map((v, i) => {
-                const x = padding.left + (i / (data.length - 1)) * plotWidth;
-                const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
-                return (
-                  <circle
-                    key={`point-${i}`}
-                    cx={x}
-                    cy={y}
-                    r="3"
-                    fill={color}
-                    opacity="0.8"
-                  />
-                );
-              })}
+              );
+            })}
+            
+            <polyline
+              fill="none"
+              stroke={color}
+              strokeWidth="2"
+              points={points}
+            />
+            
+            {data.map((v, i) => {
+              const x = padding.left + (i / (data.length - 1)) * plotWidth;
+              const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
+              return (
+                <circle
+                  key={`point-${i}`}
+                  cx={x}
+                  cy={y}
+                  r="3"
+                  fill={color}
+                  opacity="0.8"
+                />
+              );
+            })}
           </svg>
           <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
         </div>
