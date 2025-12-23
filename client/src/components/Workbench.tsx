@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { WorkbenchView, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
@@ -434,9 +435,8 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
-  const [positionAbove, setPositionAbove] = useState(false);
+  const [positionStyle, setPositionStyle] = useState<{ top?: number; left?: number; bottom?: number }>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -469,11 +469,29 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   const handleMouseEnter = () => {
     setShowPreview(true);
     setTimeout(() => {
-      if (containerRef.current && previewRef.current) {
-        const containerRect = containerRef.current.getBoundingClientRect();
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const previewWidth = chartWidth + 32;
         const previewHeight = chartHeight + 80;
-        const spaceBelow = window.innerHeight - containerRect.bottom;
-        setPositionAbove(spaceBelow < previewHeight + 20);
+        const gap = 8;
+        
+        // Check vertical space
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        const useAbove = spaceBelow < previewHeight + gap && spaceAbove > previewHeight + gap;
+        
+        // Check horizontal space
+        const spaceRight = window.innerWidth - rect.right;
+        const useLeft = spaceRight < previewWidth;
+        
+        // Calculate position
+        let top = useAbove ? rect.top - previewHeight - gap : rect.bottom + gap;
+        let left = useLeft ? rect.right - previewWidth : rect.right - previewWidth;
+        
+        // Clamp to viewport
+        left = Math.max(gap, Math.min(left, window.innerWidth - previewWidth - gap));
+        
+        setPositionStyle({ top, left });
       }
     }, 0);
   };
@@ -493,15 +511,14 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
         <MiniSparkline data={data} color={color} />
       </div>
       
-      {showPreview && (
+      {showPreview && createPortal(
         <div 
-          ref={previewRef}
-          className={`absolute bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-auto ${
-            positionAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-          } right-0`}
+          className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-auto"
           style={{
             width: `${chartWidth + 32}px`,
-            minHeight: `${chartHeight + 80}px`
+            minHeight: `${chartHeight + 80}px`,
+            position: 'fixed',
+            ...positionStyle
           }}
           onMouseEnter={() => setShowPreview(true)}
           onMouseLeave={handleMouseLeave}
@@ -586,7 +603,8 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
             })}
           </svg>
           <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
