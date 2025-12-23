@@ -13,7 +13,7 @@ import {
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
   Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical
 } from 'lucide-react';
-import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit } from 'react-icons/si';
+import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { 
   Sheet, 
   SheetContent, 
@@ -1955,34 +1955,52 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div 
             className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <SiTechcrunch size={13} className="text-green-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">TC</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">TechCrunch Feature</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Feature</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">4 hours ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Comprehensive deep-dive article on their recent $50M series B funding.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Comprehensive deep-dive article on their recent $50M series B funding.</p>
           </div>
           <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <FileText size={13} className="text-blue-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Forbes</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Forbes Listing</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Listing</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Named in the "Top 50 AI Startups to Watch" list.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Named in the "Top 50 AI Startups to Watch" list.</p>
           </div>
           <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <FileText size={13} className="text-indigo-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Wired</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Wired Analysis</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Analysis</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Wired discusses the implications of their new AI-driven design engine.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Wired discusses the implications of their new AI-driven design engine.</p>
           </div>
         </div>
       </div>
