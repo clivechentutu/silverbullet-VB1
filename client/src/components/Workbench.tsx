@@ -969,8 +969,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 setShowSuccessMessage(true);
                 setUpdatingScope(null);
                 
-                // Close modal after showing success
-                await new Promise(resolve => setTimeout(resolve, 1200));
+                // Close modal after showing success (2.5s to read message comfortably)
+                await new Promise(resolve => setTimeout(resolve, 2500));
                 
                 setShowSuccessMessage(false);
                 setEditingScopeName(null);
