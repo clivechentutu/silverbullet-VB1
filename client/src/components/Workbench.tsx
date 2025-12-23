@@ -3152,6 +3152,33 @@ const ActsTemplateView = () => {
 
    const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive'];
    const [activeCat, setActiveCat] = useState('All');
+   const [enabledTemplates, setEnabledTemplates] = useState<number[]>([1, 2, 3]);
+   const [pinnedTemplates, setPinnedTemplates] = useState<number[]>([]);
+
+   const toggleTemplate = (id: number) => {
+      setEnabledTemplates(prev => 
+         prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+      );
+   };
+
+   const togglePin = (id: number) => {
+      setPinnedTemplates(prev => {
+         if (prev.includes(id)) {
+            return prev.filter(t => t !== id);
+         } else if (prev.length < 4) {
+            return [...prev, id];
+         }
+         return prev;
+      });
+   };
+
+   const sortedTemplates = templates.sort((a, b) => {
+      const aPinned = pinnedTemplates.includes(a.id);
+      const bPinned = pinnedTemplates.includes(b.id);
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+      return 0;
+   });
 
    return (
       <div className="space-y-8 animate-fade-in-up">
@@ -3211,23 +3238,42 @@ const ActsTemplateView = () => {
          </div>
 
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.filter(t => activeCat === 'All' || t.category === activeCat).map(template => (
-               <div key={template.id} className="group bg-slate-900/40 border border-slate-800 rounded-xl p-6 hover:bg-slate-900/60 hover:border-slate-700 transition-all flex flex-col h-full" data-testid={`template-card-${template.id}`}>
+            {sortedTemplates.filter(t => activeCat === 'All' || t.category === activeCat).map(template => {
+               const isEnabled = enabledTemplates.includes(template.id);
+               const isPinned = pinnedTemplates.includes(template.id);
+               return (
+               <div key={template.id} className={`group rounded-xl p-6 transition-all flex flex-col h-full ${isPinned ? 'border-2 border-brand-500/50 bg-brand-500/10' : 'bg-slate-900/40 border border-slate-800 hover:bg-slate-900/60 hover:border-slate-700'}`} data-testid={`template-card-${template.id}`}>
                   <div className="flex items-start justify-between mb-4">
                      <div className={`p-3 rounded-lg bg-slate-950 border border-slate-800 ${template.color} group-hover:scale-110 transition-transform`}>
                         <template.icon size={24} />
                      </div>
-                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-950 px-2 py-1 rounded">
-                        {template.category}
-                     </span>
+                     <div className="flex items-center gap-2">
+                        {isPinned && <span className="text-[10px] font-bold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-1 rounded border border-brand-500/30">Pinned</span>}
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-950 px-2 py-1 rounded">
+                           {template.category}
+                        </span>
+                     </div>
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">{template.title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed mb-6 flex-1">
                      {template.desc}
                   </p>
                   <div className="flex gap-2">
-                    <button className="flex-1 py-2.5 bg-slate-950 hover:bg-brand-600 hover:text-white border border-slate-700 hover:border-brand-500 text-slate-300 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2">
-                       <FileText size={16} /> Use
+                    <button 
+                       onClick={() => toggleTemplate(template.id)}
+                       className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 border ${isEnabled ? 'bg-brand-600 hover:bg-brand-500 border-brand-500 text-white' : 'bg-slate-950 hover:bg-slate-900 border-slate-700 text-slate-400'}`}
+                       data-testid={`button-toggle-template-${template.id}`}
+                    >
+                       {isEnabled ? '✓ Active' : 'Inactive'}
+                    </button>
+                    <button
+                       onClick={() => togglePin(template.id)}
+                       disabled={!isPinned && pinnedTemplates.length >= 4}
+                       className={`px-3 py-2.5 rounded-lg transition-all flex items-center justify-center border ${isPinned ? 'bg-brand-500/20 border-brand-500/50 text-brand-400 hover:bg-brand-500/30' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'} disabled:opacity-50 disabled:cursor-not-allowed`}
+                       title={pinnedTemplates.length >= 4 && !isPinned ? 'Maximum 4 pinned templates' : ''}
+                       data-testid={`button-pin-template-${template.id}`}
+                    >
+                       <Pin size={16} />
                     </button>
                     <Sheet>
                       <SheetTrigger asChild>
@@ -3259,7 +3305,9 @@ const ActsTemplateView = () => {
                     </Sheet>
                   </div>
                </div>
-            ))}
+            );
+            })}
+
             
             <div className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" data-testid="button-create-template">
                <div className="p-4 rounded-full bg-slate-900 mb-4">
