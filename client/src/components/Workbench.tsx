@@ -2869,29 +2869,30 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                   </div>
                                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                     <button 
-                                      onClick={async (e) => {
+                                      onClick={(e) => {
                                         e.stopPropagation();
-                                        setInsightSignal(signal);
-                                        setInsightLoading(true);
-                                        setInsightContent('');
-                                        try {
-                                          const res = await apiRequest('POST', '/api/signal-insight', {
-                                            signal: signal.content,
-                                            category: signal.category,
-                                            type: signal.type,
-                                            domain: signal.domain
-                                          });
-                                          const data = await res.json();
-                                          setInsightContent(data.insight);
-                                        } catch (e) {
-                                          setInsightContent('Unable to generate insight at this time. Please try again later.');
+                                        if (!researchingSignals.has(signal.id)) {
+                                          setResearchPromptSignal(signal);
+                                          setResearchPrompt('');
                                         }
-                                        setInsightLoading(false);
                                       }}
-                                      className="flex-1 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all border border-brand-500 flex items-center justify-center gap-1.5"
-                                      data-testid={`signal-insight-${signal.id}`}
+                                      disabled={researchingSignals.has(signal.id)}
+                                      className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                                        researchingSignals.has(signal.id) 
+                                          ? 'bg-brand-500/20 text-brand-400 border border-brand-500/40 cursor-not-allowed' 
+                                          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-600'
+                                      }`}
+                                      data-testid={`signal-research-${signal.id}`}
                                     >
-                                      <Lightbulb size={12} /> Insight
+                                      {researchingSignals.has(signal.id) ? (
+                                        <>
+                                          <Loader2 size={12} className="animate-spin" /> Researching...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Search size={12} /> Research
+                                        </>
+                                      )}
                                     </button>
                                     <a 
                                       href={signal.sourceUrl} 
@@ -3005,40 +3006,112 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       )}
                     </div>
 
-                    <Dialog open={!!insightSignal} onOpenChange={(open) => !open && setInsightSignal(null)}>
+                    {/* Research Prompt Dialog */}
+                    <Dialog open={!!researchPromptSignal} onOpenChange={(open) => !open && setResearchPromptSignal(null)}>
                       <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-lg">
                         <DialogHeader>
                           <DialogTitle className="flex items-center gap-2 text-white">
-                            <Lightbulb className="text-brand-400" size={20} />
-                            AI Insight
+                            <Search className="text-brand-400" size={20} />
+                            Deep Research
                           </DialogTitle>
                           <DialogDescription className="text-slate-400">
-                            {insightSignal?.category} - {insightSignal?.domain}
+                            Start a research task based on this signal
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="mt-4">
-                          {insightLoading ? (
-                            <div className="flex items-center justify-center py-8">
-                              <div className="flex items-center gap-3 text-slate-400">
-                                <Loader2 className="animate-spin" size={20} />
-                                <span className="text-sm">Analyzing signal...</span>
-                              </div>
+                        <div className="mt-4 space-y-4">
+                          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-lg">
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal</p>
+                            <p className="text-sm text-slate-300 italic">"{researchPromptSignal?.content}"</p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${researchPromptSignal?.bgColor}/20 ${researchPromptSignal?.color}`}>
+                                {researchPromptSignal?.category}
+                              </span>
+                              <span className="text-[10px] text-slate-500">{researchPromptSignal?.domain}</span>
                             </div>
-                          ) : (
-                            <div className="space-y-4">
-                              <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-lg">
-                                <p className="text-sm text-slate-300 mb-3 italic">"{insightSignal?.content}"</p>
-                              </div>
-                              <div className="p-4 bg-brand-950/30 border border-brand-900/50 rounded-lg">
-                                <h4 className="text-sm font-bold text-brand-400 mb-2 flex items-center gap-2">
-                                  <BrainCircuit size={14} /> Analysis & Recommendations
-                                </h4>
-                                <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-                                  {insightContent || 'Generating insight...'}
-                                </div>
-                              </div>
-                            </div>
-                          )}
+                          </div>
+                          
+                          <div>
+                            <label className="block text-xs font-medium text-slate-400 mb-2">
+                              What would you like to research about this signal?
+                            </label>
+                            <textarea
+                              value={researchPrompt}
+                              onChange={(e) => setResearchPrompt(e.target.value)}
+                              placeholder="e.g., Analyze the competitive implications of this pricing change and suggest counter-strategies..."
+                              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
+                              rows={3}
+                              data-testid="input-research-prompt"
+                            />
+                          </div>
+
+                          <div className="flex items-center gap-3 pt-2">
+                            <button
+                              onClick={() => setResearchPromptSignal(null)}
+                              className="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors"
+                              data-testid="button-cancel-research"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={async () => {
+                                if (researchPromptSignal && researchPrompt.trim()) {
+                                  // Add to researching signals
+                                  setResearchingSignals(prev => new Set([...prev, researchPromptSignal.id]));
+                                  
+                                  // Add to active research tasks
+                                  setActiveResearchTasks(prev => [...prev, {
+                                    signalId: researchPromptSignal.id,
+                                    prompt: researchPrompt,
+                                    status: 'running'
+                                  }]);
+                                  
+                                  // Close dialog
+                                  setResearchPromptSignal(null);
+                                  
+                                  // Create research session via API
+                                  try {
+                                    await apiRequest('POST', '/api/chat', {
+                                      message: `Research this competitive signal: "${researchPromptSignal.content}" - ${researchPrompt}`,
+                                      type: 'signal-research'
+                                    });
+                                    queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                                    
+                                    // Simulate research completion after 30 seconds
+                                    setTimeout(() => {
+                                      setResearchingSignals(prev => {
+                                        const newSet = new Set(prev);
+                                        newSet.delete(researchPromptSignal.id);
+                                        return newSet;
+                                      });
+                                      setActiveResearchTasks(prev => 
+                                        prev.map(t => t.signalId === researchPromptSignal.id 
+                                          ? {...t, status: 'completed'} 
+                                          : t
+                                        )
+                                      );
+                                    }, 30000);
+                                  } catch (e) {
+                                    console.error('Failed to create research task:', e);
+                                    setResearchingSignals(prev => {
+                                      const newSet = new Set(prev);
+                                      newSet.delete(researchPromptSignal.id);
+                                      return newSet;
+                                    });
+                                  }
+                                }
+                              }}
+                              disabled={!researchPrompt.trim()}
+                              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                                researchPrompt.trim() 
+                                  ? 'bg-brand-500 hover:bg-brand-600 text-white' 
+                                  : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                              }`}
+                              data-testid="button-start-research"
+                            >
+                              <Rocket size={14} />
+                              Start Research
+                            </button>
+                          </div>
                         </div>
                       </DialogContent>
                     </Dialog>
