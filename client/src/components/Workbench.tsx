@@ -1476,6 +1476,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+  const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -2479,7 +2480,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                   <div className={`w-3 h-3 rounded-full ${signal.bgColor} ring-4 ring-slate-950 z-10`} />
                                   <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
                                 </div>
-                                <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group">
+                                <div 
+                                  onClick={() => setSelectedSignal(signal)}
+                                  className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group cursor-pointer"
+                                >
                                   <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-2">
                                       <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
@@ -2552,6 +2556,86 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                         </div>
                       )}
                     </div>
+
+                    {selectedSignal && (
+                      <div className="absolute right-0 top-0 bottom-0 w-96 bg-slate-900/95 border-l border-slate-800 flex flex-col animate-in slide-in-from-right duration-300">
+                        <div className="p-6 border-b border-slate-800 flex items-center justify-between shrink-0">
+                          <h3 className="text-lg font-bold text-white">Signal Details</h3>
+                          <button 
+                            onClick={() => setSelectedSignal(null)}
+                            className="text-slate-500 hover:text-white transition-colors"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+                          <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Signal Title</p>
+                            <p className="text-sm text-white leading-relaxed">{selectedSignal.content}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Source</p>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
+                                <img src={`https://www.google.com/s2/favicons?domain=${selectedSignal.domain}&sz=32`} className="w-full h-full object-contain" alt={selectedSignal.domain} />
+                              </div>
+                              <span className="text-sm text-slate-300">{selectedSignal.domain}</span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Classification</p>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-400">Category:</span>
+                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${selectedSignal.bgColor}/20 ${selectedSignal.color}`}>{selectedSignal.category}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-400">Value:</span>
+                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                  selectedSignal.value === 'high' ? 'bg-red-500/20 text-red-400' :
+                                  selectedSignal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                                  'bg-slate-500/20 text-slate-400'
+                                }`}>{selectedSignal.value === 'high' ? 'High' : selectedSignal.value === 'medium' ? 'Medium' : 'Low'}</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-slate-400">Type:</span>
+                                <span className="px-2 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400">{selectedSignal.type}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Analysis</p>
+                            <div className="space-y-3">
+                              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+                                <p className="text-[10px] font-bold text-brand-400 mb-2 flex items-center gap-1.5">
+                                  <BrainCircuit size={12} /> Strategic Impact
+                                </p>
+                                <p className="text-xs text-slate-300 leading-relaxed">This signal indicates a strategic shift in their market positioning. The competitive advantage is moderate and should be monitored for follow-up actions.</p>
+                              </div>
+                              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+                                <p className="text-[10px] font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+                                  <TrendingUp size={12} /> Trend Direction
+                                </p>
+                                <p className="text-xs text-slate-300 leading-relaxed">Strong upward momentum detected. This competitor is actively expanding capabilities in this area with sustained investment.</p>
+                              </div>
+                              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+                                <p className="text-[10px] font-bold text-amber-400 mb-2 flex items-center gap-1.5">
+                                  <AlertTriangle size={12} /> Action Items
+                                </p>
+                                <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+                                  <li>Review internal roadmap for competitive gaps</li>
+                                  <li>Assess customer feedback on this feature area</li>
+                                  <li>Schedule competitive war room discussion</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     <Dialog open={!!insightSignal} onOpenChange={(open) => !open && setInsightSignal(null)}>
                       <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-lg">
