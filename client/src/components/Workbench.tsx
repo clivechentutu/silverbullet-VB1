@@ -450,6 +450,39 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     { name: 'ChampSignal', url: 'champsignal.com' },
     { name: 'OpusClip', url: 'opus.pro' }
   ]);
+  const [draggedScope, setDraggedScope] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, scopeName: string) => {
+    setDraggedScope(scopeName);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetScopeName: string) => {
+    e.preventDefault();
+    if (!draggedScope || draggedScope === targetScopeName) {
+      setDraggedScope(null);
+      return;
+    }
+    
+    const draggedIndex = targetScopes.findIndex(s => s.name === draggedScope);
+    const targetIndex = targetScopes.findIndex(s => s.name === targetScopeName);
+    
+    if (draggedIndex !== -1 && targetIndex !== -1) {
+      const newScopes = [...targetScopes];
+      [newScopes[draggedIndex], newScopes[targetIndex]] = [newScopes[targetIndex], newScopes[draggedIndex]];
+      setTargetScopes(newScopes);
+    }
+    setDraggedScope(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedScope(null);
+  };
 
   const handleDeleteScope = (scopeName: string) => {
     const remaining = targetScopes.filter(s => s.name !== scopeName);
@@ -567,7 +600,16 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           {targetScopes.map((scope) => (
             <div key={scope.name} className="relative">
               <div 
-                className={`flex items-center rounded-xl border transition-all ${
+                draggable
+                onDragStart={(e) => handleDragStart(e, scope.name)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, scope.name)}
+                onDragEnd={handleDragEnd}
+                className={`flex items-center rounded-xl border transition-all cursor-move ${
+                  draggedScope === scope.name 
+                    ? 'opacity-50 scale-95' 
+                    : ''
+                } ${
                   activeScope === scope.name
                     ? 'bg-brand-500/10 border-brand-500/50'
                     : 'bg-slate-900/40 border-slate-800/50'
