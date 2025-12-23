@@ -639,6 +639,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   ]);
   const [draggedScope, setDraggedScope] = useState<string | null>(null);
   const [editingScopeName, setEditingScopeName] = useState<string | null>(null);
+  const [updatingScope, setUpdatingScope] = useState<string | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
   // New Radar Task Modal States
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
@@ -956,11 +958,43 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               Cancel
             </button>
             <button
-              onClick={() => setEditingScopeName(null)}
-              className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
+              onClick={async () => {
+                if (!editingScopeName) return;
+                
+                setUpdatingScope(editingScopeName);
+                
+                // Simulate update with animation
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                setShowSuccessMessage(true);
+                setUpdatingScope(null);
+                
+                // Close modal after showing success
+                await new Promise(resolve => setTimeout(resolve, 1200));
+                
+                setShowSuccessMessage(false);
+                setEditingScopeName(null);
+              }}
+              disabled={updatingScope !== null}
+              className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:bg-brand-500 disabled:opacity-75 text-white font-bold transition-all flex items-center gap-2"
+              data-testid="button-update-task"
             >
-              <Check size={16} />
-              Update Task
+              {updatingScope === editingScopeName ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Updating...
+                </>
+              ) : showSuccessMessage ? (
+                <>
+                  <Check size={16} />
+                  Success!
+                </>
+              ) : (
+                <>
+                  <Check size={16} />
+                  Update Task
+                </>
+              )}
             </button>
           </div>
         </DialogContent>
