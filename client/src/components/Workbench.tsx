@@ -1538,21 +1538,28 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     }
   };
 
-  const [isDraggingHandle, setIsDraggingHandle] = useState(false);
+  const [isDraggingHandle, setIsDraggingHandle] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleDocumentMouseUp = () => {
+      setIsDraggingHandle(null);
+    };
+    document.addEventListener('mouseup', handleDocumentMouseUp);
+    return () => document.removeEventListener('mouseup', handleDocumentMouseUp);
+  }, []);
 
   const handleDragHandleMouseDown = (trackerId: string) => {
-    setIsDraggingHandle(true);
-    setDraggedTracker(trackerId);
+    setIsDraggingHandle(trackerId);
   };
 
   const handleDragStart = (e: React.DragEvent, trackerId: string) => {
-    if (!isDraggingHandle) {
+    if (isDraggingHandle !== trackerId) {
       e.preventDefault();
       return;
     }
-    setDraggedTracker(trackerId);
     e.dataTransfer.setData('text/plain', trackerId);
     e.dataTransfer.effectAllowed = 'move';
+    setDraggedTracker(trackerId);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -1572,12 +1579,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     newOrder.splice(targetIndex, 0, draggedId);
     setTrackerOrder(newOrder);
     setDraggedTracker(null);
-    setIsDraggingHandle(false);
   };
 
   const handleDragEnd = () => {
     setDraggedTracker(null);
-    setIsDraggingHandle(false);
   };
 
   const trackers: Record<string, React.ReactNode> = {
@@ -1589,11 +1594,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'website')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/40 rounded-lg overflow-hidden hover:border-cyan-500/60 transition-all cursor-move ${draggedTracker === 'website' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'website' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'website' ? 'border-cyan-500/70' : 'hover:border-cyan-500/60'}`}>
         <div className="px-4 py-3 border-b border-cyan-500/20 bg-cyan-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('website')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-cyan-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -1690,11 +1694,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'backlinks')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/40 rounded-lg overflow-hidden hover:border-emerald-500/60 transition-all cursor-move ${draggedTracker === 'backlinks' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'backlinks' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'backlinks' ? 'border-emerald-500/70' : 'hover:border-emerald-500/60'}`}>
         <div className="px-4 py-3 border-b border-emerald-500/20 bg-emerald-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('backlinks')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-emerald-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -1764,11 +1767,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'seo')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/40 rounded-lg overflow-hidden hover:border-blue-500/60 transition-all cursor-move ${draggedTracker === 'seo' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'seo' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'seo' ? 'border-blue-500/70' : 'hover:border-blue-500/60'}`}>
         <div className="px-4 py-3 border-b border-blue-500/20 bg-blue-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('seo')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-blue-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -1838,11 +1840,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'social')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/40 rounded-lg overflow-hidden hover:border-purple-500/60 transition-all cursor-move ${draggedTracker === 'social' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-purple-500/10 to-transparent border border-purple-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'social' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'social' ? 'border-purple-500/70' : 'hover:border-purple-500/60'}`}>
         <div className="px-4 py-3 border-b border-purple-500/20 bg-purple-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('social')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-purple-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -1909,11 +1910,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'news')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/40 rounded-lg overflow-hidden hover:border-rose-500/60 transition-all cursor-move ${draggedTracker === 'news' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'news' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'news' ? 'border-rose-500/70' : 'hover:border-rose-500/60'}`}>
         <div className="px-4 py-3 border-b border-rose-500/20 bg-rose-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('news')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-rose-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
@@ -1970,11 +1970,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         onDragOver={handleDragOver}
         onDrop={(e) => handleDrop(e, 'ads')}
         onDragEnd={handleDragEnd}
-        className={`bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/40 rounded-lg overflow-hidden hover:border-amber-500/60 transition-all cursor-move ${draggedTracker === 'ads' ? 'opacity-50 scale-95' : 'hover:scale-[1.01]'}`}>
+        className={`bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/40 rounded-lg overflow-hidden transition-all ${draggedTracker === 'ads' ? 'opacity-50 scale-95 cursor-grabbing' : isDraggingHandle === 'ads' ? 'border-amber-500/70' : 'hover:border-amber-500/60'}`}>
         <div className="px-4 py-3 border-b border-amber-500/20 bg-amber-500/5 flex items-center gap-2.5">
           <button
             onMouseDown={() => handleDragHandleMouseDown('ads')}
-            onMouseUp={() => setIsDraggingHandle(false)}
             className="text-slate-500 hover:text-amber-400 transition-colors cursor-grab active:cursor-grabbing"
             title="Long press to reorder"
           >
