@@ -1632,6 +1632,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   ];
 
   const [insightSignal, setInsightSignal] = useState<Signal | null>(null);
+  
+  // Research feature states
+  const [researchPromptSignal, setResearchPromptSignal] = useState<Signal | null>(null);
+  const [researchPrompt, setResearchPrompt] = useState('');
+  const [researchingSignals, setResearchingSignals] = useState<Set<number>>(new Set());
+  const [activeResearchTasks, setActiveResearchTasks] = useState<Array<{signalId: number; prompt: string; status: 'running' | 'completed'}>>([]);
 
   const selectedTarget = targets.find((t) => t.id === selectedTargetId) || targets[0];
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
