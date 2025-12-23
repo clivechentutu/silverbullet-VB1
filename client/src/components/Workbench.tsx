@@ -2745,7 +2745,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                     console.log('Clicked signal:', signal);
                                     setSelectedSignal(signal);
                                   }}
-                                  className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group cursor-pointer"
+                                  className={`p-4 rounded-xl transition-all group cursor-pointer ${
+                                    selectedSignal?.id === signal.id 
+                                      ? 'bg-brand-500/10 border-2 border-brand-500/50 shadow-lg shadow-brand-500/10' 
+                                      : 'bg-slate-900/50 border border-slate-800 hover:border-brand-500/30'
+                                  }`}
                                 >
                                   <div className="flex justify-between items-start mb-3">
                                     <div className="flex items-center gap-2">
