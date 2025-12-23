@@ -2686,12 +2686,18 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                             
                             <div>
                               <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Source</p>
-                              <div className="flex items-center gap-2">
+                              <a 
+                                href={selectedSignal.sourceUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                                data-testid="link-source-url"
+                              >
                                 <div className="w-6 h-6 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
                                   <img src={`https://www.google.com/s2/favicons?domain=${selectedSignal.domain}&sz=32`} className="w-full h-full object-contain" alt={selectedSignal.domain} />
                                 </div>
-                                <span className="text-sm text-slate-300">{selectedSignal.domain}</span>
-                              </div>
+                                <span className="text-sm text-brand-400 hover:text-brand-300 cursor-pointer font-medium">{selectedSignal.domain}</span>
+                              </a>
                             </div>
 
                             <div>
