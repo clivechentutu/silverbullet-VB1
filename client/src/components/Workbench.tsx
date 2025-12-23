@@ -1411,9 +1411,24 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         
         {filteredSignals.length === 0 && (
           <div className="py-12 text-center">
-            <Search className="mx-auto text-slate-600 mb-3" size={32} />
-            <p className="text-slate-400">No products match your filters</p>
-            <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filter criteria</p>
+            {scopeStatuses[activeScope] === 'active' ? (
+              <>
+                <div className="inline-flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                    <Radar className="text-brand-400 animate-spin" size={28} />
+                  </div>
+                </div>
+                <p className="text-white font-semibold mb-1">Discovering Similar Products</p>
+                <p className="text-sm text-slate-400 mb-3">Our AI is continuously scanning the market for competitors and alternatives</p>
+                <p className="text-xs text-slate-500">You can safely leave this page • Results will be notified to you</p>
+              </>
+            ) : (
+              <>
+                <Search className="mx-auto text-slate-600 mb-3" size={32} />
+                <p className="text-slate-400">No products match your filters</p>
+                <p className="text-xs text-slate-500 mt-1">Try adjusting your search or filter criteria</p>
+              </>
+            )}
           </div>
         )}
 
