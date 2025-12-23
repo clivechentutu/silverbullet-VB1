@@ -2601,8 +2601,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <Sparkles size={20} className="text-brand-400 animate-pulse" />
               </div>
               <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2 shrink-0">
                     AI Intelligence Summary 
                     <Zap size={14} className="text-brand-400 animate-pulse" />
                   </h3>
@@ -2705,8 +2705,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
 
             {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
             <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <div className="flex items-center justify-between gap-4 mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2 shrink-0">
                   <AlertZap size={16} className="text-brand-500" /> Signals ({comprehensiveSignals.length} Found)
                 </h3>
                 <Sheet open={showFullFeed} onOpenChange={(open) => {
