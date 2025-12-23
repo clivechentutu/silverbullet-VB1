@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
+
+type ActionMode = 'radar' | 'tracker' | 'research';
 
 export const LandingPage = () => {
   const [url, setUrl] = useState('');
@@ -12,6 +14,7 @@ export const LandingPage = () => {
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([]);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [activeMode, setActiveMode] = useState<ActionMode>('radar');
   const [, navigate] = useLocation();
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +81,29 @@ export const LandingPage = () => {
             Enter a competitor's URL and let our AI agents orchestrate a deep-dive market intelligence report in seconds.
           </p>
 
+          {/* Mode Selection Tabs */}
+          <div className="mb-8 flex justify-center gap-3">
+            {[
+              { id: 'radar' as ActionMode, label: 'Radar', icon: RadarIcon, desc: 'Discover competitors' },
+              { id: 'tracker' as ActionMode, label: 'Tracker', icon: Crosshair, desc: 'Monitor competitors' },
+              { id: 'research' as ActionMode, label: 'Research', icon: Bot, desc: 'Deep analysis' }
+            ].map(mode => (
+              <button
+                key={mode.id}
+                onClick={() => setActiveMode(mode.id)}
+                data-testid={`tab-${mode.id}`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
+                  activeMode === mode.id
+                    ? 'bg-brand-500/20 border border-brand-500/50 text-brand-400'
+                    : 'bg-slate-900/50 border border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-300'
+                }`}
+              >
+                <mode.icon size={16} />
+                <span>{mode.label}</span>
+              </button>
+            ))}
+          </div>
+
           <div className={`relative max-w-2xl mx-auto transition-all duration-500 ${appState !== AppState.IDLE ? 'scale-100' : 'hover:scale-[1.01]'}`}>
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
@@ -90,7 +116,11 @@ export const LandingPage = () => {
                   value={url}
                   onChange={handleUrlChange}
                   onKeyDown={(e) => e.key === 'Enter' && handleStart()}
-                  placeholder="enter-competitor-website.com"
+                  placeholder={
+                    activeMode === 'radar' ? 'enter-competitor-website.com' :
+                    activeMode === 'tracker' ? 'enter-target-competitor-url.com' :
+                    'enter-company-url-for-research.com'
+                  }
                   disabled={appState === AppState.ANALYZING}
                   data-testid="input-url"
                   className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg"
@@ -107,18 +137,51 @@ export const LandingPage = () => {
                     }
                   `}
                 >
-                  Start <ArrowRight size={18} />
+                  {activeMode === 'radar' ? 'Scan' :
+                   activeMode === 'tracker' ? 'Track' :
+                   'Analyze'} <ArrowRight size={18} />
                 </button>
               </div>
             </div>
+
+            {/* Mode-specific action hints */}
             <div className="mt-4 flex justify-center gap-2">
-              <button
-                onClick={() => navigate('/app')}
-                className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
-                data-testid="button-debug"
-              >
-                Go to Workbench
-              </button>
+              {activeMode === 'radar' && (
+                <div className="text-center">
+                  <p className="text-xs text-slate-500 mb-3">Find similar competitors in the market</p>
+                  <button
+                    onClick={() => navigate('/app')}
+                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
+                    data-testid="button-go-workbench"
+                  >
+                    Go to Workbench
+                  </button>
+                </div>
+              )}
+              {activeMode === 'tracker' && (
+                <div className="text-center">
+                  <p className="text-xs text-slate-500 mb-3">Monitor pricing, features, and market moves</p>
+                  <button
+                    onClick={() => navigate('/app')}
+                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
+                    data-testid="button-go-tracker"
+                  >
+                    Go to Tracker
+                  </button>
+                </div>
+              )}
+              {activeMode === 'research' && (
+                <div className="text-center">
+                  <p className="text-xs text-slate-500 mb-3">Generate AI-powered strategic analysis reports</p>
+                  <button
+                    onClick={() => navigate('/app')}
+                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
+                    data-testid="button-go-research"
+                  >
+                    Go to Research
+                  </button>
+                </div>
+              )}
             </div>
             {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
               <div className="absolute top-full left-0 mt-2 text-red-400 text-sm flex items-center gap-1 animate-fade-in-up" data-testid="text-error">
