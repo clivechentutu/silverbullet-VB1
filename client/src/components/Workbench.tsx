@@ -432,6 +432,145 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
   );
 };
 
+const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
+  const [showPreview, setShowPreview] = useState(false);
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  
+  // Generate date labels for the last N days
+  const today = new Date();
+  const dates = data.map((_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (data.length - 1 - i));
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  
+  // SVG dimensions
+  const chartWidth = 280;
+  const chartHeight = 180;
+  const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+  const plotWidth = chartWidth - padding.left - padding.right;
+  const plotHeight = chartHeight - padding.top - padding.bottom;
+  
+  // Calculate points for the curve
+  const points = data.map((v, i) => {
+    const x = padding.left + (i / (data.length - 1)) * plotWidth;
+    const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
+    return `${x},${y}`;
+  }).join(' ');
+  
+  // Y-axis labels
+  const yLabels = [
+    { value: max, label: `${(max / 1000).toFixed(0)}K` },
+    { value: (max + min) / 2, label: `${((max + min) / 2000).toFixed(0)}K` },
+    { value: min, label: `${(min / 1000).toFixed(0)}K` }
+  ];
+
+  return (
+    <div className="relative">
+      <div 
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={() => setShowPreview(false)}
+        className="cursor-pointer"
+      >
+        <MiniSparkline data={data} color={color} />
+      </div>
+      
+      {showPreview && (
+        <div className="absolute bottom-full right-0 mb-3 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-none">
+          <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
+            {/* Grid lines */}
+            {yLabels.map((_, i) => {
+              const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
+              return (
+                <line
+                  key={`grid-${i}`}
+                  x1={padding.left}
+                  y1={y}
+                  x2={chartWidth - padding.right}
+                  y2={y}
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                  strokeDasharray="2,2"
+                />
+              );
+            })}
+            
+            {/* Y-axis labels */}
+            {yLabels.map((label, i) => (
+              <text
+                key={`ylabel-${i}`}
+                x={padding.left - 8}
+                y={padding.top + (i / (yLabels.length - 1)) * plotHeight + 4}
+                textAnchor="end"
+                fill="#94a3b8"
+                fontSize="11"
+                fontFamily="system-ui"
+              >
+                {label.label}
+              </text>
+            ))}
+            
+            {/* X-axis */}
+            <line
+              x1={padding.left}
+              y1={chartHeight - padding.bottom}
+              x2={chartWidth - padding.right}
+              y2={chartHeight - padding.bottom}
+              stroke="#475569"
+              strokeWidth="1"
+            />
+            
+            {/* X-axis labels */}
+            {dates.map((date, i) => {
+              const x = padding.left + (i / (data.length - 1)) * plotWidth;
+              return (
+                <text
+                  key={`xlabel-${i}`}
+                  x={x}
+                  y={chartHeight - padding.bottom + 20}
+                  textAnchor="middle"
+                  fill="#64748b"
+                  fontSize="10"
+                  fontFamily="system-ui"
+                >
+                  {date}
+                </text>
+              );
+            })}
+            
+            {/* Curve */}
+            <polyline
+              fill="none"
+              stroke={color}
+              strokeWidth="2"
+              points={points}
+            />
+            
+            {/* Data points */}
+            {data.map((v, i) => {
+              const x = padding.left + (i / (data.length - 1)) * plotWidth;
+              const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
+              return (
+                <circle
+                  key={`point-${i}`}
+                  cx={x}
+                  cy={y}
+                  r="3"
+                  fill={color}
+                  opacity="0.8"
+                />
+              );
+            })}
+          </svg>
+          <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState<'similarity' | 'newest' | 'oldest' | 'name'>('similarity');
@@ -916,7 +1055,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <MiniSparkline 
+                    <TrafficChartPreview 
                       data={signal.trafficData} 
                       color={signal.trafficData[signal.trafficData.length - 1] > signal.trafficData[0] ? '#14b8a6' : '#ef4444'} 
                     />
