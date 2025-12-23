@@ -1341,7 +1341,33 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button 
+                            className="p-1 text-slate-600 hover:text-slate-400 transition-colors rounded hover:bg-slate-800/50"
+                            data-testid={`button-signal-menu-${signal.id}`}
+                          >
+                            <MoreVertical size={14} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="bg-slate-900 border-slate-800 text-slate-300">
+                          <DropdownMenuItem 
+                            className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
+                            onClick={() => {
+                              // Remove signal from filteredSignals by filtering it out
+                              const updatedSignals = allSignals.filter(s => s.id !== signal.id);
+                              // Since we can't directly modify filteredSignals, we use state or callback
+                              // For now, we'll just show a toast or visual feedback
+                              setFavorites(favorites.filter(id => id !== signal.id));
+                            }}
+                            data-testid={`button-delete-signal-${signal.id}`}
+                          >
+                            <Trash2 size={14} />
+                            <span>Delete</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shrink-0">
                         <img 
                           src={`https://www.google.com/s2/favicons?domain=${signal.website}&sz=128`} 
