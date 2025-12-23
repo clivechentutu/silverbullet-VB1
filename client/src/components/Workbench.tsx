@@ -1525,10 +1525,50 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     }
   }, [showFullFeed, selectedSignalId, feedFilter]);
 
+  // Demo data for tracker card signals
+  const trackerSignalsData: Record<string, Signal> = {
+    // Website tracker signals
+    'web-1': { id: 101, type: 'product', category: 'Pricing Page Update', time: '2 hours ago', content: 'Pricing tiers restructured with new enterprise and startup plans.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}/pricing` },
+    'web-2': { id: 102, type: 'product', category: 'Feature Launch', time: '3 hours ago', content: 'AI-Powered Editing: 3 new AI features added to the design suite.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}/features` },
+    'web-3': { id: 103, type: 'product', category: 'Solutions Page', time: '5 hours ago', content: 'Launched vertical-specific solution pages for Fintech and Healthcare.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: `https://${targetDomain}/solutions` },
+    'web-4': { id: 104, type: 'product', category: 'Policy Update', time: 'Yesterday', content: 'Minor updates to compliance documentation and cookie consent.', domain: targetDomain, color: 'text-slate-400', bgColor: 'bg-slate-500', value: 'low', sourceUrl: `https://${targetDomain}/privacy` },
+    'web-5': { id: 105, type: 'marketing', category: 'Blog Content', time: '2 days ago', content: 'Published a comprehensive guide on ethical AI implementation in design.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: `https://${targetDomain}/blog` },
+    'web-6': { id: 106, type: 'hiring', category: 'Careers', time: '3 days ago', content: 'Significant expansion in the engineering and product teams announced with 15 new openings.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: `https://${targetDomain}/careers` },
+    // Backlinks tracker signals
+    'backlink-1': { id: 201, type: 'marketing', category: 'New Backlink', time: '6 hours ago', content: 'High-authority tech blog linked to product page from TechReview.io.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://techreview.io/best-design-tools' },
+    'backlink-2': { id: 202, type: 'marketing', category: 'Lost Backlink', time: 'Yesterday', content: 'Previous link from Forbes Tech "Top SaaS Trends" article was removed or changed.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: 'https://forbes.com/saas-trends' },
+    'backlink-3': { id: 203, type: 'marketing', category: 'Competitor Comparison', time: '2 days ago', content: 'Linked in a new "Best AI Tools of 2024" comparison list.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://besttools2024.com/ai-tools' },
+    'backlink-4': { id: 204, type: 'marketing', category: 'Review Spike', time: '4 days ago', content: 'Received 25+ new 5-star reviews on G2 following the recent update.', domain: targetDomain, color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://g2.com/products/reviews' },
+    // SEO tracker signals
+    'seo-1': { id: 301, type: 'product', category: 'Ranking Change', time: '1 hour ago', content: 'Main competitor jumped to #1 for "AI Design Tools" keyword.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}` },
+    'seo-2': { id: 302, type: 'product', category: 'New Pages', time: '3 hours ago', content: 'Added 12 new documentation pages for specialized API integrations.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: `https://${targetDomain}/docs` },
+    'seo-3': { id: 303, type: 'product', category: 'Performance', time: 'Yesterday', content: 'Homepage load time reduced by 40% globally.', domain: targetDomain, color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: `https://${targetDomain}` },
+    'seo-4': { id: 304, type: 'product', category: 'Featured Snippet', time: '3 days ago', content: 'Successfully captured the featured snippet for "SaaS SEO automation".', domain: targetDomain, color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: `https://${targetDomain}/seo` },
+    // Social tracker signals
+    'social-1': { id: 401, type: 'marketing', category: 'Viral Content', time: '1 hour ago', content: 'A user\'s review of their new collaborative features is trending on X.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: 'https://x.com/trending' },
+    'social-2': { id: 402, type: 'marketing', category: 'Influencer Review', time: '5 hours ago', content: 'Popular tech influencer published a comparison video on YouTube.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/watch' },
+    'social-3': { id: 403, type: 'product', category: 'Product Launch', time: '2 days ago', content: 'Competitor\'s new "Pro+" mobile app launched on Product Hunt.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://producthunt.com/posts' },
+    'social-4': { id: 404, type: 'marketing', category: 'Campaign', time: '1 week ago', content: 'New aesthetic design showcase campaign targeting Gen Z designers on Instagram.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://instagram.com/campaign' },
+    // News tracker signals
+    'news-1': { id: 501, type: 'marketing', category: 'TechCrunch Feature', time: '4 hours ago', content: 'Comprehensive deep-dive article on their recent $50M series B funding.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://techcrunch.com/funding' },
+    'news-2': { id: 502, type: 'marketing', category: 'Forbes Listing', time: 'Yesterday', content: 'Named in the "Top 50 AI Startups to Watch" list.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: 'https://forbes.com/ai-startups' },
+    'news-3': { id: 503, type: 'marketing', category: 'Wired Analysis', time: '3 days ago', content: 'Wired discusses the implications of their new AI-driven design engine.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://wired.com/ai-design' },
+    // Ads tracker signals
+    'ads-1': { id: 601, type: 'marketing', category: 'LinkedIn Campaign', time: '2 days ago', content: 'Targeting decision makers at mid-market design agencies with "Free Enterprise Trial".', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://linkedin.com/ads' },
+    'ads-2': { id: 602, type: 'marketing', category: 'Facebook Retargeting', time: '4 days ago', content: 'Increased spend by 15% on retargeting ads for users who visited the pricing page.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: 'https://facebook.com/ads' },
+    'ads-3': { id: 603, type: 'marketing', category: 'Google Ads Expansion', time: '1 week ago', content: 'Bidding heavily on high-intent transactional keywords in the UK market.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://google.com/ads' },
+    'ads-4': { id: 604, type: 'marketing', category: 'YouTube Video Ads', time: '2 weeks ago', content: 'Started a new video ad series featuring customer success stories.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/ads' },
+  };
+
   const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
     setFeedFilter(category);
     setSelectedSignalId(signalId);
     setShowFullFeed(true);
+    // Auto-select the signal to show detail panel with demo data
+    const trackerSignal = trackerSignalsData[signalId];
+    if (trackerSignal) {
+      setSelectedSignal(trackerSignal);
+    }
   };
 
   const handleAddTarget = async () => {
