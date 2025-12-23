@@ -1251,13 +1251,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       </div>
                       
                       <div>
-                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Domain / Industry</p>
-                        <span className="inline-block px-2.5 py-1 bg-brand-500/10 border border-brand-500/30 rounded-lg text-xs font-medium text-brand-400">
-                          {analysisResult.domain}
-                        </span>
-                      </div>
-                      
-                      <div>
                         <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Core Features</p>
                         <div className="flex flex-wrap gap-2">
                           {analysisResult.coreFeatures.map((feature, idx) => (
