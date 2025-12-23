@@ -434,6 +434,7 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -467,37 +468,32 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
     { value: min, label: `${(min / 1000).toFixed(0)}K` }
   ];
 
+  const handleMouseLeave = () => {
+    setShowPreview(false);
+  };
+
   return (
-    <div>
-      <div 
-        onMouseEnter={() => setShowPreview(true)}
-        className="cursor-pointer"
-      >
+    <div
+      ref={containerRef}
+      onMouseEnter={() => setShowPreview(true)}
+      onMouseLeave={handleMouseLeave}
+      className="relative"
+    >
+      <div className="cursor-pointer">
         <MiniSparkline data={data} color={color} />
       </div>
       
       {showPreview && (
-        <>
-          {/* Backdrop - solid dark background */}
-          <div 
-            className="fixed inset-0 bg-slate-950/90 z-[99]"
-            onClick={() => setShowPreview(false)}
-            onMouseMove={(e) => {
-              // Keep preview visible while mouse is over backdrop
-              e.stopPropagation();
-            }}
-          />
-          {/* Preview centered on screen */}
-          <div 
-            className="fixed bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] flex flex-col items-center justify-center"
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: `${chartWidth + 32}px`
-            }}
-          >
-            <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
+        <div 
+          className="absolute top-full right-0 mt-2 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-auto"
+          style={{
+            width: `${chartWidth + 32}px`,
+            minHeight: `${chartHeight + 80}px`
+          }}
+          onMouseEnter={() => setShowPreview(true)}
+          onMouseLeave={handleMouseLeave}
+        >
+          <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
               {/* Grid lines */}
               {yLabels.map((_, i) => {
                 const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
@@ -581,10 +577,9 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
                   />
                 );
               })}
-            </svg>
-            <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
-          </div>
-        </>
+          </svg>
+          <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
+        </div>
       )}
     </div>
   );
