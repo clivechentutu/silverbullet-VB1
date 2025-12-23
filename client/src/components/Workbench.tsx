@@ -2606,10 +2606,41 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     AI Intelligence Summary 
                     <Zap size={14} className="text-brand-400 animate-pulse" />
                   </h3>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <TrendingUp size={10} className="text-emerald-400" /> Market Pivot
+                    </p>
+                    <p className="text-[11px] text-slate-300">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <ShieldAlert size={10} className="text-red-400" /> Pricing Risk
+                    </p>
+                    <p className="text-[11px] text-slate-300">New "Enterprise" tier competes directly with your Pro offering.</p>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
+                      <Zap size={10} className="text-amber-400" /> Growth Signal
+                    </p>
+                    <p className="text-[11px] text-slate-300">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
+            <div>
+              <div className="flex items-center justify-between mb-6 gap-3">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <AlertZap size={16} className="text-brand-500" /> Signals ({comprehensiveSignals.length} Found)
+                </h3>
+                <div className="flex items-center gap-2">
                   <Sheet>
                     <SheetTrigger asChild>
-                      <button className="text-[10px] font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1.5 px-2 py-1 bg-slate-900/50 border border-slate-800 rounded-md hover:border-brand-500/30">
-                        <History size={10} className="text-brand-400" /> History Summary
+                      <button className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors flex items-center gap-1.5" data-testid="button-history">
+                        <History size={10} className="text-brand-400" /> History
                       </button>
                     </SheetTrigger>
                     <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md custom-scrollbar overflow-y-auto">
@@ -2679,37 +2710,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </div>
                     </SheetContent>
                   </Sheet>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <TrendingUp size={10} className="text-emerald-400" /> Market Pivot
-                    </p>
-                    <p className="text-[11px] text-slate-300">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
-                  </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <ShieldAlert size={10} className="text-red-400" /> Pricing Risk
-                    </p>
-                    <p className="text-[11px] text-slate-300">New "Enterprise" tier competes directly with your Pro offering.</p>
-                  </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <Zap size={10} className="text-amber-400" /> Growth Signal
-                    </p>
-                    <p className="text-[11px] text-slate-300">Acquired 3 high-DA backlinks from major tech news outlets.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <AlertZap size={16} className="text-brand-500" /> Signals ({comprehensiveSignals.length} Found)
-                </h3>
-                <Sheet open={showFullFeed} onOpenChange={(open) => {
+                  <Sheet open={showFullFeed} onOpenChange={(open) => {
                     setShowFullFeed(open);
                     if (!open) {
                       setActiveTrackerType(null);
@@ -2721,15 +2722,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       setSelectedSignal(null);
                     }
                   }}>
-                  <SheetTrigger asChild>
-                    <button 
-                      className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
-                      data-testid="button-view-full-feed"
-                    >
-                      View Full Feed
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-full sm:max-w-4xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
+                    <SheetTrigger asChild>
+                      <button 
+                        className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                        data-testid="button-view-full-feed"
+                      >
+                        View Full Feed
+                      </button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full sm:max-w-4xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
                     <SheetHeader className="p-6 border-b border-slate-800 shrink-0">
                       <SheetTitle className="text-xl font-bold text-white flex items-center gap-2">
                         <AlertZap size={20} className="text-brand-500" /> 
@@ -3035,6 +3036,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </SheetContent>
                 </Sheet>
               </div>
+            </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-max">
                 {trackerOrder.map(id => trackers[id as keyof typeof trackers])}
