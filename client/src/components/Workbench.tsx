@@ -2759,31 +2759,35 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </button>
                           <button 
                             onClick={() => setFeedFilter('pricing')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-pricing"
+                            title="Pricing"
                           >
-                            <DollarSign size={12} /> Pricing ({comprehensiveSignals.filter(s => s.type === 'pricing').length})
+                            <DollarSign size={12} /> ({comprehensiveSignals.filter(s => s.type === 'pricing').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('product')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-product"
+                            title="Product"
                           >
-                            <Globe size={12} /> Product ({comprehensiveSignals.filter(s => s.type === 'product').length})
+                            <Globe size={12} /> ({comprehensiveSignals.filter(s => s.type === 'product').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('marketing')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-marketing"
+                            title="Marketing"
                           >
-                            <Megaphone size={12} /> Marketing ({comprehensiveSignals.filter(s => s.type === 'marketing').length})
+                            <Megaphone size={12} /> ({comprehensiveSignals.filter(s => s.type === 'marketing').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('hiring')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-hiring"
+                            title="Hiring"
                           >
-                            <Briefcase size={12} /> Hiring ({comprehensiveSignals.filter(s => s.type === 'hiring').length})
+                            <Briefcase size={12} /> ({comprehensiveSignals.filter(s => s.type === 'hiring').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('favorites')}
