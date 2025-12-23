@@ -638,6 +638,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     { name: 'OpusClip', url: 'opus.pro' }
   ]);
   const [draggedScope, setDraggedScope] = useState<string | null>(null);
+  const [editingScopeName, setEditingScopeName] = useState<string | null>(null);
   
   // New Radar Task Modal States
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
@@ -866,6 +867,65 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           onStart={handleStartTracking}
         />
       )}
+
+      <Dialog open={!!editingScopeName} onOpenChange={(open) => !open && setEditingScopeName(null)}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-white">Configure Scope: {editingScopeName}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
+              <input
+                type="text"
+                defaultValue={editingScopeName || ''}
+                placeholder="Scope name"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                data-testid="input-scope-name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Tracking Dimensions</label>
+              <div className="space-y-2">
+                {['Website Changes', 'Backlinks', 'SEO Rankings', 'Social Mentions', 'News Coverage', 'Ad Campaigns'].map((dim) => (
+                  <label key={dim} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
+                    <span className="text-sm text-slate-300">{dim}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Update Frequency</label>
+              <select className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-all">
+                <option>Real-time</option>
+                <option>Hourly</option>
+                <option>Daily</option>
+                <option>Weekly</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+            <button
+              onClick={() => setEditingScopeName(null)}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => setEditingScopeName(null)}
+              className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
+            >
+              <Check size={16} />
+              Save Settings
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
@@ -942,7 +1002,10 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     <button 
                       className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
                       data-testid={`action-configure-${scope.name}`}
-                      onClick={() => setShowScopeActions(null)}
+                      onClick={() => {
+                        setEditingScopeName(scope.name);
+                        setShowScopeActions(null);
+                      }}
                     >
                       <Settings size={14} className="text-slate-400" />
                       Configure
