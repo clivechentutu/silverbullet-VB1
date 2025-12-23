@@ -434,6 +434,8 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
+  const [showBelow, setShowBelow] = useState(false);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -467,10 +469,20 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
     { value: min, label: `${(min / 1000).toFixed(0)}K` }
   ];
 
+  const handleMouseEnter = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      // If element is less than 220px from top, show preview below
+      setShowBelow(rect.top < 220);
+    }
+    setShowPreview(true);
+  };
+
   return (
     <div className="relative">
       <div 
-        onMouseEnter={() => setShowPreview(true)}
+        ref={triggerRef}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowPreview(false)}
         className="cursor-pointer"
       >
@@ -478,7 +490,7 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
       </div>
       
       {showPreview && (
-        <div className="absolute bottom-full right-0 mb-3 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-none">
+        <div className={`absolute ${showBelow ? 'top-full mt-3' : 'bottom-full mb-3'} right-0 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-none`}>
           <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
             {/* Grid lines */}
             {yLabels.map((_, i) => {
