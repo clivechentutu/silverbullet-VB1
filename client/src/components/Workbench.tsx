@@ -791,6 +791,10 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   activeScope === scope.name
                     ? 'bg-brand-500/10 border-brand-500/50'
                     : 'bg-slate-900/40 border-slate-800/50'
+                } ${
+                  scopeStatuses[scope.name] === 'active' ? 'scope-tab-active' :
+                  scopeStatuses[scope.name] === 'paused' ? 'scope-tab-paused' :
+                  scopeStatuses[scope.name] === 'stopped' ? 'scope-tab-stopped' : ''
                 }`}
               >
                 <button
