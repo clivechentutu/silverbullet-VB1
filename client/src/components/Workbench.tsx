@@ -1590,12 +1590,14 @@ interface Signal {
   sourceUrl: string;
 }
 
-const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch }: {
+const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks }: {
   targets: Target[];
   selectedTargetId: number | null;
   setSelectedTargetId: (id: number | null) => void;
   onAddTarget: (name: string, url: string) => void;
   onTrackResearch: (targetName: string) => void;
+  runningResearchTasks: number;
+  setRunningResearchTasks: (count: number | ((prev: number) => number)) => void;
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -3065,6 +3067,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                     status: 'running'
                                   }]);
                                   
+                                  // Update parent component running tasks count
+                                  setRunningResearchTasks(prev => prev + 1);
+                                  
                                   // Close dialog
                                   setResearchPromptSignal(null);
                                   
@@ -3089,14 +3094,23 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                           : t
                                         )
                                       );
+                                      // Decrement parent running tasks count
+                                      setRunningResearchTasks(prev => Math.max(0, prev - 1));
                                     }, 30000);
                                   } catch (e) {
                                     console.error('Failed to create research task:', e);
+                                    // Clean up all research state on error
                                     setResearchingSignals(prev => {
                                       const newSet = new Set(prev);
                                       newSet.delete(researchPromptSignal.id);
                                       return newSet;
                                     });
+                                    // Remove from active research tasks list
+                                    setActiveResearchTasks(prev => 
+                                      prev.filter(t => t.signalId !== researchPromptSignal.id)
+                                    );
+                                    // Decrement parent running tasks count
+                                    setRunningResearchTasks(prev => Math.max(0, prev - 1));
                                   }
                                 }
                               }}
@@ -4343,6 +4357,7 @@ export const Workbench: React.FC = () => {
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState('all');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
+  const [runningResearchTasks, setRunningResearchTasks] = useState<number>(0);
 
   const handleSignalClick = (signalId: string, category: string) => {
     setFeedFilter(category.toLowerCase());
@@ -4451,7 +4466,7 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.RADAR:
         return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
       case WorkbenchView.TARGETS:
-        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} />;
+        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} runningResearchTasks={runningResearchTasks} setRunningResearchTasks={setRunningResearchTasks} />;
       case WorkbenchView.RESEARCH:
         return (
           <ResearchView 
@@ -4499,6 +4514,12 @@ export const Workbench: React.FC = () => {
                   className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
                 />
                 <span className="text-sm font-medium flex-1">{item.label}</span>
+                {item.id === WorkbenchView.RESEARCH && runningResearchTasks > 0 && (
+                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[9px] font-bold shrink-0">
+                    <Loader2 size={10} className="animate-spin" />
+                    {runningResearchTasks}
+                  </span>
+                )}
                 <HelpCircle 
                   size={14} 
                   className={`shrink-0 transition-colors ${
