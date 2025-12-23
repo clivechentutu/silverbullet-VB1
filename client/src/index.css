@@ -323,11 +323,17 @@
 
   /* Status Icon Breathing Light - Only for Active State */
   @keyframes breathing-icon-teal {
-    0%, 100% { filter: drop-shadow(0 0 2px rgba(20, 184, 166, 0.6)); }
-    50% { filter: drop-shadow(0 0 6px rgba(20, 184, 166, 0.3)); }
+    0%, 100% { 
+      filter: drop-shadow(0 0 0px rgba(20, 184, 166, 0.8)) drop-shadow(0 0 2px rgba(20, 184, 166, 0.6));
+      opacity: 0.8;
+    }
+    50% { 
+      filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.8)) drop-shadow(0 0 12px rgba(20, 184, 166, 0.4));
+      opacity: 1;
+    }
   }
 
   .status-icon-active {
-    animation: breathing-icon-teal 2.5s infinite;
+    animation: breathing-icon-teal 2s infinite ease-in-out;
   }
 }
