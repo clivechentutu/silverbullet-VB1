@@ -2348,12 +2348,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </div>
               </div>
               <div className="flex gap-2">
-                <button 
-                  onClick={() => onTrackResearch(selectedTarget.name)}
-                  className="px-4 py-2 text-sm font-medium bg-brand-600/20 hover:bg-brand-600/30 text-brand-400 border border-brand-500/30 rounded-lg transition-all flex items-center gap-2"
-                >
-                  <Bot size={14} /> Analyze with AI
-                </button>
                 <button className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors" data-testid="button-edit-config">
                   Edit Configuration
                 </button>
