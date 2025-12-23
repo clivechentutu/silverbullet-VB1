@@ -13,6 +13,7 @@ import {
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
   Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical
 } from 'lucide-react';
+import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit } from 'react-icons/si';
 import { 
   Sheet, 
   SheetContent, 
@@ -1860,44 +1861,68 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div 
             className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
           >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <SiX size={13} className="text-slate-300" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">X</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Viral Thread Detected</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Viral Thread Detected</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">1 hour ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">A user's review of their new collaborative features is trending on X (Twitter).</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">A user's review of their new collaborative features is trending on X.</p>
           </div>
           <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <SiYoutube size={13} className="text-red-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">YouTube</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">New YouTube Review</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">New Review</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Popular tech influencer published a comparison video.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Popular tech influencer published a comparison video.</p>
           </div>
           <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <Globe size={13} className="text-orange-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Hunt</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Hunt Launch</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Launch</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
           </div>
           <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
+            <div className="flex items-start gap-2.5 mb-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                <SiInstagram size={13} className="text-pink-500" />
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Insta</span>
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Instagram Campaign</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Campaign</p>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
                 <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
             </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">New aesthetic design showcase campaign targeting Gen Z designers.</p>
+            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">New aesthetic design showcase campaign targeting Gen Z designers.</p>
           </div>
         </div>
       </div>
