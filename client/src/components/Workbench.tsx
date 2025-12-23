@@ -1560,7 +1560,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     'ads-4': { id: 604, type: 'marketing', category: 'YouTube Video Ads', time: '2 weeks ago', content: 'Started a new video ad series featuring customer success stories.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/ads' },
   };
 
-  // Get tracker signals based on active tracker type
+  // Get all tracker signals (parent level - comprehensive feed)
+  const getAllTrackerSignals = (): Signal[] => {
+    return Object.values(trackerSignalsData);
+  };
+
+  // Get tracker signals for a specific tracker type (child level)
   const getTrackerSignals = (trackerType: string | null): Signal[] => {
     if (!trackerType) return [];
     const prefixMap: Record<string, string> = {
@@ -1578,11 +1583,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       .map(([, signal]) => signal);
   };
 
-  // Use tracker signals when activeTrackerType is set, otherwise use domain signals
+  // Comprehensive signals = all tracker signals combined (for "View Full Feed")
+  const comprehensiveSignals = getAllTrackerSignals();
+
+  // Determine which signals to show based on context:
+  // - If activeTrackerType is set: show only that tracker's signals (child level)
+  // - If activeTrackerType is null: show all tracker signals (parent level - full feed)
   const activeTrackerSignals = getTrackerSignals(activeTrackerType);
   const filteredSignals = activeTrackerType 
     ? activeTrackerSignals 
-    : (feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter));
+    : (feedFilter === 'all' ? comprehensiveSignals : comprehensiveSignals.filter(s => s.type === feedFilter));
 
   const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
     setFeedFilter(category);
@@ -2481,7 +2491,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <AlertZap size={16} className="text-brand-500" /> Signals ({signalsData.length} Found)
+                  <AlertZap size={16} className="text-brand-500" /> Signals ({comprehensiveSignals.length} Found)
                 </h3>
                 <Sheet open={showFullFeed} onOpenChange={(open) => {
                     setShowFullFeed(open);
@@ -2529,35 +2539,35 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-all"
                           >
-                            All ({targetSignals.length})
+                            All ({comprehensiveSignals.length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('pricing')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-pricing"
                           >
-                            <DollarSign size={12} /> Pricing ({targetSignals.filter(s => s.type === 'pricing').length})
+                            <DollarSign size={12} /> Pricing ({comprehensiveSignals.filter(s => s.type === 'pricing').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('product')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-product"
                           >
-                            <Globe size={12} /> Product ({targetSignals.filter(s => s.type === 'product').length})
+                            <Globe size={12} /> Product ({comprehensiveSignals.filter(s => s.type === 'product').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('marketing')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-marketing"
                           >
-                            <Megaphone size={12} /> Marketing ({targetSignals.filter(s => s.type === 'marketing').length})
+                            <Megaphone size={12} /> Marketing ({comprehensiveSignals.filter(s => s.type === 'marketing').length})
                           </button>
                           <button 
                             onClick={() => setFeedFilter('hiring')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-hiring"
                           >
-                            <Briefcase size={12} /> Hiring ({targetSignals.filter(s => s.type === 'hiring').length})
+                            <Briefcase size={12} /> Hiring ({comprehensiveSignals.filter(s => s.type === 'hiring').length})
                           </button>
                         </div>
                       )}
