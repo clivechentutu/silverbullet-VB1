@@ -262,3 +262,73 @@ Increased competitive visibility could affect our lead generation and brand perc
     return fallbackResponses[type] || fallbackResponses.product;
   }
 }
+
+export interface RadarTaskAnalysis {
+  positioning: string;
+  domain: string;
+  coreFeatures: string[];
+  scenarios: string[];
+  discoveryPrompt: string;
+}
+
+export async function analyzeUrlForRadarTask(url: string): Promise<RadarTaskAnalysis> {
+  const prompt = `You are a competitive intelligence expert. Analyze the following website URL and generate structured intelligence for setting up a market radar monitoring task.
+
+Website URL: ${url}
+
+Please analyze this website and provide intelligence in the following JSON format only (no markdown, no code blocks, just valid JSON):
+
+{
+  "positioning": "A concise 1-2 sentence description of what this company/product does and its market positioning",
+  "domain": "The industry/market domain they operate in (e.g., 'Design Tools', 'Project Management', 'E-commerce Platform', 'Developer Tools')",
+  "coreFeatures": ["List 4-6 core product features or capabilities"],
+  "scenarios": ["List 3-5 main use cases or customer scenarios this product addresses"],
+  "discoveryPrompt": "Generate an optimized search/discovery prompt that would help find similar competitors and alternatives. This should be a natural language query that captures the essence of what makes this product unique and what kind of competitors to look for. Make it specific and actionable for competitive intelligence purposes."
+}
+
+Provide realistic intelligence based on the URL domain and typical characteristics of such businesses.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-preview-05-20",
+      contents: prompt,
+    });
+
+    const text = response.text || '';
+    
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in response');
+    }
+    
+    const result: RadarTaskAnalysis = JSON.parse(jsonMatch[0]);
+    
+    if (!result.positioning || !result.domain || !result.discoveryPrompt) {
+      throw new Error('Invalid response structure');
+    }
+    
+    return result;
+  } catch (error: any) {
+    console.error('Gemini radar task analysis error:', error);
+    
+    // Fallback response
+    const hostname = new URL(url).hostname.replace('www.', '');
+    return {
+      positioning: `${hostname} is a digital product or service company operating in the technology sector.`,
+      domain: 'Technology / SaaS',
+      coreFeatures: [
+        'Core product functionality',
+        'User management',
+        'Analytics and reporting',
+        'Integration capabilities'
+      ],
+      scenarios: [
+        'Team collaboration',
+        'Workflow automation',
+        'Data management',
+        'Customer engagement'
+      ],
+      discoveryPrompt: `Find competitors and alternatives to ${hostname} - companies offering similar products in the same market segment with comparable features and target audience.`
+    };
+  }
+}

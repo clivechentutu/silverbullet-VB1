@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket
 } from 'lucide-react';
 import { 
   Sheet, 
@@ -610,6 +610,14 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   );
 };
 
+interface RadarTaskAnalysis {
+  positioning: string;
+  domain: string;
+  coreFeatures: string[];
+  scenarios: string[];
+  discoveryPrompt: string;
+}
+
 const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any) => void; onResearch: (signal: any) => void }) => {
   const [trackingSignal, setTrackingSignal] = useState<any | null>(null);
   const [sortBy, setSortBy] = useState<'similarity' | 'newest' | 'oldest' | 'name'>('similarity');
@@ -629,6 +637,89 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     { name: 'OpusClip', url: 'opus.pro' }
   ]);
   const [draggedScope, setDraggedScope] = useState<string | null>(null);
+  
+  // New Radar Task Modal States
+  const [showNewTaskModal, setShowNewTaskModal] = useState(false);
+  const [newTaskUrl, setNewTaskUrl] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<RadarTaskAnalysis | null>(null);
+  const [editableTaskName, setEditableTaskName] = useState('');
+  const [editablePrompt, setEditablePrompt] = useState('');
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+
+  const handleAnalyzeUrl = async () => {
+    if (!newTaskUrl.trim()) return;
+    
+    let urlToAnalyze = newTaskUrl.trim();
+    if (!urlToAnalyze.startsWith('http://') && !urlToAnalyze.startsWith('https://')) {
+      urlToAnalyze = 'https://' + urlToAnalyze;
+    }
+    
+    setIsAnalyzing(true);
+    setAnalysisError(null);
+    setAnalysisResult(null);
+    
+    try {
+      const response = await fetch('/api/analyze-radar-task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlToAnalyze })
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to analyze URL');
+      }
+      
+      const data: RadarTaskAnalysis = await response.json();
+      setAnalysisResult(data);
+      
+      // Extract task name from URL
+      try {
+        const hostname = new URL(urlToAnalyze).hostname.replace('www.', '');
+        const taskName = hostname.split('.')[0].charAt(0).toUpperCase() + hostname.split('.')[0].slice(1);
+        setEditableTaskName(taskName);
+      } catch {
+        setEditableTaskName('New Task');
+      }
+      setEditablePrompt(data.discoveryPrompt);
+    } catch (error: any) {
+      setAnalysisError(error.message || 'Failed to analyze URL');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleLaunchTask = () => {
+    if (!editableTaskName.trim() || !analysisResult) return;
+    
+    const newScope = {
+      name: editableTaskName.trim(),
+      url: newTaskUrl.startsWith('http') ? new URL(newTaskUrl).hostname.replace('www.', '') : newTaskUrl.replace('www.', '')
+    };
+    
+    setTargetScopes(prev => [...prev, newScope]);
+    setScopeStatuses(prev => ({ ...prev, [newScope.name]: 'active' }));
+    setActiveScope(newScope.name);
+    
+    // Reset modal state
+    setShowNewTaskModal(false);
+    setNewTaskUrl('');
+    setAnalysisResult(null);
+    setEditableTaskName('');
+    setEditablePrompt('');
+    setAnalysisError(null);
+  };
+
+  const handleCloseModal = () => {
+    setShowNewTaskModal(false);
+    setNewTaskUrl('');
+    setAnalysisResult(null);
+    setEditableTaskName('');
+    setEditablePrompt('');
+    setAnalysisError(null);
+    setIsAnalyzing(false);
+  };
 
   const handleDragStart = (e: React.DragEvent, scopeName: string) => {
     setDraggedScope(scopeName);
@@ -898,13 +989,191 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
         
         <button 
+          onClick={() => setShowNewTaskModal(true)}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900/40 border border-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
           data-testid="button-add-scope"
-          title="Add Product Scope"
+          title="New Radar Task"
         >
           <Plus size={18} />
         </button>
       </div>
+
+      {showNewTaskModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={handleCloseModal}>
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                  <Radar className="text-brand-500" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">New Radar Task</h3>
+                  <p className="text-xs text-slate-400">AI-powered competitor discovery setup</p>
+                </div>
+              </div>
+              <button 
+                onClick={handleCloseModal}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                data-testid="button-close-new-task-modal"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="flex gap-2">
+                  <div className="flex-1 relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                    <input
+                      type="text"
+                      value={newTaskUrl}
+                      onChange={(e) => setNewTaskUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAnalyzeUrl()}
+                      placeholder="e.g., figma.com or https://figma.com"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                      data-testid="input-new-task-url"
+                      disabled={isAnalyzing}
+                    />
+                  </div>
+                  <button
+                    onClick={handleAnalyzeUrl}
+                    disabled={!newTaskUrl.trim() || isAnalyzing}
+                    className="px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:bg-slate-700 disabled:text-slate-500 text-white font-medium transition-all flex items-center gap-2"
+                    data-testid="button-analyze-url"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} />
+                        Analyze
+                      </>
+                    )}
+                  </button>
+                </div>
+                {analysisError && (
+                  <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
+                    <AlertTriangle size={14} />
+                    {analysisError}
+                  </p>
+                )}
+              </div>
+
+              {isAnalyzing && (
+                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8 text-center">
+                  <Loader2 size={32} className="animate-spin text-brand-500 mx-auto mb-4" />
+                  <p className="text-white font-medium mb-1">Analyzing Website</p>
+                  <p className="text-sm text-slate-400">AI is extracting positioning, features, and generating discovery prompts...</p>
+                </div>
+              )}
+
+              {analysisResult && !isAnalyzing && (
+                <div className="space-y-5 animate-fade-in-up">
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <TargetIcon size={16} className="text-brand-400" />
+                      <h4 className="text-sm font-bold text-white">AI Analysis Results</h4>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Positioning</p>
+                        <p className="text-sm text-slate-300">{analysisResult.positioning}</p>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Domain / Industry</p>
+                        <span className="inline-block px-2.5 py-1 bg-brand-500/10 border border-brand-500/30 rounded-lg text-xs font-medium text-brand-400">
+                          {analysisResult.domain}
+                        </span>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Core Features</p>
+                        <div className="flex flex-wrap gap-2">
+                          {analysisResult.coreFeatures.map((feature, idx) => (
+                            <span key={idx} className="px-2.5 py-1 bg-slate-700/50 border border-slate-600 rounded-lg text-xs text-slate-300">
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Target Scenarios</p>
+                        <div className="flex flex-wrap gap-2">
+                          {analysisResult.scenarios.map((scenario, idx) => (
+                            <span key={idx} className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-400">
+                              {scenario}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">Task Name</label>
+                    <input
+                      type="text"
+                      value={editableTaskName}
+                      onChange={(e) => setEditableTaskName(e.target.value)}
+                      placeholder="Enter task name"
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                      data-testid="input-task-name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <span className="flex items-center gap-2">
+                        <Bot size={14} className="text-brand-400" />
+                        AI Discovery Prompt
+                        <span className="text-xs text-slate-500 font-normal">(Editable)</span>
+                      </span>
+                    </label>
+                    <textarea
+                      value={editablePrompt}
+                      onChange={(e) => setEditablePrompt(e.target.value)}
+                      rows={4}
+                      placeholder="Discovery prompt for finding competitors..."
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
+                      data-testid="textarea-discovery-prompt"
+                    />
+                    <p className="mt-1.5 text-xs text-slate-500">This prompt will be used to discover similar products and competitors.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {analysisResult && !isAnalyzing && (
+              <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <button
+                  onClick={handleCloseModal}
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+                  data-testid="button-cancel-new-task"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleLaunchTask}
+                  disabled={!editableTaskName.trim()}
+                  className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold transition-all flex items-center gap-2"
+                  data-testid="button-launch-task"
+                >
+                  <Rocket size={16} />
+                  Launch Radar Task
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowDeleteConfirm(null)}>

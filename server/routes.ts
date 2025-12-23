@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import { storage } from "./storage";
-import { analyzeCompetitor, chatWithGemini, generateSignalInsight } from "./gemini";
+import { analyzeCompetitor, chatWithGemini, generateSignalInsight, analyzeUrlForRadarTask } from "./gemini";
 import { generateIntelligenceRequestSchema, chatRequestSchema, insertTargetSchema, insertResearchSessionSchema } from "@shared/schema";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 
@@ -91,6 +91,30 @@ export async function registerRoutes(
     } catch (error: any) {
       console.error("Signal insight error:", error);
       res.status(500).json({ error: error.message || "Failed to generate insight" });
+    }
+  });
+
+  // Radar task analysis endpoint
+  app.post("/api/analyze-radar-task", async (req, res) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ error: "URL is required" });
+      }
+      
+      // Validate URL format
+      try {
+        new URL(url);
+      } catch {
+        return res.status(400).json({ error: "Invalid URL format" });
+      }
+      
+      const analysis = await analyzeUrlForRadarTask(url);
+      res.json(analysis);
+    } catch (error: any) {
+      console.error("Radar task analysis error:", error);
+      res.status(500).json({ error: error.message || "Failed to analyze URL" });
     }
   });
 
