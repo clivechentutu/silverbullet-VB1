@@ -434,8 +434,7 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
-  const [showBelow, setShowBelow] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -470,18 +469,16 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   ];
 
   const handleMouseEnter = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      // If element is less than 220px from top, show preview below
-      setShowBelow(rect.top < 220);
-    }
+    // Center preview on screen
+    const centerTop = (window.innerHeight - (chartHeight + 80)) / 2;
+    const centerLeft = (window.innerWidth - chartWidth) / 2;
+    setPosition({ top: centerTop, left: centerLeft });
     setShowPreview(true);
   };
 
   return (
-    <div className="relative">
+    <div>
       <div 
-        ref={triggerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setShowPreview(false)}
         className="cursor-pointer"
@@ -490,94 +487,110 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
       </div>
       
       {showPreview && (
-        <div className={`absolute ${showBelow ? 'top-full mt-3' : 'bottom-full mb-3'} right-0 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] pointer-events-none`}>
-          <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
-            {/* Grid lines */}
-            {yLabels.map((_, i) => {
-              const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
-              return (
-                <line
-                  key={`grid-${i}`}
-                  x1={padding.left}
-                  y1={y}
-                  x2={chartWidth - padding.right}
-                  y2={y}
-                  stroke="#334155"
-                  strokeWidth="0.5"
-                  strokeDasharray="2,2"
-                />
-              );
-            })}
-            
-            {/* Y-axis labels */}
-            {yLabels.map((label, i) => (
-              <text
-                key={`ylabel-${i}`}
-                x={padding.left - 8}
-                y={padding.top + (i / (yLabels.length - 1)) * plotHeight + 4}
-                textAnchor="end"
-                fill="#94a3b8"
-                fontSize="11"
-                fontFamily="system-ui"
-              >
-                {label.label}
-              </text>
-            ))}
-            
-            {/* X-axis */}
-            <line
-              x1={padding.left}
-              y1={chartHeight - padding.bottom}
-              x2={chartWidth - padding.right}
-              y2={chartHeight - padding.bottom}
-              stroke="#475569"
-              strokeWidth="1"
-            />
-            
-            {/* X-axis labels */}
-            {dates.map((date, i) => {
-              const x = padding.left + (i / (data.length - 1)) * plotWidth;
-              return (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-[99]"
+            onMouseLeave={() => setShowPreview(false)}
+          />
+          {/* Preview centered on screen */}
+          <div 
+            className="fixed bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100]"
+            style={{
+              top: `${position.top}px`,
+              left: `${position.left}px`,
+              width: `${chartWidth}px`
+            }}
+            onMouseLeave={() => setShowPreview(false)}
+          >
+            <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
+              {/* Grid lines */}
+              {yLabels.map((_, i) => {
+                const y = padding.top + (i / (yLabels.length - 1)) * plotHeight;
+                return (
+                  <line
+                    key={`grid-${i}`}
+                    x1={padding.left}
+                    y1={y}
+                    x2={chartWidth - padding.right}
+                    y2={y}
+                    stroke="#334155"
+                    strokeWidth="0.5"
+                    strokeDasharray="2,2"
+                  />
+                );
+              })}
+              
+              {/* Y-axis labels */}
+              {yLabels.map((label, i) => (
                 <text
-                  key={`xlabel-${i}`}
-                  x={x}
-                  y={chartHeight - padding.bottom + 20}
-                  textAnchor="middle"
-                  fill="#64748b"
-                  fontSize="10"
+                  key={`ylabel-${i}`}
+                  x={padding.left - 8}
+                  y={padding.top + (i / (yLabels.length - 1)) * plotHeight + 4}
+                  textAnchor="end"
+                  fill="#94a3b8"
+                  fontSize="11"
                   fontFamily="system-ui"
                 >
-                  {date}
+                  {label.label}
                 </text>
-              );
-            })}
-            
-            {/* Curve */}
-            <polyline
-              fill="none"
-              stroke={color}
-              strokeWidth="2"
-              points={points}
-            />
-            
-            {/* Data points */}
-            {data.map((v, i) => {
-              const x = padding.left + (i / (data.length - 1)) * plotWidth;
-              const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
-              return (
-                <circle
-                  key={`point-${i}`}
-                  cx={x}
-                  cy={y}
-                  r="3"
-                  fill={color}
-                  opacity="0.8"
-                />
-              );
-            })}
-          </svg>
-          <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
-        </div>
+              ))}
+              
+              {/* X-axis */}
+              <line
+                x1={padding.left}
+                y1={chartHeight - padding.bottom}
+                x2={chartWidth - padding.right}
+                y2={chartHeight - padding.bottom}
+                stroke="#475569"
+                strokeWidth="1"
+              />
+              
+              {/* X-axis labels */}
+              {dates.map((date, i) => {
+                const x = padding.left + (i / (data.length - 1)) * plotWidth;
+                return (
+                  <text
+                    key={`xlabel-${i}`}
+                    x={x}
+                    y={chartHeight - padding.bottom + 20}
+                    textAnchor="middle"
+                    fill="#64748b"
+                    fontSize="10"
+                    fontFamily="system-ui"
+                  >
+                    {date}
+                  </text>
+                );
+              })}
+              
+              {/* Curve */}
+              <polyline
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                points={points}
+              />
+              
+              {/* Data points */}
+              {data.map((v, i) => {
+                const x = padding.left + (i / (data.length - 1)) * plotWidth;
+                const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
+                return (
+                  <circle
+                    key={`point-${i}`}
+                    cx={x}
+                    cy={y}
+                    r="3"
+                    fill={color}
+                    opacity="0.8"
+                  />
+                );
+              })}
+            </svg>
+            <p className="text-xs text-slate-400 mt-2 text-center">Traffic Trend (SimilarWeb)</p>
+          </div>
+        </>
       )}
     </div>
   );
