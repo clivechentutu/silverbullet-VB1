@@ -2482,7 +2482,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                   <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
                                 </div>
                                 <div 
-                                  onClick={() => setSelectedSignal(signal)}
+                                  onClick={() => {
+                                    console.log('Clicked signal:', signal);
+                                    setSelectedSignal(signal);
+                                  }}
                                   className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl hover:border-brand-500/30 transition-all group cursor-pointer"
                                 >
                                   <div className="flex justify-between items-start mb-3">
@@ -2509,9 +2512,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                       {signal.type}
                                     </span>
                                   </div>
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                     <button 
-                                      onClick={async () => {
+                                      onClick={async (e) => {
+                                        e.stopPropagation();
                                         setInsightSignal(signal);
                                         setInsightLoading(true);
                                         setInsightContent('');
@@ -2538,6 +2542,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                       href={signal.sourceUrl} 
                                       target="_blank" 
                                       rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
                                       className="p-1.5 text-slate-500 hover:text-brand-400 transition-colors flex items-center gap-1" 
                                       data-testid={`link-signal-source-${signal.id}`}
                                       title="View Original Source"
