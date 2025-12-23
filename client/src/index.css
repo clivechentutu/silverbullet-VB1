@@ -321,34 +321,31 @@
     inset: -1px;
   }
 
-  /* Status Breathing Light */
-  @keyframes breathing-teal {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7), inset 0 0 0 0 rgba(20, 184, 166, 0); }
-    50% { box-shadow: 0 0 0 8px rgba(20, 184, 166, 0), inset 0 0 0 1px rgba(20, 184, 166, 0.3); }
+  /* Status Icon Breathing Light */
+  @keyframes breathing-icon-teal {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(20, 184, 166, 0.6)); }
+    50% { filter: drop-shadow(0 0 6px rgba(20, 184, 166, 0.3)); }
   }
 
-  @keyframes breathing-yellow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7), inset 0 0 0 0 rgba(234, 179, 8, 0); }
-    50% { box-shadow: 0 0 0 8px rgba(234, 179, 8, 0), inset 0 0 0 1px rgba(234, 179, 8, 0.3); }
+  @keyframes breathing-icon-yellow {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(234, 179, 8, 0.6)); }
+    50% { filter: drop-shadow(0 0 6px rgba(234, 179, 8, 0.3)); }
   }
 
-  @keyframes breathing-red {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7), inset 0 0 0 0 rgba(239, 68, 68, 0); }
-    50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0), inset 0 0 0 1px rgba(239, 68, 68, 0.3); }
+  @keyframes breathing-icon-red {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
+    50% { filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.3)); }
   }
 
-  .scope-tab-active {
-    animation: breathing-teal 2.5s infinite !important;
-    overflow: visible !important;
+  .status-icon-active {
+    animation: breathing-icon-teal 2.5s infinite;
   }
 
-  .scope-tab-paused {
-    animation: breathing-yellow 2.5s infinite !important;
-    overflow: visible !important;
+  .status-icon-paused {
+    animation: breathing-icon-yellow 2.5s infinite;
   }
 
-  .scope-tab-stopped {
-    animation: breathing-red 2.5s infinite !important;
-    overflow: visible !important;
+  .status-icon-stopped {
+    animation: breathing-icon-red 2.5s infinite;
   }
 }

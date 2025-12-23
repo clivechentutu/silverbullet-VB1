@@ -791,10 +791,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   activeScope === scope.name
                     ? 'bg-brand-500/10 border-brand-500/50'
                     : 'bg-slate-900/40 border-slate-800/50'
-                } ${
-                  scopeStatuses[scope.name] === 'active' ? 'scope-tab-active' :
-                  scopeStatuses[scope.name] === 'paused' ? 'scope-tab-paused' :
-                  scopeStatuses[scope.name] === 'stopped' ? 'scope-tab-stopped' : ''
                 }`}
               >
                 <button
@@ -807,11 +803,14 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   data-testid={`tab-scope-${scope.name}`}
                 >
                   {scope.name}
+                  {scopeStatuses[scope.name] === 'active' && (
+                    <Activity size={14} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
+                  )}
                   {scopeStatuses[scope.name] === 'paused' && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">PAUSED</span>
+                    <Pause size={14} className="status-icon-paused text-yellow-400" data-testid={`status-icon-paused-${scope.name}`} />
                   )}
                   {scopeStatuses[scope.name] === 'stopped' && (
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-red-500/20 text-red-400 border border-red-500/30">STOPPED</span>
+                    <Square size={14} className="status-icon-stopped text-red-400" data-testid={`status-icon-stopped-${scope.name}`} />
                   )}
                 </button>
                 <button 
