@@ -1420,6 +1420,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Trend</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Volume</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
@@ -1516,6 +1517,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       data={signal.trafficData} 
                       color={signal.trafficData[signal.trafficData.length - 1] > signal.trafficData[0] ? '#14b8a6' : '#ef4444'} 
                     />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="text-sm font-semibold text-white">
+                      {(signal.trafficData[signal.trafficData.length - 1] / 1000).toFixed(1)}K
+                    </div>
+                    <p className="text-xs text-slate-500">Last month</p>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
