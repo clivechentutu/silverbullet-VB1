@@ -444,26 +444,26 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     'ChampSignal': 'active',
     'OpusClip': 'active'
   });
-  const [showScopeActions, setShowScopeActions] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showScopeActions, setShowScopeActions] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [targetScopes, setTargetScopes] = useState([
     { name: 'ChampSignal', url: 'champsignal.com' },
     { name: 'OpusClip', url: 'opus.pro' }
   ]);
 
   const handleDeleteScope = (scopeName: string) => {
-    setTargetScopes(prev => prev.filter(s => s.name !== scopeName));
+    const remaining = targetScopes.filter(s => s.name !== scopeName);
+    setTargetScopes(remaining);
     setScopeStatuses(prev => {
       const newStatuses = {...prev};
       delete newStatuses[scopeName];
       return newStatuses;
     });
-    if (activeScope === scopeName && targetScopes.length > 1) {
-      const remaining = targetScopes.filter(s => s.name !== scopeName);
+    if (activeScope === scopeName && remaining.length > 0) {
       setActiveScope(remaining[0]?.name || '');
     }
-    setShowDeleteConfirm(false);
-    setShowScopeActions(false);
+    setShowDeleteConfirm(null);
+    setShowScopeActions(null);
   };
 
   const allSignals = [
@@ -563,26 +563,100 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex items-center bg-slate-900/40 p-1 rounded-xl border border-slate-800/50 w-fit">
+        <div className="flex items-center gap-2">
           {targetScopes.map((scope) => (
-            <button
-              key={scope.name}
-              onClick={() => setActiveScope(scope.name)}
-              className={`px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                activeScope === scope.name
-                  ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-              data-testid={`tab-scope-${scope.name}`}
-            >
-              {scope.name}
-              {scopeStatuses[scope.name] === 'paused' && (
-                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">PAUSED</span>
+            <div key={scope.name} className="relative">
+              <div 
+                className={`flex items-center rounded-xl border transition-all ${
+                  activeScope === scope.name
+                    ? 'bg-brand-500/10 border-brand-500/50'
+                    : 'bg-slate-900/40 border-slate-800/50'
+                }`}
+              >
+                <button
+                  onClick={() => setActiveScope(scope.name)}
+                  className={`px-4 py-2 rounded-l-xl text-sm font-medium transition-all flex items-center gap-2 ${
+                    activeScope === scope.name
+                      ? 'text-brand-400'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                  data-testid={`tab-scope-${scope.name}`}
+                >
+                  {scope.name}
+                  {scopeStatuses[scope.name] === 'paused' && (
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">PAUSED</span>
+                  )}
+                  {scopeStatuses[scope.name] === 'stopped' && (
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-red-500/20 text-red-400 border border-red-500/30">STOPPED</span>
+                  )}
+                </button>
+                <button 
+                  onClick={() => setShowScopeActions(showScopeActions === scope.name ? null : scope.name)}
+                  className={`px-2 py-2 rounded-r-xl border-l transition-all ${
+                    activeScope === scope.name
+                      ? 'border-brand-500/30 text-brand-400 hover:bg-brand-500/20'
+                      : 'border-slate-700/50 text-slate-500 hover:text-white hover:bg-slate-800'
+                  }`}
+                  data-testid={`button-scope-actions-${scope.name}`}
+                  title={`Actions for ${scope.name}`}
+                >
+                  <MoreVertical size={14} />
+                </button>
+              </div>
+              
+              {showScopeActions === scope.name && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <div className="px-3 py-2 border-b border-slate-800">
+                    <p className="text-xs text-slate-500 font-medium">{scope.name}</p>
+                  </div>
+                  <div className="p-1">
+                    <button 
+                      className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
+                      data-testid={`action-configure-${scope.name}`}
+                      onClick={() => setShowScopeActions(null)}
+                    >
+                      <Settings size={14} className="text-slate-400" />
+                      Configure
+                    </button>
+                    <button 
+                      className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
+                      data-testid={`action-pause-${scope.name}`}
+                      onClick={() => {
+                        setScopeStatuses(prev => ({...prev, [scope.name]: prev[scope.name] === 'paused' ? 'active' : 'paused'}));
+                        setShowScopeActions(null);
+                      }}
+                    >
+                      <Pause size={14} className="text-yellow-400" />
+                      {scopeStatuses[scope.name] === 'paused' ? 'Resume' : 'Pause'}
+                    </button>
+                    <button 
+                      className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
+                      data-testid={`action-stop-${scope.name}`}
+                      onClick={() => {
+                        setScopeStatuses(prev => ({...prev, [scope.name]: prev[scope.name] === 'stopped' ? 'active' : 'stopped'}));
+                        setShowScopeActions(null);
+                      }}
+                    >
+                      <Square size={14} className="text-orange-400" />
+                      {scopeStatuses[scope.name] === 'stopped' ? 'Restart' : 'Stop'}
+                    </button>
+                  </div>
+                  <div className="border-t border-slate-800 p-1">
+                    <button 
+                      className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
+                      data-testid={`action-delete-${scope.name}`}
+                      onClick={() => {
+                        setShowDeleteConfirm(scope.name);
+                        setShowScopeActions(null);
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      Delete Scope
+                    </button>
+                  </div>
+                </div>
               )}
-              {scopeStatuses[scope.name] === 'stopped' && (
-                <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-red-500/20 text-red-400 border border-red-500/30">STOPPED</span>
-              )}
-            </button>
+            </div>
           ))}
         </div>
         
@@ -593,80 +667,16 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         >
           <Plus size={18} />
         </button>
-
-        <div className="relative ml-2">
-          <button 
-            onClick={() => setShowScopeActions(!showScopeActions)}
-            className="w-9 h-9 flex items-center justify-center rounded-xl bg-slate-900/40 border border-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-            data-testid="button-scope-actions"
-            title="Scope Actions"
-          >
-            <Settings size={18} />
-          </button>
-          
-          {showScopeActions && (
-            <div className="absolute top-full left-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-              <div className="px-3 py-2 border-b border-slate-800">
-                <p className="text-xs text-slate-500 font-medium">Actions for {activeScope}</p>
-              </div>
-              <div className="p-1">
-                <button 
-                  className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
-                  data-testid="action-configure"
-                  onClick={() => setShowScopeActions(false)}
-                >
-                  <Settings size={14} className="text-slate-400" />
-                  Configure
-                </button>
-                <button 
-                  className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
-                  data-testid="action-pause"
-                  onClick={() => {
-                    setScopeStatuses(prev => ({...prev, [activeScope]: prev[activeScope] === 'paused' ? 'active' : 'paused'}));
-                    setShowScopeActions(false);
-                  }}
-                >
-                  <Pause size={14} className="text-yellow-400" />
-                  {scopeStatuses[activeScope] === 'paused' ? 'Resume' : 'Pause'}
-                </button>
-                <button 
-                  className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
-                  data-testid="action-stop"
-                  onClick={() => {
-                    setScopeStatuses(prev => ({...prev, [activeScope]: prev[activeScope] === 'stopped' ? 'active' : 'stopped'}));
-                    setShowScopeActions(false);
-                  }}
-                >
-                  <Square size={14} className="text-orange-400" />
-                  {scopeStatuses[activeScope] === 'stopped' ? 'Restart' : 'Stop'}
-                </button>
-              </div>
-              <div className="border-t border-slate-800 p-1">
-                <button 
-                  className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 rounded-lg flex items-center gap-2 transition-colors"
-                  data-testid="action-delete"
-                  onClick={() => {
-                    setShowDeleteConfirm(true);
-                    setShowScopeActions(false);
-                  }}
-                >
-                  <Trash2 size={14} />
-                  Delete Scope
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowDeleteConfirm(false)}>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowDeleteConfirm(null)}>
           <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                 <AlertTriangle className="text-red-500" size={24} />
               </div>
-              <h3 className="text-lg font-bold text-white text-center mb-2">Delete "{activeScope}"?</h3>
+              <h3 className="text-lg font-bold text-white text-center mb-2">Delete "{showDeleteConfirm}"?</h3>
               <p className="text-sm text-slate-400 text-center mb-4">
                 This action cannot be undone. All radar data for this scope will be permanently deleted and cannot be recovered.
               </p>
@@ -677,14 +687,14 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               </div>
               <div className="flex gap-3">
                 <button 
-                  onClick={() => setShowDeleteConfirm(false)}
+                  onClick={() => setShowDeleteConfirm(null)}
                   className="flex-1 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-medium transition-colors"
                   data-testid="button-cancel-delete"
                 >
                   Cancel
                 </button>
                 <button 
-                  onClick={() => handleDeleteScope(activeScope)}
+                  onClick={() => handleDeleteScope(showDeleteConfirm)}
                   className="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-medium transition-colors"
                   data-testid="button-confirm-delete"
                 >
