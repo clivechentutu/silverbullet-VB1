@@ -434,7 +434,6 @@ const MiniSparkline = ({ data, color = '#14b8a6' }: { data: number[]; color?: st
 
 const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; color?: string }) => {
   const [showPreview, setShowPreview] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0 });
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
@@ -468,23 +467,10 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
     { value: min, label: `${(min / 1000).toFixed(0)}K` }
   ];
 
-  const handleMouseEnter = () => {
-    // Center preview on screen
-    const centerTop = (window.innerHeight - (chartHeight + 80)) / 2;
-    const centerLeft = (window.innerWidth - chartWidth) / 2;
-    setPosition({ top: centerTop, left: centerLeft });
-    setShowPreview(true);
-  };
-
-  const handleBackdropClick = () => {
-    setShowPreview(false);
-  };
-
   return (
     <div>
       <div 
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={() => setShowPreview(false)}
+        onMouseEnter={() => setShowPreview(true)}
         className="cursor-pointer"
       >
         <MiniSparkline data={data} color={color} />
@@ -495,18 +481,21 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
           {/* Backdrop - solid dark background */}
           <div 
             className="fixed inset-0 bg-slate-950/90 z-[99]"
-            onClick={handleBackdropClick}
+            onClick={() => setShowPreview(false)}
+            onMouseMove={(e) => {
+              // Keep preview visible while mouse is over backdrop
+              e.stopPropagation();
+            }}
           />
           {/* Preview centered on screen */}
           <div 
-            className="fixed bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100]"
+            className="fixed bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-4 z-[100] flex flex-col items-center justify-center"
             style={{
-              top: `${position.top}px`,
-              left: `${position.left}px`,
-              width: `${chartWidth}px`
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: `${chartWidth + 32}px`
             }}
-            onMouseEnter={() => setShowPreview(true)}
-            onMouseLeave={() => setShowPreview(false)}
           >
             <svg width={chartWidth} height={chartHeight} className="bg-slate-950 rounded-lg overflow-hidden">
               {/* Grid lines */}
