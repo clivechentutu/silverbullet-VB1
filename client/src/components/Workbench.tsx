@@ -2384,11 +2384,14 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <div className="flex gap-2">
                 <button 
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    console.log('Edit button clicked, selectedTarget:', selectedTarget);
                     if (selectedTarget) {
                       setEditTargetName(selectedTarget.name);
                       setEditTargetUrl(selectedTarget.url);
                       setShowEditModal(true);
+                      console.log('Modal should be open now');
                     }
                   }}
                   className="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition-colors" 
@@ -2866,101 +2869,89 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         )}
       </div>
 
-      {/* Edit Configuration Modal */}
-      {showEditModal && selectedTarget && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]" onClick={() => setShowEditModal(false)}>
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-                  <Globe className="text-brand-500" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Edit Target Configuration</h3>
-                  <p className="text-xs text-slate-400">Update target details and tracking settings</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowEditModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
-                data-testid="button-close-edit-modal"
-              >
-                <X size={18} />
-              </button>
+      {/* Edit Configuration Dialog */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+          <DialogHeader className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+              <Globe className="text-brand-500" size={20} />
             </div>
-            
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)] custom-scrollbar space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
+            <div>
+              <DialogTitle className="text-white text-lg">Edit Target Configuration</DialogTitle>
+              <p className="text-xs text-slate-400 mt-1">Update target details and tracking settings</p>
+            </div>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
+              <input
+                type="text"
+                value={editTargetName}
+                onChange={(e) => setEditTargetName(e.target.value)}
+                placeholder="e.g., Figma"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                data-testid="input-edit-target-name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+              <div className="flex-1 relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
                 <input
                   type="text"
-                  value={editTargetName}
-                  onChange={(e) => setEditTargetName(e.target.value)}
-                  placeholder="e.g., Figma"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-edit-target-name"
+                  value={editTargetUrl}
+                  onChange={(e) => setEditTargetUrl(e.target.value)}
+                  placeholder="e.g., figma.com or https://figma.com"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-edit-target-url"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
-                <div className="flex gap-2">
-                  <div className="flex-1 relative">
-                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-                    <input
-                      type="text"
-                      value={editTargetUrl}
-                      onChange={(e) => setEditTargetUrl(e.target.value)}
-                      placeholder="e.g., figma.com or https://figma.com"
-                      className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                      data-testid="input-edit-target-url"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
-                <div className="space-y-2">
-                  {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
-                    <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
-                      <span className="text-sm text-slate-300">{tracker} Tracker</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-slate-800 flex items-center justify-between bg-slate-900/50">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
-                data-testid="button-cancel-edit"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  if (editTargetName.trim() && editTargetUrl.trim() && selectedTarget) {
-                    await apiRequest('PATCH', `/api/targets/${selectedTarget.id}`, {
-                      name: editTargetName,
-                      url: editTargetUrl
-                    });
-                    queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                    setShowEditModal(false);
-                  }
-                }}
-                className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
-                data-testid="button-save-edit"
-              >
-                <Check size={16} />
-                Save Changes
-              </button>
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+              <div className="space-y-2">
+                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
+                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+              data-testid="button-cancel-edit"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={async () => {
+                if (editTargetName.trim() && editTargetUrl.trim() && selectedTarget) {
+                  console.log('Saving target:', editTargetName, editTargetUrl);
+                  await apiRequest('PATCH', `/api/targets/${selectedTarget.id}`, {
+                    name: editTargetName,
+                    url: editTargetUrl
+                  });
+                  queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                  setShowEditModal(false);
+                }
+              }}
+              className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
+              data-testid="button-save-edit"
+            >
+              <Check size={16} />
+              Save Changes
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
