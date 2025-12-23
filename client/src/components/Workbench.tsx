@@ -2608,8 +2608,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </h3>
                   <Sheet>
                     <SheetTrigger asChild>
-                      <button className="text-[10px] font-bold text-slate-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-1.5 px-2 py-1 bg-slate-900/50 border border-slate-800 rounded-md hover:border-brand-500/30">
-                        <History size={10} className="text-brand-400" /> History Summary
+                      <button className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60">
+                        <History size={12} className="text-brand-400" /> History Summary
                       </button>
                     </SheetTrigger>
                     <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md custom-scrollbar overflow-y-auto">
@@ -2723,7 +2723,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   }}>
                   <SheetTrigger asChild>
                     <button 
-                      className="text-xs px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                      className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60"
                       data-testid="button-view-full-feed"
                     >
                       View Full Feed
