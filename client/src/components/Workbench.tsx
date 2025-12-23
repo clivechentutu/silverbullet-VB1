@@ -902,35 +902,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Positioning</p>
                   <p className="text-sm text-slate-300">Leading AI-powered competitive intelligence platform for market discovery and signal tracking across multiple dimensions.</p>
                 </div>
-                
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Domain / Industry</p>
-                  <span className="inline-block px-2.5 py-1 bg-brand-500/10 border border-brand-500/30 rounded-lg text-xs font-medium text-brand-400">
-                    Competitive Intelligence
-                  </span>
-                </div>
-                
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Tracking Dimensions</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((feature) => (
-                      <span key={feature} className="px-2.5 py-1 bg-slate-700/50 border border-slate-600 rounded-lg text-xs text-slate-300">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Active Signals</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Competitor Discovery', 'Feature Tracking', 'Pricing Analysis', 'Market Trends', 'Signal Feed'].map((scenario) => (
-                      <span key={scenario} className="px-2.5 py-1 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-400">
-                        {scenario}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
 
