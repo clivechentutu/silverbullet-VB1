@@ -1645,7 +1645,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               View Impact & Next Action <ChevronRight size={10} />
             </button>
           </div>
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('web-3', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Solutions Page</p>
@@ -1655,7 +1655,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Launched vertical-specific solution pages for Fintech and Healthcare.</p>
           </div>
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('web-4', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Cookie Policy Update</p>
@@ -1665,7 +1665,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Minor updates to compliance documentation and cookie consent.</p>
           </div>
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('web-5', 'marketing')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Blog Post: AI Ethics</p>
@@ -1675,7 +1675,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Published a comprehensive guide on ethical AI implementation in design.</p>
           </div>
-          <div className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('web-6', 'hiring')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Career Page: 15 New Openings</p>
@@ -1726,9 +1726,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">High-authority tech blog linked to product page.</p>
           </div>
-          <div 
-            className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('backlink-2', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Lost Backlink: Forbes Tech</p>
@@ -1738,7 +1736,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Previous link from "Top SaaS Trends" article was removed or changed.</p>
           </div>
-          <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('backlink-3', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Competitor Comparison</p>
@@ -1748,7 +1746,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Linked in a new "Best AI Tools of 2024" comparison list.</p>
           </div>
-          <div className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('backlink-4', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">G2 Review Spike</p>
@@ -1799,9 +1797,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Main competitor jumped to #1 for "AI Design Tools".</p>
           </div>
-          <div 
-            className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('seo-2', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">New Indexed Pages: 12</p>
@@ -1811,7 +1807,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Added 12 new documentation pages for specialized API integrations.</p>
           </div>
-          <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('seo-3', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Site Speed Improvement</p>
@@ -1821,7 +1817,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Homepage load time reduced by 40% globally.</p>
           </div>
-          <div className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('seo-4', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Featured Snippet Won</p>
@@ -1859,9 +1855,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
-          <div 
-            className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('social-1', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <SiX size={13} className="text-slate-300" />
@@ -1877,7 +1871,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">A user's review of their new collaborative features is trending on X.</p>
           </div>
-          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('social-2', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <SiYoutube size={13} className="text-red-500" />
@@ -1893,7 +1887,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Popular tech influencer published a comparison video.</p>
           </div>
-          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('social-3', 'product')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <Globe size={13} className="text-orange-500" />
@@ -1909,7 +1903,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
           </div>
-          <div className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('social-4', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <SiInstagram size={13} className="text-pink-500" />
@@ -1953,9 +1947,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
-          <div 
-            className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('news-1', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <SiTechcrunch size={13} className="text-green-500" />
@@ -1971,7 +1963,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Comprehensive deep-dive article on their recent $50M series B funding.</p>
           </div>
-          <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('news-2', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <FileText size={13} className="text-blue-500" />
@@ -1987,7 +1979,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Named in the "Top 50 AI Startups to Watch" list.</p>
           </div>
-          <div className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('news-3', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
                 <FileText size={13} className="text-indigo-500" />
@@ -2031,9 +2023,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
-          <div 
-            className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('ads-1', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">New LinkedIn Ad Campaign</p>
@@ -2043,9 +2033,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Targeting decision makers at mid-market design agencies with "Free Enterprise Trial".</p>
           </div>
-          <div 
-            className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
+          <div onClick={() => handleSignalClick('ads-2', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Facebook Retargeting Boost</p>
@@ -2055,7 +2043,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Increased spend by 15% on retargeting ads for users who visited the pricing page.</p>
           </div>
-          <div className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('ads-3', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Google Search Ad Expansion</p>
@@ -2065,7 +2053,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
             <p className="text-[10px] text-slate-400 line-clamp-2">Bidding heavily on high-intent transactional keywords in the UK market.</p>
           </div>
-          <div className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+          <div onClick={() => handleSignalClick('ads-4', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">YouTube Video Ads</p>
