@@ -2388,7 +2388,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    AI Intelligence Summary <Loader2 size={12} className="text-brand-400 animate-spin" />
+                    AI Intelligence Summary 
+                    <div className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: '0.2s' }} />
+                      <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    </div>
                   </h3>
                   <Sheet>
                     <SheetTrigger asChild>
