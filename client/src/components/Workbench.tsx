@@ -1502,30 +1502,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
-  
-  // Get tracker signals based on active tracker type
-  const getTrackerSignals = (trackerType: string | null): Signal[] => {
-    if (!trackerType) return [];
-    const prefixMap: Record<string, string> = {
-      'website': 'web-',
-      'backlinks': 'backlink-',
-      'seo': 'seo-',
-      'social': 'social-',
-      'news': 'news-',
-      'ads': 'ads-'
-    };
-    const prefix = prefixMap[trackerType];
-    if (!prefix) return [];
-    return Object.entries(trackerSignalsData)
-      .filter(([key]) => key.startsWith(prefix))
-      .map(([, signal]) => signal);
-  };
-
-  // Use tracker signals when activeTrackerType is set, otherwise use domain signals
-  const activeTrackerSignals = getTrackerSignals(activeTrackerType);
-  const filteredSignals = activeTrackerType 
-    ? activeTrackerSignals 
-    : (feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter));
 
   useEffect(() => {
     if (!selectedTargetId && targets.length > 0) {
@@ -1583,6 +1559,30 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     'ads-3': { id: 603, type: 'marketing', category: 'Google Ads Expansion', time: '1 week ago', content: 'Bidding heavily on high-intent transactional keywords in the UK market.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://google.com/ads' },
     'ads-4': { id: 604, type: 'marketing', category: 'YouTube Video Ads', time: '2 weeks ago', content: 'Started a new video ad series featuring customer success stories.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/ads' },
   };
+
+  // Get tracker signals based on active tracker type
+  const getTrackerSignals = (trackerType: string | null): Signal[] => {
+    if (!trackerType) return [];
+    const prefixMap: Record<string, string> = {
+      'website': 'web-',
+      'backlinks': 'backlink-',
+      'seo': 'seo-',
+      'social': 'social-',
+      'news': 'news-',
+      'ads': 'ads-'
+    };
+    const prefix = prefixMap[trackerType];
+    if (!prefix) return [];
+    return Object.entries(trackerSignalsData)
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([, signal]) => signal);
+  };
+
+  // Use tracker signals when activeTrackerType is set, otherwise use domain signals
+  const activeTrackerSignals = getTrackerSignals(activeTrackerType);
+  const filteredSignals = activeTrackerType 
+    ? activeTrackerSignals 
+    : (feedFilter === 'all' ? targetSignals : targetSignals.filter(s => s.type === feedFilter));
 
   const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
     setFeedFilter(category);
