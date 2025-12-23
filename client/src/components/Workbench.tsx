@@ -438,14 +438,18 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   const [showPreview, setShowPreview] = useState(false);
   const [positionStyle, setPositionStyle] = useState<{ top?: number; left?: number; bottom?: number }>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const max = Math.max(...data);
-  const min = Math.min(...data);
+  
+  // Only show last 3 months of data
+  const chartData = data.slice(-3);
+  
+  const max = Math.max(...chartData);
+  const min = Math.min(...chartData);
   const range = max - min || 1;
   
   const today = new Date();
-  const dates = data.map((_, i) => {
+  const dates = chartData.map((_, i) => {
     const d = new Date(today);
-    d.setDate(d.getDate() - (data.length - 1 - i));
+    d.setDate(d.getDate() - (chartData.length - 1 - i));
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
   
@@ -455,8 +459,8 @@ const TrafficChartPreview = ({ data, color = '#14b8a6' }: { data: number[]; colo
   const plotWidth = chartWidth - padding.left - padding.right;
   const plotHeight = chartHeight - padding.top - padding.bottom;
   
-  const points = data.map((v, i) => {
-    const x = padding.left + (i / (data.length - 1)) * plotWidth;
+  const points = chartData.map((v, i) => {
+    const x = padding.left + (i / (chartData.length - 1)) * plotWidth;
     const y = padding.top + plotHeight - ((v - min) / range) * plotHeight;
     return `${x},${y}`;
   }).join(' ');
