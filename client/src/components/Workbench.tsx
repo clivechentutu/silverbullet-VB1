@@ -3141,7 +3141,7 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
 };
 
 const ActsTemplateView = () => {
-   const templates = [
+   const defaultTemplates = [
       { id: 1, title: 'Competitor Battle Card', category: 'Sales Enablement', desc: 'One-pager highlighting kill points, objection handling, and pricing traps.', icon: Swords, color: 'text-red-400' },
       { id: 2, title: 'Feature Comparison Matrix', category: 'Product Strategy', desc: 'Detailed side-by-side breakdown of feature availability and limits.', icon: LayoutGrid, color: 'text-blue-400' },
       { id: 3, title: 'Quarterly Market Report', category: 'Executive', desc: 'High-level slide deck summary of market movements and threats.', icon: PieChart, color: 'text-purple-400' },
@@ -3150,10 +3150,16 @@ const ActsTemplateView = () => {
       { id: 6, title: 'SEO Gap Analysis', category: 'Marketing', desc: 'Identify keywords where competitors are outranking you.', icon: Search, color: 'text-pink-400' },
    ];
 
-   const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive'];
+   const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive', 'Custom'];
    const [activeCat, setActiveCat] = useState('All');
    const [enabledTemplates, setEnabledTemplates] = useState<number[]>([1, 2, 3]);
    const [pinnedTemplates, setPinnedTemplates] = useState<number[]>([]);
+   const [customTemplates, setCustomTemplates] = useState<any[]>([]);
+   const [showCreateModal, setShowCreateModal] = useState(false);
+   const [newTemplateName, setNewTemplateName] = useState('');
+   const [newTemplateDesc, setNewTemplateDesc] = useState('');
+   const [newTemplateCategory, setNewTemplateCategory] = useState('Custom');
+   const [newTemplatePrompt, setNewTemplatePrompt] = useState('');
 
    const toggleTemplate = (id: number) => {
       setEnabledTemplates(prev => 
@@ -3172,13 +3178,36 @@ const ActsTemplateView = () => {
       });
    };
 
-   const sortedTemplates = templates.sort((a, b) => {
+   const allTemplates = [...defaultTemplates, ...customTemplates];
+   
+   const sortedTemplates = allTemplates.sort((a, b) => {
       const aPinned = pinnedTemplates.includes(a.id);
       const bPinned = pinnedTemplates.includes(b.id);
       if (aPinned && !bPinned) return -1;
       if (!aPinned && bPinned) return 1;
       return 0;
    });
+
+   const handleCreateTemplate = () => {
+      if (newTemplateName.trim() && newTemplateDesc.trim() && newTemplatePrompt.trim()) {
+         const newTemplate = {
+            id: Date.now(),
+            title: newTemplateName,
+            category: newTemplateCategory,
+            desc: newTemplateDesc,
+            icon: Lightbulb,
+            color: 'text-yellow-400',
+            prompt: newTemplatePrompt,
+            isCustom: true
+         };
+         setCustomTemplates([...customTemplates, newTemplate]);
+         setNewTemplateName('');
+         setNewTemplateDesc('');
+         setNewTemplateCategory('Custom');
+         setNewTemplatePrompt('');
+         setShowCreateModal(false);
+      }
+   };
 
    return (
       <div className="space-y-8 animate-fade-in-up">
@@ -3309,7 +3338,11 @@ const ActsTemplateView = () => {
             })}
 
             
-            <div className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" data-testid="button-create-template">
+            <div 
+               onClick={() => setShowCreateModal(true)}
+               className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" 
+               data-testid="button-create-template"
+            >
                <div className="p-4 rounded-full bg-slate-900 mb-4">
                   <Plus size={24} />
                </div>
@@ -3317,6 +3350,85 @@ const ActsTemplateView = () => {
                <p className="text-xs max-w-[200px]">Design a new intelligence output format for your team.</p>
             </div>
          </div>
+
+         <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+            <DialogContent className="bg-slate-950 border border-slate-800 max-w-2xl">
+               <DialogHeader>
+                  <DialogTitle className="text-white flex items-center gap-2">
+                     <Lightbulb className="text-brand-400" size={20} />
+                     Create Custom Template
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-400">
+                     Design a new intelligence template tailored to your team's needs.
+                  </DialogDescription>
+               </DialogHeader>
+               <div className="space-y-4">
+                  <div>
+                     <label className="text-sm font-semibold text-white block mb-2">Template Name</label>
+                     <input 
+                        type="text"
+                        value={newTemplateName}
+                        onChange={(e) => setNewTemplateName(e.target.value)}
+                        placeholder="e.g., Competitive Threat Assessment"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                        data-testid="input-template-name"
+                     />
+                  </div>
+                  <div>
+                     <label className="text-sm font-semibold text-white block mb-2">Description</label>
+                     <textarea 
+                        value={newTemplateDesc}
+                        onChange={(e) => setNewTemplateDesc(e.target.value)}
+                        placeholder="Brief description of what this template does..."
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-20"
+                        data-testid="input-template-desc"
+                     />
+                  </div>
+                  <div>
+                     <label className="text-sm font-semibold text-white block mb-2">Category</label>
+                     <select 
+                        value={newTemplateCategory}
+                        onChange={(e) => setNewTemplateCategory(e.target.value)}
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500"
+                        data-testid="select-template-category"
+                     >
+                        <option>Custom</option>
+                        <option>Sales Enablement</option>
+                        <option>Product Strategy</option>
+                        <option>Marketing</option>
+                        <option>Executive</option>
+                     </select>
+                  </div>
+                  <div>
+                     <label className="text-sm font-semibold text-white block mb-2">Prompt / Instructions</label>
+                     <textarea 
+                        value={newTemplatePrompt}
+                        onChange={(e) => setNewTemplatePrompt(e.target.value)}
+                        placeholder="Enter the AI prompt/instructions for this template..."
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-32"
+                        data-testid="textarea-template-prompt"
+                     />
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                     <button 
+                        onClick={() => setShowCreateModal(false)}
+                        className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                        data-testid="button-cancel-template"
+                     >
+                        Cancel
+                     </button>
+                     <button 
+                        onClick={handleCreateTemplate}
+                        disabled={!newTemplateName.trim() || !newTemplateDesc.trim() || !newTemplatePrompt.trim()}
+                        className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                        data-testid="button-create-template-confirm"
+                     >
+                        Create Template
+                     </button>
+                  </div>
+               </div>
+            </DialogContent>
+         </Dialog>
       </div>
    );
 };
