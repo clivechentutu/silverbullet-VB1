@@ -144,45 +144,6 @@ export const LandingPage = () => {
               </div>
             </div>
 
-            {/* Mode-specific action hints */}
-            <div className="mt-4 flex justify-center gap-2">
-              {activeMode === 'radar' && (
-                <div className="text-center">
-                  <p className="text-xs text-slate-500 mb-3">Find similar competitors in the market</p>
-                  <button
-                    onClick={() => navigate('/app')}
-                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
-                    data-testid="button-go-workbench"
-                  >
-                    Go to Workbench
-                  </button>
-                </div>
-              )}
-              {activeMode === 'tracker' && (
-                <div className="text-center">
-                  <p className="text-xs text-slate-500 mb-3">Monitor pricing, features, and market moves</p>
-                  <button
-                    onClick={() => navigate('/app')}
-                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
-                    data-testid="button-go-tracker"
-                  >
-                    Go to Tracker
-                  </button>
-                </div>
-              )}
-              {activeMode === 'research' && (
-                <div className="text-center">
-                  <p className="text-xs text-slate-500 mb-3">Generate AI-powered strategic analysis reports</p>
-                  <button
-                    onClick={() => navigate('/app')}
-                    className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-slate-200 border border-slate-700 rounded-lg hover:border-slate-500 transition-colors bg-slate-900/50 hover:bg-slate-800/50"
-                    data-testid="button-go-research"
-                  >
-                    Go to Research
-                  </button>
-                </div>
-              )}
-            </div>
             {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
               <div className="absolute top-full left-0 mt-2 text-red-400 text-sm flex items-center gap-1 animate-fade-in-up" data-testid="text-error">
                 <AlertCircle size={14} /> {errorMsg}
