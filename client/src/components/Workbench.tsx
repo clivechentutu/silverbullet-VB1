@@ -2488,6 +2488,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     if (!open) {
                       setActiveTrackerType(null);
                       setSelectedSignal(null);
+                      setFeedFilter('all');
+                    } else {
+                      // When opening, ensure we're showing domain-wide signals
+                      setActiveTrackerType(null);
+                      setSelectedSignal(null);
                     }
                   }}>
                   <SheetTrigger asChild>
