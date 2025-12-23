@@ -807,10 +807,10 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     <Activity size={14} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
                   )}
                   {scopeStatuses[scope.name] === 'paused' && (
-                    <Pause size={14} className="status-icon-paused text-yellow-400" data-testid={`status-icon-paused-${scope.name}`} />
+                    <Pause size={14} className="text-yellow-400" data-testid={`status-icon-paused-${scope.name}`} />
                   )}
                   {scopeStatuses[scope.name] === 'stopped' && (
-                    <Square size={14} className="status-icon-stopped text-red-400" data-testid={`status-icon-stopped-${scope.name}`} />
+                    <Square size={14} className="text-red-400" data-testid={`status-icon-stopped-${scope.name}`} />
                   )}
                 </button>
                 <button 

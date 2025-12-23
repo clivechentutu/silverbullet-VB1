@@ -321,31 +321,13 @@
     inset: -1px;
   }
 
-  /* Status Icon Breathing Light */
+  /* Status Icon Breathing Light - Only for Active State */
   @keyframes breathing-icon-teal {
     0%, 100% { filter: drop-shadow(0 0 2px rgba(20, 184, 166, 0.6)); }
     50% { filter: drop-shadow(0 0 6px rgba(20, 184, 166, 0.3)); }
   }
 
-  @keyframes breathing-icon-yellow {
-    0%, 100% { filter: drop-shadow(0 0 2px rgba(234, 179, 8, 0.6)); }
-    50% { filter: drop-shadow(0 0 6px rgba(234, 179, 8, 0.3)); }
-  }
-
-  @keyframes breathing-icon-red {
-    0%, 100% { filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.6)); }
-    50% { filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.3)); }
-  }
-
   .status-icon-active {
     animation: breathing-icon-teal 2.5s infinite;
-  }
-
-  .status-icon-paused {
-    animation: breathing-icon-yellow 2.5s infinite;
-  }
-
-  .status-icon-stopped {
-    animation: breathing-icon-red 2.5s infinite;
   }
 }
