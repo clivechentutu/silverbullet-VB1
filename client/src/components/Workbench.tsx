@@ -648,6 +648,17 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [editableTaskName, setEditableTaskName] = useState('');
   const [editablePrompt, setEditablePrompt] = useState('');
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [showUpdateSuccess, setShowUpdateSuccess] = useState(false);
+
+  // Auto-hide update success message after 2 seconds
+  useEffect(() => {
+    if (showUpdateSuccess) {
+      const timer = setTimeout(() => {
+        setShowUpdateSuccess(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showUpdateSuccess]);
 
   const handleAnalyzeUrl = async () => {
     if (!newTaskUrl.trim()) return;
@@ -956,7 +967,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               Cancel
             </button>
             <button
-              onClick={() => setEditingScopeName(null)}
+              onClick={() => {
+                setShowUpdateSuccess(true);
+                setTimeout(() => {
+                  setEditingScopeName(null);
+                }, 300);
+              }}
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold transition-all flex items-center gap-2"
             >
               <Check size={16} />
@@ -965,6 +981,20 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           </div>
         </DialogContent>
       </Dialog>
+
+      {showUpdateSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center z-[200] pointer-events-none">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl px-8 py-6 flex flex-col items-center gap-4 animate-in fade-in duration-300">
+            <div className="w-12 h-12 rounded-full bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+              <Radar className="text-brand-500 animate-spin" size={24} />
+            </div>
+            <div className="text-center">
+              <p className="text-white font-medium mb-1">Discovery Strategy Adjusted</p>
+              <p className="text-sm text-slate-400">Radar is recalibrating for optimal signal tracking</p>
+            </div>
+          </div>
+        </div>
+      )}
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
