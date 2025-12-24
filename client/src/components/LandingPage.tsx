@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as R
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
+import { FeatureComparisonCards } from './FeatureComparisonCards';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -28,7 +29,15 @@ export const LandingPage = () => {
       return;
     }
     setErrorMsg("");
-    setAppState(AppState.SCENARIO_SELECTION);
+    
+    // For Radar mode, skip scenario selection and go straight to analysis
+    if (activeMode === 'radar') {
+      setSelectedScenarios(['discover-competitors', '360-research']);
+      setAppState(AppState.ANALYZING);
+    } else {
+      // For Tracker and Research, show scenario selection
+      setAppState(AppState.SCENARIO_SELECTION);
+    }
   };
 
   const toggleScenario = (id: string) => {
@@ -37,12 +46,13 @@ export const LandingPage = () => {
     );
   };
 
-  const executeAnalysis = async () => {
+  const executeAnalysis = async (scenariosToUse?: string[]) => {
+    const scenarios = scenariosToUse || selectedScenarios;
     setAppState(AppState.ANALYZING);
     try {
       const result = await apiRequest('POST', '/api/analyze', {
         url,
-        selectedScenarios
+        selectedScenarios: scenarios
       });
       const data = await result.json();
       setAnalysisResult(data);
@@ -51,6 +61,11 @@ export const LandingPage = () => {
       setAppState(AppState.ERROR);
       setErrorMsg(err.message || "An unexpected error occurred");
     }
+  };
+
+  // Handle Radar analysis directly
+  const radarAnalysisHandler = async () => {
+    await executeAnalysis(['discover-competitors', '360-research']);
   };
 
   const reset = () => {
@@ -74,35 +89,15 @@ export const LandingPage = () => {
             <span>Powered by Gemini 2.5 Flash</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
-            Decode Your Competition.
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-4 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
+            Decode Your Competition in Seconds.
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-light">
-            Enter a competitor's URL and let our AI agents orchestrate a deep-dive market intelligence report in seconds.
+          <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-3xl mx-auto font-light">
+            Choose how you want to investigate competitors. Radar for quick discovery, Tracker for continuous monitoring, or Research for deep strategic analysis.
           </p>
 
-          {/* Mode Selection Tabs */}
-          <div className="mb-8 flex justify-center gap-3">
-            {[
-              { id: 'radar' as ActionMode, label: 'Radar', icon: RadarIcon, desc: 'Discover competitors' },
-              { id: 'tracker' as ActionMode, label: 'Tracker', icon: Crosshair, desc: 'Monitor competitors' },
-              { id: 'research' as ActionMode, label: 'Research', icon: Bot, desc: 'Deep analysis' }
-            ].map(mode => (
-              <button
-                key={mode.id}
-                onClick={() => setActiveMode(mode.id)}
-                data-testid={`tab-${mode.id}`}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
-                  activeMode === mode.id
-                    ? 'bg-brand-500/20 border border-brand-500/50 text-brand-400'
-                    : 'bg-slate-900/50 border border-slate-700 text-slate-400 hover:border-slate-600 hover:text-slate-300'
-                }`}
-              >
-                <mode.icon size={16} />
-                <span>{mode.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* Feature Comparison Cards */}
+          <FeatureComparisonCards activeMode={activeMode} onModeSelect={setActiveMode} />
 
           <div className={`relative max-w-2xl mx-auto transition-all duration-500 ${appState !== AppState.IDLE ? 'scale-100' : 'hover:scale-[1.01]'}`}>
             <div className="relative group">
@@ -127,11 +122,11 @@ export const LandingPage = () => {
                 />
                 <button
                   onClick={handleStart}
-                  disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION}
+                  disabled={appState === AppState.ANALYZING}
                   data-testid="button-start"
                   className={`
                     h-12 px-8 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300
-                    ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION) 
+                    ${appState === AppState.ANALYZING
                       ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                       : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
                     }
@@ -161,7 +156,7 @@ export const LandingPage = () => {
         {appState === AppState.SCENARIO_SELECTION && selectedScenarios.length > 0 && (
           <div className="mt-12 animate-fade-in-up">
             <button
-              onClick={executeAnalysis}
+              onClick={() => executeAnalysis()}
               data-testid="button-generate"
               className="bg-brand-600 hover:bg-brand-500 text-white text-lg font-semibold py-4 px-12 rounded-full shadow-[0_0_40px_rgba(13,148,136,0.3)] hover:shadow-[0_0_60px_rgba(13,148,136,0.5)] transition-all duration-300 flex items-center gap-3"
             >
