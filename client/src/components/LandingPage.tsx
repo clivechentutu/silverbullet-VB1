@@ -973,15 +973,10 @@ export const LandingPage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Website Preview Modal */}
-        {previewUrl && (
-          <Dialog open={!!previewUrl} onOpenChange={(open) => {
-            if (!open) setPreviewUrl(null);
-          }}>
-            <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl p-0 overflow-hidden">
-              <DialogHeader className="sr-only">
-                <DialogTitle>Website Preview</DialogTitle>
-              </DialogHeader>
+        {/* Website Preview Modal - Using Portal */}
+        {previewUrl && createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-w-2xl w-full mx-4">
               {/* Preview Header */}
               <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
                 <div className="flex gap-1.5">
@@ -996,6 +991,7 @@ export const LandingPage = () => {
                 <button
                   onClick={() => setPreviewUrl(null)}
                   className="text-slate-400 hover:text-white"
+                  data-testid="button-close-preview"
                 >
                   <X size={18} />
                 </button>
@@ -1024,12 +1020,14 @@ export const LandingPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors"
+                  data-testid="link-open-preview"
                 >
                   Open Website <ExternalLink size={16} />
                 </a>
               </div>
-            </DialogContent>
-          </Dialog>
+            </div>
+          </div>,
+          document.body
         )}
 
       </main>
