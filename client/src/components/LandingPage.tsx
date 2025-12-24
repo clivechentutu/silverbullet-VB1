@@ -979,6 +979,9 @@ export const LandingPage = () => {
             if (!open) setPreviewUrl(null);
           }}>
             <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl p-0 overflow-hidden">
+              <DialogHeader className="sr-only">
+                <DialogTitle>Website Preview</DialogTitle>
+              </DialogHeader>
               {/* Preview Header */}
               <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
                 <div className="flex gap-1.5">
