@@ -103,6 +103,16 @@ export const LandingPage = () => {
     return undefined;
   };
 
+  const validateQuery = (queryValue: string): string | undefined => {
+    if (!queryValue.trim()) {
+      return 'Research query is required';
+    }
+    if (queryValue.trim().length < 5) {
+      return 'Query must be at least 5 characters';
+    }
+    return undefined;
+  };
+
   // Simulated AI Analysis Results
   const generateAIAnalysis = (domain: string) => {
     return {
@@ -265,24 +275,39 @@ export const LandingPage = () => {
                     </div>
                     <textarea
                       value={url}
-                      onChange={(e) => setUrl(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setUrl(val);
+                        // Real-time validation for research query
+                        if (val) {
+                          const queryError = validateQuery(val);
+                          if (queryError) {
+                            setErrors(prev => ({ ...prev, url: queryError }));
+                          } else {
+                            setErrors(prev => ({ ...prev, url: undefined }));
+                          }
+                        } else {
+                          setErrors(prev => ({ ...prev, url: undefined }));
+                        }
+                      }}
                       onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleStart()}
                       placeholder="Ask me about market trends, competitor strategies, pricing intelligence... What would you like to know about your market?"
                       disabled={appState === AppState.ANALYZING}
                       data-testid="input-research-query"
-                      className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 text-base resize-none focus-visible:ring-0 min-h-20 py-2"
+                      className={`flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 text-base resize-none focus-visible:ring-0 min-h-20 py-2 ${errors.url ? 'text-red-400' : ''}`}
                     />
                   </div>
                   <div className="flex items-center justify-end gap-2 px-4 pb-4">
+                    {errors.url && <span className="text-red-400 text-xs flex items-center gap-1"><AlertCircle size={12} /> {errors.url}</span>}
                     <button
                       onClick={handleStart}
-                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim()}
+                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim() || !!errors.url}
                       data-testid="button-start"
                       className={`
-                        px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 flex-shrink-0
-                        ${(!url.trim() || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
+                        px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow
+                        ${(!url.trim() || !!errors.url || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                          : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                          : 'bg-white text-slate-950'
                         }
                       `}
                     >
@@ -311,11 +336,11 @@ export const LandingPage = () => {
                   />
                   <button
                     onClick={handleStart}
-                    disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION}
+                    disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url}
                     data-testid="button-start"
                     className={`
                       h-12 px-8 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow
-                      ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION) 
+                      ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url) 
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                         : 'bg-white text-slate-950'
                       }
@@ -329,9 +354,9 @@ export const LandingPage = () => {
               )}
             </div>
 
-            {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
-              <div className="absolute top-full left-0 mt-2 text-red-400 text-sm flex items-center gap-1 animate-fade-in-up" data-testid="text-error">
-                <AlertCircle size={14} /> {errorMsg}
+            {(errorMsg || errors.url) && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
+              <div className="absolute top-full left-0 mt-2 text-red-400 text-sm flex items-center gap-1 animate-bounce-in" data-testid="text-error">
+                <AlertCircle size={14} /> {errors.url || errorMsg}
               </div>
             )}
           </div>
