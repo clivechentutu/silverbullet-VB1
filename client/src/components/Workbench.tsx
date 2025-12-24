@@ -3563,7 +3563,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
   }, [activeSession?.messages, isTyping]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#020617] animate-fade-in-up"> 
+    <div className="flex h-screen overflow-hidden bg-[#020617] -m-8 animate-fade-in-up"> 
        <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 z-20">
           <div className="p-4 border-b border-slate-800/50">
              <button 
