@@ -3668,9 +3668,9 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              </header>
           )}
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 scroll-smooth">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 scroll-smooth flex flex-col items-center justify-center">
              {!activeSession || activeSession.messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center max-w-lg mx-auto text-center animate-fade-in-up pb-36">
+                <div className="max-w-lg text-center animate-fade-in-up">
                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-xl shadow-brand-500/20 mb-3">
                       <Bot size={20} className="text-white" />
                    </div>
