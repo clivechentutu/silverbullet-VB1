@@ -7,6 +7,7 @@ import { ScenarioSelector } from './ScenarioSelector';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { SiGoogle } from 'react-icons/si';
 
 type ActionMode = 'radar' | 'tracker' | 'research';
@@ -25,7 +26,7 @@ export const LandingPage = () => {
   const [isRadarLoading, setIsRadarLoading] = useState(false);
   const [radarTaskName, setRadarTaskName] = useState('');
   const [radarUrl, setRadarUrl] = useState('');
-  const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string}>>([]);
+  const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string; description: string}>>([]);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -126,11 +127,11 @@ export const LandingPage = () => {
   const generateDiscoveredCompetitors = (domain: string) => {
     const baseDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
     const sampleCompetitors = [
-      { id: '1', name: 'MarketWatch Pro', url: 'https://marketwatchpro.com', favicon: 'https://www.google.com/s2/favicons?domain=marketwatchpro.com&sz=32' },
-      { id: '2', name: 'CompeteIQ', url: 'https://competeiq.io', favicon: 'https://www.google.com/s2/favicons?domain=competeiq.io&sz=32' },
-      { id: '3', name: 'RivalScan', url: 'https://rivalscan.com', favicon: 'https://www.google.com/s2/favicons?domain=rivalscan.com&sz=32' },
-      { id: '4', name: 'IntelliMarket', url: 'https://intellimarket.ai', favicon: 'https://www.google.com/s2/favicons?domain=intellimarket.ai&sz=32' },
-      { id: '5', name: 'Stratego Analytics', url: 'https://strategoanalytics.com', favicon: 'https://www.google.com/s2/favicons?domain=strategoanalytics.com&sz=32' },
+      { id: '1', name: 'MarketWatch Pro', url: 'https://marketwatchpro.com', favicon: 'https://www.google.com/s2/favicons?domain=marketwatchpro.com&sz=32', description: 'Real-time market intelligence platform for tracking competitor pricing, product launches, and market trends across industries.' },
+      { id: '2', name: 'CompeteIQ', url: 'https://competeiq.io', favicon: 'https://www.google.com/s2/favicons?domain=competeiq.io&sz=32', description: 'AI-powered competitive analysis tool that helps sales teams win more deals with battle cards and real-time insights.' },
+      { id: '3', name: 'RivalScan', url: 'https://rivalscan.com', favicon: 'https://www.google.com/s2/favicons?domain=rivalscan.com&sz=32', description: 'Automated competitor monitoring and alerting platform for product managers and marketing teams.' },
+      { id: '4', name: 'IntelliMarket', url: 'https://intellimarket.ai', favicon: 'https://www.google.com/s2/favicons?domain=intellimarket.ai&sz=32', description: 'Enterprise market research platform using AI to analyze industry trends, customer sentiment, and competitive positioning.' },
+      { id: '5', name: 'Stratego Analytics', url: 'https://strategoanalytics.com', favicon: 'https://www.google.com/s2/favicons?domain=strategoanalytics.com&sz=32', description: 'Strategic planning and competitive intelligence software for executive teams and business strategists.' },
     ];
     return sampleCompetitors.slice(0, 5);
   };
@@ -579,7 +580,7 @@ export const LandingPage = () => {
                         </div>
 
                         {/* Name and URL */}
-                        <div className="flex-1 min-w-0">
+                        <div className="w-28 flex-shrink-0 min-w-0">
                           <p className="text-sm font-medium text-slate-200 truncate">{competitor.name}</p>
                           <button
                             onClick={(e) => {
@@ -596,6 +597,25 @@ export const LandingPage = () => {
                           </button>
                         </div>
 
+                        {/* Product Positioning / Meta Description */}
+                        <div className="flex-1 min-w-0 px-2 border-l border-slate-700">
+                          <Tooltip delayDuration={300}>
+                            <TooltipTrigger asChild>
+                              <p 
+                                className="text-xs text-slate-400 line-clamp-2 cursor-default"
+                                data-testid={`text-competitor-description-${competitor.id}`}
+                              >
+                                {competitor.description}
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent 
+                              side="top" 
+                              className="max-w-xs bg-slate-800 border-slate-700 text-slate-200 text-xs p-3"
+                            >
+                              {competitor.description}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
 
                         {/* Remove Button */}
                         <button
