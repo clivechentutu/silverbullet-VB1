@@ -169,25 +169,44 @@ export const LandingPage = () => {
           <div className={`relative max-w-2xl mx-auto transition-all duration-500 ${appState !== AppState.IDLE ? 'scale-100' : 'hover:scale-[1.01]'}`}>
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-              <div className="relative flex items-center bg-slate-900 border border-slate-700 rounded-xl p-2 shadow-2xl">
-                <div className="pl-4 pr-3 text-slate-500">
-                  {activeMode === 'research' ? (
-                    <Bot size={20} />
-                  ) : (
-                    <Globe size={20} />
-                  )}
+              {activeMode === 'research' ? (
+                <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden">
+                  <div className="flex items-start gap-4 p-4">
+                    <div className="pt-1 text-slate-500 flex-shrink-0">
+                      <Bot size={20} />
+                    </div>
+                    <textarea
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleStart()}
+                      placeholder="Ask me about market trends, competitor strategies, pricing intelligence... What would you like to know about your market?"
+                      disabled={appState === AppState.ANALYZING}
+                      data-testid="input-research-query"
+                      className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 text-base resize-none focus-visible:ring-0 min-h-20 py-2"
+                    />
+                  </div>
+                  <div className="flex items-center justify-end gap-2 px-4 pb-4">
+                    <button
+                      onClick={handleStart}
+                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim()}
+                      data-testid="button-start"
+                      className={`
+                        px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 flex-shrink-0
+                        ${(!url.trim() || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
+                          ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+                          : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                        }
+                      `}
+                    >
+                      Deep Research <ArrowRight size={16} />
+                    </button>
+                  </div>
                 </div>
-                {activeMode === 'research' ? (
-                  <textarea
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleStart()}
-                    placeholder="Ask me about market trends, competitor strategies, pricing intelligence... What would you like to know about your market?"
-                    disabled={appState === AppState.ANALYZING}
-                    data-testid="input-research-query"
-                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 min-h-12 text-base p-2 resize-none focus-visible:ring-0"
-                  />
-                ) : (
+              ) : (
+                <div className="relative flex items-center bg-slate-900 border border-slate-700 rounded-xl p-2 shadow-2xl">
+                  <div className="pl-4 pr-3 text-slate-500">
+                    <Globe size={20} />
+                  </div>
                   <input
                     type="url"
                     value={url}
@@ -202,24 +221,24 @@ export const LandingPage = () => {
                     data-testid="input-url"
                     className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg"
                   />
-                )}
-                <button
-                  onClick={handleStart}
-                  disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION}
-                  data-testid="button-start"
-                  className={`
-                    h-12 px-8 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 flex-shrink-0
-                    ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION) 
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                      : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
-                    }
-                  `}
-                >
-                  {activeMode === 'radar' ? 'Scan' :
-                   activeMode === 'tracker' ? 'Track' :
-                   'Deep Research'} <ArrowRight size={18} />
-                </button>
-              </div>
+                  <button
+                    onClick={handleStart}
+                    disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION}
+                    data-testid="button-start"
+                    className={`
+                      h-12 px-8 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 flex-shrink-0
+                      ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION) 
+                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+                        : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                      }
+                    `}
+                  >
+                    {activeMode === 'radar' ? 'Scan' :
+                     activeMode === 'tracker' ? 'Track' :
+                     'Deep Research'} <ArrowRight size={18} />
+                  </button>
+                </div>
+              )}
             </div>
 
             {errorMsg && appState !== AppState.RESULTS && appState !== AppState.ERROR && (
