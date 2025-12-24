@@ -41,6 +41,15 @@ export const LandingPage = () => {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [authStep, setAuthStep] = useState<'choice' | 'email'>('choice');
+  const [authSuccess, setAuthSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  // Validation Errors State
+  const [errors, setErrors] = useState<{
+    url?: string;
+    email?: string;
+    password?: string;
+  }>({});
 
   const trackerOptions = [
     { id: 'website', label: 'Website Tracker', description: 'On-page copy, pricing, features' },
@@ -50,6 +59,49 @@ export const LandingPage = () => {
     { id: 'news', label: 'News Tracker', description: 'Press coverage' },
     { id: 'ads', label: 'Ads Tracker', description: 'Ad spend' }
   ];
+
+  // ========== VALIDATION FUNCTIONS ==========
+  const validateUrl = (urlValue: string): string | undefined => {
+    if (!urlValue.trim()) {
+      return 'URL is required';
+    }
+    const urlRegex = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+    if (!urlRegex.test(urlValue)) {
+      return 'Please enter a valid URL (e.g., example.com)';
+    }
+    return undefined;
+  };
+
+  const validateEmail = (emailValue: string): string | undefined => {
+    if (!emailValue.trim()) {
+      return 'Email is required';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailValue)) {
+      return 'Please enter a valid email address';
+    }
+    return undefined;
+  };
+
+  const validatePassword = (passwordValue: string, mode: 'login' | 'signup'): string | undefined => {
+    if (!passwordValue) {
+      return 'Password is required';
+    }
+    if (mode === 'signup') {
+      if (passwordValue.length < 8) {
+        return 'Password must be at least 8 characters';
+      }
+      const hasUppercase = /[A-Z]/.test(passwordValue);
+      const hasLowercase = /[a-z]/.test(passwordValue);
+      const hasNumber = /\d/.test(passwordValue);
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordValue);
+      
+      if (!hasUppercase || !hasLowercase || !hasNumber) {
+        return 'Password must contain uppercase, lowercase, and numbers';
+      }
+    }
+    return undefined;
+  };
 
   // Simulated AI Analysis Results
   const generateAIAnalysis = (domain: string) => {
@@ -77,15 +129,30 @@ export const LandingPage = () => {
   };
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
+    const value = e.target.value;
+    setUrl(value);
+    // Real-time validation
+    if (value) {
+      const urlError = validateUrl(value);
+      if (urlError) {
+        setErrors(prev => ({ ...prev, url: urlError }));
+      } else {
+        setErrors(prev => ({ ...prev, url: undefined }));
+      }
+    } else {
+      setErrors(prev => ({ ...prev, url: undefined }));
+    }
+    setErrorMsg('');
   };
 
   const handleStart = async () => {
     if (!url) return;
-    if (!url.includes('.') || url.length < 4) {
-      setErrorMsg("Please enter a valid URL");
+    const urlError = validateUrl(url);
+    if (urlError) {
+      setErrors(prev => ({ ...prev, url: urlError }));
       return;
     }
+    setErrors(prev => ({ ...prev, url: undefined }));
     setErrorMsg("");
 
     if (activeMode === 'radar') {
@@ -240,7 +307,7 @@ export const LandingPage = () => {
                     }
                     disabled={appState === AppState.ANALYZING}
                     data-testid="input-url"
-                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg input-focus-effect"
+                    className={`flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg input-focus-effect ${errors.url ? 'text-red-400' : ''}`}
                   />
                   <button
                     onClick={handleStart}
@@ -775,37 +842,86 @@ export const LandingPage = () => {
 
                   {/* Email Form */}
                   <div className="space-y-3">
+                    {/* Success Message */}
+                    {authSuccess && (
+                      <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-green-950/30 border border-green-900/50 text-green-400 text-sm animate-bounce-in">
+                        <CheckCircle size={16} className="flex-shrink-0" />
+                        <span>{successMessage}</span>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
                       <input
                         type="email"
                         value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setEmailInput(val);
+                          if (val) {
+                            const err = validateEmail(val);
+                            if (err) {
+                              setErrors(prev => ({ ...prev, email: err }));
+                            } else {
+                              setErrors(prev => ({ ...prev, email: undefined }));
+                            }
+                          } else {
+                            setErrors(prev => ({ ...prev, email: undefined }));
+                          }
+                        }}
                         placeholder="you@company.com"
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                        className={`w-full bg-slate-800 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-all input-focus-effect ${errors.email ? 'border-red-500/50 focus:border-red-500' : 'border-slate-700 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50'}`}
                         data-testid="input-auth-email"
                       />
+                      {errors.email && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.email}</p>}
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
                       <input
                         type="password"
                         value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        placeholder={authMode === 'signup' ? 'Create a password' : 'Enter your password'}
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPasswordInput(val);
+                          if (val) {
+                            const err = validatePassword(val, authMode);
+                            if (err) {
+                              setErrors(prev => ({ ...prev, password: err }));
+                            } else {
+                              setErrors(prev => ({ ...prev, password: undefined }));
+                            }
+                          } else {
+                            setErrors(prev => ({ ...prev, password: undefined }));
+                          }
+                        }}
+                        placeholder={authMode === 'signup' ? 'Create a password (8+ chars, uppercase, lowercase, numbers)' : 'Enter your password'}
+                        className={`w-full bg-slate-800 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none transition-all input-focus-effect ${errors.password ? 'border-red-500/50 focus:border-red-500' : 'border-slate-700 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50'}`}
                         data-testid="input-auth-password"
                       />
+                      {errors.password && <p className="text-red-400 text-xs mt-1 flex items-center gap-1"><AlertCircle size={12} /> {errors.password}</p>}
                     </div>
 
                     <button
                       onClick={() => {
-                        // TODO: Implement email auth
-                        console.log('Email auth:', { email: emailInput, mode: authMode });
-                        navigate('/workbench');
+                        const emailErr = validateEmail(emailInput);
+                        const passwordErr = validatePassword(passwordInput, authMode);
+                        
+                        if (emailErr || passwordErr) {
+                          setErrors({
+                            email: emailErr,
+                            password: passwordErr
+                          });
+                          return;
+                        }
+                        
+                        setAuthSuccess(true);
+                        setSuccessMessage(authMode === 'signup' ? 'Account created successfully!' : 'Logged in successfully!');
+                        setTimeout(() => {
+                          navigate('/workbench');
+                        }, 1500);
                       }}
-                      disabled={!emailInput || !passwordInput}
-                      className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-lg transition-all"
+                      disabled={!emailInput || !passwordInput || !!errors.email || !!errors.password}
+                      className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-lg transition-all btn-hover-glow"
                       data-testid="button-auth-submit"
                     >
                       {authMode === 'signup' ? 'Create Account' : 'Log In'}
