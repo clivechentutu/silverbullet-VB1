@@ -3668,16 +3668,16 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              </header>
           )}
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 scroll-smooth">
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 scroll-smooth">
              {!activeSession || activeSession.messages.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center animate-fade-in-up">
-                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-brand-500/20 mb-6">
-                      <Bot size={32} className="text-white" />
+                <div className="h-full flex flex-col items-center justify-center max-w-xl mx-auto text-center animate-fade-in-up pb-28">
+                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-brand-500/20 mb-4">
+                      <Bot size={24} className="text-white" />
                    </div>
-                   <h2 className="text-3xl font-bold text-white mb-3">What shall we investigate?</h2>
-                   <p className="text-slate-400 text-lg mb-8 max-w-lg">I can analyze competitors, track pricing shifts, or synthesize market trends into actionable reports.</p>
+                   <h2 className="text-2xl font-bold text-white mb-2">What shall we investigate?</h2>
+                   <p className="text-slate-400 text-sm mb-5 max-w-md">I can analyze competitors, track pricing shifts, or synthesize market trends into actionable reports.</p>
                    
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+                   <div className="grid grid-cols-2 gap-2 w-full">
                       {[
                         "Analyze Figma's new enterprise pricing",
                         "Compare Arc Browser vs Chrome features",
@@ -3687,7 +3687,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                          <button 
                            key={i} 
                            onClick={() => { setInput(prompt); }}
-                           className="p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all text-left text-sm text-slate-300 hover:text-white"
+                           className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all text-left text-xs text-slate-300 hover:text-white"
                            data-testid={`prompt-suggestion-${i}`}
                          >
                             {prompt}
