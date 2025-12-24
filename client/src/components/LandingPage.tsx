@@ -240,17 +240,17 @@ export const LandingPage = () => {
                     }
                     disabled={appState === AppState.ANALYZING}
                     data-testid="input-url"
-                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg"
+                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg input-focus-effect"
                   />
                   <button
                     onClick={handleStart}
                     disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION}
                     data-testid="button-start"
                     className={`
-                      h-12 px-8 rounded-lg font-semibold flex items-center gap-2 transition-all duration-300 flex-shrink-0
+                      h-12 px-8 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow
                       ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION) 
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                        : 'bg-white text-slate-950 hover:bg-brand-50 hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                        : 'bg-white text-slate-950'
                       }
                     `}
                   >

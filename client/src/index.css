@@ -338,4 +338,191 @@
   .status-icon-active {
     animation: breathing-icon-teal 1.8s infinite ease-in-out;
   }
+
+  /* ============ ANIMATIONS & INTERACTIONS ============ */
+  
+  /* Modal animations */
+  @keyframes modal-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes modal-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes modal-slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Loading spinners and animations */
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes radar-scan {
+    0% {
+      transform: rotate(0deg);
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      transform: rotate(360deg);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Button hover effects */
+  .btn-hover-glow {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-hover-glow:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+  }
+
+  .btn-hover-glow:active {
+    transform: scale(0.98);
+  }
+
+  /* Input focus effects */
+  .input-focus-effect {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .input-focus-effect:focus {
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1), 0 0 0 1px rgba(20, 184, 166, 0.5);
+  }
+
+  .input-focus-effect::placeholder {
+    transition: color 0.3s ease;
+  }
+
+  .input-focus-effect:focus::placeholder {
+    color: rgba(148, 163, 184, 0.4);
+  }
+
+  /* Checkbox animations */
+  .checkbox-animated {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .checkbox-animated:checked {
+    transform: scale(1.1);
+  }
+
+  .checkbox-animated:active {
+    transform: scale(0.95);
+  }
+
+  /* Page transitions */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fade-in-up 0.4s ease-out;
+  }
+
+  /* Dialog overlay animations */
+  [data-state="open"] {
+    animation: modal-fade-in 0.2s ease-out !important;
+  }
+
+  /* Smooth transitions for all elements */
+  * {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  button, input, textarea, select {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Utility classes for animations */
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background-size: 1000px 100%;
+  }
+
+  .animate-radar {
+    animation: radar-scan 3s ease-in-out infinite;
+  }
+
+  .animate-bounce-in {
+    animation: bounce-in 0.5s ease-out;
+  }
 }
