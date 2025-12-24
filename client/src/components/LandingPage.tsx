@@ -581,18 +581,19 @@ export const LandingPage = () => {
                         {/* Name and URL */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-200 truncate">{competitor.name}</p>
-                          <a
-                            href={competitor.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.open(competitor.url, '_blank', 'noopener,noreferrer');
+                            }}
                             onMouseEnter={() => setPreviewUrl(competitor.url)}
                             onMouseLeave={() => setPreviewUrl(null)}
-                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link cursor-pointer"
+                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link cursor-pointer bg-transparent border-none p-0"
                             data-testid={`link-competitor-url-${competitor.id}`}
                           >
                             <span className="truncate">{competitor.url.replace(/^https?:\/\//, '')}</span>
                             <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />
-                          </a>
+                          </button>
                         </div>
 
 
