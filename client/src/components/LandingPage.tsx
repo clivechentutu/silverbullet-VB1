@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X, Mail, Gift, CheckCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X, Mail, Gift, CheckCircle, ExternalLink, Trash2 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
@@ -24,6 +24,8 @@ export const LandingPage = () => {
   const [isRadarLoading, setIsRadarLoading] = useState(false);
   const [radarTaskName, setRadarTaskName] = useState('');
   const [radarUrl, setRadarUrl] = useState('');
+  const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string}>>([]);
+  const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
 
   // Tracker Modal States
   const [showTrackerModal, setShowTrackerModal] = useState(false);
@@ -56,6 +58,23 @@ export const LandingPage = () => {
     };
   };
 
+  // Generate sample discovered competitors based on domain
+  const generateDiscoveredCompetitors = (domain: string) => {
+    const baseDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+    const sampleCompetitors = [
+      { id: '1', name: 'MarketWatch Pro', url: 'https://marketwatchpro.com', favicon: 'https://www.google.com/s2/favicons?domain=marketwatchpro.com&sz=32' },
+      { id: '2', name: 'CompeteIQ', url: 'https://competeiq.io', favicon: 'https://www.google.com/s2/favicons?domain=competeiq.io&sz=32' },
+      { id: '3', name: 'RivalScan', url: 'https://rivalscan.com', favicon: 'https://www.google.com/s2/favicons?domain=rivalscan.com&sz=32' },
+      { id: '4', name: 'IntelliMarket', url: 'https://intellimarket.ai', favicon: 'https://www.google.com/s2/favicons?domain=intellimarket.ai&sz=32' },
+      { id: '5', name: 'Stratego Analytics', url: 'https://strategoanalytics.com', favicon: 'https://www.google.com/s2/favicons?domain=strategoanalytics.com&sz=32' },
+    ];
+    return sampleCompetitors.slice(0, 5);
+  };
+
+  const removeDiscoveredCompetitor = (id: string) => {
+    setDiscoveredCompetitors(prev => prev.filter(c => c.id !== id));
+  };
+
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
   };
@@ -78,6 +97,7 @@ export const LandingPage = () => {
       setTimeout(() => {
         setIsRadarLoading(false);
         setRadarTaskName(generateAIAnalysis(url).discoveryPrompt);
+        setDiscoveredCompetitors(generateDiscoveredCompetitors(url));
         setShowRadarModal(true);
       }, 3500);
     } else if (activeMode === 'tracker') {
@@ -434,6 +454,78 @@ export const LandingPage = () => {
                   data-testid="textarea-radar-discovery-prompt"
                 />
               </div>
+
+              {/* Discovered Competitors Section */}
+              {discoveredCompetitors.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">
+                    Discovered Competitors ({discoveredCompetitors.length})
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {discoveredCompetitors.map((competitor) => (
+                      <div
+                        key={competitor.id}
+                        className="group relative flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-800 hover:border-slate-600 transition-all"
+                        onMouseEnter={() => setHoveredCompetitor(competitor.id)}
+                        onMouseLeave={() => setHoveredCompetitor(null)}
+                        data-testid={`card-competitor-${competitor.id}`}
+                      >
+                        {/* Favicon/Logo */}
+                        <div className="w-8 h-8 rounded-md bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <img
+                            src={competitor.favicon}
+                            alt={competitor.name}
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                          <Globe className="w-4 h-4 text-slate-500 hidden" />
+                        </div>
+
+                        {/* Name and URL */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-200 truncate">{competitor.name}</p>
+                          <a
+                            href={competitor.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link"
+                            onClick={(e) => e.stopPropagation()}
+                            data-testid={`link-competitor-url-${competitor.id}`}
+                          >
+                            <span className="truncate">{competitor.url.replace(/^https?:\/\//, '')}</span>
+                            <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />
+                          </a>
+                        </div>
+
+                        {/* URL Preview Tooltip */}
+                        {hoveredCompetitor === competitor.id && (
+                          <div className="absolute left-0 right-12 -bottom-1 translate-y-full z-10 pointer-events-none">
+                            <div className="bg-slate-950 border border-slate-700 rounded-lg p-2 shadow-xl">
+                              <div className="flex items-center gap-2 mb-1">
+                                <img src={competitor.favicon} alt="" className="w-4 h-4" />
+                                <span className="text-xs font-medium text-slate-300">{competitor.name}</span>
+                              </div>
+                              <p className="text-xs text-slate-500">{competitor.url}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Remove Button */}
+                        <button
+                          onClick={() => removeDiscoveredCompetitor(competitor.id)}
+                          className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+                          data-testid={`button-remove-competitor-${competitor.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
