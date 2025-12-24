@@ -1,7 +1,7 @@
 import { 
   users, targets, analysisReports, researchSessions, signals,
   type User, type UpsertUser,
-  type Target, type InsertTarget,
+  type Target, type InsertTarget, type UpdateTarget,
   type AnalysisReport, type InsertAnalysisReport,
   type ResearchSession, type InsertResearchSession,
   type Signal, type InsertSignal,
@@ -18,6 +18,7 @@ export interface IStorage {
   // Targets
   getTargets(): Promise<Target[]>;
   getTarget(id: number): Promise<Target | undefined>;
+  updateTarget(id: number, data: UpdateTarget): Promise<Target | undefined>;
   updateTargetStatus(id: number, status: string): Promise<Target | undefined>;
   createTarget(target: InsertTarget): Promise<Target>;
   deleteTarget(id: number): Promise<void>;
@@ -71,6 +72,15 @@ export class DatabaseStorage implements IStorage {
   async getTarget(id: number): Promise<Target | undefined> {
     const [target] = await db.select().from(targets).where(eq(targets.id, id));
     return target;
+  }
+
+  async updateTarget(id: number, data: UpdateTarget): Promise<Target | undefined> {
+    const [updated] = await db
+      .update(targets)
+      .set(data)
+      .where(eq(targets.id, id))
+      .returning();
+    return updated;
   }
 
   async updateTargetStatus(id: number, status: string): Promise<Target | undefined> {
