@@ -1626,6 +1626,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
   const [activeTrackerType, setActiveTrackerType] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [isAddingTarget, setIsAddingTarget] = useState(false);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -1778,11 +1780,22 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   };
 
   const handleAddTarget = async () => {
-    if (newTargetName.trim() && newTargetUrl.trim()) {
+    if (!newTargetName.trim() || !newTargetUrl.trim()) {
+      return;
+    }
+    setIsAddingTarget(true);
+    try {
       await onAddTarget(newTargetName.trim(), newTargetUrl.trim());
       setNewTargetName('');
       setNewTargetUrl('');
       setShowAddModal(false);
+      setAddError(null);
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Failed to add competitor. Please try again.';
+      setAddError(errorMsg);
+      console.error('Error adding target:', error);
+    } finally {
+      setIsAddingTarget(false);
     }
   };
 
@@ -2417,18 +2430,31 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   onChange={(e) => setNewTargetUrl(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 mb-4"
                 />
+                {addError && (
+                  <div className="mb-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg text-sm text-red-400">
+                    {addError}
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <button
                     onClick={() => setShowAddModal(false)}
-                    className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                    disabled={isAddingTarget}
+                    className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleAddTarget}
-                    className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors"
+                    disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget}
+                    className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                   >
-                    Add
+                    {isAddingTarget ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" /> Adding...
+                      </>
+                    ) : (
+                      'Add'
+                    )}
                   </button>
                 </div>
               </div>
