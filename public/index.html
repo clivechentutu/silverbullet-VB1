@@ -1079,48 +1079,120 @@
       background: rgba(248, 113, 113, 0.1);
     }
 
-    .competitor-preview {
-      position: absolute;
-      left: 0;
-      right: 48px;
-      bottom: -4px;
-      transform: translateY(100%);
-      z-index: 10;
-      background: var(--slate-950);
-      border: 1px solid var(--slate-700);
-      border-radius: 0.5rem;
-      padding: 0.5rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    /* Centered Website Preview Popup */
+    .website-preview-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
+      z-index: 9999;
       opacity: 0;
       transition: opacity 0.2s;
     }
 
-    .competitor-card:hover .competitor-preview {
+    .website-preview-overlay.visible {
       opacity: 1;
     }
 
-    .competitor-preview-header {
+    .website-preview-popup {
+      background: var(--slate-900);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      max-width: 32rem;
+      width: calc(100% - 2rem);
+    }
+
+    .website-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--slate-800);
+      border-bottom: 1px solid var(--slate-700);
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 0.375rem;
+    }
+
+    .browser-dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+    }
+
+    .browser-dot.red { background: rgba(239, 68, 68, 0.8); }
+    .browser-dot.yellow { background: rgba(234, 179, 8, 0.8); }
+    .browser-dot.green { background: rgba(34, 197, 94, 0.8); }
+
+    .browser-address-bar {
+      flex: 1;
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.25rem;
+      background: rgba(51, 65, 85, 0.5);
+      border-radius: 0.375rem;
+      padding: 0.375rem 0.75rem;
     }
 
-    .competitor-preview-header img {
-      width: 16px;
-      height: 16px;
-    }
-
-    .competitor-preview-header span {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--slate-300);
-    }
-
-    .competitor-preview-url {
-      font-size: 0.75rem;
+    .browser-address-bar svg {
+      width: 0.875rem;
+      height: 0.875rem;
       color: var(--slate-500);
+    }
+
+    .browser-address-bar span {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .website-preview-content {
+      position: relative;
+      background: white;
+      aspect-ratio: 16 / 10;
+    }
+
+    .website-preview-content img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+    }
+
+    .website-preview-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--slate-800);
+      color: var(--slate-500);
+    }
+
+    .website-preview-fallback svg {
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .website-preview-fallback p {
+      font-size: 0.875rem;
+    }
+
+    .website-preview-fallback span {
+      font-size: 0.75rem;
+      color: var(--slate-600);
+      margin-top: 0.25rem;
     }
 
     /* Utility Classes */
@@ -1690,12 +1762,46 @@
     </div>
   </footer>
 
+  <!-- Centered Website Preview Popup -->
+  <div class="website-preview-overlay" id="websitePreviewOverlay">
+    <div class="website-preview-popup">
+      <div class="website-preview-header">
+        <div class="browser-dots">
+          <div class="browser-dot red"></div>
+          <div class="browser-dot yellow"></div>
+          <div class="browser-dot green"></div>
+        </div>
+        <div class="browser-address-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <span id="previewUrl"></span>
+        </div>
+      </div>
+      <div class="website-preview-content">
+        <img id="previewScreenshot" src="" alt="Website preview">
+        <div class="website-preview-fallback" id="previewFallback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <p>Website Preview</p>
+          <span id="previewCompanyName"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // State
     let currentMode = 'radar';
     let authMode = 'signup';
     let authSource = 'radar';
     let discoveredCompetitors = [];
+    let hoveredCompetitorId = null;
 
     // Sample competitors data
     const sampleCompetitors = [
@@ -1841,7 +1947,7 @@
       countEl.textContent = discoveredCompetitors.length;
       
       container.innerHTML = discoveredCompetitors.map(competitor => `
-        <div class="competitor-card" data-id="${competitor.id}">
+        <div class="competitor-card" data-id="${competitor.id}" onmouseenter="showWebsitePreview('${competitor.id}')" onmouseleave="hideWebsitePreview()">
           <div class="competitor-logo">
             <img src="${competitor.favicon}" alt="${competitor.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
             <svg style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1861,13 +1967,6 @@
               </svg>
             </a>
           </div>
-          <div class="competitor-preview">
-            <div class="competitor-preview-header">
-              <img src="${competitor.favicon}" alt="">
-              <span>${competitor.name}</span>
-            </div>
-            <p class="competitor-preview-url">${competitor.url}</p>
-          </div>
           <button class="competitor-remove" onclick="removeCompetitor('${competitor.id}')" title="Remove competitor">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"/>
@@ -1880,9 +1979,39 @@
       `).join('');
     }
 
+    function showWebsitePreview(competitorId) {
+      hoveredCompetitorId = competitorId;
+      const competitor = discoveredCompetitors.find(c => c.id === competitorId);
+      if (!competitor) return;
+      
+      const overlay = document.getElementById('websitePreviewOverlay');
+      const urlEl = document.getElementById('previewUrl');
+      const screenshotEl = document.getElementById('previewScreenshot');
+      const companyNameEl = document.getElementById('previewCompanyName');
+      
+      urlEl.textContent = competitor.url;
+      companyNameEl.textContent = competitor.name;
+      screenshotEl.src = `https://image.thum.io/get/width/600/crop/400/${competitor.url}`;
+      screenshotEl.style.display = 'block';
+      
+      screenshotEl.onerror = function() {
+        this.style.display = 'none';
+      };
+      
+      overlay.classList.add('visible');
+    }
+
+    function hideWebsitePreview() {
+      hoveredCompetitorId = null;
+      document.getElementById('websitePreviewOverlay').classList.remove('visible');
+    }
+
     function removeCompetitor(id) {
       discoveredCompetitors = discoveredCompetitors.filter(c => c.id !== id);
       renderDiscoveredCompetitors();
+      if (hoveredCompetitorId === id) {
+        hideWebsitePreview();
+      }
     }
 
     function launchRadarTask() {

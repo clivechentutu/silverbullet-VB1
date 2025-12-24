@@ -500,18 +500,6 @@ export const LandingPage = () => {
                           </a>
                         </div>
 
-                        {/* URL Preview Tooltip */}
-                        {hoveredCompetitor === competitor.id && (
-                          <div className="absolute left-0 right-12 -bottom-1 translate-y-full z-10 pointer-events-none">
-                            <div className="bg-slate-950 border border-slate-700 rounded-lg p-2 shadow-xl">
-                              <div className="flex items-center gap-2 mb-1">
-                                <img src={competitor.favicon} alt="" className="w-4 h-4" />
-                                <span className="text-xs font-medium text-slate-300">{competitor.name}</span>
-                              </div>
-                              <p className="text-xs text-slate-500">{competitor.url}</p>
-                            </div>
-                          </div>
-                        )}
 
                         {/* Remove Button */}
                         <button
@@ -840,6 +828,47 @@ export const LandingPage = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Centered Website Preview Popup */}
+        {hoveredCompetitor && (
+          <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-50">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-w-lg w-full mx-4">
+              {/* Preview Header */}
+              <div className="flex items-center gap-3 px-4 py-3 bg-slate-800 border-b border-slate-700">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                </div>
+                <div className="flex-1 flex items-center gap-2 bg-slate-700/50 rounded-md px-3 py-1.5">
+                  <Globe className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-xs text-slate-400 truncate">
+                    {discoveredCompetitors.find(c => c.id === hoveredCompetitor)?.url || ''}
+                  </span>
+                </div>
+              </div>
+              {/* Website Screenshot Preview */}
+              <div className="relative bg-white aspect-video">
+                <img
+                  src={`https://image.thum.io/get/width/600/crop/400/${discoveredCompetitors.find(c => c.id === hoveredCompetitor)?.url || ''}`}
+                  alt="Website preview"
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                {/* Fallback placeholder if image fails */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-500">
+                  <Globe className="w-12 h-12 mb-2 opacity-50" />
+                  <p className="text-sm">Website Preview</p>
+                  <p className="text-xs text-slate-600 mt-1">
+                    {discoveredCompetitors.find(c => c.id === hoveredCompetitor)?.name}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </main>
 
