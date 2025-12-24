@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CompetiScope - AI-powered competitive intelligence platform. Discover competitors, track market changes, and gain strategic insights with advanced AI analysis.">
+  <meta name="keywords" content="competitive intelligence, competitor analysis, market research, AI analysis, business intelligence, SWOT analysis">
+  <meta name="author" content="CompetiScope">
+  <meta property="og:title" content="CompetiScope - AI-Powered Competitive Intelligence">
+  <meta property="og:description" content="Discover competitors, track market changes, and gain strategic insights with advanced AI analysis.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CompetiScope - AI-Powered Competitive Intelligence">
+  <meta name="twitter:description" content="Discover competitors, track market changes, and gain strategic insights with advanced AI analysis.">
+  <title>CompetiScope - AI-Powered Competitive Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --brand-50: #f0fdfa;
+      --brand-100: #ccfbf1;
+      --brand-400: #2dd4bf;
+      --brand-500: #14b8a6;
+      --brand-600: #0d9488;
+      --brand-700: #0f766e;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --slate-950: #020617;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--slate-950);
+      color: white;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Header Styles */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--slate-800);
+    }
+
+    .header-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .logo-text span {
+      color: var(--brand-500);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: var(--slate-400);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: white;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--slate-300);
+    }
+
+    .btn-ghost:hover {
+      background: var(--slate-800);
+      color: white;
+    }
+
+    .btn-primary {
+      background: var(--brand-500);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--brand-600);
+    }
+
+    .btn-white {
+      background: white;
+      color: var(--slate-950);
+    }
+
+    .btn-white:hover {
+      background: var(--brand-50);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-white:disabled {
+      background: var(--slate-800);
+      color: var(--slate-500);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: var(--slate-800);
+      color: var(--slate-300);
+      border: 1px solid var(--slate-700);
+    }
+
+    .btn-secondary:hover {
+      background: var(--slate-700);
+      color: white;
+    }
+
+    .btn-lg {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8rem 1.5rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(20, 184, 166, 0.15), transparent);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      max-width: 900px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(20, 184, 166, 0.1);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      color: var(--brand-400);
+      margin-bottom: 2rem;
+    }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, white, var(--slate-300));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--brand-400), var(--brand-500));
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--slate-400);
+      max-width: 600px;
+      margin: 0 auto 3rem;
+    }
+
+    /* Mode Buttons */
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--slate-900);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.75rem;
+      color: var(--slate-400);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--slate-600);
+      color: white;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.15), rgba(20, 184, 166, 0.05));
+      border-color: var(--brand-500);
+      color: var(--brand-400);
+    }
+
+    .mode-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Input Container */
+    .input-container {
+      max-width: 672px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-glow {
+      position: absolute;
+      inset: -4px;
+      background: linear-gradient(135deg, var(--brand-500), #9333ea);
+      border-radius: 1rem;
+      filter: blur(8px);
+      opacity: 0.2;
+      transition: opacity 0.3s;
+    }
+
+    .input-wrapper:hover .input-glow {
+      opacity: 0.4;
+    }
+
+    .input-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--slate-900);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+    }
+
+    .input-icon {
+      padding: 0 0.75rem 0 1rem;
+      color: var(--slate-500);
+      display: flex;
+      align-items: center;
+    }
+
+    .input-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 1.125rem;
+      height: 3rem;
+      font-family: inherit;
+    }
+
+    .input-box input::placeholder {
+      color: var(--slate-600);
+    }
+
+    /* Research Chat Input */
+    .chat-input-box {
+      position: relative;
+      background: var(--slate-900);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    .chat-input-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .chat-input-icon {
+      padding-top: 0.25rem;
+      color: var(--slate-500);
+      flex-shrink: 0;
+    }
+
+    .chat-input-box textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: none;
+      min-height: 80px;
+      line-height: 1.5;
+    }
+
+    .chat-input-box textarea::placeholder {
+      color: var(--slate-500);
+    }
+
+    .chat-input-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 1rem 1rem;
+    }
+
+    /* Loading State */
+    .loading-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 3rem;
+    }
+
+    .loading-container.visible {
+      display: flex;
+    }
+
+    .spinner {
+      width: 64px;
+      height: 64px;
+      border: 4px solid rgba(20, 184, 166, 0.3);
+      border-top-color: var(--brand-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      position: relative;
+    }
+
+    .spinner-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-500);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading-text {
+      margin-top: 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--slate-200);
+    }
+
+    .loading-subtext {
+      margin-top: 0.5rem;
+      color: var(--slate-500);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--slate-900);
+      border: 1px solid var(--slate-700);
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.2s ease-out;
+    }
+
+    .modal-sm {
+      max-width: 450px;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--slate-800);
+    }
+
+    .modal-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(20, 184, 166, 0.1);
+      border: 1px solid rgba(20, 184, 166, 0.3);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-500);
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .modal-subtitle {
+      font-size: 0.75rem;
+      color: var(--slate-400);
+      margin-top: 0.25rem;
+    }
+
+    .modal-close {
+      margin-left: auto;
+      background: transparent;
+      border: none;
+      color: var(--slate-400);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: var(--slate-800);
+      color: white;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-top: 1px solid var(--slate-800);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--slate-300);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--slate-800);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.5rem;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.875rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--brand-500);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: var(--slate-500);
+    }
+
+    .form-input-readonly {
+      background: rgba(30, 41, 59, 0.5);
+      cursor: not-allowed;
+    }
+
+    .form-input-with-icon {
+      padding-left: 2.5rem;
+    }
+
+    .form-input-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-500);
+    }
+
+    .form-textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .form-readonly-box {
+      background: rgba(30, 41, 59, 0.3);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .form-readonly-text {
+      font-size: 0.75rem;
+      color: var(--slate-300);
+      line-height: 1.6;
+    }
+
+    /* Checkbox List */
+    .checkbox-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .checkbox-item:hover {
+      background: var(--slate-800);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--brand-500);
+      cursor: pointer;
+    }
+
+    .checkbox-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--slate-200);
+    }
+
+    .checkbox-desc {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+    }
+
+    /* Auth Modal Styles */
+    .auth-preview {
+      background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(20, 184, 166, 0.05), var(--slate-900));
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--slate-800);
+    }
+
+    .auth-preview-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .auth-preview-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(20, 184, 166, 0.2);
+      border: 1px solid rgba(20, 184, 166, 0.4);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--brand-400);
+    }
+
+    .auth-preview-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--brand-400);
+    }
+
+    .auth-preview-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+    }
+
+    .auth-loading-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--slate-700);
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+
+    .auth-loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid rgba(20, 184, 166, 0.3);
+      border-top-color: var(--brand-500);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .auth-loading-text {
+      font-size: 0.875rem;
+      color: var(--slate-300);
+    }
+
+    .auth-loading-subtext {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+      margin-top: 0.25rem;
+    }
+
+    .auth-credits-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(249, 115, 22, 0.1));
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .auth-credits-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .auth-credits-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #fbbf24;
+    }
+
+    .auth-credits-desc {
+      font-size: 0.875rem;
+      color: var(--slate-400);
+    }
+
+    .auth-features {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .auth-feature {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--slate-300);
+    }
+
+    .auth-feature svg {
+      color: var(--brand-500);
+      flex-shrink: 0;
+    }
+
+    .auth-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .auth-btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: white;
+      color: var(--slate-900);
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-btn-google:hover {
+      background: var(--slate-100);
+    }
+
+    .auth-btn-email {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: var(--slate-800);
+      color: white;
+      border: 1px solid var(--slate-700);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .auth-btn-email:hover {
+      background: var(--slate-700);
+    }
+
+    .auth-toggle {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--slate-500);
+      margin-top: 1rem;
+    }
+
+    .auth-toggle-link {
+      color: var(--brand-400);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .auth-toggle-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Email Form */
+    .email-form {
+      display: none;
+    }
+
+    .email-form.visible {
+      display: block;
+    }
+
+    .email-back-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: none;
+      border: none;
+      color: var(--slate-400);
+      font-size: 0.875rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    .email-back-btn:hover {
+      color: white;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--slate-900);
+      border-top: 1px solid var(--slate-800);
+      padding: 4rem 1.5rem 2rem;
+      margin-top: auto;
+    }
+
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand-text {
+      font-size: 0.875rem;
+      color: var(--slate-400);
+      line-height: 1.6;
+    }
+
+    .footer-section h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--slate-400);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--brand-400);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid var(--slate-800);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-copyright {
+      font-size: 0.875rem;
+      color: var(--slate-500);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .footer-social a {
+      color: var(--slate-400);
+      transition: color 0.2s;
+    }
+
+    .footer-social a:hover {
+      color: var(--brand-400);
+    }
+
+    /* Utility Classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .visible {
+      display: flex !important;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .header-nav {
+        display: none;
+      }
+
+      .hero {
+        padding: 6rem 1rem 3rem;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+
+      .mode-buttons {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto 2rem;
+      }
+
+      .mode-btn {
+        justify-content: center;
+      }
+
+      .modal {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+      }
+
+      .modal-footer {
+        flex-direction: column;
+      }
+
+      .modal-footer .btn {
+        width: 100%;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-actions .btn-ghost {
+        display: none;
+      }
+
+      .input-box input {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+        <div class="logo-text">Competi<span>Scope</span></div>
+      </a>
+      <nav class="header-nav">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#pricing" class="nav-link">Pricing</a>
+        <a href="#docs" class="nav-link">Docs</a>
+      </nav>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="openAuthModal('login')">Log in</button>
+        <button class="btn btn-primary" onclick="openAuthModal('signup')">Get Started</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        AI-Powered Competitive Intelligence
+      </div>
+      <h1 class="hero-title">
+        Know Your Market.<br>
+        <span class="highlight">Outsmart Competition.</span>
+      </h1>
+      <p class="hero-subtitle">
+        Discover competitors, track market changes, and gain strategic insights with advanced AI analysis.
+      </p>
+
+      <!-- Mode Buttons -->
+      <div class="mode-buttons">
+        <button class="mode-btn active" data-mode="radar" onclick="setMode('radar')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          Radar
+        </button>
+        <button class="mode-btn" data-mode="tracker" onclick="setMode('tracker')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line x1="12" y1="2" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="22" y2="12"/>
+          </svg>
+          Tracker
+        </button>
+        <button class="mode-btn" data-mode="research" onclick="setMode('research')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <circle cx="8" cy="8" r="2"/>
+            <path d="M14 8h4"/>
+            <path d="M14 12h4"/>
+            <path d="M8 16h8"/>
+          </svg>
+          Research
+        </button>
+      </div>
+
+      <!-- Input Container -->
+      <div class="input-container">
+        <div class="input-wrapper">
+          <div class="input-glow"></div>
+          <!-- URL Input (Radar/Tracker) -->
+          <div class="input-box" id="urlInputBox">
+            <div class="input-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </div>
+            <input type="text" id="urlInput" placeholder="enter-competitor-website.com" onkeydown="handleInputKeydown(event)">
+            <button class="btn btn-white" id="actionBtn" onclick="handleAction()">
+              <span id="actionBtnText">Scan</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Chat Input (Research) -->
+          <div class="chat-input-box hidden" id="chatInputBox">
+            <div class="chat-input-content">
+              <div class="chat-input-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8" cy="8" r="2"/>
+                  <path d="M14 8h4"/>
+                  <path d="M14 12h4"/>
+                  <path d="M8 16h8"/>
+                </svg>
+              </div>
+              <textarea id="researchInput" placeholder="Ask me about market trends, competitor strategies, pricing intelligence... What would you like to know about your market?" onkeydown="handleResearchKeydown(event)"></textarea>
+            </div>
+            <div class="chat-input-actions">
+              <button class="btn btn-white" id="researchBtn" onclick="handleResearch()">
+                Deep Research
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" id="loadingContainer">
+        <div class="spinner">
+          <div class="spinner-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+        </div>
+        <p class="loading-text" id="loadingText">Scanning Website...</p>
+        <p class="loading-subtext" id="loadingSubtext">Analyzing for competitors</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Radar Configuration Modal -->
+  <div class="modal-overlay" id="radarModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="modal-title">New Radar Task</h2>
+          <p class="modal-subtitle">AI-powered competitor discovery</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('radarModal')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Target Website URL</label>
+          <div style="position: relative;">
+            <span class="form-input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </span>
+            <input type="text" class="form-input form-input-with-icon form-input-readonly" id="radarUrlDisplay" readonly>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Positioning</label>
+          <div class="form-readonly-box">
+            <p class="form-readonly-text" id="radarPositioning">
+              This company is a digital product or service company offering innovative solutions in their market vertical. The platform demonstrates strong market positioning with emphasis on ease of use and enterprise capabilities.
+            </p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">AI Discovery Prompt</label>
+          <textarea class="form-input form-textarea" id="radarTaskName" placeholder="Customize your discovery prompt..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('radarModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="launchRadarTask()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="6"/>
+            <circle cx="12" cy="12" r="2"/>
+          </svg>
+          Launch Radar Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracker Configuration Modal -->
+  <div class="modal-overlay" id="trackerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line x1="12" y1="2" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="22" y2="12"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="modal-title">Edit Target Configuration</h2>
+          <p class="modal-subtitle">Update target details and tracking settings</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('trackerModal')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Target Name</label>
+          <input type="text" class="form-input" id="trackerTargetName" placeholder="e.g., TrendSpotter">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Website URL</label>
+          <div style="position: relative;">
+            <span class="form-input-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="2" y1="12" x2="22" y2="12"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              </svg>
+            </span>
+            <input type="url" class="form-input form-input-with-icon" id="trackerTargetUrl" placeholder="https://example.com">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Active Trackers</label>
+          <div class="checkbox-list" id="trackerList">
+            <label class="checkbox-item">
+              <input type="checkbox" value="website" checked>
+              <div>
+                <p class="checkbox-label">Website Tracker</p>
+                <p class="checkbox-desc">On-page copy, pricing, features</p>
+              </div>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="backlinks" checked>
+              <div>
+                <p class="checkbox-label">Backlinks Tracker</p>
+                <p class="checkbox-desc">Domain ranking, backlinks</p>
+              </div>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="seo" checked>
+              <div>
+                <p class="checkbox-label">SEO Tracker</p>
+                <p class="checkbox-desc">Rankings, keywords, search volume</p>
+              </div>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="social" checked>
+              <div>
+                <p class="checkbox-label">Social Tracker</p>
+                <p class="checkbox-desc">Posts and engagement</p>
+              </div>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="news" checked>
+              <div>
+                <p class="checkbox-label">News Tracker</p>
+                <p class="checkbox-desc">Press coverage</p>
+              </div>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="ads" checked>
+              <div>
+                <p class="checkbox-label">Ads Tracker</p>
+                <p class="checkbox-desc">Ad spend</p>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('trackerModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTrackerConfig()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Start Tracking
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal modal-sm">
+      <div class="auth-preview">
+        <div class="auth-preview-header">
+          <div class="auth-preview-icon" id="authPreviewIcon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+            </svg>
+          </div>
+          <div>
+            <p class="auth-preview-label" id="authPreviewLabel">Configuration Complete</p>
+            <h3 class="auth-preview-title" id="authPreviewTitle">Radar Task Ready</h3>
+          </div>
+        </div>
+        <div class="auth-loading-box">
+          <div class="auth-loading-spinner"></div>
+          <div>
+            <p class="auth-loading-text" id="authLoadingText">Preparing competitor discovery results...</p>
+            <p class="auth-loading-subtext">Sign in to view your results</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body" id="authChoiceView">
+        <div class="auth-credits-box">
+          <div class="auth-credits-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M20 12v10H4V12"/>
+              <path d="M2 7h20v5H2z"/>
+              <path d="M12 22V7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="auth-credits-title">300 Free Credits/Month</p>
+            <p class="auth-credits-desc">Complete tasks and unlock insights at no cost</p>
+          </div>
+        </div>
+        <div class="auth-features">
+          <div class="auth-feature">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Save and export all analysis results</span>
+          </div>
+          <div class="auth-feature">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>Continuous monitoring with real-time alerts</span>
+          </div>
+          <div class="auth-feature">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span>AI-powered insights and battle cards</span>
+          </div>
+        </div>
+        <div class="auth-buttons">
+          <button class="auth-btn-google" onclick="handleGoogleAuth()">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+          <button class="auth-btn-email" onclick="showEmailForm()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+            Continue with Email
+          </button>
+        </div>
+        <p class="auth-toggle">
+          <span id="authToggleText">Already have an account?</span>
+          <button class="auth-toggle-link" id="authToggleBtn" onclick="toggleAuthMode()">Log in</button>
+        </p>
+      </div>
+      <div class="modal-body email-form" id="emailFormView">
+        <button class="email-back-btn" onclick="showChoiceView()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back to options
+        </button>
+        <form id="emailForm" onsubmit="handleEmailSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="authEmail" placeholder="you@example.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="authPassword" placeholder="Enter your password" required minlength="6">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;" id="emailSubmitBtn">
+            <span id="emailSubmitText">Create Account</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand-logo">
+            <div class="logo-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <circle cx="12" cy="12" r="6"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="logo-text">Competi<span>Scope</span></div>
+          </div>
+          <p class="footer-brand-text">
+            AI-powered competitive intelligence platform helping businesses stay ahead of the competition.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h4>Product</h4>
+          <ul class="footer-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#integrations">Integrations</a></li>
+            <li><a href="#changelog">Changelog</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Resources</h4>
+          <ul class="footer-links">
+            <li><a href="#docs">Documentation</a></li>
+            <li><a href="#api">API Reference</a></li>
+            <li><a href="#guides">Guides</a></li>
+            <li><a href="#blog">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Company</h4>
+          <ul class="footer-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#careers">Careers</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#privacy">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">2024 CompetiScope. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#twitter" aria-label="Twitter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <a href="#linkedin" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+          <a href="#github" aria-label="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // State
+    let currentMode = 'radar';
+    let authMode = 'signup';
+    let authSource = 'radar';
+
+    // DOM Elements
+    const urlInputBox = document.getElementById('urlInputBox');
+    const chatInputBox = document.getElementById('chatInputBox');
+    const urlInput = document.getElementById('urlInput');
+    const researchInput = document.getElementById('researchInput');
+    const actionBtn = document.getElementById('actionBtn');
+    const actionBtnText = document.getElementById('actionBtnText');
+    const loadingContainer = document.getElementById('loadingContainer');
+    const loadingText = document.getElementById('loadingText');
+    const loadingSubtext = document.getElementById('loadingSubtext');
+
+    // Mode Selection
+    function setMode(mode) {
+      currentMode = mode;
+      
+      // Update mode buttons
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+      
+      // Update input visibility
+      if (mode === 'research') {
+        urlInputBox.classList.add('hidden');
+        chatInputBox.classList.remove('hidden');
+      } else {
+        urlInputBox.classList.remove('hidden');
+        chatInputBox.classList.add('hidden');
+        
+        // Update placeholder and button text
+        if (mode === 'radar') {
+          urlInput.placeholder = 'enter-competitor-website.com';
+          actionBtnText.textContent = 'Scan';
+        } else {
+          urlInput.placeholder = 'enter-target-competitor-url.com';
+          actionBtnText.textContent = 'Track';
+        }
+      }
+    }
+
+    // Input Handlers
+    function handleInputKeydown(event) {
+      if (event.key === 'Enter') {
+        handleAction();
+      }
+    }
+
+    function handleResearchKeydown(event) {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleResearch();
+      }
+    }
+
+    // Action Handlers
+    function handleAction() {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      
+      if (!url.includes('.') || url.length < 4) {
+        alert('Please enter a valid URL');
+        return;
+      }
+
+      if (currentMode === 'radar') {
+        // Show loading, then radar modal
+        showLoading('Scanning Website...', `Analyzing ${url} for competitors`);
+        
+        setTimeout(() => {
+          hideLoading();
+          openRadarModal(url);
+        }, 2000);
+      } else if (currentMode === 'tracker') {
+        openTrackerModal(url);
+      }
+    }
+
+    function handleResearch() {
+      const query = researchInput.value.trim();
+      if (!query) return;
+      
+      authSource = 'research';
+      openAuthModal('signup');
+    }
+
+    // Loading State
+    function showLoading(text, subtext) {
+      loadingText.textContent = text;
+      loadingSubtext.textContent = subtext;
+      loadingContainer.classList.add('visible');
+    }
+
+    function hideLoading() {
+      loadingContainer.classList.remove('visible');
+    }
+
+    // Modal Helpers
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('visible');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    // Radar Modal
+    function openRadarModal(url) {
+      const domain = url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
+      
+      document.getElementById('radarUrlDisplay').value = url;
+      document.getElementById('radarTaskName').value = `Find all direct competitors and market alternatives to ${domain}. Identify companies offering similar products/services, indirect competitors in the adjacent market, and potential new entrants that could disrupt this space.`;
+      document.getElementById('radarPositioning').textContent = `${domain} is a digital product or service company offering innovative solutions in their market vertical. The platform demonstrates strong market positioning with emphasis on ease of use and enterprise capabilities.`;
+      
+      openModal('radarModal');
+    }
+
+    function launchRadarTask() {
+      const taskName = document.getElementById('radarTaskName').value.trim();
+      if (!taskName) {
+        alert('Please enter a discovery prompt');
+        return;
+      }
+      
+      closeModal('radarModal');
+      authSource = 'radar';
+      openAuthModal('signup');
+    }
+
+    // Tracker Modal
+    function openTrackerModal(url) {
+      const domain = url ? url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0] : '';
+      
+      document.getElementById('trackerTargetName').value = domain;
+      document.getElementById('trackerTargetUrl').value = url || '';
+      
+      openModal('trackerModal');
+    }
+
+    function saveTrackerConfig() {
+      const targetName = document.getElementById('trackerTargetName').value.trim();
+      const targetUrl = document.getElementById('trackerTargetUrl').value.trim();
+      
+      if (!targetName || !targetUrl) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      closeModal('trackerModal');
+      authSource = 'tracker';
+      openAuthModal('signup');
+    }
+
+    // Auth Modal
+    function openAuthModal(mode) {
+      authMode = mode;
+      updateAuthModal();
+      showChoiceView();
+      openModal('authModal');
+    }
+
+    function updateAuthModal() {
+      const previewIcon = document.getElementById('authPreviewIcon');
+      const previewLabel = document.getElementById('authPreviewLabel');
+      const previewTitle = document.getElementById('authPreviewTitle');
+      const loadingText = document.getElementById('authLoadingText');
+      const toggleText = document.getElementById('authToggleText');
+      const toggleBtn = document.getElementById('authToggleBtn');
+      const submitText = document.getElementById('emailSubmitText');
+
+      // Update preview based on source
+      if (authSource === 'radar') {
+        previewIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`;
+        previewLabel.textContent = 'Configuration Complete';
+        previewTitle.textContent = 'Radar Task Ready';
+        loadingText.textContent = 'Preparing competitor discovery results...';
+      } else if (authSource === 'tracker') {
+        previewIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/></svg>`;
+        previewLabel.textContent = 'Configuration Complete';
+        previewTitle.textContent = 'Tracker Configured';
+        loadingText.textContent = 'Setting up monitoring for your target...';
+      } else {
+        previewIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="2"/><path d="M14 8h4"/><path d="M14 12h4"/><path d="M8 16h8"/></svg>`;
+        previewLabel.textContent = 'Deep AI Research Selected';
+        previewTitle.textContent = 'AI Research Agent Ready';
+        loadingText.textContent = 'Initializing AI research agent...';
+      }
+
+      // Update auth mode text
+      if (authMode === 'signup') {
+        toggleText.textContent = 'Already have an account?';
+        toggleBtn.textContent = 'Log in';
+        submitText.textContent = 'Create Account';
+      } else {
+        toggleText.textContent = 'New to CompetiScope?';
+        toggleBtn.textContent = 'Sign up';
+        submitText.textContent = 'Log In';
+      }
+    }
+
+    function toggleAuthMode() {
+      authMode = authMode === 'signup' ? 'login' : 'signup';
+      updateAuthModal();
+    }
+
+    function showChoiceView() {
+      document.getElementById('authChoiceView').style.display = 'block';
+      document.getElementById('emailFormView').classList.remove('visible');
+    }
+
+    function showEmailForm() {
+      document.getElementById('authChoiceView').style.display = 'none';
+      document.getElementById('emailFormView').classList.add('visible');
+    }
+
+    function handleGoogleAuth() {
+      // Simulate Google OAuth - redirect to workbench
+      alert('Google OAuth would be initiated here. Redirecting to dashboard...');
+      window.location.href = '/workbench';
+    }
+
+    function handleEmailSubmit(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      
+      if (!email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      // Simulate auth - redirect to workbench
+      alert(`${authMode === 'signup' ? 'Account created' : 'Logged in'} successfully! Redirecting to dashboard...`);
+      window.location.href = '/workbench';
+    }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          closeModal(overlay.id);
+        }
+      });
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.visible').forEach(modal => {
+          closeModal(modal.id);
+        });
+      }
+    });
+
+    // Initialize
+    setMode('radar');
+  </script>
+</body>
+</html>
