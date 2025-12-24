@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type ActionMode = 'radar' | 'tracker' | 'research';
 
@@ -17,18 +18,47 @@ export const LandingPage = () => {
   const [activeMode, setActiveMode] = useState<ActionMode>('radar');
   const [, navigate] = useLocation();
 
+  // Radar Modal States
+  const [showRadarModal, setShowRadarModal] = useState(false);
+  const [isRadarLoading, setIsRadarLoading] = useState(false);
+  const [radarTaskName, setRadarTaskName] = useState('');
+  const [radarUrl, setRadarUrl] = useState('');
+
+  // Simulated AI Analysis Results
+  const generateAIAnalysis = (domain: string) => {
+    return {
+      positioning: `${domain} is a digital product or service company offering innovative solutions in their market vertical. The platform demonstrates strong market positioning with emphasis on ease of use and enterprise capabilities.`,
+      discoveryPrompt: `Find all direct competitors and market alternatives to ${domain}. Identify companies offering similar products/services, indirect competitors in the adjacent market, and potential new entrants that could disrupt this space. Include both established players and emerging startups.`
+    };
+  };
+
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!url) return;
     if (!url.includes('.') || url.length < 4) {
       setErrorMsg("Please enter a valid URL");
       return;
     }
     setErrorMsg("");
-    setAppState(AppState.SCENARIO_SELECTION);
+
+    if (activeMode === 'radar') {
+      // Start Radar scanning process
+      setIsRadarLoading(true);
+      setRadarUrl(url);
+      setRadarTaskName(url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0]);
+      
+      // Simulate scanning delay (3-5 seconds)
+      setTimeout(() => {
+        setIsRadarLoading(false);
+        setShowRadarModal(true);
+      }, 3500);
+    } else {
+      // For Tracker and Research modes, use original flow
+      setAppState(AppState.SCENARIO_SELECTION);
+    }
   };
 
   const toggleScenario = (id: string) => {
@@ -170,7 +200,7 @@ export const LandingPage = () => {
           </div>
         )}
 
-        {appState === AppState.ANALYZING && (
+        {(appState === AppState.ANALYZING || isRadarLoading) && (
           <div className="mt-20 flex flex-col items-center animate-fade-in-up">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></div>
@@ -178,8 +208,12 @@ export const LandingPage = () => {
                 <Sparkles size={20} className="text-brand-500 animate-pulse" />
               </div>
             </div>
-            <h3 className="mt-6 text-xl font-medium text-slate-200" data-testid="text-loading">Orchestrating AI Agents...</h3>
-            <p className="text-slate-500 mt-2">Gathering data points from {url}</p>
+            <h3 className="mt-6 text-xl font-medium text-slate-200" data-testid="text-loading">
+              {isRadarLoading ? 'Scanning Website...' : 'Orchestrating AI Agents...'}
+            </h3>
+            <p className="text-slate-500 mt-2">
+              {isRadarLoading ? `Analyzing ${url} for competitors` : `Gathering data points from ${url}`}
+            </p>
           </div>
         )}
 
@@ -283,6 +317,90 @@ export const LandingPage = () => {
              </button>
            </div>
         )}
+
+        {/* Radar Configuration Modal */}
+        <Dialog open={showRadarModal} onOpenChange={setShowRadarModal}>
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+            <DialogHeader className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                <RadarIcon className="text-brand-500" size={20} />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-lg">New Radar Task</DialogTitle>
+                <p className="text-xs text-slate-400 mt-1">AI-powered competitor discovery</p>
+              </div>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4">
+              {/* Target Website URL - Read Only */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-3 text-slate-500">
+                    <Globe size={16} />
+                  </div>
+                  <input
+                    type="text"
+                    value={radarUrl}
+                    readOnly
+                    className="w-full bg-slate-800/50 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-slate-300 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              {/* AI Analysis Results */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">AI Analysis Results</label>
+                <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
+                  <div>
+                    <p className="text-xs font-bold text-brand-400 uppercase tracking-wider mb-1">POSITIONING</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">{generateAIAnalysis(radarUrl).positioning}</p>
+                  </div>
+                  <div className="border-t border-slate-700 pt-3">
+                    <p className="text-xs font-bold text-brand-400 uppercase tracking-wider mb-1">AI DISCOVERY PROMPT</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">{generateAIAnalysis(radarUrl).discoveryPrompt}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Task Name - Editable */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Task Name</label>
+                <input
+                  type="text"
+                  value={radarTaskName}
+                  onChange={(e) => setRadarTaskName(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-radar-task-name"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+              <button
+                onClick={() => setShowRadarModal(false)}
+                className="px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+                data-testid="button-cancel-radar-task"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: Trigger sign up/login interface here
+                  console.log('Launch Radar Task:', radarTaskName);
+                  setShowRadarModal(false);
+                  // Next: Pop up registration/login interface
+                }}
+                disabled={!radarTaskName.trim()}
+                className="px-6 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
+                data-testid="button-launch-radar-task"
+              >
+                <RadarIcon size={16} />
+                Launch Radar Task
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
       </main>
 
