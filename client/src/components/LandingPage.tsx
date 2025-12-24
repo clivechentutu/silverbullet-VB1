@@ -27,6 +27,7 @@ export const LandingPage = () => {
   const [radarUrl, setRadarUrl] = useState('');
   const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string}>>([]);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Tracker Modal States
   const [showTrackerModal, setShowTrackerModal] = useState(false);
@@ -580,17 +581,18 @@ export const LandingPage = () => {
                         {/* Name and URL */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-200 truncate">{competitor.name}</p>
-                          <a
-                            href={competitor.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link"
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setPreviewUrl(competitor.url);
+                            }}
+                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link bg-transparent border-none p-0 cursor-pointer"
                             data-testid={`link-competitor-url-${competitor.id}`}
                           >
                             <span className="truncate">{competitor.url.replace(/^https?:\/\//, '')}</span>
                             <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />
-                          </a>
+                          </button>
                         </div>
 
 
@@ -970,6 +972,62 @@ export const LandingPage = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Website Preview Modal */}
+        {previewUrl && (
+          <Dialog open={!!previewUrl} onOpenChange={(open) => {
+            if (!open) setPreviewUrl(null);
+          }}>
+            <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl p-0 overflow-hidden">
+              {/* Preview Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                </div>
+                <div className="flex-1 flex items-center gap-2 bg-slate-700/50 rounded-md px-3 py-1.5 mx-4">
+                  <Globe className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-xs text-slate-400 truncate">{previewUrl}</span>
+                </div>
+                <button
+                  onClick={() => setPreviewUrl(null)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              {/* Website Screenshot Preview */}
+              <div className="relative bg-white aspect-video">
+                <img
+                  src={`https://image.thum.io/get/width/800/crop/600/${previewUrl}`}
+                  alt="Website preview"
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                {/* Fallback placeholder if image fails */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-500">
+                  <Globe className="w-12 h-12 mb-2 opacity-50" />
+                  <p className="text-sm">Website Preview</p>
+                  <p className="text-xs text-slate-600 mt-1">{previewUrl}</p>
+                </div>
+              </div>
+              {/* Footer with Open Link Button */}
+              <div className="px-4 py-3 bg-slate-800 border-t border-slate-700 flex justify-end">
+                <a
+                  href={previewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors"
+                >
+                  Open Website <ExternalLink size={16} />
+                </a>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
       </main>
 
