@@ -581,19 +581,18 @@ export const LandingPage = () => {
                         {/* Name and URL */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-200 truncate">{competitor.name}</p>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              console.log('URL clicked, setting previewUrl to:', competitor.url);
-                              setPreviewUrl(competitor.url);
-                            }}
-                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link bg-transparent border-none p-0 cursor-pointer"
+                          <a
+                            href={competitor.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onMouseEnter={() => setPreviewUrl(competitor.url)}
+                            onMouseLeave={() => setPreviewUrl(null)}
+                            className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link cursor-pointer"
                             data-testid={`link-competitor-url-${competitor.id}`}
                           >
                             <span className="truncate">{competitor.url.replace(/^https?:\/\//, '')}</span>
                             <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity flex-shrink-0" />
-                          </button>
+                          </a>
                         </div>
 
 
@@ -974,64 +973,40 @@ export const LandingPage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Website Preview Modal - Using Portal */}
+        {/* Website Preview Tooltip - Hover triggered */}
         {previewUrl && createPortal(
           <div 
-            className="fixed inset-0 flex items-center justify-center bg-black/70"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
             style={{ zIndex: 9999 }}
-            onClick={() => setPreviewUrl(null)}
           >
-            <div 
-              className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-w-2xl w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Preview Header */}
-              <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
+            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden w-[400px]">
+              {/* Preview Header - Browser Chrome */}
+              <div className="flex items-center gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
                 </div>
-                <div className="flex-1 flex items-center gap-2 bg-slate-700/50 rounded-md px-3 py-1.5 mx-4">
-                  <Globe className="w-3.5 h-3.5 text-slate-500" />
+                <div className="flex-1 flex items-center gap-1.5 bg-slate-700/50 rounded px-2 py-1">
+                  <Globe className="w-3 h-3 text-slate-500" />
                   <span className="text-xs text-slate-400 truncate">{previewUrl}</span>
                 </div>
-                <button
-                  onClick={() => setPreviewUrl(null)}
-                  className="text-slate-400 hover:text-white"
-                  data-testid="button-close-preview"
-                >
-                  <X size={18} />
-                </button>
               </div>
               {/* Website Screenshot Preview */}
-              <div className="relative bg-white aspect-video">
+              <div className="relative bg-white h-[250px]">
                 <img
-                  src={`https://image.thum.io/get/width/800/crop/600/${previewUrl}`}
+                  src={`https://image.thum.io/get/width/400/crop/250/${previewUrl}`}
                   alt="Website preview"
                   className="w-full h-full object-cover object-top"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
-                {/* Fallback placeholder if image fails */}
+                {/* Fallback placeholder */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 text-slate-500">
-                  <Globe className="w-12 h-12 mb-2 opacity-50" />
-                  <p className="text-sm">Website Preview</p>
-                  <p className="text-xs text-slate-600 mt-1">{previewUrl}</p>
+                  <Globe className="w-10 h-10 mb-2 opacity-50" />
+                  <p className="text-sm">Loading preview...</p>
                 </div>
-              </div>
-              {/* Footer with Open Link Button */}
-              <div className="px-4 py-3 bg-slate-800 border-t border-slate-700 flex justify-end">
-                <a
-                  href={previewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white font-medium rounded-lg transition-colors"
-                  data-testid="link-open-preview"
-                >
-                  Open Website <ExternalLink size={16} />
-                </a>
               </div>
             </div>
           </div>,
