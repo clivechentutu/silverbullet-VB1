@@ -4529,6 +4529,13 @@ export const Workbench: React.FC = () => {
     initDemo();
   }, [dataInitialized, targets.length]);
 
+  // Auto-select first target when targets load
+  useEffect(() => {
+    if (targets.length > 0 && !selectedTargetId) {
+      setSelectedTargetId(targets[0].id);
+    }
+  }, [targets, selectedTargetId]);
+
   const addTargetMutation = useMutation({
     mutationFn: async (target: { name: string; url: string; icon: string }) => {
       const res = await apiRequest('POST', '/api/targets', target);
