@@ -303,11 +303,11 @@ export const LandingPage = () => {
                   <div className="flex items-center justify-end gap-2 px-4 pb-4">
                     <button
                       onClick={handleStart}
-                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim()}
+                      disabled={appState !== AppState.IDLE || !url.trim()}
                       data-testid="button-start"
                       className={`
                         px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow transition-all
-                        ${(!url.trim() || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
+                        ${(appState !== AppState.IDLE || !url.trim())
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                           : 'bg-brand-500 hover:bg-brand-600 text-white'
                         }
@@ -338,11 +338,11 @@ export const LandingPage = () => {
                   />
                   <button
                     onClick={handleStart}
-                    disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url}
+                    disabled={appState !== AppState.IDLE || !!errors.url}
                     data-testid="button-start"
                     className={`
                       py-3 px-6 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow text-sm transition-all
-                      ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url) 
+                      ${(appState !== AppState.IDLE || !!errors.url) 
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                         : 'bg-brand-500 hover:bg-brand-600 text-white'
                       }
