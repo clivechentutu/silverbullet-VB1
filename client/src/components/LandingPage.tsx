@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X, Mail, Gift, CheckCircle } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
 import { AppState, AnalysisResult } from '@shared/schema';
 import { apiRequest } from '@/lib/queryClient';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { SiGoogle } from 'react-icons/si';
 
 type ActionMode = 'radar' | 'tracker' | 'research';
 
@@ -29,6 +30,14 @@ export const LandingPage = () => {
   const [trackerTargetName, setTrackerTargetName] = useState('');
   const [trackerTargetUrl, setTrackerTargetUrl] = useState('');
   const [trackerSelectedTrackers, setTrackerSelectedTrackers] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads']);
+
+  // Auth Modal States
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+  const [authSource, setAuthSource] = useState<'radar' | 'tracker'>('radar');
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [authStep, setAuthStep] = useState<'choice' | 'email'>('choice');
 
   const trackerOptions = [
     { id: 'website', label: 'Website Tracker', description: 'On-page copy, pricing, features' },
@@ -400,10 +409,10 @@ export const LandingPage = () => {
               </button>
               <button
                 onClick={() => {
-                  // TODO: Trigger sign up/login interface here
-                  console.log('Launch Radar Task:', radarTaskName);
                   setShowRadarModal(false);
-                  // Next: Pop up registration/login interface
+                  setAuthSource('radar');
+                  setAuthStep('choice');
+                  setShowAuthModal(true);
                 }}
                 disabled={!radarTaskName.trim()}
                 className="px-6 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
@@ -500,9 +509,10 @@ export const LandingPage = () => {
               </button>
               <button
                 onClick={() => {
-                  console.log('Save Tracker Config:', { trackerTargetName, trackerTargetUrl, trackerSelectedTrackers });
                   setShowTrackerModal(false);
-                  // TODO: Trigger sign up/login interface here
+                  setAuthSource('tracker');
+                  setAuthStep('choice');
+                  setShowAuthModal(true);
                 }}
                 disabled={!trackerTargetName.trim() || !trackerTargetUrl.trim()}
                 className="px-6 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
@@ -511,6 +521,185 @@ export const LandingPage = () => {
                 <ArrowRight size={16} />
                 Save Changes
               </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Auth Modal - Registration/Login Interface */}
+        <Dialog open={showAuthModal} onOpenChange={(open) => {
+          setShowAuthModal(open);
+          if (!open) {
+            setAuthStep('choice');
+            setEmailInput('');
+            setPasswordInput('');
+          }
+        }}>
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 overflow-hidden">
+            {/* Top Section - Operation Summary & Preview */}
+            <div className="bg-gradient-to-br from-brand-600/20 via-brand-500/10 to-slate-900 p-6 border-b border-slate-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center">
+                  {authSource === 'radar' ? (
+                    <RadarIcon className="text-brand-400" size={24} />
+                  ) : (
+                    <Target className="text-brand-400" size={24} />
+                  )}
+                </div>
+                <div>
+                  <p className="text-brand-400 text-sm font-medium">Configuration Complete</p>
+                  <h3 className="text-white font-semibold">
+                    {authSource === 'radar' ? 'Radar Task Ready' : 'Tracker Configured'}
+                  </h3>
+                </div>
+              </div>
+              
+              {/* Preview Animation */}
+              <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 flex items-center gap-3">
+                <div className="relative">
+                  <div className="w-8 h-8 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin"></div>
+                </div>
+                <div>
+                  <p className="text-slate-300 text-sm">
+                    {authSource === 'radar' 
+                      ? 'Preparing competitor discovery results...' 
+                      : `Setting up monitoring for ${trackerTargetName || 'your target'}...`}
+                  </p>
+                  <p className="text-slate-500 text-xs mt-0.5">Sign in to view your results</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Middle Section - Value Proposition & Credits */}
+            <div className="p-6 space-y-4">
+              {/* 300 Credits Incentive - Prominent */}
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-4 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                  <Gift className="text-white" size={24} />
+                </div>
+                <div>
+                  <p className="text-amber-400 font-bold text-lg">300 Free Credits/Month</p>
+                  <p className="text-slate-400 text-sm">Complete tasks and unlock insights at no cost</p>
+                </div>
+              </div>
+
+              {/* Value Props */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-slate-300">
+                  <CheckCircle className="text-brand-500 flex-shrink-0" size={18} />
+                  <span className="text-sm">Save and export all analysis results</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-300">
+                  <CheckCircle className="text-brand-500 flex-shrink-0" size={18} />
+                  <span className="text-sm">Continuous monitoring with real-time alerts</span>
+                </div>
+                <div className="flex items-center gap-3 text-slate-300">
+                  <CheckCircle className="text-brand-500 flex-shrink-0" size={18} />
+                  <span className="text-sm">AI-powered insights and battle cards</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section - Auth Options */}
+            <div className="p-6 pt-0">
+              {authStep === 'choice' ? (
+                <div className="space-y-3">
+                  {/* Google OAuth */}
+                  <button
+                    onClick={() => {
+                      // TODO: Implement Google OAuth
+                      console.log('Google OAuth clicked');
+                      navigate('/workbench');
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3.5 px-4 rounded-lg transition-colors"
+                    data-testid="button-auth-google"
+                  >
+                    <SiGoogle size={18} />
+                    Continue with Google
+                  </button>
+
+                  {/* Email Option */}
+                  <button
+                    onClick={() => setAuthStep('email')}
+                    className="w-full flex items-center justify-center gap-3 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3.5 px-4 rounded-lg border border-slate-700 transition-colors"
+                    data-testid="button-auth-email"
+                  >
+                    <Mail size={18} />
+                    Continue with Email
+                  </button>
+
+                  {/* Toggle Login/Signup */}
+                  <p className="text-center text-slate-500 text-sm pt-2">
+                    {authMode === 'signup' ? (
+                      <>Already have an account? <button onClick={() => setAuthMode('login')} className="text-brand-400 hover:underline" data-testid="link-switch-to-login">Log in</button></>
+                    ) : (
+                      <>New to CompetiScope? <button onClick={() => setAuthMode('signup')} className="text-brand-400 hover:underline" data-testid="link-switch-to-signup">Sign up</button></>
+                    )}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Back Button */}
+                  <button
+                    onClick={() => setAuthStep('choice')}
+                    className="text-slate-400 hover:text-slate-300 text-sm flex items-center gap-1"
+                    data-testid="button-auth-back"
+                  >
+                    <ArrowRight className="rotate-180" size={14} /> Back to options
+                  </button>
+
+                  {/* Email Form */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+                      <input
+                        type="email"
+                        value={emailInput}
+                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder="you@company.com"
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                        data-testid="input-auth-email"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+                      <input
+                        type="password"
+                        value={passwordInput}
+                        onChange={(e) => setPasswordInput(e.target.value)}
+                        placeholder={authMode === 'signup' ? 'Create a password' : 'Enter your password'}
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                        data-testid="input-auth-password"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        // TODO: Implement email auth
+                        console.log('Email auth:', { email: emailInput, mode: authMode });
+                        navigate('/workbench');
+                      }}
+                      disabled={!emailInput || !passwordInput}
+                      className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-lg transition-all"
+                      data-testid="button-auth-submit"
+                    >
+                      {authMode === 'signup' ? 'Create Account' : 'Log In'}
+                    </button>
+
+                    {authMode === 'login' && (
+                      <button className="w-full text-slate-400 hover:text-slate-300 text-sm" data-testid="link-forgot-password">
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-4">
+              <p className="text-slate-600 text-xs text-center">
+                By continuing, you agree to our Terms of Service and Privacy Policy
+              </p>
             </div>
           </DialogContent>
         </Dialog>
