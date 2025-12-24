@@ -53,6 +53,7 @@ export const LandingPage = () => {
       // Simulate scanning delay (3-5 seconds)
       setTimeout(() => {
         setIsRadarLoading(false);
+        setRadarTaskName(generateAIAnalysis(url).discoveryPrompt);
         setShowRadarModal(true);
       }, 3500);
     } else {
@@ -348,30 +349,23 @@ export const LandingPage = () => {
                 </div>
               </div>
 
-              {/* AI Analysis Results */}
+              {/* AI Analysis Results - Positioning (Read-Only) */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">AI Analysis Results</label>
-                <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4 space-y-3 max-h-48 overflow-y-auto">
-                  <div>
-                    <p className="text-xs font-bold text-brand-400 uppercase tracking-wider mb-1">POSITIONING</p>
-                    <p className="text-xs text-slate-300 leading-relaxed">{generateAIAnalysis(radarUrl).positioning}</p>
-                  </div>
-                  <div className="border-t border-slate-700 pt-3">
-                    <p className="text-xs font-bold text-brand-400 uppercase tracking-wider mb-1">AI DISCOVERY PROMPT</p>
-                    <p className="text-xs text-slate-300 leading-relaxed">{generateAIAnalysis(radarUrl).discoveryPrompt}</p>
-                  </div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Positioning</label>
+                <div className="bg-slate-800/30 border border-slate-700 rounded-lg p-4">
+                  <p className="text-xs text-slate-300 leading-relaxed">{generateAIAnalysis(radarUrl).positioning}</p>
                 </div>
               </div>
 
-              {/* Task Name - Editable */}
+              {/* AI Discovery Prompt - Editable */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Task Name</label>
-                <input
-                  type="text"
+                <label className="block text-sm font-medium text-slate-300 mb-2">AI Discovery Prompt</label>
+                <textarea
                   value={radarTaskName}
                   onChange={(e) => setRadarTaskName(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-radar-task-name"
+                  placeholder="Customize your discovery prompt..."
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all min-h-24 resize-none"
+                  data-testid="textarea-radar-discovery-prompt"
                 />
               </div>
             </div>
