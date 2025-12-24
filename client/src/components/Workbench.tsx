@@ -2606,17 +2606,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <div className="flex gap-2">
                 <button 
-                  onClick={() => {
-                    setNewTaskName('');
-                    setNewTaskDescription('');
-                    setShowCreateTaskModal(true);
-                  }}
-                  className="px-4 py-2 text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors flex items-center gap-2" 
-                  data-testid="button-create-task"
-                >
-                  <Plus size={16} /> New Task
-                </button>
-                <button 
                   onClick={(e) => {
                     e.preventDefault();
                     console.log('Edit button clicked, selectedTarget:', selectedTarget);
