@@ -3658,9 +3658,9 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
           </div>
        </div>
 
-       <div className="flex-1 flex flex-col relative min-w-0 bg-[#0b0c0f]">
+       <div className="flex-1 flex flex-col min-h-0 min-w-0 bg-[#0b0c0f]">
           {activeSession && (
-             <header className="h-14 border-b border-slate-800/50 flex items-center justify-between px-6 bg-[#0b0c0f]/80 backdrop-blur z-10">
+             <header className="h-14 shrink-0 border-b border-slate-800/50 flex items-center justify-between px-6 bg-[#0b0c0f]/80 backdrop-blur z-10">
                 <div className="flex items-center gap-2">
                    <span className="text-sm font-medium text-slate-200">{activeSession.title}</span>
                    <span className="text-xs text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">{activeSession.agent}</span>
@@ -3668,9 +3668,10 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              </header>
           )}
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 scroll-smooth flex flex-col items-center justify-center">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-4 md:p-6 scroll-smooth">
              {!activeSession || activeSession.messages.length === 0 ? (
-                <div className="max-w-lg text-center animate-fade-in-up">
+                <div className="h-full flex items-center justify-center">
+                  <div className="max-w-lg text-center animate-fade-in-up">
                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-xl shadow-brand-500/20 mb-3">
                       <Bot size={20} className="text-white" />
                    </div>
@@ -3694,9 +3695,10 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                          </button>
                       ))}
                    </div>
+                  </div>
                 </div>
              ) : (
-                <div className="max-w-3xl mx-auto space-y-8 pb-52">
+                <div className="max-w-3xl mx-auto space-y-8 pb-32">
                    {activeSession.messages.map((msg) => (
                       <div key={msg.id} className="animate-fade-in-up">
                          {msg.role === 'user' ? (
@@ -3753,7 +3755,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              )}
           </div>
 
-          <div className="absolute bottom-6 left-0 right-0 px-4 md:px-8 z-20">
+          <div className="shrink-0 px-4 md:px-8 pb-4 pt-2">
              <div className="max-w-3xl mx-auto relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 to-purple-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
                 <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col">
