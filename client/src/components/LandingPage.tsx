@@ -24,6 +24,21 @@ export const LandingPage = () => {
   const [radarTaskName, setRadarTaskName] = useState('');
   const [radarUrl, setRadarUrl] = useState('');
 
+  // Tracker Modal States
+  const [showTrackerModal, setShowTrackerModal] = useState(false);
+  const [trackerTargetName, setTrackerTargetName] = useState('');
+  const [trackerTargetUrl, setTrackerTargetUrl] = useState('');
+  const [trackerSelectedTrackers, setTrackerSelectedTrackers] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads']);
+
+  const trackerOptions = [
+    { id: 'website', label: 'Website Tracker', description: 'On-page copy, pricing, features' },
+    { id: 'backlinks', label: 'Backlinks Tracker', description: 'Domain ranking, backlinks' },
+    { id: 'seo', label: 'SEO Tracker', description: 'Rankings, keywords, search volume' },
+    { id: 'social', label: 'Social Tracker', description: 'Posts and engagement' },
+    { id: 'news', label: 'News Tracker', description: 'Press coverage' },
+    { id: 'ads', label: 'Ads Tracker', description: 'Ad spend' }
+  ];
+
   // Simulated AI Analysis Results
   const generateAIAnalysis = (domain: string) => {
     return {
@@ -121,7 +136,14 @@ export const LandingPage = () => {
             ].map(mode => (
               <button
                 key={mode.id}
-                onClick={() => setActiveMode(mode.id)}
+                onClick={() => {
+                  setActiveMode(mode.id);
+                  if (mode.id === 'tracker') {
+                    setTrackerTargetName('');
+                    setTrackerTargetUrl('');
+                    setShowTrackerModal(true);
+                  }
+                }}
                 data-testid={`tab-${mode.id}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
                   activeMode === mode.id
@@ -391,6 +413,105 @@ export const LandingPage = () => {
               >
                 <RadarIcon size={16} />
                 Launch Radar Task
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Tracker Configuration Modal */}
+        <Dialog open={showTrackerModal} onOpenChange={setShowTrackerModal}>
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+            <DialogHeader className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+                <Target className="text-brand-500" size={20} />
+              </div>
+              <div>
+                <DialogTitle className="text-white text-lg">Edit Target Configuration</DialogTitle>
+                <p className="text-xs text-slate-400 mt-1">Update target details and tracking settings</p>
+              </div>
+            </DialogHeader>
+            
+            <div className="space-y-6 py-4">
+              {/* Target Name */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
+                <input
+                  type="text"
+                  value={trackerTargetName}
+                  onChange={(e) => setTrackerTargetName(e.target.value)}
+                  placeholder="e.g., TrendSpotter"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-tracker-target-name"
+                />
+              </div>
+
+              {/* Target Website URL */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="relative">
+                  <div className="absolute left-3 top-3 text-slate-500">
+                    <Globe size={16} />
+                  </div>
+                  <input
+                    type="url"
+                    value={trackerTargetUrl}
+                    onChange={(e) => setTrackerTargetUrl(e.target.value)}
+                    placeholder="https://example.com"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    data-testid="input-tracker-target-url"
+                  />
+                </div>
+              </div>
+
+              {/* Active Trackers */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+                <div className="space-y-2">
+                  {trackerOptions.map((tracker) => (
+                    <label key={tracker.id} className="flex items-start gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={trackerSelectedTrackers.includes(tracker.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setTrackerSelectedTrackers([...trackerSelectedTrackers, tracker.id]);
+                          } else {
+                            setTrackerSelectedTrackers(trackerSelectedTrackers.filter(t => t !== tracker.id));
+                          }
+                        }}
+                        className="w-4 h-4 rounded mt-0.5 accent-brand-500" 
+                        data-testid={`checkbox-tracker-${tracker.id}`}
+                      />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-200">{tracker.label}</p>
+                        <p className="text-xs text-slate-500">{tracker.description}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+              <button
+                onClick={() => setShowTrackerModal(false)}
+                className="px-5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+                data-testid="button-cancel-tracker-config"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  console.log('Save Tracker Config:', { trackerTargetName, trackerTargetUrl, trackerSelectedTrackers });
+                  setShowTrackerModal(false);
+                  // TODO: Trigger sign up/login interface here
+                }}
+                disabled={!trackerTargetName.trim() || !trackerTargetUrl.trim()}
+                className="px-6 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
+                data-testid="button-save-tracker-config"
+              >
+                <ArrowRight size={16} />
+                Save Changes
               </button>
             </div>
           </DialogContent>
