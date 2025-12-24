@@ -3109,7 +3109,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               onClick={async () => {
                                 if (researchPromptSignal && researchPrompt.trim()) {
                                   // Add to researching signals
-                                  setResearchingSignals(prev => new Set([...prev, researchPromptSignal.id]));
+                                  setResearchingSignals(prev => new Set(Array.from(prev).concat(researchPromptSignal.id)));
                                   
                                   // Add to active research tasks
                                   setActiveResearchTasks(prev => [...prev, {
