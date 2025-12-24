@@ -652,7 +652,7 @@ export const LandingPage = () => {
                 data-testid="button-launch-radar-task"
               >
                 <RadarIcon size={16} />
-                Launch Radar Task
+                Start Discovery
               </button>
             </div>
           </DialogContent>
