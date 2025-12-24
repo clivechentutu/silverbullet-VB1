@@ -318,8 +318,8 @@ export const LandingPage = () => {
                   </div>
                 </div>
               ) : (
-                <div className="relative flex items-center bg-slate-900 border border-slate-700 rounded-xl p-2 shadow-2xl">
-                  <div className="pl-4 pr-3 text-slate-500">
+                <div className="relative flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl p-3 shadow-2xl">
+                  <div className="pl-2 pr-1 text-slate-500 flex-shrink-0">
                     <Globe size={20} />
                   </div>
                   <input
@@ -334,14 +334,14 @@ export const LandingPage = () => {
                     }
                     disabled={appState === AppState.ANALYZING}
                     data-testid="input-url"
-                    className={`flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 h-12 text-lg input-focus-effect ${errors.url ? 'text-red-400' : ''}`}
+                    className={`flex-1 bg-transparent border-none outline-none text-white placeholder-slate-600 py-3 text-base input-focus-effect ${errors.url ? 'text-red-400' : ''}`}
                   />
                   <button
                     onClick={handleStart}
                     disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url}
                     data-testid="button-start"
                     className={`
-                      h-12 px-8 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow
+                      py-3 px-6 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow text-sm
                       ${(appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !!errors.url) 
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                         : 'bg-white text-slate-950'
