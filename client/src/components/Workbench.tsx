@@ -2473,26 +2473,21 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     <div className="flex h-full -m-8 animate-fade-in-up gap-0">
       {/* LEFT: Monitored Products */}
       <div className="w-48 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
-        <div className="p-4 border-b border-slate-800/50 flex items-center justify-between gap-2">
+        <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
           <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
-          <div className="flex gap-1">
-            <button 
-              onClick={() => {
-                setNewTaskName('');
-                setNewTaskDescription('');
-                setNewTaskTrackers(['website', 'backlinks', 'seo']);
-                setShowCreateTaskModal(true);
-              }} 
-              className="text-slate-500 hover:text-brand-400 transition-colors p-1" 
-              data-testid="button-create-tracking-task"
-              title="Create Tracking Task"
-            >
-              <Rocket size={14} />
-            </button>
-            <button onClick={() => setShowAddModal(true)} className="text-slate-500 hover:text-brand-400 transition-colors p-1" data-testid="button-add-target">
-              <Plus size={14} />
-            </button>
-          </div>
+          <button 
+            onClick={() => {
+              setNewTaskName('');
+              setNewTaskDescription('');
+              setNewTaskTrackers(['website', 'backlinks', 'seo']);
+              setShowCreateTaskModal(true);
+            }} 
+            className="text-slate-500 hover:text-brand-400 transition-colors" 
+            data-testid="button-create-tracking-task"
+            title="Create Tracking Task"
+          >
+            <Plus size={14} />
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {[...targets].sort((a, b) => {
