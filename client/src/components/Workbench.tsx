@@ -1628,6 +1628,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [activeTrackerType, setActiveTrackerType] = useState<string | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
   const [isAddingTarget, setIsAddingTarget] = useState(false);
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
+  const [newTaskName, setNewTaskName] = useState('');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [newTaskTrackers, setNewTaskTrackers] = useState(['website', 'backlinks', 'seo']);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -2602,6 +2606,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <div className="flex gap-2">
                 <button 
+                  onClick={() => {
+                    setNewTaskName('');
+                    setNewTaskDescription('');
+                    setShowCreateTaskModal(true);
+                  }}
+                  className="px-4 py-2 text-sm font-medium bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors flex items-center gap-2" 
+                  data-testid="button-create-task"
+                >
+                  <Plus size={16} /> New Task
+                </button>
+                <button 
                   onClick={(e) => {
                     e.preventDefault();
                     console.log('Edit button clicked, selectedTarget:', selectedTarget);
@@ -3179,6 +3194,93 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
         )}
       </div>
+
+      {/* Create Task Dialog */}
+      <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+          <DialogHeader className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+              <Rocket className="text-brand-500" size={20} />
+            </div>
+            <div>
+              <DialogTitle className="text-white text-lg">Create Tracking Task</DialogTitle>
+              <p className="text-xs text-slate-400 mt-1">Set up a new automated tracking task for {selectedTarget?.name}</p>
+            </div>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Task Name</label>
+              <input
+                type="text"
+                value={newTaskName}
+                onChange={(e) => setNewTaskName(e.target.value)}
+                placeholder="e.g., Monitor Pricing Changes"
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                data-testid="input-task-name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Task Description</label>
+              <textarea
+                value={newTaskDescription}
+                onChange={(e) => setNewTaskDescription(e.target.value)}
+                placeholder="Describe what you want to track and why..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all min-h-24 resize-none"
+                data-testid="input-task-description"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-3">Select Trackers</label>
+              <div className="space-y-2">
+                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                    <input 
+                      type="checkbox" 
+                      checked={newTaskTrackers.includes(tracker.toLowerCase())}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setNewTaskTrackers([...newTaskTrackers, tracker.toLowerCase()]);
+                        } else {
+                          setNewTaskTrackers(newTaskTrackers.filter(t => t !== tracker.toLowerCase()));
+                        }
+                      }}
+                      className="w-4 h-4 rounded accent-brand-500" 
+                    />
+                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
+            <button
+              onClick={() => setShowCreateTaskModal(false)}
+              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition-colors"
+              data-testid="button-cancel-create-task"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (newTaskName.trim()) {
+                  onTrackResearch(newTaskName);
+                  setShowCreateTaskModal(false);
+                }
+              }}
+              disabled={!newTaskName.trim()}
+              className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
+              data-testid="button-create-task-submit"
+            >
+              <Rocket size={16} />
+              Create & Start Research
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Configuration Dialog */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
