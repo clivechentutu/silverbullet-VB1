@@ -328,9 +328,9 @@ export const LandingPage = () => {
                     onChange={handleUrlChange}
                     onKeyDown={(e) => e.key === 'Enter' && handleStart()}
                     placeholder={
-                      activeMode === 'radar' ? 'enter-competitor-website.com' :
-                      activeMode === 'tracker' ? 'enter-target-competitor-url.com' :
-                      'enter-company-url-for-research.com'
+                      activeMode === 'radar' ? 'Paste a competitor URL to discover similar products...' :
+                      activeMode === 'tracker' ? 'Enter a website URL to monitor...' :
+                      'Ask me about your market, competitors, or strategy...'
                     }
                     disabled={appState === AppState.ANALYZING}
                     data-testid="input-url"
