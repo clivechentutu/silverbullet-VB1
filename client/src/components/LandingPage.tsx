@@ -975,8 +975,15 @@ export const LandingPage = () => {
 
         {/* Website Preview Modal - Using Portal */}
         {previewUrl && createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-w-2xl w-full mx-4">
+          <div 
+            className="fixed inset-0 flex items-center justify-center bg-black/70"
+            style={{ zIndex: 9999 }}
+            onClick={() => setPreviewUrl(null)}
+          >
+            <div 
+              className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden max-w-2xl w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Preview Header */}
               <div className="flex items-center justify-between px-4 py-3 bg-slate-800 border-b border-slate-700">
                 <div className="flex gap-1.5">
