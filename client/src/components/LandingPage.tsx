@@ -71,8 +71,13 @@ export const LandingPage = () => {
         setRadarTaskName(generateAIAnalysis(url).discoveryPrompt);
         setShowRadarModal(true);
       }, 3500);
+    } else if (activeMode === 'tracker') {
+      // Show Tracker configuration modal with pre-filled URL
+      setTrackerTargetUrl(url);
+      setTrackerTargetName(url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0]);
+      setShowTrackerModal(true);
     } else {
-      // For Tracker and Research modes, use original flow
+      // For Research mode, use original flow
       setAppState(AppState.SCENARIO_SELECTION);
     }
   };
@@ -136,14 +141,7 @@ export const LandingPage = () => {
             ].map(mode => (
               <button
                 key={mode.id}
-                onClick={() => {
-                  setActiveMode(mode.id);
-                  if (mode.id === 'tracker') {
-                    setTrackerTargetName('');
-                    setTrackerTargetUrl('');
-                    setShowTrackerModal(true);
-                  }
-                }}
+                onClick={() => setActiveMode(mode.id)}
                 data-testid={`tab-${mode.id}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
                   activeMode === mode.id
