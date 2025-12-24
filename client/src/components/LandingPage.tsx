@@ -34,7 +34,7 @@ export const LandingPage = () => {
   // Auth Modal States
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
-  const [authSource, setAuthSource] = useState<'radar' | 'tracker'>('radar');
+  const [authSource, setAuthSource] = useState<'radar' | 'tracker' | 'research'>('radar');
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [authStep, setAuthStep] = useState<'choice' | 'email'>('choice');
@@ -85,9 +85,11 @@ export const LandingPage = () => {
       setTrackerTargetUrl(url);
       setTrackerTargetName(url.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0]);
       setShowTrackerModal(true);
-    } else {
-      // For Research mode, use original flow
-      setAppState(AppState.SCENARIO_SELECTION);
+    } else if (activeMode === 'research') {
+      // Research mode - directly show auth modal (no configuration needed)
+      setAuthSource('research');
+      setAuthStep('choice');
+      setShowAuthModal(true);
     }
   };
 
@@ -541,14 +543,20 @@ export const LandingPage = () => {
                 <div className="w-12 h-12 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center">
                   {authSource === 'radar' ? (
                     <RadarIcon className="text-brand-400" size={24} />
-                  ) : (
+                  ) : authSource === 'tracker' ? (
                     <Target className="text-brand-400" size={24} />
+                  ) : (
+                    <Bot className="text-brand-400" size={24} />
                   )}
                 </div>
                 <div>
-                  <p className="text-brand-400 text-sm font-medium">Configuration Complete</p>
+                  <p className="text-brand-400 text-sm font-medium">
+                    {authSource === 'research' ? 'Deep AI Research Selected' : 'Configuration Complete'}
+                  </p>
                   <h3 className="text-white font-semibold">
-                    {authSource === 'radar' ? 'Radar Task Ready' : 'Tracker Configured'}
+                    {authSource === 'radar' ? 'Radar Task Ready' : 
+                     authSource === 'tracker' ? 'Tracker Configured' : 
+                     'AI Research Agent Ready'}
                   </h3>
                 </div>
               </div>
@@ -562,7 +570,9 @@ export const LandingPage = () => {
                   <p className="text-slate-300 text-sm">
                     {authSource === 'radar' 
                       ? 'Preparing competitor discovery results...' 
-                      : `Setting up monitoring for ${trackerTargetName || 'your target'}...`}
+                      : authSource === 'tracker'
+                      ? `Setting up monitoring for ${trackerTargetName || 'your target'}...`
+                      : 'Initializing AI research agent...'}
                   </p>
                   <p className="text-slate-500 text-xs mt-0.5">Sign in to view your results</p>
                 </div>
