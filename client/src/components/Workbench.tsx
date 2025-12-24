@@ -3696,7 +3696,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                    </div>
                 </div>
              ) : (
-                <div className="max-w-3xl mx-auto space-y-8 pb-32">
+                <div className="max-w-3xl mx-auto space-y-8 pb-52">
                    {activeSession.messages.map((msg) => (
                       <div key={msg.id} className="animate-fade-in-up">
                          {msg.role === 'user' ? (
