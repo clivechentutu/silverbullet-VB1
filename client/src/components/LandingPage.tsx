@@ -585,6 +585,7 @@ export const LandingPage = () => {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
+                              console.log('URL clicked, setting previewUrl to:', competitor.url);
                               setPreviewUrl(competitor.url);
                             }}
                             className="text-xs text-slate-500 hover:text-brand-400 truncate flex items-center gap-1 group/link bg-transparent border-none p-0 cursor-pointer"
