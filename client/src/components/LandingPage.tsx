@@ -143,19 +143,8 @@ export const LandingPage = () => {
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUrl(value);
-    // Real-time validation only for URL modes (not research)
-    if (activeMode !== 'research') {
-      if (value) {
-        const urlError = validateUrl(value);
-        if (urlError) {
-          setErrors(prev => ({ ...prev, url: urlError }));
-        } else {
-          setErrors(prev => ({ ...prev, url: undefined }));
-        }
-      } else {
-        setErrors(prev => ({ ...prev, url: undefined }));
-      }
-    }
+    // Clear any previous errors when user starts typing
+    setErrors(prev => ({ ...prev, url: undefined }));
     setErrorMsg('');
   };
 
@@ -340,11 +329,11 @@ export const LandingPage = () => {
                   />
                   <button
                     onClick={handleStart}
-                    disabled={appState !== AppState.IDLE || !!errors.url}
+                    disabled={appState !== AppState.IDLE || !url.trim()}
                     data-testid="button-start"
                     className={`
                       py-3 px-6 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow text-sm transition-all
-                      ${(appState !== AppState.IDLE || !!errors.url) 
+                      ${(appState !== AppState.IDLE || !url.trim()) 
                         ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                         : 'bg-brand-500 hover:bg-brand-600 text-white'
                       }
