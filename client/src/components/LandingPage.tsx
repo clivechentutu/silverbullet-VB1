@@ -77,8 +77,8 @@ export const LandingPage = () => {
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
             Decode Your Competition.
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-light">
-            Enter a competitor's URL and let our AI agents orchestrate a deep-dive market intelligence report in seconds.
+          <p className="text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+            Discover competitors in seconds. Track their moves in real-time. Analyze trends with AI &amp; Deep Research to Win.
           </p>
 
           {/* Mode Selection Tabs */}
