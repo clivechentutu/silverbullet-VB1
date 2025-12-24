@@ -141,28 +141,42 @@ export const LandingPage = () => {
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUrl(value);
-    // Real-time validation
-    if (value) {
-      const urlError = validateUrl(value);
-      if (urlError) {
-        setErrors(prev => ({ ...prev, url: urlError }));
+    // Real-time validation only for URL modes (not research)
+    if (activeMode !== 'research') {
+      if (value) {
+        const urlError = validateUrl(value);
+        if (urlError) {
+          setErrors(prev => ({ ...prev, url: urlError }));
+        } else {
+          setErrors(prev => ({ ...prev, url: undefined }));
+        }
       } else {
         setErrors(prev => ({ ...prev, url: undefined }));
       }
-    } else {
-      setErrors(prev => ({ ...prev, url: undefined }));
     }
     setErrorMsg('');
   };
 
   const handleStart = async () => {
     if (!url) return;
-    const urlError = validateUrl(url);
-    if (urlError) {
-      setErrors(prev => ({ ...prev, url: urlError }));
-      return;
+    
+    // Different validation based on mode
+    if (activeMode === 'research') {
+      const queryError = validateQuery(url);
+      if (queryError) {
+        setErrors(prev => ({ ...prev, url: queryError }));
+        return;
+      }
+      setErrors(prev => ({ ...prev, url: undefined }));
+    } else {
+      const urlError = validateUrl(url);
+      if (urlError) {
+        setErrors(prev => ({ ...prev, url: urlError }));
+        return;
+      }
+      setErrors(prev => ({ ...prev, url: undefined }));
     }
-    setErrors(prev => ({ ...prev, url: undefined }));
+    
     setErrorMsg("");
 
     if (activeMode === 'radar') {
@@ -250,7 +264,10 @@ export const LandingPage = () => {
             ].map(mode => (
               <button
                 key={mode.id}
-                onClick={() => setActiveMode(mode.id)}
+                onClick={() => {
+                  setActiveMode(mode.id);
+                  setErrors({});
+                }}
                 data-testid={`tab-${mode.id}`}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
                   activeMode === mode.id
@@ -275,37 +292,22 @@ export const LandingPage = () => {
                     </div>
                     <textarea
                       value={url}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        setUrl(val);
-                        // Real-time validation for research query
-                        if (val) {
-                          const queryError = validateQuery(val);
-                          if (queryError) {
-                            setErrors(prev => ({ ...prev, url: queryError }));
-                          } else {
-                            setErrors(prev => ({ ...prev, url: undefined }));
-                          }
-                        } else {
-                          setErrors(prev => ({ ...prev, url: undefined }));
-                        }
-                      }}
+                      onChange={(e) => setUrl(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleStart()}
                       placeholder="Ask me about market trends, competitor strategies, pricing intelligence... What would you like to know about your market?"
                       disabled={appState === AppState.ANALYZING}
                       data-testid="input-research-query"
-                      className={`flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 text-base resize-none focus-visible:ring-0 min-h-20 py-2 ${errors.url ? 'text-red-400' : ''}`}
+                      className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 text-base resize-none focus-visible:ring-0 min-h-20 py-2"
                     />
                   </div>
                   <div className="flex items-center justify-end gap-2 px-4 pb-4">
-                    {errors.url && <span className="text-red-400 text-xs flex items-center gap-1"><AlertCircle size={12} /> {errors.url}</span>}
                     <button
                       onClick={handleStart}
-                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim() || !!errors.url}
+                      disabled={appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION || !url.trim()}
                       data-testid="button-start"
                       className={`
                         px-6 py-2.5 rounded-lg font-semibold flex items-center gap-2 flex-shrink-0 btn-hover-glow
-                        ${(!url.trim() || !!errors.url || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
+                        ${(!url.trim() || (appState !== AppState.IDLE && appState !== AppState.SCENARIO_SELECTION))
                           ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
                           : 'bg-white text-slate-950'
                         }
