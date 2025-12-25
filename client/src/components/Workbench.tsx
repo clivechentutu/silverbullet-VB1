@@ -3083,7 +3083,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     } else {
                       // When opening, ensure we're showing domain-wide signals
                       setActiveTrackerType(null);
-                      setSelectedSignal(null);
+                      setFeedFilter('all');
+                      // Default to latest signal
+                      if (comprehensiveSignals.length > 0) {
+                        setSelectedSignal(comprehensiveSignals[0]);
+                      }
                     }
                   }}>
                   <SheetTrigger asChild>
