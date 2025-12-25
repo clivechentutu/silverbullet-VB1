@@ -1708,6 +1708,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
+  const [summaryFrequency, setSummaryFrequency] = useState<'daily' | 'weekly'>('daily');
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
@@ -2988,10 +2989,26 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2 shrink-0">
-                    AI Intelligence Summary 
-                    <Zap size={14} className="text-brand-400 animate-pulse" />
-                  </h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2 shrink-0">
+                      AI Intelligence Summary 
+                      <Zap size={14} className="text-brand-400 animate-pulse" />
+                    </h3>
+                    <div className="flex items-center bg-slate-900/50 border border-slate-800 rounded-lg p-0.5 h-7">
+                      <button 
+                        onClick={() => setSummaryFrequency('daily')}
+                        className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'daily' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                      >
+                        DAILY
+                      </button>
+                      <button 
+                        onClick={() => setSummaryFrequency('weekly')}
+                        className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'weekly' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
+                      >
+                        WEEKLY
+                      </button>
+                    </div>
+                  </div>
                   <Sheet open={showHistorySheet} onOpenChange={setShowHistorySheet}>
                     <SheetTrigger asChild>
                       <button className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60">
@@ -3014,13 +3031,14 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Market Pivot</span>
+                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Strategy Pivot</span>
                               <span className="text-[10px] text-slate-500">2 hours ago</span>
                             </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Signal:</span> Extensive update to "Enterprise" landing page highlighting multi-seat governance and SAML SSO.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market customer base; expect aggressive sales outreach to your top accounts.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
                             </div>
                           </div>
                         </div>
@@ -3032,13 +3050,14 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Risk</span>
+                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Pricing Alert</span>
                               <span className="text-[10px] text-slate-500">Yesterday, 4:30 PM</span>
                             </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">New "Enterprise" tier competes directly with your Pro offering.</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Change:</span> Introduced $49/mo flat rate for up to 10 users, undercutting your $12/user model.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Counter:</span> Highlight your advanced security features and superior integration ecosystem to justify premium.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
                             </div>
                           </div>
                         </div>
@@ -3050,17 +3069,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Signal</span>
+                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Growth Pulse</span>
                               <span className="text-[10px] text-slate-500">Dec 20, 2024</span>
                             </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Evidence:</span> New mentions in TechCrunch, VentureBeat, and Forbes regarding their Series B funding.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Action:</span> Monitor SEO keyword movement for "enterprise collaboration" as their domain authority spikes.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
                             </div>
                           </div>
                         </div>
-
                         {/* History Item 4 */}
                         <div className="relative pl-8">
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-blue-500/50 flex items-center justify-center z-10">
@@ -3088,14 +3107,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <TrendingUp size={12} className="text-emerald-400" /> Market Pivot
+                        <TrendingUp size={12} className="text-emerald-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Strategy Pivot
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">Confidence: 94%</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Signal:</span> Extensive update to "Enterprise" landing page highlighting multi-seat governance and SAML SSO.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market customer base; expect aggressive sales outreach to your top accounts.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
                     </div>
                   </div>
                   <div 
@@ -3107,14 +3127,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} className="text-red-400" /> Pricing Risk
+                        <ShieldAlert size={12} className="text-red-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Pricing Alert
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">Critical Alert</span>
+                      <span className="text-[10px] text-slate-600 font-medium">Critical</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">New "Enterprise" tier competes directly with your Pro offering.</p>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Change:</span> Introduced $49/mo flat rate for up to 10 users, undercutting your $12/user model.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Counter:</span> Highlight your advanced security features and superior integration ecosystem to justify premium.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
                     </div>
                   </div>
                   <div 
@@ -3126,14 +3147,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Zap size={12} className="text-amber-400" /> Growth Signal
+                        <Zap size={12} className="text-amber-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Growth Pulse
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">Momentum: High</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Evidence:</span> New mentions in TechCrunch, VentureBeat, and Forbes regarding their Series B funding.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Action:</span> Monitor SEO keyword movement for "enterprise collaboration" as their domain authority spikes.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
                     </div>
                   </div>
                 </div>
