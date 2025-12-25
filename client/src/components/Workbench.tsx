@@ -33,6 +33,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Switch } from "@/components/ui/switch";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
