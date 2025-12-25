@@ -135,45 +135,61 @@ const SignalDetailHoverContent = ({ title, time, description, priority, type, do
   const config = priorityConfig[priority] || priorityConfig.LOW;
   
   return (
-    <div className="space-y-2.5 max-w-full overflow-hidden">
+    <div className="space-y-4 max-w-[320px] overflow-hidden">
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Signal Title</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Title</p>
         <p className="text-sm text-white leading-snug font-medium break-words">{title}</p>
       </div>
       
-      <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Source</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="w-4 h-4 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700 shrink-0">
-            <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-full h-full object-contain" alt={domain} />
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Source</p>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700 shrink-0">
+              <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-full h-full object-contain" alt={domain} />
+            </div>
+            <span className="text-xs text-brand-400 font-medium truncate">{domain}</span>
           </div>
-          <span className="text-xs text-brand-400 font-medium truncate">{domain}</span>
-          <span className="text-[10px] text-slate-500 shrink-0">{time}</span>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Time</p>
+          <p className="text-[10px] text-slate-400">{time}</p>
         </div>
       </div>
 
-      <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Classification</p>
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border} shrink-0`}>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Priority</p>
+          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border}`}>
             {config.label}
           </span>
-          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700 shrink-0">
+        </div>
+        <div>
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Category</p>
+          <span className="inline-block px-1.5 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700">
             {type}
           </span>
         </div>
       </div>
 
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Description</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Description</p>
         <p className="text-[11px] text-slate-300 leading-relaxed break-words">{description}</p>
       </div>
 
-      <div className="bg-slate-800/80 border border-slate-700 rounded-md p-2">
-        <p className="text-[10px] font-bold text-brand-400 mb-0.5 flex items-center gap-1">
-          <BrainCircuit size={10} /> Strategic Impact
-        </p>
-        <p className="text-[10px] text-slate-300 leading-relaxed">This signal indicates a strategic shift. Monitor for follow-up actions.</p>
+      <div className="space-y-3 pt-2 border-t border-slate-800">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+          <p className="text-[10px] font-bold text-brand-400 mb-2 flex items-center gap-1.5">
+            <BrainCircuit size={12} /> Strategic Impact
+          </p>
+          <p className="text-xs text-slate-300 leading-relaxed">This signal indicates a strategic shift in their market positioning. Monitor for follow-up actions.</p>
+        </div>
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
+          <p className="text-[10px] font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+            <TrendingUp size={12} /> Trend Direction
+          </p>
+          <p className="text-xs text-slate-300 leading-relaxed">Strong upward momentum detected. This competitor is actively expanding capabilities in this area.</p>
+        </div>
       </div>
     </div>
   );
@@ -1945,7 +1961,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Website Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">On-page copy, pricing, features, SEO and more.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-brand-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2081,7 +2100,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Backlinks Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Domain ranking, backlinks and referring domains.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-emerald-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2180,7 +2202,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">SEO Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Rankings, keywords, and search visibility.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-blue-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2279,7 +2304,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Social Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Posts and engagement.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-purple-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2399,7 +2427,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">News Mentions</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Press coverage.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-rose-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2496,7 +2527,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Ads Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Ad spend.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-amber-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2592,7 +2626,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Talent Intelligence</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Recruitment activity and org changes.</p>
           </div>
-          <Switch className="data-[state=checked]:bg-pink-500" defaultChecked />
+          <Switch 
+            className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700" 
+            defaultChecked 
+          />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
