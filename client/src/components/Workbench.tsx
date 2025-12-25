@@ -1709,6 +1709,20 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
   const [summaryFrequency, setSummaryFrequency] = useState<'daily' | 'weekly'>('daily');
+  
+  const getPeriodLabel = () => {
+    const now = new Date();
+    if (summaryFrequency === 'daily') {
+      return format(now, 'MMM d, yyyy');
+    } else {
+      const month = format(now, 'MMMM');
+      const day = now.getDate();
+      const weekNum = Math.ceil(day / 7);
+      const weekSuffix = ['st', 'nd', 'rd', 'th'][Math.min(weekNum - 1, 3)];
+      return `${month}, Week ${weekNum}${weekSuffix}`;
+    }
+  };
+
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
@@ -3032,7 +3046,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Strategy Pivot</span>
-                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3051,7 +3065,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Alert</span>
-                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3070,7 +3084,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Pulse</span>
-                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3109,7 +3123,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <TrendingUp size={12} className="text-emerald-400" /> Strategy Pivot
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
@@ -3129,7 +3143,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <ShieldAlert size={12} className="text-red-400" /> Pricing Alert
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
@@ -3149,7 +3163,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <Zap size={12} className="text-amber-400" /> Growth Pulse
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
