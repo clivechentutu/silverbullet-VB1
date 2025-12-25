@@ -2914,8 +2914,28 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white tracking-tight">{selectedTarget.name}</h1>
-                  <a href={selectedTarget.url} target="_blank" className="text-xs text-slate-500 hover:text-brand-400 flex items-center gap-1.5 font-mono mt-1">
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-2xl font-bold text-white tracking-tight">{selectedTarget.name}</h1>
+                    <div className="flex items-center gap-3 bg-slate-900/40 border border-slate-800 px-3 py-1.5 rounded-lg h-9">
+                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Trackers</span>
+                        <span className="text-xs font-bold text-white">7/10</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-emerald-400">New</span>
+                        <span className="text-xs font-bold text-white">6</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Severity</span>
+                        <span className="text-xs font-bold"><span className="text-red-400">1H</span><span className="text-blue-400 ml-1">1L</span></span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">RT</span>
+                        <span className="text-xs font-bold text-white">2.3d</span>
+                      </div>
+                    </div>
+                  </div>
+                  <a href={selectedTarget.url} target="_blank" className="text-xs text-slate-500 hover:text-brand-400 flex items-center gap-1.5 font-mono mt-0.5">
                     {selectedTarget.url} <ExternalLink size={10} />
                   </a>
                 </div>
@@ -2940,25 +2960,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-            {/* Metrics Cards - Single Row */}
-            <div className="grid grid-cols-4 gap-3">
-              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Active Trackers</p>
-                <p className="text-xl font-bold text-white">7<span className="text-xs text-slate-600 font-medium ml-1">/10</span></p>
-              </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">New Signals</p>
-                <p className="text-xl font-bold text-white">6<span className="text-xs text-slate-600 font-medium ml-1">today</span></p>
-              </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Severity</p>
-                <p className="text-xl font-bold"><span className="text-red-400">1H</span> <span className="text-blue-400 ml-1">1L</span></p>
-              </div>
-              <div className="bg-slate-900/40 border border-slate-800 p-3 rounded-lg">
-                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Avg Response Time</p>
-                <p className="text-xl font-bold text-white">2.3<span className="text-xs text-slate-600 font-medium ml-1">days</span></p>
-              </div>
-            </div>
 
             {/* AI Summary Area */}
             <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-4 flex items-start gap-4">
