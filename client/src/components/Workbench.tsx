@@ -1875,7 +1875,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div 
             onClick={() => handleSignalClick('web-1', 'pricing')}
             className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
@@ -1975,7 +1975,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div 
             onClick={() => handleSignalClick('backlink-1', 'marketing')}
             className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
@@ -2046,7 +2046,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div 
             onClick={() => handleSignalClick('seo-1', 'product')}
             className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
@@ -2117,7 +2117,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div onClick={() => handleSignalClick('social-1', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
@@ -2209,7 +2209,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div onClick={() => handleSignalClick('news-1', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start gap-2.5 mb-1.5">
               <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
@@ -2285,7 +2285,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div onClick={() => handleSignalClick('ads-1', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
@@ -2353,7 +2353,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
           <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse shrink-0"></div>
         </div>
-        <div className="px-4 py-2.5 max-h-48 overflow-y-auto custom-scrollbar space-y-2">
+        <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <div onClick={() => handleSignalClick('talent-1', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-2 mb-1.5">
               <div className="flex-1 min-w-0">
@@ -3184,7 +3184,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 </Sheet>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 auto-rows-max">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
                 {trackerOrder.map(id => trackers[id as keyof typeof trackers])}
               </div>
             </div>
