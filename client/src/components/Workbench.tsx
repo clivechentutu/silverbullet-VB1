@@ -3064,24 +3064,45 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     </SheetContent>
                   </Sheet>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <TrendingUp size={10} className="text-emerald-400" /> Market Pivot
-                    </p>
-                    <p className="text-[11px] text-slate-300">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <TrendingUp size={12} className="text-emerald-400" /> Market Pivot
+                      </p>
+                      <span className="text-[10px] text-slate-600 font-medium">Confidence: 94%</span>
+                    </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Signal:</span> Extensive update to "Enterprise" landing page highlighting multi-seat governance and SAML SSO.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market customer base; expect aggressive sales outreach to your top accounts.</p>
+                    </div>
                   </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <ShieldAlert size={10} className="text-red-400" /> Pricing Risk
-                    </p>
-                    <p className="text-[11px] text-slate-300">New "Enterprise" tier competes directly with your Pro offering.</p>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <ShieldAlert size={12} className="text-red-400" /> Pricing Risk
+                      </p>
+                      <span className="text-[10px] text-slate-600 font-medium">Critical Alert</span>
+                    </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">New "Enterprise" tier competes directly with your Pro offering.</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Change:</span> Introduced $49/mo flat rate for up to 10 users, undercutting your $12/user model.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Counter:</span> Highlight your advanced security features and superior integration ecosystem to justify premium.</p>
+                    </div>
                   </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 flex items-center gap-1.5">
-                      <Zap size={10} className="text-amber-400" /> Growth Signal
-                    </p>
-                    <p className="text-[11px] text-slate-300">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                        <Zap size={12} className="text-amber-400" /> Growth Signal
+                      </p>
+                      <span className="text-[10px] text-slate-600 font-medium">Momentum: High</span>
+                    </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Evidence:</span> New mentions in TechCrunch, VentureBeat, and Forbes regarding their Series B funding.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Action:</span> Monitor SEO keyword movement for "enterprise collaboration" as their domain authority spikes.</p>
+                    </div>
                   </div>
                 </div>
               </div>
