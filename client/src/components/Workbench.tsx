@@ -1708,6 +1708,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
   const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
+  const [showHistorySheet, setShowHistorySheet] = useState(false);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
@@ -2990,7 +2992,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     AI Intelligence Summary 
                     <Zap size={14} className="text-brand-400 animate-pulse" />
                   </h3>
-                  <Sheet>
+                  <Sheet open={showHistorySheet} onOpenChange={setShowHistorySheet}>
                     <SheetTrigger asChild>
                       <button className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60">
                         <History size={12} className="text-brand-400" /> History Summary
@@ -3006,44 +3008,56 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </SheetHeader>
                       <div className="relative space-y-6 before:absolute before:inset-0 before:left-[11px] before:w-px before:bg-slate-800 before:h-full">
                         {/* History Item 1 */}
-                        <div className="relative pl-8">
+                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pivot' ? 'ring-2 ring-emerald-500/30 rounded-lg bg-emerald-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/50 flex items-center justify-center z-10">
                             <TrendingUp size={12} className="text-emerald-400" />
                           </div>
-                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Market Pivot</span>
                               <span className="text-[10px] text-slate-500">2 hours ago</span>
                             </div>
-                            <p className="text-xs text-slate-300">Detected shift in core messaging from "Simple Design" to "Enterprise Infrastructure".</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">Shifted focus from "Individual Creators" to "Enterprise Teams".</p>
+                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Signal:</span> Extensive update to "Enterprise" landing page highlighting multi-seat governance and SAML SSO.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market customer base; expect aggressive sales outreach to your top accounts.</p>
+                            </div>
                           </div>
                         </div>
 
                         {/* History Item 2 */}
-                        <div className="relative pl-8">
+                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pricing' ? 'ring-2 ring-red-500/30 rounded-lg bg-red-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-red-500/50 flex items-center justify-center z-10">
                             <ShieldAlert size={12} className="text-red-400" />
                           </div>
-                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Risk</span>
                               <span className="text-[10px] text-slate-500">Yesterday, 4:30 PM</span>
                             </div>
-                            <p className="text-xs text-slate-300">Launched new "Scale" plan with unlimited seats, directly targeting mid-market customers.</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">New "Enterprise" tier competes directly with your Pro offering.</p>
+                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Change:</span> Introduced $49/mo flat rate for up to 10 users, undercutting your $12/user model.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Counter:</span> Highlight your advanced security features and superior integration ecosystem to justify premium.</p>
+                            </div>
                           </div>
                         </div>
 
                         {/* History Item 3 */}
-                        <div className="relative pl-8">
+                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'growth' ? 'ring-2 ring-amber-500/30 rounded-lg bg-amber-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-amber-500/50 flex items-center justify-center z-10">
                             <Zap size={12} className="text-amber-400" />
                           </div>
-                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
+                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Signal</span>
                               <span className="text-[10px] text-slate-500">Dec 20, 2024</span>
                             </div>
-                            <p className="text-xs text-slate-300">Published extensive series of case studies focusing on Fortune 500 implementations.</p>
+                            <p className="text-xs text-slate-300 font-medium mb-2">Acquired 3 high-DA backlinks from major tech news outlets.</p>
+                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Evidence:</span> New mentions in TechCrunch, VentureBeat, and Forbes regarding their Series B funding.</p>
+                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Action:</span> Monitor SEO keyword movement for "enterprise collaboration" as their domain authority spikes.</p>
+                            </div>
                           </div>
                         </div>
 
@@ -3065,7 +3079,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </Sheet>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                  <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('pivot');
+                      setShowHistorySheet(true);
+                    }}
+                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <TrendingUp size={12} className="text-emerald-400" /> Market Pivot
@@ -3078,7 +3098,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market customer base; expect aggressive sales outreach to your top accounts.</p>
                     </div>
                   </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                  <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('pricing');
+                      setShowHistorySheet(true);
+                    }}
+                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <ShieldAlert size={12} className="text-red-400" /> Pricing Risk
@@ -3091,7 +3117,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Counter:</span> Highlight your advanced security features and superior integration ecosystem to justify premium.</p>
                     </div>
                   </div>
-                  <div className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group">
+                  <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('growth');
+                      setShowHistorySheet(true);
+                    }}
+                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <Zap size={12} className="text-amber-400" /> Growth Signal
