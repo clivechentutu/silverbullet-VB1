@@ -3163,7 +3163,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-favorites"
                           >
-                            <Star size={12} /> Favorites ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
+                            <Star size={12} /> Pin ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
                           </button>
                         </div>
                       )}
