@@ -3129,7 +3129,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <ShieldAlert size={12} className="text-red-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Pricing Alert
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">Critical</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
@@ -3149,7 +3149,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
                         <Zap size={12} className="text-amber-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Growth Pulse
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">Momentum: High</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
