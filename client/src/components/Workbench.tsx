@@ -1735,8 +1735,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [addError, setAddError] = useState<string | null>(null);
   const [isAddingTarget, setIsAddingTarget] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
-  const [newTaskName, setNewTaskName] = useState('');
-  const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newTaskTrackers, setNewTaskTrackers] = useState(['website', 'backlinks', 'seo']);
 
   const signalsData: Signal[] = [
@@ -2801,8 +2799,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
           <button 
             onClick={() => {
-              setNewTaskName('');
-              setNewTaskDescription('');
+              setNewTargetName('');
+              setNewTargetUrl('');
               setNewTaskTrackers(['website', 'backlinks', 'seo']);
               setShowCreateTaskModal(true);
             }} 
@@ -3618,40 +3616,44 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
           <DialogHeader className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-              <Rocket className="text-brand-500" size={20} />
+              <Globe className="text-brand-500" size={20} />
             </div>
             <div>
-              <DialogTitle className="text-white text-lg">Create Tracking Task</DialogTitle>
-              <p className="text-xs text-slate-400 mt-1">Set up a new automated tracking task for {selectedTarget?.name}</p>
+              <DialogTitle className="text-white text-lg">Create Tracking Target</DialogTitle>
+              <p className="text-xs text-slate-400 mt-1">Add a new competitor to track across multiple dimensions</p>
             </div>
           </DialogHeader>
           
           <div className="space-y-6 py-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Task Name</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
               <input
                 type="text"
-                value={newTaskName}
-                onChange={(e) => setNewTaskName(e.target.value)}
-                placeholder="e.g., Monitor Pricing Changes"
+                value={newTargetName}
+                onChange={(e) => setNewTargetName(e.target.value)}
+                placeholder="e.g., Figma"
                 className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-task-name"
+                data-testid="input-new-target-name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Task Description</label>
-              <textarea
-                value={newTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
-                placeholder="Describe what you want to track and why..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all min-h-24 resize-none"
-                data-testid="input-task-description"
-              />
+              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+              <div className="flex-1 relative">
+                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                <input
+                  type="text"
+                  value={newTargetUrl}
+                  onChange={(e) => setNewTargetUrl(e.target.value)}
+                  placeholder="e.g., figma.com or https://figma.com"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-new-target-url"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Select Trackers</label>
+              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
               <div className="space-y-2">
                 {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
                   <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
@@ -3683,18 +3685,32 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               Cancel
             </button>
             <button
-              onClick={() => {
-                if (newTaskName.trim()) {
-                  onTrackResearch(newTaskName);
-                  setShowCreateTaskModal(false);
+              onClick={async () => {
+                if (newTargetName.trim() && newTargetUrl.trim()) {
+                  setIsAddingTarget(true);
+                  try {
+                    await apiRequest('POST', '/api/targets', {
+                      name: newTargetName,
+                      url: newTargetUrl
+                    });
+                    queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                    setNewTargetName('');
+                    setNewTargetUrl('');
+                    setNewTaskTrackers(['website', 'backlinks', 'seo']);
+                    setShowCreateTaskModal(false);
+                  } catch (error) {
+                    console.error('Failed to create target:', error);
+                  } finally {
+                    setIsAddingTarget(false);
+                  }
                 }
               }}
-              disabled={!newTaskName.trim()}
+              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget}
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
               data-testid="button-create-task-submit"
             >
-              <Rocket size={16} />
-              Create & Start Research
+              {isAddingTarget ? <Loader2 size={16} className="animate-spin" /> : <Rocket size={16} />}
+              Create & Start Tracking
             </button>
           </div>
         </DialogContent>
