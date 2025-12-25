@@ -1944,7 +1944,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Website Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">On-page copy, pricing, features, SEO and more.</p>
           </div>
-          <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-brand-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2080,7 +2080,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Backlinks Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Domain ranking, backlinks and referring domains.</p>
           </div>
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-emerald-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2179,7 +2179,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">SEO Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Rankings, keywords, and search visibility.</p>
           </div>
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-blue-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2278,7 +2278,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Social Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Posts and engagement.</p>
           </div>
-          <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-purple-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2398,7 +2398,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">News Mentions</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Press coverage.</p>
           </div>
-          <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-rose-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2495,7 +2495,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Ads Tracker</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Ad spend.</p>
           </div>
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-amber-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
@@ -2591,7 +2591,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <h4 className="font-bold text-white text-xs">Talent Intelligence</h4>
             <p className="text-[11px] text-slate-400 line-clamp-1">Recruitment activity and org changes.</p>
           </div>
-          <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse shrink-0"></div>
+          <Switch className="data-[state=checked]:bg-pink-500" defaultChecked />
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
           <HoverCard openDelay={400} closeDelay={100}>
