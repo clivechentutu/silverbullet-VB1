@@ -3031,8 +3031,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Strategy Pivot</span>
-                              <span className="text-[10px] text-slate-500">2 hours ago</span>
+                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Strategy Pivot</span>
+                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3050,8 +3050,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Pricing Alert</span>
-                              <span className="text-[10px] text-slate-500">Yesterday, 4:30 PM</span>
+                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Alert</span>
+                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3069,8 +3069,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Growth Pulse</span>
-                              <span className="text-[10px] text-slate-500">Dec 20, 2024</span>
+                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Pulse</span>
+                              <span className="text-[10px] text-slate-500">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
                             <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
@@ -3107,9 +3107,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <TrendingUp size={12} className="text-emerald-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Strategy Pivot
+                        <TrendingUp size={12} className="text-emerald-400" /> Strategy Pivot
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
@@ -3127,9 +3127,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} className="text-red-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Pricing Alert
+                        <ShieldAlert size={12} className="text-red-400" /> Pricing Alert
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
@@ -3147,9 +3147,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Zap size={12} className="text-amber-400" /> {summaryFrequency === 'daily' ? 'Daily' : 'Weekly'} Growth Pulse
+                        <Zap size={12} className="text-amber-400" /> Growth Pulse
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Today' : 'This Week'}</span>
+                      <span className="text-[10px] text-slate-600 font-medium">{summaryFrequency === 'daily' ? 'Daily' : 'Weekly'}</span>
                     </div>
                     <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
                     <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
