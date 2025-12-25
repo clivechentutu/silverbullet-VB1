@@ -28,6 +28,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
@@ -106,6 +111,72 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+
+// Signal detail hover card content component
+interface SignalDetailHoverProps {
+  title: string;
+  time: string;
+  description: string;
+  priority: 'HIGH' | 'MED' | 'LOW' | 'INFO' | 'POS';
+  type: string;
+  domain?: string;
+}
+
+const SignalDetailHoverContent = ({ title, time, description, priority, type, domain = 'figma.com' }: SignalDetailHoverProps) => {
+  const priorityConfig = {
+    HIGH: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', label: 'High Value' },
+    MED: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30', label: 'Medium Value' },
+    LOW: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30', label: 'Low Value' },
+    INFO: { bg: 'bg-slate-500/20', text: 'text-slate-400', border: 'border-slate-500/30', label: 'Info' },
+    POS: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30', label: 'Positive' },
+  };
+  
+  const config = priorityConfig[priority] || priorityConfig.LOW;
+  
+  return (
+    <div className="w-80 space-y-3">
+      <div>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Title</p>
+        <p className="text-sm text-white leading-relaxed font-medium">{title}</p>
+      </div>
+      
+      <div>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Source</p>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
+            <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-full h-full object-contain" alt={domain} />
+          </div>
+          <span className="text-xs text-brand-400 font-medium">{domain}</span>
+          <span className="text-[10px] text-slate-500">{time}</span>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Classification</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border}`}>
+            {config.label}
+          </span>
+          <span className="px-2 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700">
+            {type}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Description</p>
+        <p className="text-xs text-slate-300 leading-relaxed">{description}</p>
+      </div>
+
+      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5">
+        <p className="text-[10px] font-bold text-brand-400 mb-1 flex items-center gap-1">
+          <BrainCircuit size={10} /> Strategic Impact
+        </p>
+        <p className="text-[10px] text-slate-300 leading-relaxed">This signal indicates a strategic shift. Monitor for follow-up actions.</p>
+      </div>
+    </div>
+  );
+};
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -1876,78 +1947,114 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div 
-            onClick={() => handleSignalClick('web-1', 'pricing')}
-            className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page: New "Enterprise" Tier</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div 
+                onClick={() => handleSignalClick('web-1', 'pricing')}
+                className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+              >
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Pricing Page: New "Enterprise" Tier</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Added a new enterprise tier with "Contact Sales" CTA. Previously only "Pro" and "Starter".</p>
-            <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
-              View Impact & Next Action <ChevronRight size={10} />
-            </button>
-          </div>
-          <div 
-            onClick={() => handleSignalClick('web-2', 'product')}
-            className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Homepage Copy Changes</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 hours ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title='Pricing Page: New "Enterprise" Tier' time="Just now" description="Added a new enterprise tier with 'Contact Sales' CTA. Previously only 'Pro' and 'Starter'." priority="HIGH" type="pricing" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div 
+                onClick={() => handleSignalClick('web-2', 'product')}
+                className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+              >
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Homepage Copy Changes</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 hours ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Updated hero section tagline to emphasize "Enterprise-grade" capabilities and compliance features.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Updated hero section tagline to emphasize "Enterprise-grade" capabilities and compliance features.</p>
-            <button className="mt-1.5 text-[10px] font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-0.5 transition-colors">
-              View Impact & Next Action <ChevronRight size={10} />
-            </button>
-          </div>
-          <div onClick={() => handleSignalClick('web-3', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Solutions Page</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Homepage Copy Changes" time="2 hours ago" description="Updated hero section tagline to emphasize 'Enterprise-grade' capabilities and compliance features." priority="MED" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('web-3', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Solutions Page</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Launched vertical-specific solution pages for Fintech and Healthcare.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Launched vertical-specific solution pages for Fintech and Healthcare.</p>
-          </div>
-          <div onClick={() => handleSignalClick('web-4', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Cookie Policy Update</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Solutions Page" time="5 hours ago" description="Launched vertical-specific solution pages for Fintech and Healthcare." priority="LOW" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('web-4', 'product')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Cookie Policy Update</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full shrink-0">INFO</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Minor updates to compliance documentation and cookie consent.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-slate-500/20 text-slate-400 border border-slate-500/30 rounded-full shrink-0">INFO</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Minor updates to compliance documentation and cookie consent.</p>
-          </div>
-          <div onClick={() => handleSignalClick('web-5', 'marketing')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Blog Post: AI Ethics</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Cookie Policy Update" time="Yesterday" description="Minor updates to compliance documentation and cookie consent." priority="INFO" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('web-5', 'marketing')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">New Blog Post: AI Ethics</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Published a comprehensive guide on ethical AI implementation in design.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Published a comprehensive guide on ethical AI implementation in design.</p>
-          </div>
-          <div onClick={() => handleSignalClick('web-6', 'hiring')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Career Page: 15 New Openings</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Blog Post: AI Ethics" time="2 days ago" description="Published a comprehensive guide on ethical AI implementation in design." priority="LOW" type="marketing" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('web-6', 'hiring')} className="bg-slate-900/50 border border-cyan-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-cyan-300 transition-colors line-clamp-1">Career Page: 15 New Openings</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Significant expansion in the engineering and product teams announced.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Significant expansion in the engineering and product teams announced.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Career Page: 15 New Openings" time="3 days ago" description="Significant expansion in the engineering and product teams announced." priority="MED" type="hiring" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -1976,49 +2083,77 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div 
-            onClick={() => handleSignalClick('backlink-1', 'marketing')}
-            className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Referring Domain Detected</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div 
+                onClick={() => handleSignalClick('backlink-1', 'marketing')}
+                className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+              >
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Referring Domain Detected</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">High-authority tech blog linked to product page.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">High-authority tech blog linked to product page.</p>
-          </div>
-          <div onClick={() => handleSignalClick('backlink-2', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Lost Backlink: Forbes Tech</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Referring Domain Detected" time="Just now" description="High-authority tech blog linked to product page." priority="HIGH" type="marketing" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('backlink-2', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">Lost Backlink: Forbes Tech</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Previous link from "Top SaaS Trends" article was removed or changed.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Previous link from "Top SaaS Trends" article was removed or changed.</p>
-          </div>
-          <div onClick={() => handleSignalClick('backlink-3', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Competitor Comparison</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Lost Backlink: Forbes Tech" time="Yesterday" description="Previous link from 'Top SaaS Trends' article was removed or changed." priority="MED" type="marketing" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('backlink-3', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">New Competitor Comparison</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Linked in a new "Best AI Tools of 2024" comparison list.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Linked in a new "Best AI Tools of 2024" comparison list.</p>
-          </div>
-          <div onClick={() => handleSignalClick('backlink-4', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">G2 Review Spike</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Competitor Comparison" time="2 days ago" description="Linked in a new 'Best AI Tools of 2024' comparison list." priority="LOW" type="marketing" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('backlink-4', 'marketing')} className="bg-slate-900/50 border border-emerald-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-emerald-300 transition-colors line-clamp-1">G2 Review Spike</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Received 25+ new 5-star reviews on G2 following the recent update.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Received 25+ new 5-star reviews on G2 following the recent update.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="G2 Review Spike" time="4 days ago" description="Received 25+ new 5-star reviews on G2 following the recent update." priority="POS" type="marketing" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -2047,49 +2182,77 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div 
-            onClick={() => handleSignalClick('seo-1', 'product')}
-            className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
-          >
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Keyword Ranking Change</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div 
+                onClick={() => handleSignalClick('seo-1', 'product')}
+                className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group"
+              >
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Keyword Ranking Change</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Main competitor jumped to #1 for "AI Design Tools".</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Main competitor jumped to #1 for "AI Design Tools".</p>
-          </div>
-          <div onClick={() => handleSignalClick('seo-2', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">New Indexed Pages: 12</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">3 hours ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Keyword Ranking Change" time="Just now" description="Main competitor jumped to #1 for 'AI Design Tools'." priority="HIGH" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('seo-2', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">New Indexed Pages: 12</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">3 hours ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Added 12 new documentation pages for specialized API integrations.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Added 12 new documentation pages for specialized API integrations.</p>
-          </div>
-          <div onClick={() => handleSignalClick('seo-3', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Site Speed Improvement</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Indexed Pages: 12" time="3 hours ago" description="Added 12 new documentation pages for specialized API integrations." priority="LOW" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('seo-3', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Site Speed Improvement</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Homepage load time reduced by 40% globally.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Homepage load time reduced by 40% globally.</p>
-          </div>
-          <div onClick={() => handleSignalClick('seo-4', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Featured Snippet Won</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Site Speed Improvement" time="Yesterday" description="Homepage load time reduced by 40% globally." priority="POS" type="product" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('seo-4', 'product')} className="bg-slate-900/50 border border-blue-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-blue-300 transition-colors line-clamp-1">Featured Snippet Won</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Successfully captured the featured snippet for "SaaS SEO automation".</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Successfully captured the featured snippet for "SaaS SEO automation".</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Featured Snippet Won" time="3 days ago" description="Successfully captured the featured snippet for 'SaaS SEO automation'." priority="POS" type="product" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -2118,70 +2281,98 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div onClick={() => handleSignalClick('social-1', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <SiX size={13} className="text-slate-300" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">X</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Viral Thread Detected</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('social-1', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <SiX size={13} className="text-slate-300" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">X</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Viral Thread Detected</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">1 hour ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">1 hour ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">A user's review of their new collaborative features is trending on X.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">A user's review of their new collaborative features is trending on X.</p>
-          </div>
-          <div onClick={() => handleSignalClick('social-2', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <SiYoutube size={13} className="text-red-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">YouTube</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">New Review</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Viral Thread Detected" time="1 hour ago" description="A user's review of their new collaborative features is trending on X." priority="MED" type="marketing" domain="x.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('social-2', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <SiYoutube size={13} className="text-red-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">YouTube</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">New Review</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">5 hours ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Popular tech influencer published a comparison video.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Popular tech influencer published a comparison video.</p>
-          </div>
-          <div onClick={() => handleSignalClick('social-3', 'product')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <Globe size={13} className="text-orange-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Hunt</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Launch</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New Review" time="5 hours ago" description="Popular tech influencer published a comparison video." priority="LOW" type="marketing" domain="youtube.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('social-3', 'product')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <Globe size={13} className="text-orange-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Hunt</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Product Launch</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Competitor's new "Pro+" mobile app launched on Product Hunt.</p>
-          </div>
-          <div onClick={() => handleSignalClick('social-4', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <SiInstagram size={13} className="text-pink-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Insta</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Campaign</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Product Launch" time="2 days ago" description="Competitor's new 'Pro+' mobile app launched on Product Hunt." priority="HIGH" type="product" domain="producthunt.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('social-4', 'marketing')} className="bg-slate-900/50 border border-purple-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <SiInstagram size={13} className="text-pink-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Insta</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-purple-300 transition-colors line-clamp-1">Campaign</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">New aesthetic design showcase campaign targeting Gen Z designers.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">New aesthetic design showcase campaign targeting Gen Z designers.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Campaign" time="1 week ago" description="New aesthetic design showcase campaign targeting Gen Z designers." priority="LOW" type="marketing" domain="instagram.com" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -2210,54 +2401,75 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div onClick={() => handleSignalClick('news-1', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <SiTechcrunch size={13} className="text-green-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">TC</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Feature</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('news-1', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <SiTechcrunch size={13} className="text-green-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">TC</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Feature</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">4 hours ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">4 hours ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Comprehensive deep-dive article on their recent $50M series B funding.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Comprehensive deep-dive article on their recent $50M series B funding.</p>
-          </div>
-          <div onClick={() => handleSignalClick('news-2', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <FileText size={13} className="text-blue-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Forbes</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Listing</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="TechCrunch Feature" time="4 hours ago" description="Comprehensive deep-dive article on their recent $50M series B funding." priority="HIGH" type="marketing" domain="techcrunch.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('news-2', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <FileText size={13} className="text-blue-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Forbes</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Listing</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Yesterday</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Named in the "Top 50 AI Startups to Watch" list.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Named in the "Top 50 AI Startups to Watch" list.</p>
-          </div>
-          <div onClick={() => handleSignalClick('news-3', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start gap-2.5 mb-1.5">
-              <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
-                <FileText size={13} className="text-indigo-500" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Wired</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Analysis</p>
-                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Forbes Listing" time="Yesterday" description="Named in the 'Top 50 AI Startups to Watch' list." priority="MED" type="marketing" domain="forbes.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('news-3', 'marketing')} className="bg-slate-900/50 border border-rose-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start gap-2.5 mb-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                    <FileText size={13} className="text-indigo-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Wired</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-white text-xs group-hover:text-rose-300 transition-colors line-clamp-1">Analysis</p>
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                  </div>
                 </div>
-                <p className="text-[10px] text-slate-500 line-clamp-1">3 days ago</p>
+                <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Wired discusses the implications of their new AI-driven design engine.</p>
               </div>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2 pl-9">Wired discusses the implications of their new AI-driven design engine.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Wired Analysis" time="3 days ago" description="Wired discusses the implications of their new AI-driven design engine." priority="LOW" type="marketing" domain="wired.com" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -2286,46 +2498,74 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div onClick={() => handleSignalClick('ads-1', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">New LinkedIn Ad Campaign</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('ads-1', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">New LinkedIn Ad Campaign</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Targeting decision makers at mid-market design agencies with "Free Enterprise Trial".</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Targeting decision makers at mid-market design agencies with "Free Enterprise Trial".</p>
-          </div>
-          <div onClick={() => handleSignalClick('ads-2', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Facebook Retargeting Boost</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New LinkedIn Ad Campaign" time="2 days ago" description="Targeting decision makers at mid-market design agencies with 'Free Enterprise Trial'." priority="LOW" type="marketing" domain="linkedin.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('ads-2', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Facebook Retargeting Boost</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Increased spend by 15% on retargeting ads for users who visited the pricing page.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Increased spend by 15% on retargeting ads for users who visited the pricing page.</p>
-          </div>
-          <div onClick={() => handleSignalClick('ads-3', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Google Search Ad Expansion</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Facebook Retargeting Boost" time="4 days ago" description="Increased spend by 15% on retargeting ads for users who visited the pricing page." priority="MED" type="marketing" domain="facebook.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('ads-3', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">Google Search Ad Expansion</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Bidding heavily on high-intent transactional keywords in the UK market.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Bidding heavily on high-intent transactional keywords in the UK market.</p>
-          </div>
-          <div onClick={() => handleSignalClick('ads-4', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">YouTube Video Ads</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 weeks ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Google Search Ad Expansion" time="1 week ago" description="Bidding heavily on high-intent transactional keywords in the UK market." priority="HIGH" type="marketing" domain="google.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('ads-4', 'marketing')} className="bg-slate-900/50 border border-amber-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-amber-300 transition-colors line-clamp-1">YouTube Video Ads</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 weeks ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Started a new video ad series featuring customer success stories.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Started a new video ad series featuring customer success stories.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="YouTube Video Ads" time="2 weeks ago" description="Started a new video ad series featuring customer success stories." priority="LOW" type="marketing" domain="youtube.com" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
@@ -2354,46 +2594,74 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           <div className="w-2 h-2 bg-pink-500 rounded-full animate-pulse shrink-0"></div>
         </div>
         <div className="px-3 py-2 max-h-80 overflow-y-auto custom-scrollbar space-y-1.5">
-          <div onClick={() => handleSignalClick('talent-1', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">New CTO Posted on LinkedIn</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('talent-1', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">New CTO Posted on LinkedIn</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">Just now</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">CTO position posted; actively recruiting for leadership vacancy in engineering.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 rounded-full shrink-0">HIGH</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">CTO position posted; actively recruiting for leadership vacancy in engineering.</p>
-          </div>
-          <div onClick={() => handleSignalClick('talent-2', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">VP Sales Role Announced</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="New CTO Posted on LinkedIn" time="Just now" description="CTO position posted; actively recruiting for leadership vacancy in engineering." priority="HIGH" type="hiring" domain="linkedin.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('talent-2', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">VP Sales Role Announced</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">2 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">VP of Sales position opened on LinkedIn; suggests leadership restructuring underway.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full shrink-0">MED</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">VP of Sales position opened on LinkedIn; suggests leadership restructuring underway.</p>
-          </div>
-          <div onClick={() => handleSignalClick('talent-3', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Engineering Hiring Surge</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="VP Sales Role Announced" time="2 days ago" description="VP of Sales position opened on LinkedIn; suggests leadership restructuring underway." priority="MED" type="hiring" domain="linkedin.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('talent-3', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Engineering Hiring Surge</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">4 days ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">25+ engineer roles posted; major expansion in AI/ML and platform teams detected.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full shrink-0">POS</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">25+ engineer roles posted; major expansion in AI/ML and platform teams detected.</p>
-          </div>
-          <div onClick={() => handleSignalClick('talent-4', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
-            <div className="flex items-start justify-between gap-2 mb-1.5">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Product Org Restructure</p>
-                <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Engineering Hiring Surge" time="4 days ago" description="25+ engineer roles posted; major expansion in AI/ML and platform teams detected." priority="POS" type="hiring" domain="linkedin.com" />
+            </HoverCardContent>
+          </HoverCard>
+          <HoverCard openDelay={400} closeDelay={100}>
+            <HoverCardTrigger asChild>
+              <div onClick={() => handleSignalClick('talent-4', 'hiring')} className="bg-slate-900/50 border border-pink-500/20 rounded-lg p-2.5 hover:bg-slate-900/70 transition-all cursor-pointer group">
+                <div className="flex items-start justify-between gap-2 mb-1.5">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs group-hover:text-pink-300 transition-colors line-clamp-1">Product Org Restructure</p>
+                    <p className="text-[10px] text-slate-500 line-clamp-1">1 week ago</p>
+                  </div>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
+                </div>
+                <p className="text-[10px] text-slate-400 line-clamp-2">Multiple new director-level roles posted; signals org restructuring in product division.</p>
               </div>
-              <span className="px-1.5 py-0.5 text-[9px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full shrink-0">LOW</span>
-            </div>
-            <p className="text-[10px] text-slate-400 line-clamp-2">Multiple new director-level roles posted; signals org restructuring in product division.</p>
-          </div>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="bg-slate-950 border-slate-700 p-4 z-[100]">
+              <SignalDetailHoverContent title="Product Org Restructure" time="1 week ago" description="Multiple new director-level roles posted; signals org restructuring in product division." priority="LOW" type="hiring" domain="linkedin.com" />
+            </HoverCardContent>
+          </HoverCard>
         </div>
       </div>
     ),
