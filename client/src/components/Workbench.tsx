@@ -134,42 +134,42 @@ const SignalDetailHoverContent = ({ title, time, description, priority, type, do
   const config = priorityConfig[priority] || priorityConfig.LOW;
   
   return (
-    <div className="w-80 space-y-3">
+    <div className="space-y-2.5 max-w-full overflow-hidden">
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Title</p>
-        <p className="text-sm text-white leading-relaxed font-medium">{title}</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Signal Title</p>
+        <p className="text-sm text-white leading-snug font-medium break-words">{title}</p>
       </div>
       
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Source</p>
-        <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Source</p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="w-4 h-4 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700 shrink-0">
             <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-full h-full object-contain" alt={domain} />
           </div>
-          <span className="text-xs text-brand-400 font-medium">{domain}</span>
-          <span className="text-[10px] text-slate-500">{time}</span>
+          <span className="text-xs text-brand-400 font-medium truncate">{domain}</span>
+          <span className="text-[10px] text-slate-500 shrink-0">{time}</span>
         </div>
       </div>
 
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Classification</p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border}`}>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Classification</p>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border} shrink-0`}>
             {config.label}
           </span>
-          <span className="px-2 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700">
+          <span className="px-1.5 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700 shrink-0">
             {type}
           </span>
         </div>
       </div>
 
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Description</p>
-        <p className="text-xs text-slate-300 leading-relaxed">{description}</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-0.5">Description</p>
+        <p className="text-[11px] text-slate-300 leading-relaxed break-words">{description}</p>
       </div>
 
-      <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-2.5">
-        <p className="text-[10px] font-bold text-brand-400 mb-1 flex items-center gap-1">
+      <div className="bg-slate-800/80 border border-slate-700 rounded-md p-2">
+        <p className="text-[10px] font-bold text-brand-400 mb-0.5 flex items-center gap-1">
           <BrainCircuit size={10} /> Strategic Impact
         </p>
         <p className="text-[10px] text-slate-300 leading-relaxed">This signal indicates a strategic shift. Monitor for follow-up actions.</p>
