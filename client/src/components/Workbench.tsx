@@ -2916,22 +2916,40 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <div>
                   <div className="flex items-center gap-3">
                     <h1 className="text-2xl font-bold text-white tracking-tight">{selectedTarget.name}</h1>
-                    <div className="flex items-center gap-3 bg-slate-900/40 border border-slate-800 px-3 py-1.5 rounded-lg h-9">
-                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Trackers</span>
-                        <span className="text-xs font-bold text-white">7/10</span>
+                    <div className="flex items-center gap-4 bg-slate-900/60 border border-slate-800 px-4 py-1.5 rounded-xl h-10 shadow-inner">
+                      <div className="flex items-center gap-2 border-r border-slate-800 pr-4">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Trackers</span>
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="text-sm font-bold text-white">7</span>
+                          <span className="text-[10px] text-slate-600 font-medium">/10</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-emerald-400">New</span>
-                        <span className="text-xs font-bold text-white">6</span>
+                      <div className="flex items-center gap-2 border-r border-slate-800 pr-4">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-emerald-400">New Signals</span>
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="text-sm font-bold text-white">6</span>
+                          <span className="text-[10px] text-emerald-500/60 font-medium">today</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 border-r border-slate-800 pr-3">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Severity</span>
-                        <span className="text-xs font-bold"><span className="text-red-400">1H</span><span className="text-blue-400 ml-1">1L</span></span>
+                      <div className="flex items-center gap-2 border-r border-slate-800 pr-4">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Severity</span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-baseline gap-0.5">
+                            <span className="text-sm font-bold text-red-400">1</span>
+                            <span className="text-[10px] text-red-500/40 font-bold">H</span>
+                          </div>
+                          <div className="flex items-baseline gap-0.5">
+                            <span className="text-sm font-bold text-blue-400">1</span>
+                            <span className="text-[10px] text-blue-500/40 font-bold">L</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">RT</span>
-                        <span className="text-xs font-bold text-white">2.3d</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Response Time</span>
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="text-sm font-bold text-white">2.3</span>
+                          <span className="text-[10px] text-slate-600 font-medium">days</span>
+                        </div>
                       </div>
                     </div>
                   </div>
