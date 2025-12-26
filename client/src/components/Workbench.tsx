@@ -3252,6 +3252,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   {/* Market Strategy Shift Card */}
                   {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('pivot')) || (summaryFilter === 'saved' && savedSummaries.includes('pivot'))) && (
                   <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('pivot');
+                      setShowHistorySheet(true);
+                    }}
                     className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('pivot') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -3260,18 +3264,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <div 
-                      onClick={() => {
-                        setSelectedHistoryItem('pivot');
-                        setShowHistorySheet(true);
-                      }}
-                    >
-                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
-                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
-                      </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
                     </div>
                     {/* Quick Action Buttons */}
                     <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
@@ -3309,6 +3306,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   {/* Pricing Model Changes Card */}
                   {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('pricing')) || (summaryFilter === 'saved' && savedSummaries.includes('pricing'))) && (
                   <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('pricing');
+                      setShowHistorySheet(true);
+                    }}
                     className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('pricing') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -3317,18 +3318,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <div 
-                      onClick={() => {
-                        setSelectedHistoryItem('pricing');
-                        setShowHistorySheet(true);
-                      }}
-                    >
-                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
-                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
-                      </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
                     </div>
                     {/* Quick Action Buttons */}
                     <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
@@ -3366,6 +3360,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   {/* Growth Momentum Card */}
                   {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('growth')) || (summaryFilter === 'saved' && savedSummaries.includes('growth'))) && (
                   <div 
+                    onClick={() => {
+                      setSelectedHistoryItem('growth');
+                      setShowHistorySheet(true);
+                    }}
                     className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('growth') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -3374,18 +3372,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <div 
-                      onClick={() => {
-                        setSelectedHistoryItem('growth');
-                        setShowHistorySheet(true);
-                      }}
-                    >
-                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
-                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
-                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
-                      </div>
+                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
+                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
+                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
                     </div>
                     {/* Quick Action Buttons */}
                     <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
