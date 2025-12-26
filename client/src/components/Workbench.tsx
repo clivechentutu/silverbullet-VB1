@@ -1105,81 +1105,88 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
       </div>
 
-      {/* AI Intelligence Summary - Compact Horizontal Bar */}
-      <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl p-3 mb-6">
-        <div className="flex items-center gap-6">
+      {/* AI Intelligence Summary - Period-based Discovery Analysis */}
+      <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
+        <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-brand-500/10 flex items-center justify-center">
-              <BrainCircuit size={14} className="text-brand-400" />
-            </div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">AI Summary</span>
+            <BrainCircuit size={14} className="text-brand-400" />
+            <span className="text-xs font-bold text-white">AI Discovery Summary</span>
+            <span className="text-[10px] text-slate-500">for {activeScope}</span>
           </div>
-          
-          <div className="h-6 w-px bg-slate-700/50" />
-          
-          <div className="flex items-center gap-6 flex-1">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Zap size={12} className="text-amber-400" />
-                <span className="text-[10px] text-slate-500 uppercase">Today</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white leading-none">12</span>
-                <span className="text-[10px] text-slate-500">finds</span>
-                <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-bold">3 HIGH</span>
-              </div>
-            </div>
-            
-            <div className="h-4 w-px bg-slate-700/30" />
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <TrendingUp size={12} className="text-brand-400" />
-                <span className="text-[10px] text-slate-500 uppercase">Week</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white leading-none">48</span>
-                <span className="text-[10px] text-slate-500">finds</span>
-                <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-bold">8 HIGH</span>
-              </div>
-            </div>
-            
-            <div className="h-4 w-px bg-slate-700/30" />
-            
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Calendar size={12} className="text-blue-400" />
-                <span className="text-[10px] text-slate-500 uppercase">Month</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white leading-none">156</span>
-                <span className="text-[10px] text-slate-500">finds</span>
-                <span className="px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 text-[9px] font-bold">24 HIGH</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="h-6 w-px bg-slate-700/50" />
-          
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-slate-500">Top threats:</span>
-            <div className="flex items-center gap-1">
-              {['Figma AI', 'Canva'].map((name, idx) => (
-                <span key={idx} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700/50 text-[10px] text-white font-medium">
-                  {name}
-                </span>
-              ))}
-            </div>
-          </div>
-          
           <button 
             onClick={() => setShowHistorySheet(true)}
-            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-medium transition-colors flex items-center gap-1.5"
+            className="text-[10px] text-slate-400 hover:text-brand-400 transition-colors flex items-center gap-1"
             data-testid="button-view-full-summary"
           >
-            <History size={12} />
-            Full Report
+            View History <ChevronRight size={10} />
           </button>
+        </div>
+        
+        <div className="grid grid-cols-3 divide-x divide-slate-800/50">
+          {[
+            { 
+              label: 'Daily', 
+              date: format(new Date(), 'MMM d'),
+              total: 12, 
+              high: 3,
+              products: ['Figma AI', 'Canva Magic', 'Miro Assist'],
+              insight: 'Figma AI launched new collaborative features directly competing with your real-time editing capabilities.',
+              color: 'amber'
+            },
+            { 
+              label: 'Weekly', 
+              date: 'Dec 18-25',
+              total: 48, 
+              high: 8,
+              products: ['Adobe Express', 'Sketch Pro', 'Penpot', 'Framer AI', 'Uizard'],
+              insight: 'Market trend: 5 competitors added AI-powered design generation. Consider prioritizing your AI roadmap.',
+              color: 'brand'
+            },
+            { 
+              label: 'Monthly', 
+              date: 'December',
+              total: 156, 
+              high: 24,
+              products: ['Figma', 'Canva', 'Adobe XD', 'Sketch', 'Framer', 'InVision'],
+              insight: 'Key opportunity: Competitors weak in mobile-first design workflow. Your mobile features are 40% faster.',
+              color: 'blue'
+            }
+          ].map((period, i) => (
+            <div key={i} className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer" onClick={() => { setSelectedHistoryItem(period.label); setShowHistorySheet(true); }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.label}</span>
+                  <span className="text-[9px] text-slate-600">{period.date}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-xl font-bold text-white">{period.total}</span>
+                <span className="text-[10px] text-slate-500">similar products</span>
+                <span className="text-[10px] text-slate-600 mx-1">/</span>
+                <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
+                <span className="text-[10px] text-slate-500">high similarity</span>
+              </div>
+              
+              <div className="mb-2">
+                <div className="flex flex-wrap gap-1">
+                  {period.products.slice(0, 4).map((p, idx) => (
+                    <span key={idx} className="px-1.5 py-0.5 rounded bg-slate-800/80 text-[9px] text-slate-300 font-medium">{p}</span>
+                  ))}
+                  {period.products.length > 4 && (
+                    <span className="px-1.5 py-0.5 rounded bg-slate-800/50 text-[9px] text-slate-500">+{period.products.length - 4}</span>
+                  )}
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-slate-800/30">
+                <div className="flex items-start gap-1.5">
+                  <Lightbulb size={10} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">{period.insight}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
