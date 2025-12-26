@@ -1938,15 +1938,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     'ads-4': { id: 604, type: 'marketing', category: 'YouTube Video Ads', time: '2 weeks ago', content: 'Started a new video ad series featuring customer success stories.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/ads' },
   };
 
-  // Dimension configuration for styling
+  // Dimension configuration for styling - using muted/subtle colors to avoid visual fatigue
   const dimensionConfig: Record<string, { icon: typeof Globe; color: string; bgColor: string; label: string }> = {
-    website: { icon: Globe, color: 'text-blue-400', bgColor: 'bg-blue-500', label: 'Website' },
-    backlinks: { icon: LinkIcon, color: 'text-purple-400', bgColor: 'bg-purple-500', label: 'Backlinks' },
-    seo: { icon: Search, color: 'text-emerald-400', bgColor: 'bg-emerald-500', label: 'SEO' },
-    social: { icon: Users, color: 'text-pink-400', bgColor: 'bg-pink-500', label: 'Social' },
-    news: { icon: FileText, color: 'text-amber-400', bgColor: 'bg-amber-500', label: 'News' },
-    ads: { icon: Megaphone, color: 'text-orange-400', bgColor: 'bg-orange-500', label: 'Ads' },
-    talent: { icon: Briefcase, color: 'text-cyan-400', bgColor: 'bg-cyan-500', label: 'Talent' },
+    website: { icon: Globe, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'Website' },
+    backlinks: { icon: LinkIcon, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'Backlinks' },
+    seo: { icon: Search, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'SEO' },
+    social: { icon: Users, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'Social' },
+    news: { icon: FileText, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'News' },
+    ads: { icon: Megaphone, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'Ads' },
+    talent: { icon: Briefcase, color: 'text-slate-400', bgColor: 'bg-slate-600', label: 'Talent' },
   };
 
   // Get all tracker signals with dimension field (parent level - comprehensive feed)
@@ -3540,7 +3540,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               <button 
                                 key={dim}
                                 onClick={() => setFeedFilter(dim as typeof feedFilter)}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === dim ? `${config.bgColor} text-white border-${config.bgColor.replace('bg-', '')}` : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === dim ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                                 data-testid={`filter-${dim}`}
                                 title={config.label}
                               >
@@ -3550,7 +3550,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           })}
                           <button 
                             onClick={() => setFeedFilter('favorites')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-favorites"
                           >
                             <Pin size={12} /> Pin ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
@@ -3568,7 +3568,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                             {filteredSignals.map((signal, index) => (
                               <div key={signal.id} id={`signal-feed-${signal.id}`} className="relative animate-in slide-in-from-right-4 duration-300 scroll-mt-20">
                                 <div className="absolute -left-10 top-4 flex flex-col items-center">
-                                  <div className={`w-3 h-3 rounded-full ${signal.bgColor} ring-4 ring-slate-950 z-10`} />
+                                  <div className={`w-3 h-3 rounded-full ring-4 ring-slate-950 z-10 ${
+                                    signal.value === 'high' ? 'bg-red-500' :
+                                    signal.value === 'medium' ? 'bg-yellow-500' :
+                                    'bg-slate-500'
+                                  }`} />
                                   <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
                                 </div>
                                 <div 
@@ -3606,21 +3610,21 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                   </div>
                                   <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
                                   <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${signal.bgColor}/20 ${signal.color} border ${signal.bgColor.replace('bg-', 'border-')}/30`}>
-                                      {signal.category}
-                                    </span>
                                     <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                                       signal.value === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                                       signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                      'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+                                      'bg-slate-700/50 text-slate-400 border border-slate-600/30'
                                     }`}>
                                       {signal.value === 'high' ? 'HIGH' : signal.value === 'medium' ? 'MED' : 'LOW'}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700/50">
+                                      {signal.category}
                                     </span>
                                     {signal.dimension && dimensionConfig[signal.dimension] && (() => {
                                       const dimConfig = dimensionConfig[signal.dimension];
                                       const DimIcon = dimConfig.icon;
                                       return (
-                                        <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider ${dimConfig.bgColor}/20 ${dimConfig.color} border ${dimConfig.bgColor.replace('bg-', 'border-')}/30 flex items-center gap-1`}>
+                                        <span className="px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800/50 text-slate-500 border border-slate-700/30 flex items-center gap-1">
                                           <DimIcon size={10} /> {dimConfig.label}
                                         </span>
                                       );
