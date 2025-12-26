@@ -1133,12 +1133,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 { 
                   scope: 'ChampSignal', 
                   products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
-                  text: ['发现', 'Figma AI', '新增了协作编辑功能，与您的实时编辑能力直接竞争；', 'Canva Magic', '推出了AI生成模板功能。']
+                  text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
                 },
                 { 
                   scope: 'OpusClip', 
                   products: [{ name: 'Descript', color: 'text-purple-400' }],
-                  text: ['', 'Descript', '更新了自动剪辑算法，处理速度提升30%。']
+                  text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
                 }
               ]
             },
@@ -1152,12 +1152,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 { 
                   scope: 'ChampSignal', 
                   products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Sketch Pro', color: 'text-amber-400' }, { name: 'Penpot', color: 'text-blue-400' }],
-                  text: ['本周', 'Adobe Express', '、', 'Sketch Pro', '和', 'Penpot', '均新增了AI设计生成功能，市场趋势明显。']
+                  text: ['Discovered 5 competitors: ', 'Adobe Express', ' (94% match, enterprise integration), ', 'Sketch Pro', ' (88% match, vector-first approach), ', 'Penpot', ' (85% match, open-source alternative).']
                 },
                 { 
                   scope: 'OpusClip', 
                   products: [{ name: 'Runway', color: 'text-purple-400' }, { name: 'Kapwing', color: 'text-green-400' }],
-                  text: ['', 'Runway', '发布视频AI重绘功能；', 'Kapwing', '优化了字幕生成准确率。']
+                  text: ['Found 3 competitors: ', 'Runway', ' (91% match, AI video generation) and ', 'Kapwing', ' (86% match, browser-based editing suite).']
                 }
               ]
             },
@@ -1171,12 +1171,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 { 
                   scope: 'ChampSignal', 
                   products: [{ name: 'Figma', color: 'text-red-400' }, { name: 'Framer', color: 'text-amber-400' }],
-                  text: ['关键机会：竞品在移动端设计工作流较弱。', 'Figma', '和', 'Framer', '的移动端响应比您慢40%。']
+                  text: ['Top threats: ', 'Figma', ' (96% match, market leader in collaborative design), ', 'Framer', ' (90% match, code-export and responsive design).']
                 },
                 { 
                   scope: 'OpusClip', 
                   products: [{ name: 'CapCut', color: 'text-purple-400' }, { name: 'InVideo', color: 'text-green-400' }],
-                  text: ['', 'CapCut', '月活跃用户增长显著；', 'InVideo', '推出企业版定价策略变化。']
+                  text: ['Key competitors: ', 'CapCut', ' (93% match, mobile-first short video editor), ', 'InVideo', ' (88% match, template-driven video creation).']
                 }
               ]
             }
