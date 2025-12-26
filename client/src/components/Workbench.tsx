@@ -1110,7 +1110,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BrainCircuit size={14} className="text-brand-400" />
-            <span className="text-xs font-bold text-white">AI Discovery Summary</span>
+            <span className="text-xs font-bold text-white">Radar Summary</span>
           </div>
         </div>
         
