@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -1837,6 +1837,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
+  const [readSummaries, setReadSummaries] = useState<string[]>([]);
+  const [savedSummaries, setSavedSummaries] = useState<string[]>([]);
+  const [summaryFilter, setSummaryFilter] = useState<'all' | 'unread' | 'saved'>('all');
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
@@ -3154,7 +3157,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Strategy Pivot</span>
+                              <span className="text-[10px] font-bold text-emerald-400">Market Strategy Shift</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
@@ -3173,7 +3176,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Alert</span>
+                              <span className="text-[10px] font-bold text-red-400">Pricing Model Changes</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
@@ -3192,7 +3195,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Pulse</span>
+                              <span className="text-[10px] font-bold text-amber-400">Growth Momentum</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
@@ -3210,7 +3213,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           </div>
                           <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Strategic Move</span>
+                              <span className="text-[10px] font-bold text-blue-400">Competitive Response</span>
                               <span className="text-[10px] text-slate-500">Dec 18, 2024</span>
                             </div>
                             <p className="text-xs text-slate-300">Quietly updated Enterprise SLA terms, matching your recent platform uptime guarantee.</p>
@@ -3220,67 +3223,203 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     </SheetContent>
                   </Sheet>
                 </div>
+                {/* Summary Filter Buttons */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Filter:</span>
+                  <button 
+                    onClick={() => setSummaryFilter('all')}
+                    className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-all border ${summaryFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                    data-testid="filter-summary-all"
+                  >
+                    All
+                  </button>
+                  <button 
+                    onClick={() => setSummaryFilter('unread')}
+                    className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-all border flex items-center gap-1 ${summaryFilter === 'unread' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                    data-testid="filter-summary-unread"
+                  >
+                    <Circle size={10} /> Unread
+                  </button>
+                  <button 
+                    onClick={() => setSummaryFilter('saved')}
+                    className={`px-2.5 py-1 text-[10px] font-bold rounded-md transition-all border flex items-center gap-1 ${summaryFilter === 'saved' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                    data-testid="filter-summary-saved"
+                  >
+                    <Star size={10} /> Saved
+                  </button>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Market Strategy Shift Card */}
+                  {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('pivot')) || (summaryFilter === 'saved' && savedSummaries.includes('pivot'))) && (
                   <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('pivot');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                    className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('pivot') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <TrendingUp size={12} className="text-emerald-400" /> Strategy Pivot
+                      <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5">
+                        <TrendingUp size={12} className="text-emerald-400" /> <span className="text-emerald-400 font-bold">Market Strategy Shift</span>
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
+                    <div 
+                      onClick={() => {
+                        setSelectedHistoryItem('pivot');
+                        setShowHistorySheet(true);
+                      }}
+                    >
+                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
+                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
+                      </div>
+                    </div>
+                    {/* Quick Action Buttons */}
+                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (readSummaries.includes('pivot')) {
+                            setReadSummaries(readSummaries.filter(id => id !== 'pivot'));
+                          } else {
+                            setReadSummaries([...readSummaries, 'pivot']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${readSummaries.includes('pivot') ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-mark-read-pivot"
+                      >
+                        <Check size={12} /> {readSummaries.includes('pivot') ? 'Read' : 'Mark as Read'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (savedSummaries.includes('pivot')) {
+                            setSavedSummaries(savedSummaries.filter(id => id !== 'pivot'));
+                          } else {
+                            setSavedSummaries([...savedSummaries, 'pivot']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${savedSummaries.includes('pivot') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-save-pivot"
+                      >
+                        <Star size={12} className={savedSummaries.includes('pivot') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pivot') ? 'Saved' : 'Save'}
+                      </button>
                     </div>
                   </div>
+                  )}
+                  {/* Pricing Model Changes Card */}
+                  {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('pricing')) || (summaryFilter === 'saved' && savedSummaries.includes('pricing'))) && (
                   <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('pricing');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                    className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('pricing') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} className="text-red-400" /> Pricing Alert
+                      <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5">
+                        <ShieldAlert size={12} className="text-red-400" /> <span className="text-red-400 font-bold">Pricing Model Changes</span>
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
+                    <div 
+                      onClick={() => {
+                        setSelectedHistoryItem('pricing');
+                        setShowHistorySheet(true);
+                      }}
+                    >
+                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
+                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
+                      </div>
+                    </div>
+                    {/* Quick Action Buttons */}
+                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (readSummaries.includes('pricing')) {
+                            setReadSummaries(readSummaries.filter(id => id !== 'pricing'));
+                          } else {
+                            setReadSummaries([...readSummaries, 'pricing']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${readSummaries.includes('pricing') ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-mark-read-pricing"
+                      >
+                        <Check size={12} /> {readSummaries.includes('pricing') ? 'Read' : 'Mark as Read'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (savedSummaries.includes('pricing')) {
+                            setSavedSummaries(savedSummaries.filter(id => id !== 'pricing'));
+                          } else {
+                            setSavedSummaries([...savedSummaries, 'pricing']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${savedSummaries.includes('pricing') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-save-pricing"
+                      >
+                        <Star size={12} className={savedSummaries.includes('pricing') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pricing') ? 'Saved' : 'Save'}
+                      </button>
                     </div>
                   </div>
+                  )}
+                  {/* Growth Momentum Card */}
+                  {(summaryFilter === 'all' || (summaryFilter === 'unread' && !readSummaries.includes('growth')) || (summaryFilter === 'saved' && savedSummaries.includes('growth'))) && (
                   <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('growth');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
+                    className={`bg-slate-950/50 border rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer ${readSummaries.includes('growth') ? 'border-slate-800/50 opacity-70' : 'border-slate-800'}`}
                   >
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Zap size={12} className="text-amber-400" /> Growth Pulse
+                      <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5">
+                        <Zap size={12} className="text-amber-400" /> <span className="text-amber-400 font-bold">Growth Momentum</span>
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
+                    <div 
+                      onClick={() => {
+                        setSelectedHistoryItem('growth');
+                        setShowHistorySheet(true);
+                      }}
+                    >
+                      <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
+                      <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
+                        <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
+                      </div>
+                    </div>
+                    {/* Quick Action Buttons */}
+                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-slate-800/50">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (readSummaries.includes('growth')) {
+                            setReadSummaries(readSummaries.filter(id => id !== 'growth'));
+                          } else {
+                            setReadSummaries([...readSummaries, 'growth']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${readSummaries.includes('growth') ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-mark-read-growth"
+                      >
+                        <Check size={12} /> {readSummaries.includes('growth') ? 'Read' : 'Mark as Read'}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (savedSummaries.includes('growth')) {
+                            setSavedSummaries(savedSummaries.filter(id => id !== 'growth'));
+                          } else {
+                            setSavedSummaries([...savedSummaries, 'growth']);
+                          }
+                        }}
+                        className={`flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium rounded-md transition-all ${savedSummaries.includes('growth') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 hover:text-white border border-slate-700'}`}
+                        data-testid="button-save-growth"
+                      >
+                        <Star size={12} className={savedSummaries.includes('growth') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('growth') ? 'Saved' : 'Save'}
+                      </button>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
             </div>
