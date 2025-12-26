@@ -10,7 +10,7 @@ import {
   ShieldAlert, Check, Megaphone, Globe, DollarSign, Briefcase, X,
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
-  PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon,
+  PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
   Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
@@ -742,6 +742,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [editablePrompt, setEditablePrompt] = useState('');
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [updateSuccessState, setUpdateSuccessState] = useState<'idle' | 'adjusting' | 'completed'>('idle');
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
+  const [showHistorySheet, setShowHistorySheet] = useState(false);
 
   // Auto-transition and hide update success message
   useEffect(() => {
