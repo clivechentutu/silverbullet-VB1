@@ -1111,7 +1111,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <div className="flex items-center gap-2">
             <BrainCircuit size={14} className="text-brand-400" />
             <span className="text-xs font-bold text-white">AI Discovery Summary</span>
-            <span className="text-[10px] text-slate-500">for {activeScope}</span>
           </div>
           <button 
             onClick={() => setShowHistorySheet(true)}
@@ -1129,27 +1128,57 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               date: format(new Date(), 'MMM d'),
               total: 12, 
               high: 3,
-              products: ['Figma AI', 'Canva Magic', 'Miro Assist'],
-              insight: 'Figma AI launched new collaborative features directly competing with your real-time editing capabilities.',
-              color: 'amber'
+              color: 'amber',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
+                  text: ['发现', 'Figma AI', '新增了协作编辑功能，与您的实时编辑能力直接竞争；', 'Canva Magic', '推出了AI生成模板功能。']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'Descript', color: 'text-purple-400' }],
+                  text: ['', 'Descript', '更新了自动剪辑算法，处理速度提升30%。']
+                }
+              ]
             },
             { 
               label: 'Weekly', 
               date: 'Dec 18-25',
               total: 48, 
               high: 8,
-              products: ['Adobe Express', 'Sketch Pro', 'Penpot', 'Framer AI', 'Uizard'],
-              insight: 'Market trend: 5 competitors added AI-powered design generation. Consider prioritizing your AI roadmap.',
-              color: 'brand'
+              color: 'brand',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Sketch Pro', color: 'text-amber-400' }, { name: 'Penpot', color: 'text-blue-400' }],
+                  text: ['本周', 'Adobe Express', '、', 'Sketch Pro', '和', 'Penpot', '均新增了AI设计生成功能，市场趋势明显。']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'Runway', color: 'text-purple-400' }, { name: 'Kapwing', color: 'text-green-400' }],
+                  text: ['', 'Runway', '发布视频AI重绘功能；', 'Kapwing', '优化了字幕生成准确率。']
+                }
+              ]
             },
             { 
               label: 'Monthly', 
               date: 'December',
               total: 156, 
               high: 24,
-              products: ['Figma', 'Canva', 'Adobe XD', 'Sketch', 'Framer', 'InVision'],
-              insight: 'Key opportunity: Competitors weak in mobile-first design workflow. Your mobile features are 40% faster.',
-              color: 'blue'
+              color: 'blue',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Figma', color: 'text-red-400' }, { name: 'Framer', color: 'text-amber-400' }],
+                  text: ['关键机会：竞品在移动端设计工作流较弱。', 'Figma', '和', 'Framer', '的移动端响应比您慢40%。']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'CapCut', color: 'text-purple-400' }, { name: 'InVideo', color: 'text-green-400' }],
+                  text: ['', 'CapCut', '月活跃用户增长显著；', 'InVideo', '推出企业版定价策略变化。']
+                }
+              ]
             }
           ].map((period, i) => (
             <div key={i} className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer" onClick={() => { setSelectedHistoryItem(period.label); setShowHistorySheet(true); }}>
@@ -1158,32 +1187,33 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   <span className={`text-[10px] font-bold uppercase tracking-wider ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.label}</span>
                   <span className="text-[9px] text-slate-600">{period.date}</span>
                 </div>
-              </div>
-              
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-xl font-bold text-white">{period.total}</span>
-                <span className="text-[10px] text-slate-500">similar products</span>
-                <span className="text-[10px] text-slate-600 mx-1">/</span>
-                <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
-                <span className="text-[10px] text-slate-500">high similarity</span>
-              </div>
-              
-              <div className="mb-2">
-                <div className="flex flex-wrap gap-1">
-                  {period.products.slice(0, 4).map((p, idx) => (
-                    <span key={idx} className="px-1.5 py-0.5 rounded bg-slate-800/80 text-[9px] text-slate-300 font-medium">{p}</span>
-                  ))}
-                  {period.products.length > 4 && (
-                    <span className="px-1.5 py-0.5 rounded bg-slate-800/50 text-[9px] text-slate-500">+{period.products.length - 4}</span>
-                  )}
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-bold text-white">{period.total}</span>
+                  <span className="text-[9px] text-slate-500">finds</span>
+                  <span className="text-[9px] text-slate-600">/</span>
+                  <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
+                  <span className="text-[9px] text-slate-500">high</span>
                 </div>
               </div>
               
-              <div className="pt-2 border-t border-slate-800/30">
-                <div className="flex items-start gap-1.5">
-                  <Lightbulb size={10} className="text-amber-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-[10px] text-slate-400 leading-relaxed line-clamp-2">{period.insight}</p>
-                </div>
+              <div className="space-y-2">
+                {period.scopeInsights.map((insight, idx) => (
+                  <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <TargetIcon size={9} className="text-slate-500" />
+                      <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      {insight.text.map((part, partIdx) => {
+                        const matchedProduct = insight.products.find(p => p.name === part);
+                        if (matchedProduct) {
+                          return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                        }
+                        return <span key={partIdx}>{part}</span>;
+                      })}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
