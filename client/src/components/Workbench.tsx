@@ -1534,7 +1534,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
           <div>
             <p className="text-2xl font-bold text-white">{stats.highPriority}</p>
-            <p className="text-xs text-slate-400">High Priority Signals</p>
+            <p className="text-xs text-slate-400">High Similarity</p>
           </div>
           <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center">
             <Zap className="text-red-500" size={20} />
@@ -1543,7 +1543,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 flex items-center justify-between">
           <div>
             <p className="text-2xl font-bold text-white">{stats.totalMonitored}</p>
-            <p className="text-xs text-slate-400">Find</p>
+            <p className="text-xs text-slate-400">Alternatives</p>
           </div>
           <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
             <Eye className="text-blue-500" size={20} />
@@ -1603,7 +1603,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
           <input 
             type="text"
-            placeholder="Search finds, features..."
+            placeholder="Search alternatives, features..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
@@ -1618,7 +1618,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <thead>
               <tr className="border-b border-slate-800 text-left">
                 <th className="px-4 py-3 w-10"></th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Find</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Alternatives</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
@@ -1775,7 +1775,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         )}
 
         <div className="px-4 py-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
-          <span>Showing {filteredSignals.length} of {allSignals.length} finds</span>
+          <span>Showing {filteredSignals.length} of {allSignals.length} alternatives</span>
           <div className="flex items-center gap-2">
             <button className="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">Previous</button>
             <span className="px-3 py-1 rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">1</span>
