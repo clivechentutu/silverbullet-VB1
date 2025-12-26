@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -1837,6 +1837,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [showHistorySheet, setShowHistorySheet] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [signalFavorites, setSignalFavorites] = useState<number[]>([]);
+  const [readSummaries, setReadSummaries] = useState<string[]>([]);
+  const [savedSummaries, setSavedSummaries] = useState<string[]>([]);
+  const [historyFilter, setHistoryFilter] = useState<'all' | 'unread' | 'saved'>('all');
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightContent, setInsightContent] = useState('');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
@@ -3139,22 +3142,46 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       </button>
                     </SheetTrigger>
                     <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md custom-scrollbar overflow-y-auto">
-                      <SheetHeader className="mb-6">
+                      <SheetHeader className="mb-4">
                         <SheetTitle className="text-white flex items-center gap-2">
                           <History className="text-brand-500" size={20} />
                           Intelligence History
                         </SheetTitle>
                         <p className="text-xs text-slate-500">Timeline of AI-generated competitor insights and alerts.</p>
                       </SheetHeader>
+                      <div className="flex items-center gap-2 mb-6">
+                        <button
+                          onClick={() => setHistoryFilter('all')}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${historyFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="history-filter-all"
+                        >
+                          All
+                        </button>
+                        <button
+                          onClick={() => setHistoryFilter('unread')}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${historyFilter === 'unread' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="history-filter-unread"
+                        >
+                          <Circle size={10} /> Unread
+                        </button>
+                        <button
+                          onClick={() => setHistoryFilter('saved')}
+                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${historyFilter === 'saved' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                          data-testid="history-filter-saved"
+                        >
+                          <Star size={10} /> Saved ({savedSummaries.length})
+                        </button>
+                      </div>
                       <div className="relative space-y-6 before:absolute before:inset-0 before:left-[11px] before:w-px before:bg-slate-800 before:h-full">
-                        {/* History Item 1 */}
+                        {/* History Item 1 - Market Strategy Shift */}
+                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('pivot')) || (historyFilter === 'saved' && savedSummaries.includes('pivot'))) && (
                         <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pivot' ? 'ring-2 ring-emerald-500/30 rounded-lg bg-emerald-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/50 flex items-center justify-center z-10">
                             <TrendingUp size={12} className="text-emerald-400" />
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Strategy Pivot</span>
+                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Market Strategy Shift</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
@@ -3163,17 +3190,47 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
                             </div>
+                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
+                              <button
+                                onClick={() => {
+                                  if (readSummaries.includes('pivot')) {
+                                    setReadSummaries(readSummaries.filter(id => id !== 'pivot'));
+                                  } else {
+                                    setReadSummaries([...readSummaries, 'pivot']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('pivot') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-mark-read-pivot"
+                              >
+                                <Check size={10} /> {readSummaries.includes('pivot') ? 'Read' : 'Mark as Read'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (savedSummaries.includes('pivot')) {
+                                    setSavedSummaries(savedSummaries.filter(id => id !== 'pivot'));
+                                  } else {
+                                    setSavedSummaries([...savedSummaries, 'pivot']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('pivot') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-save-pivot"
+                              >
+                                <Star size={10} className={savedSummaries.includes('pivot') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pivot') ? 'Saved' : 'Save'}
+                              </button>
+                            </div>
                           </div>
                         </div>
+                        )}
 
-                        {/* History Item 2 */}
+                        {/* History Item 2 - Pricing Model Changes */}
+                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('pricing')) || (historyFilter === 'saved' && savedSummaries.includes('pricing'))) && (
                         <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pricing' ? 'ring-2 ring-red-500/30 rounded-lg bg-red-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-red-500/50 flex items-center justify-center z-10">
                             <ShieldAlert size={12} className="text-red-400" />
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Alert</span>
+                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Model Changes</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
@@ -3182,17 +3239,47 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
                             </div>
+                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
+                              <button
+                                onClick={() => {
+                                  if (readSummaries.includes('pricing')) {
+                                    setReadSummaries(readSummaries.filter(id => id !== 'pricing'));
+                                  } else {
+                                    setReadSummaries([...readSummaries, 'pricing']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('pricing') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-mark-read-pricing"
+                              >
+                                <Check size={10} /> {readSummaries.includes('pricing') ? 'Read' : 'Mark as Read'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (savedSummaries.includes('pricing')) {
+                                    setSavedSummaries(savedSummaries.filter(id => id !== 'pricing'));
+                                  } else {
+                                    setSavedSummaries([...savedSummaries, 'pricing']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('pricing') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-save-pricing"
+                              >
+                                <Star size={10} className={savedSummaries.includes('pricing') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pricing') ? 'Saved' : 'Save'}
+                              </button>
+                            </div>
                           </div>
                         </div>
+                        )}
 
-                        {/* History Item 3 */}
+                        {/* History Item 3 - Growth Momentum */}
+                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('growth')) || (historyFilter === 'saved' && savedSummaries.includes('growth'))) && (
                         <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'growth' ? 'ring-2 ring-amber-500/30 rounded-lg bg-amber-500/5 p-2 -ml-2' : ''}`}>
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-amber-500/50 flex items-center justify-center z-10">
                             <Zap size={12} className="text-amber-400" />
                           </div>
                           <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Pulse</span>
+                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Momentum</span>
                               <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
                             </div>
                             <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
@@ -3201,21 +3288,80 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
                               <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
                             </div>
+                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
+                              <button
+                                onClick={() => {
+                                  if (readSummaries.includes('growth')) {
+                                    setReadSummaries(readSummaries.filter(id => id !== 'growth'));
+                                  } else {
+                                    setReadSummaries([...readSummaries, 'growth']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('growth') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-mark-read-growth"
+                              >
+                                <Check size={10} /> {readSummaries.includes('growth') ? 'Read' : 'Mark as Read'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (savedSummaries.includes('growth')) {
+                                    setSavedSummaries(savedSummaries.filter(id => id !== 'growth'));
+                                  } else {
+                                    setSavedSummaries([...savedSummaries, 'growth']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('growth') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-save-growth"
+                              >
+                                <Star size={10} className={savedSummaries.includes('growth') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('growth') ? 'Saved' : 'Save'}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        {/* History Item 4 */}
+                        )}
+                        {/* History Item 4 - Competitive Response */}
+                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('strategic')) || (historyFilter === 'saved' && savedSummaries.includes('strategic'))) && (
                         <div className="relative pl-8">
                           <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-blue-500/50 flex items-center justify-center z-10">
                             <TargetIcon size={12} className="text-blue-400" />
                           </div>
                           <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Strategic Move</span>
+                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Competitive Response</span>
                               <span className="text-[10px] text-slate-500">Dec 18, 2024</span>
                             </div>
                             <p className="text-xs text-slate-300">Quietly updated Enterprise SLA terms, matching your recent platform uptime guarantee.</p>
+                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
+                              <button
+                                onClick={() => {
+                                  if (readSummaries.includes('strategic')) {
+                                    setReadSummaries(readSummaries.filter(id => id !== 'strategic'));
+                                  } else {
+                                    setReadSummaries([...readSummaries, 'strategic']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('strategic') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-mark-read-strategic"
+                              >
+                                <Check size={10} /> {readSummaries.includes('strategic') ? 'Read' : 'Mark as Read'}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (savedSummaries.includes('strategic')) {
+                                    setSavedSummaries(savedSummaries.filter(id => id !== 'strategic'));
+                                  } else {
+                                    setSavedSummaries([...savedSummaries, 'strategic']);
+                                  }
+                                }}
+                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('strategic') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
+                                data-testid="button-save-strategic"
+                              >
+                                <Star size={10} className={savedSummaries.includes('strategic') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('strategic') ? 'Saved' : 'Save'}
+                              </button>
+                            </div>
                           </div>
                         </div>
+                        )}
                       </div>
                     </SheetContent>
                   </Sheet>
@@ -3230,7 +3376,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <TrendingUp size={12} className="text-emerald-400" /> Strategy Pivot
+                        <TrendingUp size={12} className="text-emerald-400" /> Market Strategy Shift
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
@@ -3250,7 +3396,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} className="text-red-400" /> Pricing Alert
+                        <ShieldAlert size={12} className="text-red-400" /> Pricing Model Changes
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
@@ -3270,7 +3416,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   >
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Zap size={12} className="text-amber-400" /> Growth Pulse
+                        <Zap size={12} className="text-amber-400" /> Growth Momentum
                       </p>
                       <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
                     </div>
