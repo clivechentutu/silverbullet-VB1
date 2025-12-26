@@ -1798,6 +1798,7 @@ interface Signal {
   bgColor: string;
   value: string;
   sourceUrl: string;
+  dimension?: string;
 }
 
 const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks }: {
@@ -1818,7 +1819,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [trackerOrder, setTrackerOrder] = useState<string[]>(['website', 'backlinks', 'seo', 'social', 'news', 'ads', 'talent']);
   const [draggedTracker, setDraggedTracker] = useState<string | null>(null);
   const [showFullFeed, setShowFullFeed] = useState(false);
-  const [feedFilter, setFeedFilter] = useState<'all' | 'pricing' | 'product' | 'marketing' | 'hiring' | 'favorites'>('all');
+  const [feedFilter, setFeedFilter] = useState<'all' | 'website' | 'backlinks' | 'seo' | 'social' | 'news' | 'ads' | 'talent' | 'favorites'>('all');
   const [summaryFrequency, setSummaryFrequency] = useState<'daily' | 'weekly'>('daily');
   
   const getPeriodLabel = () => {
@@ -1937,9 +1938,30 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     'ads-4': { id: 604, type: 'marketing', category: 'YouTube Video Ads', time: '2 weeks ago', content: 'Started a new video ad series featuring customer success stories.', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'low', sourceUrl: 'https://youtube.com/ads' },
   };
 
-  // Get all tracker signals (parent level - comprehensive feed)
+  // Dimension configuration for styling
+  const dimensionConfig: Record<string, { icon: typeof Globe; color: string; bgColor: string; label: string }> = {
+    website: { icon: Globe, color: 'text-blue-400', bgColor: 'bg-blue-500', label: 'Website' },
+    backlinks: { icon: LinkIcon, color: 'text-purple-400', bgColor: 'bg-purple-500', label: 'Backlinks' },
+    seo: { icon: Search, color: 'text-emerald-400', bgColor: 'bg-emerald-500', label: 'SEO' },
+    social: { icon: Users, color: 'text-pink-400', bgColor: 'bg-pink-500', label: 'Social' },
+    news: { icon: FileText, color: 'text-amber-400', bgColor: 'bg-amber-500', label: 'News' },
+    ads: { icon: Megaphone, color: 'text-orange-400', bgColor: 'bg-orange-500', label: 'Ads' },
+    talent: { icon: Briefcase, color: 'text-cyan-400', bgColor: 'bg-cyan-500', label: 'Talent' },
+  };
+
+  // Get all tracker signals with dimension field (parent level - comprehensive feed)
   const getAllTrackerSignals = (): Signal[] => {
-    return Object.values(trackerSignalsData);
+    return Object.entries(trackerSignalsData).map(([key, signal]) => {
+      // Determine dimension from key prefix
+      let dimension = 'website';
+      if (key.startsWith('backlink-')) dimension = 'backlinks';
+      else if (key.startsWith('seo-')) dimension = 'seo';
+      else if (key.startsWith('social-')) dimension = 'social';
+      else if (key.startsWith('news-')) dimension = 'news';
+      else if (key.startsWith('ads-')) dimension = 'ads';
+      else if (key.startsWith('talent-')) dimension = 'talent';
+      return { ...signal, dimension };
+    });
   };
 
   // Get tracker signals for a specific tracker type (child level)
@@ -1951,30 +1973,51 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       'seo': 'seo-',
       'social': 'social-',
       'news': 'news-',
-      'ads': 'ads-'
+      'ads': 'ads-',
+      'talent': 'talent-'
     };
     const prefix = prefixMap[trackerType];
     if (!prefix) return [];
     return Object.entries(trackerSignalsData)
       .filter(([key]) => key.startsWith(prefix))
-      .map(([, signal]) => signal);
+      .map(([key, signal]) => {
+        let dimension = trackerType;
+        return { ...signal, dimension };
+      });
   };
 
   // Comprehensive signals = all tracker signals combined (for "View Full Feed")
   const comprehensiveSignals = getAllTrackerSignals();
 
+  // Priority sorting function
+  const priorityOrder: Record<string, number> = { 'high': 0, 'medium': 1, 'low': 2, 'info': 3 };
+  const sortByPriority = (signals: Signal[]) => {
+    return [...signals].sort((a, b) => {
+      const priorityA = priorityOrder[a.value] ?? 3;
+      const priorityB = priorityOrder[b.value] ?? 3;
+      return priorityA - priorityB;
+    });
+  };
+
   // Determine which signals to show based on context:
   // - If activeTrackerType is set: show only that tracker's signals (child level)
   // - If activeTrackerType is null: show all tracker signals (parent level - full feed)
   const activeTrackerSignals = getTrackerSignals(activeTrackerType);
-  const filteredSignals = activeTrackerType 
-    ? activeTrackerSignals 
-    : (feedFilter === 'all' ? comprehensiveSignals 
-        : feedFilter === 'favorites' ? comprehensiveSignals.filter(s => signalFavorites.includes(s.id))
-        : comprehensiveSignals.filter(s => s.type === feedFilter));
+  const filteredSignals = sortByPriority(
+    activeTrackerType 
+      ? activeTrackerSignals 
+      : (feedFilter === 'all' ? comprehensiveSignals 
+          : feedFilter === 'favorites' ? comprehensiveSignals.filter(s => signalFavorites.includes(s.id))
+          : comprehensiveSignals.filter(s => s.dimension === feedFilter))
+  );
 
-  const handleSignalClick = (signalId: string, category: 'all' | 'pricing' | 'product' | 'marketing' | 'hiring') => {
-    setFeedFilter(category);
+  const handleSignalClick = (signalId: string, dimension: string) => {
+    // Set dimension filter instead of type filter
+    if (['website', 'backlinks', 'seo', 'social', 'news', 'ads', 'talent'].includes(dimension)) {
+      setFeedFilter(dimension as 'all' | 'website' | 'backlinks' | 'seo' | 'social' | 'news' | 'ads' | 'talent' | 'favorites');
+    } else {
+      setFeedFilter('all');
+    }
     setSelectedSignalId(signalId);
     setShowFullFeed(true);
     
@@ -1985,7 +2028,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       'seo-': 'seo',
       'social-': 'social',
       'news-': 'news',
-      'ads-': 'ads'
+      'ads-': 'ads',
+      'talent-': 'talent'
     };
     
     const matchedPrefix = Object.keys(trackerTypeMap).find(prefix => signalId.startsWith(prefix));
@@ -1996,7 +2040,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     // Auto-select the signal to show detail panel with demo data
     const trackerSignal = trackerSignalsData[signalId];
     if (trackerSignal) {
-      setSelectedSignal(trackerSignal);
+      setSelectedSignal({ ...trackerSignal, dimension: matchedPrefix ? trackerTypeMap[matchedPrefix] : 'website' });
     }
   };
 
@@ -3489,44 +3533,27 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                           >
                             All ({comprehensiveSignals.length})
                           </button>
-                          <button 
-                            onClick={() => setFeedFilter('pricing')}
-                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'pricing' ? 'bg-emerald-500 text-white border-emerald-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-pricing"
-                            title="Pricing"
-                          >
-                            <DollarSign size={12} /> ({comprehensiveSignals.filter(s => s.type === 'pricing').length})
-                          </button>
-                          <button 
-                            onClick={() => setFeedFilter('product')}
-                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'product' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-product"
-                            title="Product"
-                          >
-                            <Globe size={12} /> ({comprehensiveSignals.filter(s => s.type === 'product').length})
-                          </button>
-                          <button 
-                            onClick={() => setFeedFilter('marketing')}
-                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'marketing' ? 'bg-purple-500 text-white border-purple-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-marketing"
-                            title="Marketing"
-                          >
-                            <Megaphone size={12} /> ({comprehensiveSignals.filter(s => s.type === 'marketing').length})
-                          </button>
-                          <button 
-                            onClick={() => setFeedFilter('hiring')}
-                            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === 'hiring' ? 'bg-orange-500 text-white border-orange-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-hiring"
-                            title="Hiring"
-                          >
-                            <Briefcase size={12} /> ({comprehensiveSignals.filter(s => s.type === 'hiring').length})
-                          </button>
+                          {Object.entries(dimensionConfig).map(([dim, config]) => {
+                            const DimIcon = config.icon;
+                            const count = comprehensiveSignals.filter(s => s.dimension === dim).length;
+                            return (
+                              <button 
+                                key={dim}
+                                onClick={() => setFeedFilter(dim as typeof feedFilter)}
+                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === dim ? `${config.bgColor} text-white border-${config.bgColor.replace('bg-', '')}` : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
+                                data-testid={`filter-${dim}`}
+                                title={config.label}
+                              >
+                                <DimIcon size={12} /> ({count})
+                              </button>
+                            );
+                          })}
                           <button 
                             onClick={() => setFeedFilter('favorites')}
                             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
                             data-testid="filter-favorites"
                           >
-                            <Star size={12} /> Pin ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
+                            <Pin size={12} /> Pin ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
                           </button>
                         </div>
                       )}
@@ -3587,11 +3614,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                                       signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
                                       'bg-slate-500/20 text-slate-400 border border-slate-500/30'
                                     }`}>
-                                      {signal.value === 'high' ? 'High Value' : signal.value === 'medium' ? 'Medium Value' : 'Low Value'}
+                                      {signal.value === 'high' ? 'HIGH' : signal.value === 'medium' ? 'MED' : 'LOW'}
                                     </span>
-                                    <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800 text-slate-500 border border-slate-700`}>
-                                      {signal.type}
-                                    </span>
+                                    {signal.dimension && dimensionConfig[signal.dimension] && (() => {
+                                      const dimConfig = dimensionConfig[signal.dimension];
+                                      const DimIcon = dimConfig.icon;
+                                      return (
+                                        <span className={`px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider ${dimConfig.bgColor}/20 ${dimConfig.color} border ${dimConfig.bgColor.replace('bg-', 'border-')}/30 flex items-center gap-1`}>
+                                          <DimIcon size={10} /> {dimConfig.label}
+                                        </span>
+                                      );
+                                    })()}
                                   </div>
                                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                     <button 
