@@ -609,7 +609,6 @@ export const LandingPage = () => {
                           <div className="flex flex-col items-end flex-shrink-0 text-[10px] leading-tight pr-2 border-r border-slate-800/50 min-w-[70px]">
                             <span className="text-slate-500 font-medium uppercase tracking-tighter">Traffic</span>
                             <span className="text-brand-400 font-bold tabular-nums">1.2M+</span>
-                            <span className="text-slate-600 text-[8px] italic">SimilarWeb</span>
                           </div>
                         </div>
 
