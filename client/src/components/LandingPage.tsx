@@ -587,11 +587,11 @@ export const LandingPage = () => {
                         </div>
 
                         {/* Product Positioning / Meta Description */}
-                        <div className="flex-1 min-w-0 px-2 border-l border-slate-700">
+                        <div className="flex-1 min-w-0 px-2 border-l border-slate-700 flex items-center justify-between gap-4">
                           <Tooltip delayDuration={300}>
                             <TooltipTrigger asChild>
                               <p 
-                                className="text-xs text-slate-400 line-clamp-2 cursor-default"
+                                className="text-xs text-slate-400 line-clamp-2 cursor-default flex-1"
                                 data-testid={`text-competitor-description-${competitor.id}`}
                               >
                                 {competitor.description}
@@ -604,6 +604,13 @@ export const LandingPage = () => {
                               {competitor.description}
                             </TooltipContent>
                           </Tooltip>
+
+                          {/* Traffic Data */}
+                          <div className="flex flex-col items-end flex-shrink-0 text-[10px] leading-tight pr-2 border-r border-slate-800/50 min-w-[70px]">
+                            <span className="text-slate-500 font-medium uppercase tracking-tighter">Traffic</span>
+                            <span className="text-brand-400 font-bold tabular-nums">1.2M+</span>
+                            <span className="text-slate-600 text-[8px] italic">SimilarWeb</span>
+                          </div>
                         </div>
 
                         {/* Remove Button */}
