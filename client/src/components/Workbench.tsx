@@ -1112,13 +1112,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <BrainCircuit size={14} className="text-brand-400" />
             <span className="text-xs font-bold text-white">AI Discovery Summary</span>
           </div>
-          <button 
-            onClick={() => setShowHistorySheet(true)}
-            className="text-[10px] text-slate-400 hover:text-brand-400 transition-colors flex items-center gap-1"
-            data-testid="button-view-full-summary"
-          >
-            View History <ChevronRight size={10} />
-          </button>
         </div>
         
         <div className="grid grid-cols-3 divide-x divide-slate-800/50">
