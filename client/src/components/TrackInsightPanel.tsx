@@ -82,16 +82,16 @@ const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, av
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="border-b border-slate-800/50 bg-slate-900/30">
+    <div className="border-b border-brand-500/20 bg-brand-500/5">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => summaries && setIsExpanded(!isExpanded)}>
+            <div className="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors">
               <BrainCircuit size={16} className="text-brand-400" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-white">Session Catch-Up</span>
+                <span className="text-xs font-bold text-brand-400 group-hover:text-brand-300 transition-colors">Session Catch-Up</span>
                 <span className="text-[9px] text-slate-500">Last visit: {lastLoginTime}</span>
               </div>
               <p className="text-[10px] text-slate-400 mt-0.5">
@@ -677,6 +677,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     
     setSessionSummaries(generatedSummaries);
     setIsGeneratingSummary(false);
+    setIsExpanded(true); // Automatically expand after generating
   };
 
   const totalSignals = useMemo(() => {
