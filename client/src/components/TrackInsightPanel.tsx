@@ -62,6 +62,123 @@ const tierConfig = {
   update: { label: 'Update', order: 2 },
 };
 
+interface ChannelSummary {
+  channel: string;
+  signalCount: number;
+  summary: string;
+  keyPoints: string[];
+}
+
+interface SessionCatchUpProps {
+  lastLoginTime: string;
+  isGenerating: boolean;
+  summaries: ChannelSummary[] | null;
+  onGenerate: () => void;
+  availableChannels: string[];
+  totalSignals: number;
+}
+
+const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals }: SessionCatchUpProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="border-b border-slate-800/50 bg-slate-900/30">
+      <div className="px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/30 flex items-center justify-center shrink-0">
+              <BrainCircuit size={16} className="text-brand-400" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold text-white">Session Catch-Up</span>
+                <span className="text-[9px] text-slate-500">Last visit: {lastLoginTime}</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5">
+                {totalSignals} signals collected across {availableChannels.length} channels
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 shrink-0">
+            {summaries && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-[10px] text-slate-400"
+                data-testid="button-toggle-summary"
+              >
+                {isExpanded ? 'Hide' : 'Show'}
+                <ChevronDown size={12} className={`ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onGenerate}
+              disabled={isGenerating}
+              className="text-[10px]"
+              data-testid="button-generate-summary"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw size={12} className="mr-1.5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : summaries ? (
+                <>
+                  <RefreshCw size={12} className="mr-1.5" />
+                  Refresh
+                </>
+              ) : (
+                <>
+                  <Sparkles size={12} className="mr-1.5" />
+                  Generate Summary
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
+        {isExpanded && summaries && (
+          <div className="mt-4 grid gap-2">
+            {summaries.map(summary => {
+              const config = channelConfig[summary.channel];
+              if (!config) return null;
+              const Icon = config.icon;
+              
+              return (
+                <div 
+                  key={summary.channel}
+                  className={`p-3 rounded-lg ${config.bgColor} border ${config.borderColor}`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={14} className={config.color} />
+                    <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
+                    <span className="text-[9px] text-slate-500 ml-auto">{summary.signalCount} signals</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed mb-2">{summary.summary}</p>
+                  {summary.keyPoints.length > 0 && (
+                    <ul className="space-y-1">
+                      {summary.keyPoints.map((point, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5 text-[10px] text-slate-400">
+                          <span className="text-slate-600 mt-0.5">-</span>
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanningChannel: string | null; totalInsights: number; unreadCount: number }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   
@@ -489,8 +606,82 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const [scanningChannel, setScanningChannel] = useState<string | null>(null);
   const [insights, setInsights] = useState<ChannelInsight[]>([]);
   const [channelFilter, setChannelFilter] = useState<string | null>(null);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [sessionSummaries, setSessionSummaries] = useState<ChannelSummary[] | null>(null);
 
   const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent'];
+  const lastLoginTime = '2 days ago';
+
+  const handleGenerateSummary = async () => {
+    setIsGeneratingSummary(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    const generatedSummaries: ChannelSummary[] = [
+      {
+        channel: 'website',
+        signalCount: 5,
+        summary: 'Significant website restructuring detected with new enterprise pricing tier and updated feature pages.',
+        keyPoints: [
+          'New $499/mo Enterprise tier launched with SSO/SAML',
+          'Previous $299 Business tier removed',
+          '3 new Fortune 500 case studies published'
+        ]
+      },
+      {
+        channel: 'seo',
+        signalCount: 3,
+        summary: 'Notable ranking improvements for enterprise-related keywords suggesting increased focus on enterprise market.',
+        keyPoints: [
+          '"enterprise collaboration tool" jumped from #18 to #4',
+          'New ranking for "remote team platform" at #8'
+        ]
+      },
+      {
+        channel: 'backlinks',
+        signalCount: 2,
+        summary: 'High-authority backlinks acquired from major tech publications.',
+        keyPoints: [
+          'TechCrunch (DA 94) coverage of Series C funding',
+          'Forbes (DA 95) feature in Top 10 list'
+        ]
+      },
+      {
+        channel: 'news',
+        signalCount: 2,
+        summary: '$50M Series C funding announced with focus on AI R&D and enterprise expansion.',
+        keyPoints: [
+          'Funding led by top-tier VC firm',
+          'Focus areas: AI development and enterprise sales'
+        ]
+      },
+      {
+        channel: 'social',
+        signalCount: 7,
+        summary: 'CEO actively building AI narrative on LinkedIn with high engagement.',
+        keyPoints: [
+          '5 posts averaging 2,000+ impressions',
+          'Teasing "big AI announcement coming soon"'
+        ]
+      },
+      {
+        channel: 'talent',
+        signalCount: 8,
+        summary: 'Heavy AI/ML hiring activity indicating significant product investment.',
+        keyPoints: [
+          '5 Senior ML Engineer openings for LLM integration',
+          'AI Product Manager and Staff Engineer roles'
+        ]
+      }
+    ];
+    
+    setSessionSummaries(generatedSummaries);
+    setIsGeneratingSummary(false);
+  };
+
+  const totalSignals = useMemo(() => {
+    return insights.reduce((sum, i) => sum + i.signals.length, 0);
+  }, [insights]);
 
   useEffect(() => {
     let idx = 0;
@@ -614,6 +805,15 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   return (
     <div className="flex flex-col h-full">
       <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
+      
+      <SessionCatchUp
+        lastLoginTime={lastLoginTime}
+        isGenerating={isGeneratingSummary}
+        summaries={sessionSummaries}
+        onGenerate={handleGenerateSummary}
+        availableChannels={availableChannels}
+        totalSignals={totalSignals}
+      />
       
       <div className="flex-1 flex min-h-0">
         <div className="w-[360px] shrink-0 border-r border-slate-800/50">
