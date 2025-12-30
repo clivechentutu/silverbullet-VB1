@@ -1,13 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   Sparkles, Zap, TrendingUp, ShieldAlert, ChevronDown, ChevronUp, 
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
-  Briefcase, Check, Star, Eye, EyeOff, Settings, Bot,
-  AlertTriangle, BrainCircuit, Activity, Clock, Radio, RefreshCw,
-  ArrowUpRight, TrendingDown, Flame
+  Briefcase, Check, Star, Eye, EyeOff, GripVertical, Settings, Bot,
+  AlertTriangle, BrainCircuit
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface Signal {
   id: number;
@@ -35,19 +40,15 @@ interface AIInsight {
   relatedSignals: Signal[];
   time: string;
   category: 'strategy' | 'pricing' | 'growth' | 'competitive';
-  isNew?: boolean;
-  riskTrend?: 'rising' | 'stable' | 'falling';
 }
 
-interface ChannelStatus {
+interface ChannelConfig {
   id: string;
   name: string;
   icon: typeof Globe;
   color: string;
+  enabled: boolean;
   signalCount: number;
-  trend: number;
-  lastUpdate: string;
-  isActive: boolean;
 }
 
 const dimensionConfig: Record<string, { icon: typeof Globe; color: string; bgColor: string; label: string }> = {
@@ -60,21 +61,22 @@ const dimensionConfig: Record<string, { icon: typeof Globe; color: string; bgCol
   talent: { icon: Briefcase, color: 'text-pink-400', bgColor: 'bg-pink-500', label: 'Talent' },
 };
 
-const categoryConfig: Record<string, { icon: typeof TrendingUp; color: string; borderColor: string; bgColor: string; label: string }> = {
-  strategy: { icon: TrendingUp, color: 'text-emerald-400', borderColor: 'border-emerald-500/50', bgColor: 'bg-emerald-500/10', label: 'Strategy Shift' },
-  pricing: { icon: ShieldAlert, color: 'text-red-400', borderColor: 'border-red-500/50', bgColor: 'bg-red-500/10', label: 'Pricing Alert' },
-  growth: { icon: Zap, color: 'text-amber-400', borderColor: 'border-amber-500/50', bgColor: 'bg-amber-500/10', label: 'Growth Signal' },
-  competitive: { icon: AlertTriangle, color: 'text-blue-400', borderColor: 'border-blue-500/50', bgColor: 'bg-blue-500/10', label: 'Competitive Move' },
+const categoryConfig: Record<string, { icon: typeof TrendingUp; color: string; borderColor: string; bgColor: string }> = {
+  strategy: { icon: TrendingUp, color: 'text-emerald-400', borderColor: 'border-emerald-500/50', bgColor: 'bg-emerald-500/10' },
+  pricing: { icon: ShieldAlert, color: 'text-red-400', borderColor: 'border-red-500/50', bgColor: 'bg-red-500/10' },
+  growth: { icon: Zap, color: 'text-amber-400', borderColor: 'border-amber-500/50', bgColor: 'bg-amber-500/10' },
+  competitive: { icon: AlertTriangle, color: 'text-blue-400', borderColor: 'border-blue-500/50', bgColor: 'bg-blue-500/10' },
 };
 
 interface InsightCardProps {
   insight: AIInsight;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
+  onViewEvidence: (insight: AIInsight) => void;
 }
 
-const InsightCard = ({ insight, isExpanded, onToggleExpand }: InsightCardProps) => {
+const InsightCard = ({ insight, onViewEvidence }: InsightCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isRead, setIsRead] = useState(false);
   
   const catConfig = categoryConfig[insight.category];
   const CategoryIcon = catConfig.icon;
@@ -82,243 +84,307 @@ const InsightCard = ({ insight, isExpanded, onToggleExpand }: InsightCardProps) 
   const priorityStyles = {
     high: 'bg-red-500/20 text-red-400 border-red-500/30',
     medium: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    low: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+    low: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   };
 
-  const riskTrendIcon = insight.riskTrend === 'rising' 
-    ? <Flame size={10} className="text-red-400" />
-    : insight.riskTrend === 'falling' 
-    ? <TrendingDown size={10} className="text-emerald-400" />
-    : null;
-
   return (
-    <div className={`rounded-xl border ${catConfig.borderColor} ${catConfig.bgColor} overflow-hidden transition-all duration-300`}>
-      <div className="p-3">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className={`w-7 h-7 rounded-lg ${catConfig.bgColor} border ${catConfig.borderColor} flex items-center justify-center shrink-0`}>
-              <CategoryIcon size={14} className={catConfig.color} />
+    <div className={`rounded-xl border ${catConfig.borderColor} ${catConfig.bgColor} overflow-hidden transition-all duration-300 ${isExpanded ? 'shadow-lg' : ''}`}>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 rounded-lg ${catConfig.bgColor} border ${catConfig.borderColor} flex items-center justify-center`}>
+              <CategoryIcon size={16} className={catConfig.color} />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="text-xs font-bold text-white truncate">{insight.title}</h4>
-                {insight.isNew && (
-                  <span className="px-1.5 py-0.5 text-[8px] font-bold uppercase bg-brand-500 text-white rounded animate-pulse">
-                    NEW
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[9px] text-slate-500">{insight.time}</span>
-                {riskTrendIcon && (
-                  <span className="flex items-center gap-0.5 text-[9px]">
-                    {riskTrendIcon}
-                    <span className={insight.riskTrend === 'rising' ? 'text-red-400' : 'text-emerald-400'}>
-                      {insight.riskTrend === 'rising' ? 'Rising' : 'Falling'}
-                    </span>
-                  </span>
-                )}
-              </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">{insight.title}</h4>
+              <p className="text-[10px] text-slate-500">{insight.time}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className={`px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider rounded border ${priorityStyles[insight.priority]}`}>
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full border ${priorityStyles[insight.priority]}`}>
               {insight.priority === 'high' ? 'HIGH' : insight.priority === 'medium' ? 'MED' : 'LOW'}
             </span>
-            <button 
-              onClick={() => setIsSaved(!isSaved)}
-              className="p-1 rounded hover:bg-slate-800/50 transition-colors"
-              data-testid={`button-save-insight-${insight.id}`}
-            >
-              <Star size={12} className={isSaved ? 'fill-amber-400 text-amber-400' : 'text-slate-500'} />
-            </button>
           </div>
         </div>
         
-        <p className="text-[11px] text-slate-300 leading-relaxed mb-2 line-clamp-2">{insight.summary}</p>
+        <p className="text-sm text-slate-300 leading-relaxed mb-3">{insight.summary}</p>
         
-        <div className="flex flex-wrap gap-1 mb-2">
-          {insight.sources.slice(0, 3).map((source, idx) => {
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {insight.sources.map((source, idx) => {
             const dimConfig = dimensionConfig[source];
             if (!dimConfig) return null;
             const DimIcon = dimConfig.icon;
             return (
-              <span key={idx} className="px-1.5 py-0.5 rounded text-[8px] font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50 flex items-center gap-0.5">
-                <DimIcon size={8} className={dimConfig.color} /> {dimConfig.label}
+              <span key={idx} className="px-2 py-0.5 rounded text-[9px] font-medium bg-slate-800/80 text-slate-400 border border-slate-700/50 flex items-center gap-1">
+                <DimIcon size={10} className={dimConfig.color} /> {dimConfig.label}
               </span>
             );
           })}
         </div>
 
-        {insight.relatedSignals.length > 0 && (
-          <div className="border-t border-slate-800/50 pt-2 mt-2">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[9px] text-slate-500 font-medium">Evidence Preview</span>
-              <button 
-                onClick={onToggleExpand}
-                className="text-[9px] text-brand-400 hover:text-brand-300 flex items-center gap-0.5"
-                data-testid={`button-expand-evidence-${insight.id}`}
-              >
-                {isExpanded ? 'Collapse' : `View all ${insight.relatedSignals.length}`}
-                {isExpanded ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
-              </button>
-            </div>
-            
-            <div className="space-y-1">
-              {(isExpanded ? insight.relatedSignals : insight.relatedSignals.slice(0, 2)).map(signal => {
-                const dimConfig = signal.dimension ? dimensionConfig[signal.dimension] : null;
-                const DimIcon = dimConfig?.icon || Globe;
-                return (
-                  <div 
-                    key={signal.id}
-                    className="flex items-center gap-2 p-1.5 rounded bg-slate-900/50 border border-slate-800/50 hover:border-slate-700 transition-colors cursor-pointer group"
-                  >
-                    <div className={`w-5 h-5 rounded flex items-center justify-center ${dimConfig?.bgColor || 'bg-slate-700'}/20`}>
-                      <DimIcon size={10} className={dimConfig?.color || 'text-slate-400'} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-slate-300 truncate">{signal.content}</p>
-                    </div>
-                    <span className="text-[8px] text-slate-600 shrink-0">{signal.time}</span>
-                    <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
-                  </div>
-                );
-              })}
-            </div>
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+          <div className="flex items-center gap-2">
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-[11px] text-slate-400 hover:text-white px-2 h-7">
+                {isExpanded ? <ChevronUp size={14} className="mr-1" /> : <ChevronDown size={14} className="mr-1" />}
+                {isExpanded ? 'Hide Details' : 'Show Details'}
+              </Button>
+            </CollapsibleTrigger>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-[11px] text-brand-400 hover:text-brand-300 px-2 h-7"
+              onClick={() => onViewEvidence(insight)}
+              data-testid={`button-view-evidence-${insight.id}`}
+            >
+              <Eye size={14} className="mr-1" /> View Evidence ({insight.relatedSignals.length})
+            </Button>
+            <div className="flex-1" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-7 w-7 ${isRead ? 'text-brand-400' : 'text-slate-500 hover:text-white'}`}
+              onClick={() => setIsRead(!isRead)}
+              data-testid={`button-mark-read-${insight.id}`}
+            >
+              <Check size={14} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-7 w-7 ${isSaved ? 'text-amber-400' : 'text-slate-500 hover:text-white'}`}
+              onClick={() => setIsSaved(!isSaved)}
+              data-testid={`button-save-${insight.id}`}
+            >
+              <Star size={14} className={isSaved ? 'fill-amber-400' : ''} />
+            </Button>
           </div>
-        )}
-
-        {isExpanded && (
-          <div className="border-t border-slate-800/50 pt-2 mt-2 space-y-1.5">
-            <p className="text-[10px] text-slate-400 leading-relaxed">
-              <span className={`${catConfig.color} font-bold mr-1`}>Key Info:</span> 
-              {insight.keyInfo}
-            </p>
-            <p className="text-[10px] text-slate-400 leading-relaxed">
-              <span className="text-brand-400 font-bold mr-1">Impact:</span> 
-              {insight.impact}
-            </p>
-            <p className="text-[10px] text-slate-400 leading-relaxed">
-              <span className="text-amber-400 font-bold mr-1">Action:</span> 
-              {insight.action}
-            </p>
-          </div>
-        )}
+          
+          <CollapsibleContent className="mt-3 space-y-2 pt-3 border-t border-slate-800/50">
+            <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                <span className="text-emerald-400 font-bold mr-1">Key Info:</span> {insight.keyInfo}
+              </p>
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                <span className="text-brand-400 font-bold mr-1">Impact:</span> {insight.impact}
+              </p>
+              <p className="text-[10px] text-slate-400 leading-relaxed">
+                <span className="text-amber-400 font-bold mr-1">Action:</span> {insight.action}
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );
 };
 
-interface ChannelThermostatProps {
-  channels: ChannelStatus[];
+interface ChannelManagerProps {
+  channels: ChannelConfig[];
+  onToggle: (id: string) => void;
+  onReorder: (newOrder: string[]) => void;
 }
 
-const ChannelThermostat = ({ channels }: ChannelThermostatProps) => {
-  const totalSignals = channels.reduce((sum, c) => sum + c.signalCount, 0);
-  const activeChannels = channels.filter(c => c.isActive).length;
+const ChannelManager = ({ channels, onToggle, onReorder }: ChannelManagerProps) => {
+  const [draggedChannel, setDraggedChannel] = useState<string | null>(null);
   
+  const handleDragStart = (e: React.DragEvent, channelId: string) => {
+    e.dataTransfer.setData('text/plain', channelId);
+    setDraggedChannel(channelId);
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+  
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    if (!draggedId || draggedId === targetId) return;
+    
+    const currentOrder = channels.map(c => c.id);
+    const draggedIndex = currentOrder.indexOf(draggedId);
+    const targetIndex = currentOrder.indexOf(targetId);
+    const newOrder = [...currentOrder];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(targetIndex, 0, draggedId);
+    onReorder(newOrder);
+    setDraggedChannel(null);
+  };
+
   return (
-    <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Activity size={16} className="text-brand-400" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+    <div className="flex flex-wrap items-center gap-2">
+      {channels.map(channel => {
+        const ChannelIcon = channel.icon;
+        return (
+          <div 
+            key={channel.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, channel.id)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, channel.id)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all cursor-move ${
+              draggedChannel === channel.id ? 'opacity-50 scale-95' : ''
+            } ${
+              channel.enabled 
+                ? 'bg-slate-900/80 border-slate-700 hover:border-slate-600' 
+                : 'bg-slate-950/50 border-slate-800/50 opacity-60'
+            }`}
+          >
+            <GripVertical size={12} className="text-slate-600" />
+            <ChannelIcon size={14} className={channel.enabled ? channel.color : 'text-slate-600'} />
+            <span className={`text-[11px] font-medium ${channel.enabled ? 'text-slate-300' : 'text-slate-600'}`}>
+              {channel.name}
+            </span>
+            {channel.enabled && (
+              <span className="text-[9px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">
+                {channel.signalCount}
+              </span>
+            )}
+            <Switch 
+              checked={channel.enabled}
+              onCheckedChange={() => onToggle(channel.id)}
+              className="scale-75 data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700"
+            />
           </div>
-          <span className="text-xs font-bold text-white">Signal Monitor</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-          <Radio size={10} className="text-emerald-400 animate-pulse" />
-          <span>{activeChannels}/{channels.length} Active</span>
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-7 gap-1.5">
-        {channels.map(channel => {
-          const ChannelIcon = channel.icon;
-          const trendColor = channel.trend > 0 ? 'text-emerald-400' : channel.trend < 0 ? 'text-red-400' : 'text-slate-500';
-          
-          return (
-            <div 
-              key={channel.id}
-              className={`relative flex flex-col items-center p-2 rounded-lg border transition-all ${
-                channel.isActive 
-                  ? 'bg-slate-900/80 border-slate-700 hover:border-slate-600' 
-                  : 'bg-slate-950/50 border-slate-800/50 opacity-50'
-              }`}
-              title={`${channel.name}: ${channel.signalCount} signals`}
-            >
-              <ChannelIcon size={14} className={channel.isActive ? channel.color : 'text-slate-600'} />
-              <span className="text-[10px] font-bold text-slate-300 mt-1">{channel.signalCount}</span>
-              {channel.trend !== 0 && channel.isActive && (
-                <span className={`text-[8px] ${trendColor} flex items-center`}>
-                  {channel.trend > 0 ? <ArrowUpRight size={8} /> : <TrendingDown size={8} />}
-                  {Math.abs(channel.trend)}
-                </span>
-              )}
-              {channel.isActive && (
-                <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-              )}
-            </div>
-          );
-        })}
-      </div>
-      
-      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-800/50">
-        <span className="text-[10px] text-slate-500">{totalSignals} total signals tracked</span>
-        <div className="flex items-center gap-1 text-[9px] text-slate-600">
-          <Clock size={10} />
-          <span>Updates every 15min</span>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };
 
-interface ActivityTickerProps {
+interface SignalTimelineProps {
   signals: Signal[];
+  onSignalClick: (signal: Signal) => void;
+  selectedSignalId?: number;
 }
 
-const ActivityTicker = ({ signals }: ActivityTickerProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+const SignalTimeline = ({ signals, onSignalClick, selectedSignalId }: SignalTimelineProps) => {
+  const [viewMode, setViewMode] = useState<'timeline' | 'channel'>('timeline');
+  const [channelFilter, setChannelFilter] = useState<string>('all');
   
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % Math.max(signals.length, 1));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [signals.length]);
+  const groupedByChannel = signals.reduce((acc, signal) => {
+    const channel = signal.dimension || 'other';
+    if (!acc[channel]) acc[channel] = [];
+    acc[channel].push(signal);
+    return acc;
+  }, {} as Record<string, Signal[]>);
 
-  const recentSignals = signals.slice(0, 5);
-  
+  const filteredSignals = channelFilter === 'all' 
+    ? signals 
+    : signals.filter(s => s.dimension === channelFilter);
+
   return (
-    <div className="bg-slate-900/30 border border-slate-800 rounded-lg p-2">
-      <div className="flex items-center gap-2 mb-2">
-        <RefreshCw size={10} className="text-brand-400 animate-spin" style={{ animationDuration: '3s' }} />
-        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Live Activity</span>
-      </div>
-      
-      <div className="space-y-1">
-        {recentSignals.map((signal, idx) => {
-          const dimConfig = signal.dimension ? dimensionConfig[signal.dimension] : null;
-          const DimIcon = dimConfig?.icon || Globe;
-          const isLatest = idx === 0;
-          
-          return (
-            <div 
-              key={signal.id}
-              className={`flex items-center gap-2 p-1.5 rounded transition-all ${
-                isLatest ? 'bg-brand-500/10 border border-brand-500/30' : 'bg-slate-900/50 opacity-70'
-              }`}
-              style={{ opacity: 1 - (idx * 0.15) }}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">View:</span>
+          <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5">
+            <button 
+              onClick={() => setViewMode('timeline')}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${viewMode === 'timeline' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+              data-testid="view-timeline"
             >
-              <DimIcon size={10} className={dimConfig?.color || 'text-slate-400'} />
-              <p className="text-[9px] text-slate-400 truncate flex-1">{signal.content}</p>
-              <span className="text-[8px] text-slate-600 shrink-0">{signal.time}</span>
-            </div>
-          );
-        })}
+              Timeline
+            </button>
+            <button 
+              onClick={() => setViewMode('channel')}
+              className={`px-3 py-1 text-[10px] font-bold rounded transition-all ${viewMode === 'channel' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+              data-testid="view-channel"
+            >
+              By Channel
+            </button>
+          </div>
+        </div>
+        
+        {viewMode === 'timeline' && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Filter:</span>
+            <select 
+              value={channelFilter}
+              onChange={(e) => setChannelFilter(e.target.value)}
+              className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300"
+              data-testid="select-channel-filter"
+            >
+              <option value="all">All Channels</option>
+              {Object.keys(dimensionConfig).map(key => (
+                <option key={key} value={key}>{dimensionConfig[key].label}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
+
+      {viewMode === 'timeline' ? (
+        <div className="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+          {filteredSignals.map(signal => {
+            const dimConfig = signal.dimension ? dimensionConfig[signal.dimension] : null;
+            const DimIcon = dimConfig?.icon || Globe;
+            return (
+              <div 
+                key={signal.id}
+                onClick={() => onSignalClick(signal)}
+                className={`p-3 rounded-lg border transition-all cursor-pointer ${
+                  selectedSignalId === signal.id 
+                    ? 'bg-brand-500/10 border-brand-500/50' 
+                    : 'bg-slate-900/50 border-slate-800 hover:border-slate-700'
+                }`}
+                data-testid={`signal-item-${signal.id}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <DimIcon size={12} className={dimConfig?.color || 'text-slate-400'} />
+                    <span className="text-[10px] text-slate-500 font-medium">{dimConfig?.label || 'Signal'}</span>
+                    <span className="text-[9px] text-slate-600">{signal.time}</span>
+                  </div>
+                  <span className={`px-1.5 py-0.5 text-[8px] font-bold rounded ${
+                    signal.value === 'high' ? 'bg-red-500/20 text-red-400' :
+                    signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                    'bg-slate-500/20 text-slate-400'
+                  }`}>
+                    {signal.value === 'high' ? 'H' : signal.value === 'medium' ? 'M' : 'L'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-300 line-clamp-2">{signal.content}</p>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+          {Object.entries(groupedByChannel).map(([channel, channelSignals]) => {
+            const dimConfig = dimensionConfig[channel];
+            const DimIcon = dimConfig?.icon || Globe;
+            return (
+              <div key={channel} className="bg-slate-900/30 border border-slate-800 rounded-lg overflow-hidden">
+                <div className={`px-3 py-2 border-b border-slate-800 flex items-center gap-2 ${dimConfig?.bgColor || 'bg-slate-800'}/10`}>
+                  <DimIcon size={14} className={dimConfig?.color || 'text-slate-400'} />
+                  <span className="text-xs font-bold text-white">{dimConfig?.label || channel}</span>
+                  <span className="text-[9px] text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded ml-auto">
+                    {channelSignals.length}
+                  </span>
+                </div>
+                <div className="p-2 space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar">
+                  {channelSignals.slice(0, 5).map(signal => (
+                    <div 
+                      key={signal.id}
+                      onClick={() => onSignalClick(signal)}
+                      className="p-2 bg-slate-900/50 rounded border border-slate-800/50 hover:border-slate-700 cursor-pointer transition-all"
+                      data-testid={`channel-signal-${signal.id}`}
+                    >
+                      <p className="text-[10px] text-slate-300 line-clamp-1">{signal.content}</p>
+                      <p className="text-[9px] text-slate-500 mt-0.5">{signal.time}</p>
+                    </div>
+                  ))}
+                  {channelSignals.length > 5 && (
+                    <p className="text-[9px] text-slate-500 text-center py-1">+{channelSignals.length - 5} more</p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -329,190 +395,222 @@ interface TrackInsightPanelProps {
 }
 
 export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPanelProps) => {
-  const [expandedInsightId, setExpandedInsightId] = useState<string | null>(null);
-  const [lastRefresh, setLastRefresh] = useState(new Date());
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnalyzing(true);
-      setTimeout(() => {
-        setIsAnalyzing(false);
-        setLastRefresh(new Date());
-      }, 2000);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const getTimeAgo = () => {
-    const diff = Math.floor((Date.now() - lastRefresh.getTime()) / 1000);
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return `${Math.floor(diff / 3600)}h ago`;
-  };
-
-  const channelStatuses: ChannelStatus[] = [
-    { id: 'website', name: 'Website', icon: Globe, color: 'text-cyan-400', signalCount: 12, trend: 3, lastUpdate: '2m ago', isActive: true },
-    { id: 'backlinks', name: 'Backlinks', icon: LinkIcon, color: 'text-emerald-400', signalCount: 8, trend: 2, lastUpdate: '5m ago', isActive: true },
-    { id: 'seo', name: 'SEO', icon: Search, color: 'text-blue-400', signalCount: 15, trend: -1, lastUpdate: '3m ago', isActive: true },
-    { id: 'social', name: 'Social', icon: Users, color: 'text-purple-400', signalCount: 23, trend: 5, lastUpdate: '1m ago', isActive: true },
-    { id: 'news', name: 'News', icon: FileText, color: 'text-rose-400', signalCount: 4, trend: 0, lastUpdate: '10m ago', isActive: true },
-    { id: 'ads', name: 'Ads', icon: Megaphone, color: 'text-amber-400', signalCount: 6, trend: 1, lastUpdate: '8m ago', isActive: true },
-    { id: 'talent', name: 'Talent', icon: Briefcase, color: 'text-pink-400', signalCount: 3, trend: 0, lastUpdate: '15m ago', isActive: true },
-  ];
+  const [isSignalsPanelOpen, setIsSignalsPanelOpen] = useState(false);
+  const [selectedInsight, setSelectedInsight] = useState<AIInsight | null>(null);
+  const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
+  const [summaryFrequency, setSummaryFrequency] = useState<'daily' | 'weekly'>('daily');
+  
+  const [channels, setChannels] = useState<ChannelConfig[]>([
+    { id: 'website', name: 'Website', icon: Globe, color: 'text-cyan-400', enabled: true, signalCount: 6 },
+    { id: 'backlinks', name: 'Backlinks', icon: LinkIcon, color: 'text-emerald-400', enabled: true, signalCount: 4 },
+    { id: 'seo', name: 'SEO', icon: Search, color: 'text-blue-400', enabled: true, signalCount: 4 },
+    { id: 'social', name: 'Social', icon: Users, color: 'text-purple-400', enabled: true, signalCount: 4 },
+    { id: 'news', name: 'News', icon: FileText, color: 'text-rose-400', enabled: true, signalCount: 3 },
+    { id: 'ads', name: 'Ads', icon: Megaphone, color: 'text-amber-400', enabled: false, signalCount: 4 },
+    { id: 'talent', name: 'Talent', icon: Briefcase, color: 'text-pink-400', enabled: true, signalCount: 4 },
+  ]);
 
   const sampleSignals: Signal[] = [
-    { id: 1, type: 'change', category: 'product', time: '2m ago', content: 'New Enterprise SSO documentation page added', domain: targetDomain, color: 'text-cyan-400', bgColor: 'bg-cyan-500', value: 'high', sourceUrl: '#', dimension: 'website' },
-    { id: 2, type: 'new', category: 'marketing', time: '15m ago', content: 'Launched "Scale with confidence" campaign on LinkedIn', domain: targetDomain, color: 'text-purple-400', bgColor: 'bg-purple-500', value: 'medium', sourceUrl: '#', dimension: 'social' },
-    { id: 3, type: 'alert', category: 'pricing', time: '1h ago', content: 'Pricing page updated - new $49/mo flat rate tier', domain: targetDomain, color: 'text-amber-400', bgColor: 'bg-amber-500', value: 'high', sourceUrl: '#', dimension: 'website' },
-    { id: 4, type: 'new', category: 'seo', time: '2h ago', content: 'Ranking improved for "enterprise collaboration tool"', domain: targetDomain, color: 'text-blue-400', bgColor: 'bg-blue-500', value: 'medium', sourceUrl: '#', dimension: 'seo' },
-    { id: 5, type: 'mention', category: 'news', time: '3h ago', content: 'Featured in TechCrunch article about AI collaboration', domain: targetDomain, color: 'text-rose-400', bgColor: 'bg-rose-500', value: 'high', sourceUrl: '#', dimension: 'news' },
+    { id: 101, type: 'product', category: 'Pricing Page Update', time: '2 hours ago', content: 'Pricing tiers restructured with new enterprise and startup plans.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}/pricing`, dimension: 'website' },
+    { id: 102, type: 'product', category: 'Feature Launch', time: '3 hours ago', content: 'AI-Powered Editing: 3 new AI features added to the design suite.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}/features`, dimension: 'website' },
+    { id: 201, type: 'marketing', category: 'New Backlink', time: '6 hours ago', content: 'High-authority tech blog linked to product page from TechReview.io.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://techreview.io/best-design-tools', dimension: 'backlinks' },
+    { id: 301, type: 'product', category: 'Ranking Change', time: '1 hour ago', content: 'Main competitor jumped to #1 for "AI Design Tools" keyword.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: `https://${targetDomain}`, dimension: 'seo' },
+    { id: 401, type: 'marketing', category: 'Viral Content', time: '1 hour ago', content: 'A user\'s review of their new collaborative features is trending on X.', domain: targetDomain, color: 'text-yellow-400', bgColor: 'bg-yellow-500', value: 'medium', sourceUrl: 'https://x.com/trending', dimension: 'social' },
+    { id: 501, type: 'marketing', category: 'TechCrunch Feature', time: '4 hours ago', content: 'Comprehensive deep-dive article on their recent $50M series B funding.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://techcrunch.com/funding', dimension: 'news' },
+    { id: 601, type: 'hiring', category: 'CTO Posting', time: 'Just now', content: 'CTO position posted; actively recruiting for leadership vacancy in engineering.', domain: targetDomain, color: 'text-red-400', bgColor: 'bg-red-500', value: 'high', sourceUrl: 'https://linkedin.com', dimension: 'talent' },
   ];
 
   const aiInsights: AIInsight[] = [
     {
-      id: '1',
-      title: 'Enterprise Market Pivot Detected',
+      id: 'strategy-1',
+      title: 'Market Strategy Shift Detected',
       priority: 'high',
-      summary: 'Multiple signals indicate strategic shift toward Enterprise Infrastructure segment with new SSO docs and security compliance pages.',
-      keyInfo: '2 new Enterprise landing pages + 1 SSO technical doc update detected in last 24h.',
+      category: 'strategy',
+      summary: 'Detected 4 signals indicating shift toward Enterprise Infrastructure. New landing pages and SSO documentation suggest upmarket expansion.',
+      keyInfo: '2 new Enterprise landing pages + 1 SSO technical doc update.',
       impact: 'High risk to mid-market accounts; increased competitive pressure on security compliance.',
       action: 'Brief sales team on new SOC2 comparison; update Enterprise security battle card.',
-      sources: ['website', 'seo', 'social'],
+      sources: ['website', 'seo'],
       relatedSignals: sampleSignals.filter(s => s.dimension === 'website' || s.dimension === 'seo'),
-      time: 'Today',
-      category: 'strategy',
-      isNew: true,
-      riskTrend: 'rising',
+      time: summaryFrequency === 'daily' ? 'Today' : 'This Week',
     },
     {
-      id: '2',
-      title: 'Aggressive Pricing Strategy',
+      id: 'pricing-1',
+      title: 'Pricing Model Changes',
       priority: 'high',
-      summary: 'New $49/mo flat rate tier launched, directly undercutting per-seat pricing models in SMB segment.',
-      keyInfo: 'Pricing page updated with new tier; promotional banner detected on Google Ads.',
+      category: 'pricing',
+      summary: 'Price model consolidation detected. New $49/mo flat rate identified with promotional campaigns.',
+      keyInfo: 'New $49/mo flat rate identified; temporary promotional banner detected on ads.',
       impact: 'Aggressive undercutting of your per-seat model in the 5-15 user segment.',
       action: 'Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.',
       sources: ['website', 'ads'],
-      relatedSignals: sampleSignals.filter(s => s.dimension === 'website' || s.dimension === 'ads'),
-      time: 'Today',
-      category: 'pricing',
-      isNew: true,
-      riskTrend: 'rising',
+      relatedSignals: sampleSignals.filter(s => s.category.includes('Pricing')),
+      time: summaryFrequency === 'daily' ? 'Today' : 'This Week',
     },
     {
-      id: '3',
-      title: 'Social Momentum Surge',
+      id: 'growth-1',
+      title: 'Growth Momentum Surge',
       priority: 'medium',
-      summary: 'Significant spike in LinkedIn engagement and Twitter mentions following new campaign launch.',
-      keyInfo: '45% increase in social mentions; 3 high-DA backlinks from tech publications.',
-      impact: 'Domain authority likely to rise; higher SEO visibility for core keywords expected.',
-      action: 'Boost budget on "alternatives to [competitor]" search ads; initiate media outreach.',
-      sources: ['social', 'backlinks', 'news'],
-      relatedSignals: sampleSignals.filter(s => s.dimension === 'social' || s.dimension === 'news'),
-      time: 'Yesterday',
       category: 'growth',
-      riskTrend: 'stable',
+      summary: 'Significant spike in external authority and social mentions. Domain authority likely to increase.',
+      keyInfo: '3 high-DA backlinks from tech news + 45% increase in X/Twitter mentions.',
+      impact: 'Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.',
+      action: 'Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.',
+      sources: ['backlinks', 'social', 'news'],
+      relatedSignals: sampleSignals.filter(s => ['backlinks', 'social', 'news'].includes(s.dimension || '')),
+      time: summaryFrequency === 'daily' ? 'Today' : 'This Week',
     },
     {
-      id: '4',
-      title: 'Talent Acquisition Signal',
-      priority: 'low',
-      summary: 'New job postings for ML engineers and enterprise sales roles indicate expansion plans.',
-      keyInfo: '5 new engineering roles; 3 enterprise sales positions posted on LinkedIn.',
-      impact: 'Signals investment in AI features and enterprise sales capacity.',
-      action: 'Monitor for product announcements in next quarter; prepare competitive positioning.',
-      sources: ['talent', 'social'],
-      relatedSignals: sampleSignals.filter(s => s.dimension === 'social'),
-      time: '2 days ago',
+      id: 'talent-1',
+      title: 'Leadership Restructuring',
+      priority: 'medium',
       category: 'competitive',
-      riskTrend: 'stable',
+      summary: 'Key executive position posted, signaling potential strategic changes in engineering direction.',
+      keyInfo: 'CTO position posted with urgency markers; possible internal departure.',
+      impact: 'May indicate strategic pivot or integration challenges; watch for product roadmap changes.',
+      action: 'Monitor product announcements; prepare competitive positioning around stability.',
+      sources: ['talent'],
+      relatedSignals: sampleSignals.filter(s => s.dimension === 'talent'),
+      time: summaryFrequency === 'daily' ? 'Today' : 'This Week',
     },
   ];
 
-  const highPriorityInsights = aiInsights.filter(i => i.priority === 'high');
-  const otherInsights = aiInsights.filter(i => i.priority !== 'high');
+  const handleToggleChannel = (id: string) => {
+    setChannels(prev => prev.map(c => c.id === id ? { ...c, enabled: !c.enabled } : c));
+  };
+
+  const handleReorderChannels = (newOrder: string[]) => {
+    setChannels(prev => {
+      const channelMap = Object.fromEntries(prev.map(c => [c.id, c]));
+      return newOrder.map(id => channelMap[id]).filter(Boolean);
+    });
+  };
+
+  const handleViewEvidence = (insight: AIInsight) => {
+    setSelectedInsight(insight);
+    setIsSignalsPanelOpen(true);
+  };
+
+  const enabledChannels = channels.filter(c => c.enabled);
+  const enabledChannelIds = enabledChannels.map(c => c.id);
+  
+  const filteredInsights = aiInsights
+    .filter(insight => 
+      insight.sources.some(source => enabledChannelIds.includes(source))
+    )
+    .sort((a, b) => {
+      const aHighestPriority = Math.min(
+        ...a.sources.map(s => enabledChannelIds.indexOf(s)).filter(i => i >= 0)
+      );
+      const bHighestPriority = Math.min(
+        ...b.sources.map(s => enabledChannelIds.indexOf(s)).filter(i => i >= 0)
+      );
+      if (aHighestPriority !== bHighestPriority) {
+        return aHighestPriority - bHighestPriority;
+      }
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
 
   return (
-    <div className="flex flex-col h-full bg-slate-950/30">
-      <div className="border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <BrainCircuit size={20} className="text-brand-400" />
-            {isAnalyzing && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-brand-500 rounded-full animate-ping" />
-            )}
+    <div className="flex flex-col h-full">
+      {/* AI Insights Section - ~60% of interface */}
+      <div className={`${isSignalsPanelOpen ? 'flex-[3]' : 'flex-1'} overflow-y-auto custom-scrollbar p-4 space-y-4 min-h-0`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center">
+              <Sparkles size={20} className="text-brand-400" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                AI Intelligence Summary 
+                <Zap size={14} className="text-brand-400 animate-pulse" />
+              </h3>
+              <p className="text-xs text-slate-500">Insights based on {enabledChannels.length} active channels</p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              AI Intelligence for {targetName}
-              {isAnalyzing && (
-                <span className="text-[10px] font-normal text-brand-400 flex items-center gap-1">
-                  <span className="inline-block w-1 h-1 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="inline-block w-1 h-1 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="inline-block w-1 h-1 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  Analyzing
-                </span>
-              )}
-            </h3>
-            <p className="text-[10px] text-slate-500">Continuous monitoring across 7 channels</p>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-slate-900/50 border border-slate-800 rounded-lg p-0.5 h-7">
+              <button 
+                onClick={() => setSummaryFrequency('daily')}
+                className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'daily' ? 'bg-brand-500 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                data-testid="freq-daily"
+              >
+                DAILY
+              </button>
+              <button 
+                onClick={() => setSummaryFrequency('weekly')}
+                className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'weekly' ? 'bg-brand-500 text-white' : 'text-slate-500 hover:text-slate-300'}`}
+                data-testid="freq-weekly"
+              >
+                WEEKLY
+              </button>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 bg-slate-900/50 px-2 py-1 rounded-lg border border-slate-800">
-            <Clock size={10} />
-            <span>Updated {getTimeAgo()}</span>
+
+        <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-3">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <Settings size={12} /> Channel Sources
+            </span>
+            <span className="text-[10px] text-slate-600">Drag to reorder priority</span>
           </div>
+          <ChannelManager 
+            channels={channels}
+            onToggle={handleToggleChannel}
+            onReorder={handleReorderChannels}
+          />
         </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+          {filteredInsights.map(insight => (
+            <InsightCard 
+              key={insight.id} 
+              insight={insight} 
+              onViewEvidence={handleViewEvidence}
+            />
+          ))}
+        </div>
+
+        {filteredInsights.length === 0 && (
+          <div className="text-center py-12">
+            <Bot size={48} className="text-slate-700 mx-auto mb-4" />
+            <p className="text-slate-400 font-medium">No insights available</p>
+            <p className="text-xs text-slate-600 mt-1">Enable more channels to generate AI insights</p>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="p-4 space-y-4">
-          <ChannelThermostat channels={channelStatuses} />
-
-          {highPriorityInsights.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Flame size={14} className="text-red-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Priority Alerts</span>
-                <span className="text-[10px] text-slate-500">({highPriorityInsights.length})</span>
-              </div>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                {highPriorityInsights.map(insight => (
-                  <InsightCard 
-                    key={insight.id} 
-                    insight={insight} 
-                    isExpanded={expandedInsightId === insight.id}
-                    onToggleExpand={() => setExpandedInsightId(expandedInsightId === insight.id ? null : insight.id)}
-                  />
-                ))}
-              </div>
+      {/* Signal Evidence Section - ~40% when open, collapsed by default */}
+      <Collapsible open={isSignalsPanelOpen} onOpenChange={setIsSignalsPanelOpen} className={isSignalsPanelOpen ? 'flex-[2] flex flex-col min-h-0' : ''}>
+        <CollapsibleTrigger asChild>
+          <div className="border-t border-slate-800 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-slate-900/50 transition-colors shrink-0">
+            <div className="flex items-center gap-2">
+              <FileText size={16} className="text-slate-400" />
+              <span className="text-sm font-medium text-white">
+                {selectedInsight ? `Evidence: ${selectedInsight.title}` : 'Signal Evidence & Details'}
+              </span>
+              <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded">
+                {selectedInsight ? selectedInsight.relatedSignals.length : sampleSignals.length} signals
+              </span>
             </div>
-          )}
-
-          {otherInsights.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles size={14} className="text-brand-400" />
-                <span className="text-xs font-bold text-white uppercase tracking-wider">Other Insights</span>
-                <span className="text-[10px] text-slate-500">({otherInsights.length})</span>
-              </div>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-                {otherInsights.map(insight => (
-                  <InsightCard 
-                    key={insight.id} 
-                    insight={insight} 
-                    isExpanded={expandedInsightId === insight.id}
-                    onToggleExpand={() => setExpandedInsightId(expandedInsightId === insight.id ? null : insight.id)}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <ActivityTicker signals={sampleSignals} />
-        </div>
-      </div>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              {isSignalsPanelOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            </Button>
+          </div>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent className="flex-1 min-h-0 overflow-hidden">
+          <div className="border-t border-slate-800 p-4 bg-slate-950/50 h-full overflow-auto">
+            <SignalTimeline 
+              signals={selectedInsight?.relatedSignals || sampleSignals}
+              onSignalClick={setSelectedSignal}
+              selectedSignalId={selectedSignal?.id}
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 };
