@@ -3,7 +3,7 @@ import {
   Sparkles, Zap, ChevronRight, ChevronDown,
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
-  BrainCircuit, Archive, Check, Eye, TrendingUp
+  BrainCircuit, Archive, Check, Eye, TrendingUp, History, X
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -69,6 +69,15 @@ interface ChannelSummary {
   keyPoints: string[];
 }
 
+interface HistoricalSummary {
+  id: string;
+  generatedAt: string;
+  periodStart: string;
+  periodEnd: string;
+  totalSignals: number;
+  summaries: ChannelSummary[];
+}
+
 interface SessionCatchUpProps {
   lastLoginTime: string;
   isGenerating: boolean;
@@ -78,72 +87,154 @@ interface SessionCatchUpProps {
   totalSignals: number;
   isExpanded: boolean;
   setIsExpanded: (expanded: boolean) => void;
+  historicalSummaries: HistoricalSummary[];
+  onViewHistorical: (summary: HistoricalSummary) => void;
+  viewingHistorical: HistoricalSummary | null;
+  onClearHistoricalView: () => void;
 }
 
-const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals, isExpanded, setIsExpanded }: SessionCatchUpProps) => {
+const SessionCatchUp = ({ 
+  lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals, 
+  isExpanded, setIsExpanded, historicalSummaries, onViewHistorical, viewingHistorical, onClearHistoricalView 
+}: SessionCatchUpProps) => {
+  const [showHistory, setShowHistory] = useState(false);
+  
+  const displaySummaries = viewingHistorical ? viewingHistorical.summaries : summaries;
+  const displayExpanded = viewingHistorical ? true : isExpanded;
+
   return (
     <div className="border-b border-brand-500/20 bg-brand-500/5">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => summaries && setIsExpanded(!isExpanded)}>
+          <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
+            if (viewingHistorical) return;
+            if (summaries) setIsExpanded(!isExpanded);
+          }}>
             <div className="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors">
               <BrainCircuit size={16} className="text-brand-400" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-brand-400 group-hover:text-brand-300 transition-colors">Session Catch-Up</span>
-                <span className="text-[9px] text-slate-500">Last visit: {lastLoginTime}</span>
+                <span className="text-xs font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
+                  {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
+                </span>
+                {viewingHistorical ? (
+                  <span className="text-[9px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                ) : (
+                  <span className="text-[9px] text-slate-500">Last visit: {lastLoginTime}</span>
+                )}
               </div>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                {totalSignals} signals collected across {availableChannels.length} channels
+                {viewingHistorical 
+                  ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
+                  : `${totalSignals} signals collected across ${availableChannels.length} channels`
+                }
               </p>
             </div>
           </div>
           
           <div className="flex items-center gap-2 shrink-0">
-            {summaries && (
+            {viewingHistorical ? (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={onClearHistoricalView}
                 className="text-[10px] text-slate-400 hover:bg-brand-500/10"
-                data-testid="button-toggle-summary"
+                data-testid="button-close-historical"
               >
-                {isExpanded ? 'Hide' : 'Show'}
-                <ChevronDown size={12} className={`ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                <X size={12} className="mr-1" />
+                Close
               </Button>
+            ) : (
+              <>
+                {historicalSummaries.length > 0 && (
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowHistory(!showHistory)}
+                      className="text-[10px] text-slate-400 hover:bg-brand-500/10"
+                      data-testid="button-show-history"
+                    >
+                      <History size={12} className="mr-1" />
+                      History
+                      <Badge variant="secondary" className="ml-1.5 text-[8px] px-1 py-0">
+                        {historicalSummaries.length}
+                      </Badge>
+                    </Button>
+                    
+                    {showHistory && (
+                      <div className="absolute right-0 top-full mt-1 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                        <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                        </div>
+                        <div className="max-h-48 overflow-y-auto">
+                          {historicalSummaries.map(hist => (
+                            <div 
+                              key={hist.id}
+                              onClick={() => {
+                                onViewHistorical(hist);
+                                setShowHistory(false);
+                              }}
+                              className="px-3 py-2 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+                            >
+                              <div className="flex items-center justify-between mb-0.5">
+                                <span className="text-[10px] font-medium text-white">{hist.generatedAt}</span>
+                                <span className="text-[9px] text-slate-500">{hist.totalSignals} signals</span>
+                              </div>
+                              <span className="text-[9px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {summaries && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-[10px] text-slate-400 hover:bg-brand-500/10"
+                    data-testid="button-toggle-summary"
+                  >
+                    {isExpanded ? 'Hide' : 'Show'}
+                    <ChevronDown size={12} className={`ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onGenerate}
+                  disabled={isGenerating}
+                  className="text-[10px] border-brand-500/30 hover:bg-brand-500/10 text-brand-400"
+                  data-testid="button-generate-summary"
+                >
+                  {isGenerating ? (
+                    <>
+                      <RefreshCw size={12} className="mr-1.5 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : summaries ? (
+                    <>
+                      <RefreshCw size={12} className="mr-1.5" />
+                      Refresh
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={12} className="mr-1.5" />
+                      Generate Summary
+                    </>
+                  )}
+                </Button>
+              </>
             )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onGenerate}
-              disabled={isGenerating}
-              className="text-[10px] border-brand-500/30 hover:bg-brand-500/10 text-brand-400"
-              data-testid="button-generate-summary"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw size={12} className="mr-1.5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : summaries ? (
-                <>
-                  <RefreshCw size={12} className="mr-1.5" />
-                  Refresh
-                </>
-              ) : (
-                <>
-                  <Sparkles size={12} className="mr-1.5" />
-                  Generate Summary
-                </>
-              )}
-            </Button>
           </div>
         </div>
 
-        {isExpanded && summaries && (
+        {displayExpanded && displaySummaries && (
           <div className="mt-4 grid gap-2">
-            {summaries.map(summary => {
+            {displaySummaries.map(summary => {
               const config = channelConfig[summary.channel];
               if (!config) return null;
               const Icon = config.icon;
@@ -609,12 +700,57 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [sessionSummaries, setSessionSummaries] = useState<ChannelSummary[] | null>(null);
   const [isCatchUpExpanded, setIsCatchUpExpanded] = useState(false);
+  const [historicalSummaries, setHistoricalSummaries] = useState<HistoricalSummary[]>([]);
+  const [viewingHistorical, setViewingHistorical] = useState<HistoricalSummary | null>(null);
 
   const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent'];
   const lastLoginTime = '2 days ago';
 
+  useEffect(() => {
+    const mockHistory: HistoricalSummary[] = [
+      {
+        id: 'hist-1',
+        generatedAt: 'Dec 28, 2024 14:32',
+        periodStart: 'Dec 25',
+        periodEnd: 'Dec 28',
+        totalSignals: 23,
+        summaries: [
+          { channel: 'website', signalCount: 4, summary: 'Holiday promotion pages deployed with 30% discount messaging.', keyPoints: ['New /holiday-sale landing page', 'Banner updates across site'] },
+          { channel: 'social', signalCount: 8, summary: 'Heavy social media activity promoting holiday deals.', keyPoints: ['12 posts across platforms', 'Influencer partnership announced'] },
+          { channel: 'news', signalCount: 3, summary: 'Featured in year-end tech roundups.', keyPoints: ['Wired "Best of 2024" mention', 'TechRadar holiday guide feature'] },
+        ]
+      },
+      {
+        id: 'hist-2',
+        generatedAt: 'Dec 20, 2024 09:15',
+        periodStart: 'Dec 15',
+        periodEnd: 'Dec 20',
+        totalSignals: 18,
+        summaries: [
+          { channel: 'talent', signalCount: 6, summary: 'Significant engineering hiring push.', keyPoints: ['3 new backend engineer postings', 'DevOps lead position opened'] },
+          { channel: 'seo', signalCount: 5, summary: 'Content strategy shift toward tutorials.', keyPoints: ['5 new tutorial articles published', 'Documentation site restructured'] },
+          { channel: 'backlinks', signalCount: 4, summary: 'Guest post campaign active.', keyPoints: ['Medium publication partnership', 'Dev.to featured articles'] },
+        ]
+      },
+      {
+        id: 'hist-3',
+        generatedAt: 'Dec 10, 2024 16:45',
+        periodStart: 'Dec 5',
+        periodEnd: 'Dec 10',
+        totalSignals: 31,
+        summaries: [
+          { channel: 'news', signalCount: 5, summary: 'Product launch announcement received wide coverage.', keyPoints: ['ProductHunt launch day', 'Hacker News front page'] },
+          { channel: 'website', signalCount: 8, summary: 'Major product page redesign.', keyPoints: ['New features page layout', 'Pricing page A/B test'] },
+          { channel: 'social', signalCount: 12, summary: 'Launch day social blitz.', keyPoints: ['CEO Twitter thread went viral', 'LinkedIn employee amplification'] },
+        ]
+      }
+    ];
+    setHistoricalSummaries(mockHistory);
+  }, []);
+
   const handleGenerateSummary = async () => {
     setIsGeneratingSummary(true);
+    setViewingHistorical(null);
     
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -676,9 +812,19 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       }
     ];
     
+    const newHistoricalEntry: HistoricalSummary = {
+      id: `hist-${Date.now()}`,
+      generatedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+      periodStart: lastLoginTime,
+      periodEnd: 'Now',
+      totalSignals: generatedSummaries.reduce((sum, s) => sum + s.signalCount, 0),
+      summaries: generatedSummaries
+    };
+    
+    setHistoricalSummaries(prev => [newHistoricalEntry, ...prev]);
     setSessionSummaries(generatedSummaries);
     setIsGeneratingSummary(false);
-    setIsCatchUpExpanded(true); // Automatically expand after generating
+    setIsCatchUpExpanded(true);
   };
 
   const totalSignals = useMemo(() => {
@@ -817,6 +963,10 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         totalSignals={totalSignals}
         isExpanded={isCatchUpExpanded}
         setIsExpanded={setIsCatchUpExpanded}
+        historicalSummaries={historicalSummaries}
+        onViewHistorical={setViewingHistorical}
+        viewingHistorical={viewingHistorical}
+        onClearHistoricalView={() => setViewingHistorical(null)}
       />
       
       <div className="flex-1 flex min-h-0">
