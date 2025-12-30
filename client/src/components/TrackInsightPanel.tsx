@@ -34,6 +34,8 @@ interface ChannelInsight {
   channel: string;
   title: string;
   tier: 'highlight' | 'notable' | 'update';
+  confidence: 'high' | 'medium' | 'low';
+  userOverride?: 'highlight' | 'notable' | 'update' | null;
   summary: string;
   keyInfo: string;
   impact: string;
@@ -43,6 +45,13 @@ interface ChannelInsight {
   isRead: boolean;
   isResolved: boolean;
 }
+
+// Confidence display configuration
+const confidenceConfig = {
+  high: { label: 'AI High Confidence', color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+  medium: { label: 'AI Medium Confidence', color: 'text-amber-400', bgColor: 'bg-amber-500/10' },
+  low: { label: 'AI Low Confidence', color: 'text-slate-400', bgColor: 'bg-slate-500/10' },
+};
 
 interface ChannelConfig {
   id: string;
@@ -121,6 +130,13 @@ interface TopAction {
   action: string;
 }
 
+interface SinceLastVisitStats {
+  totalInsights: number;
+  highlights: number;
+  notable: number;
+  lastVisitDays: number;
+}
+
 interface SessionCatchUpProps {
   lastLoginTime: string;
   isGenerating: boolean;
@@ -136,12 +152,13 @@ interface SessionCatchUpProps {
   onClearHistoricalView: () => void;
   topActions?: TopAction[];
   onActionClick?: (id: string) => void;
+  sinceLastVisit?: SinceLastVisitStats;
 }
 
 const SessionCatchUp = ({ 
   lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals, 
   isExpanded, setIsExpanded, historicalSummaries, onViewHistorical, viewingHistorical, onClearHistoricalView,
-  topActions, onActionClick
+  topActions, onActionClick, sinceLastVisit
 }: SessionCatchUpProps) => {
   const [showHistory, setShowHistory] = useState(false);
   
@@ -150,6 +167,36 @@ const SessionCatchUp = ({
 
   return (
     <div className="border-b border-brand-500/20 bg-brand-500/5">
+      {/* Since Last Visit Summary - for infrequent users */}
+      {sinceLastVisit && sinceLastVisit.lastVisitDays > 3 && !viewingHistorical && (
+        <div className="px-4 py-2 border-b border-blue-500/20 bg-blue-500/5">
+          <div className="flex items-center gap-2">
+            <History size={12} className="text-blue-400" />
+            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
+            <span className="text-[9px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
+          </div>
+          <div className="flex items-center gap-4 mt-1.5">
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
+              <span className="text-[9px] text-slate-400">new insights</span>
+            </div>
+            {sinceLastVisit.highlights > 0 && (
+              <div className="flex items-center gap-1">
+                <Sparkles size={10} className="text-amber-400" />
+                <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights} focus</span>
+              </div>
+            )}
+            {sinceLastVisit.notable > 0 && (
+              <div className="flex items-center gap-1">
+                <Zap size={10} className="text-brand-400" />
+                <span className="text-[10px] text-brand-400 font-medium">{sinceLastVisit.notable} notable</span>
+              </div>
+            )}
+          </div>
+          <p className="text-[9px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
+        </div>
+      )}
+      
       {/* Top Actions Quick View */}
       {topActions && topActions.length > 0 && !viewingHistorical && (
         <div className="px-4 py-2 border-b border-amber-500/20 bg-amber-500/5">
@@ -405,14 +452,22 @@ interface InsightCardProps {
   insight: ChannelInsight;
   isSelected: boolean;
   onClick: () => void;
+  onDemote?: (id: string) => void;
 }
 
-const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
+const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProps) => {
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
-  const tier = tierConfig[insight.tier];
+  const effectiveTier = insight.userOverride || insight.tier;
+  const tier = tierConfig[effectiveTier];
   const TierIcon = tier.icon;
-  const isHighlight = insight.tier === 'highlight';
+  const isHighlight = effectiveTier === 'highlight';
+  const confConfig = confidenceConfig[insight.confidence];
+
+  const handleDemote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDemote?.(insight.id);
+  };
 
   return (
     <div 
@@ -453,6 +508,24 @@ const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
             <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
+            {/* AI Confidence indicator */}
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] ${confConfig.bgColor} ${confConfig.color}`}>
+                    <BrainCircuit size={7} />
+                    {insight.confidence === 'high' ? 'H' : insight.confidence === 'medium' ? 'M' : 'L'}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
+                  <p className="text-[10px] text-slate-300 font-medium">{confConfig.label}</p>
+                  <p className="text-[9px] text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {insight.userOverride && (
+              <span className="text-[7px] text-slate-500 italic">adjusted</span>
+            )}
           </div>
           
           <h4 className={`text-xs font-bold mb-1 leading-snug ${isHighlight && !insight.isRead ? 'text-white' : 'text-white'}`}>{insight.title}</h4>
@@ -461,11 +534,32 @@ const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
           <div className="flex items-center justify-between mt-2 gap-2">
             <div className="flex items-center gap-2">
               <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
-              {insight.tier === 'notable' && (
+              {effectiveTier === 'notable' && (
                 <span className="flex items-center gap-0.5 text-[8px] text-brand-400">
                   <Zap size={8} />
                   Notable
                 </span>
+              )}
+              {/* Demote button - show until item reaches update tier */}
+              {effectiveTier !== 'update' && (
+                <TooltipProvider>
+                  <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={handleDemote}
+                        className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors"
+                        data-testid={`demote-${insight.id}`}
+                        aria-label="Demote this insight to lower priority"
+                      >
+                        <ChevronDown size={8} />
+                        demote
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[180px]">
+                      <p className="text-[9px] text-slate-400">AI got it wrong? Click to lower priority.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
             <ChevronRight size={12} className={isSelected ? chConfig?.color : 'text-slate-600'} />
@@ -591,12 +685,14 @@ interface InsightFeedProps {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onMarkRead: (id: string) => void;
+  onDemote: (id: string) => void;
   channelFilter: string | null;
   onChannelFilterChange: (channel: string | null) => void;
   availableChannels: string[];
+  lastVisitDays: number;
 }
 
-const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter, onChannelFilterChange, availableChannels }: InsightFeedProps) => {
+const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, channelFilter, onChannelFilterChange, availableChannels, lastVisitDays }: InsightFeedProps) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('14d');
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
@@ -607,12 +703,32 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
 
-  // Count high-priority unread items within 72h for the Focus Now badge
+  // Adaptive window based on last visit - use userOverride for effective tier
+  const isWithinAdaptiveWindow = (time: string): boolean => {
+    const parseTimeAgo = (t: string): number => {
+      if (t.includes('min ago')) return 0;
+      if (t.includes('h ago')) return 0;
+      const match = t.match(/(\d+)d ago/);
+      if (match) return parseInt(match[1]);
+      if (t.includes('w ago')) {
+        const wMatch = t.match(/(\d+)w ago/);
+        return wMatch ? parseInt(wMatch[1]) * 7 : 30;
+      }
+      return 30;
+    };
+    const daysAgo = parseTimeAgo(time);
+    // Use lastVisitDays or default to 3 days (72h) for frequent users
+    const windowDays = Math.max(lastVisitDays, 3);
+    return daysAgo <= windowDays;
+  };
+
+  // Count high-priority unread items within adaptive window
   const focusCount = useMemo(() => {
-    return activeInsights.filter(i => 
-      !i.isRead && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time)
-    ).length;
-  }, [activeInsights]);
+    return activeInsights.filter(i => {
+      const effectiveTier = i.userOverride || i.tier;
+      return !i.isRead && (effectiveTier === 'highlight' || effectiveTier === 'notable') && isWithinAdaptiveWindow(i.time);
+    }).length;
+  }, [activeInsights, lastVisitDays]);
 
   const filteredInsights = useMemo(() => {
     let result = activeInsights;
@@ -622,23 +738,28 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
       result = result.filter(i => i.channel === channelFilter);
     }
     
-    // Apply priority filter
+    // Apply priority filter with adaptive window
     if (priorityFilter === 'focus') {
-      // Focus Now: unread highlights and notable from last 72h
-      result = result.filter(i => 
-        !i.isRead && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time)
-      );
+      result = result.filter(i => {
+        const effectiveTier = i.userOverride || i.tier;
+        return !i.isRead && (effectiveTier === 'highlight' || effectiveTier === 'notable') && isWithinAdaptiveWindow(i.time);
+      });
     } else if (priorityFilter === 'notable') {
-      result = result.filter(i => i.tier === 'highlight' || i.tier === 'notable');
+      result = result.filter(i => {
+        const effectiveTier = i.userOverride || i.tier;
+        return effectiveTier === 'highlight' || effectiveTier === 'notable';
+      });
     }
     
     return result;
-  }, [activeInsights, channelFilter, priorityFilter]);
+  }, [activeInsights, channelFilter, priorityFilter, lastVisitDays]);
 
   const sortedInsights = useMemo(() => {
     return [...filteredInsights].sort((a, b) => {
       if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
-      const tDiff = tierConfig[a.tier].order - tierConfig[b.tier].order;
+      const aTier = a.userOverride || a.tier;
+      const bTier = b.userOverride || b.tier;
+      const tDiff = tierConfig[aTier].order - tierConfig[bTier].order;
       if (tDiff !== 0) return tDiff;
       return 0;
     });
@@ -884,6 +1005,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
                 insight={insight}
                 isSelected={selectedId === insight.id}
                 onClick={() => handleSelect(insight.id)}
+                onDemote={onDemote}
               />
             ))}
           </div>
@@ -1250,6 +1372,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     const sampleInsights: ChannelInsight[] = [
       {
         id: 'web-1', channel: 'website', title: 'Enterprise Tier Launch Detected', tier: 'highlight',
+        confidence: 'high',
         summary: 'New enterprise pricing page launched with significant restructuring of tier offerings.',
         keyInfo: 'Added $499/mo Enterprise tier with SSO, SAML, and dedicated support. Removed previous $299 Business tier.',
         impact: 'May affect positioning in enterprise segment. Price point differs from your current enterprise offering.',
@@ -1263,6 +1386,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'seo-1', channel: 'seo', title: 'Keyword Ranking Changes', tier: 'notable',
+        confidence: 'medium',
         summary: 'Competitor ranking improved for several enterprise-related keywords.',
         keyInfo: '"enterprise collaboration tool" moved from #18 to #4. "team management software" from #12 to #6.',
         impact: 'May capture more organic traffic for enterprise-intent keywords.',
@@ -1276,6 +1400,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'bl-1', channel: 'backlinks', title: 'New High-Authority Backlinks', tier: 'notable',
+        confidence: 'high',
         summary: 'Featured in TechCrunch and Forbes articles.',
         keyInfo: 'TechCrunch DA 94 backlink, Forbes DA 95 backlink. Both articles about Series C funding.',
         impact: 'Domain authority may increase. Potential SEO boost.',
@@ -1288,6 +1413,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'news-1', channel: 'news', title: 'Funding Announcement', tier: 'notable',
+        confidence: 'high',
         summary: 'Raised $50M Series C led by top-tier VC firm.',
         keyInfo: 'Funding to be used for AI R&D and enterprise sales expansion per press release.',
         impact: 'Indicates significant runway for market expansion.',
@@ -1300,6 +1426,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'web-2', channel: 'website', title: 'Blog Content Update', tier: 'update',
+        confidence: 'low',
         summary: 'Recent blog posts targeting enterprise decision makers.',
         keyInfo: '3 new case studies featuring Fortune 500 companies published.',
         impact: 'Building enterprise credibility and SEO authority.',
@@ -1312,6 +1439,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'soc-1', channel: 'social', title: 'Executive Social Activity', tier: 'update',
+        confidence: 'medium',
         summary: 'CEO posting about AI features on LinkedIn.',
         keyInfo: '5 posts in last week averaging 2,000+ impressions. Mentions AI features roadmap.',
         impact: 'Building narrative around AI capabilities.',
@@ -1324,6 +1452,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       },
       {
         id: 'tal-1', channel: 'talent', title: 'AI Hiring Activity', tier: 'update',
+        confidence: 'medium',
         summary: 'Hiring AI/ML engineers and product managers.',
         keyInfo: 'Job postings mention "next-generation AI features" and "LLM integration".',
         impact: 'Indicates AI product investment. Features may be 6-9 months out.',
@@ -1350,20 +1479,56 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     }
   };
 
+  // Demote insight - user feedback that AI priority was wrong
+  const handleDemote = (id: string) => {
+    setInsights(prev => prev.map(i => {
+      if (i.id === id) {
+        // Use effective tier to allow repeated demotion
+        const currentTier = i.userOverride || i.tier;
+        // Demote: highlight -> notable, notable -> update, update stays update
+        const newTier = currentTier === 'highlight' ? 'notable' : 'update';
+        return { ...i, userOverride: newTier };
+      }
+      return i;
+    }));
+  };
+
+  // Compute last visit days from lastLoginTime (simulate parsing)
+  const lastVisitDays = useMemo(() => {
+    // Parse "12 hours ago" or "3 days ago" etc.
+    if (lastLoginTime.includes('hour')) return 0;
+    if (lastLoginTime.includes('day')) {
+      const match = lastLoginTime.match(/(\d+)/);
+      return match ? parseInt(match[1]) : 1;
+    }
+    if (lastLoginTime.includes('week')) {
+      const match = lastLoginTime.match(/(\d+)/);
+      return match ? parseInt(match[1]) * 7 : 7;
+    }
+    return 3; // default to 3 days
+  }, [lastLoginTime]);
+
   const unreadCount = useMemo(() => insights.filter(i => !i.isRead && !i.isResolved).length, [insights]);
   const totalActive = useMemo(() => insights.filter(i => !i.isResolved).length, [insights]);
 
-  // Compute top actions (unread highlights and notable items within 72h)
+  // Compute top actions (unread highlights and notable items, respecting userOverride)
   const topActions = useMemo(() => {
     return insights
-      .filter(i => !i.isRead && !i.isResolved && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time))
-      .sort((a, b) => tierConfig[a.tier].order - tierConfig[b.tier].order)
+      .filter(i => {
+        const effectiveTier = i.userOverride || i.tier;
+        return !i.isRead && !i.isResolved && (effectiveTier === 'highlight' || effectiveTier === 'notable');
+      })
+      .sort((a, b) => {
+        const aTier = a.userOverride || a.tier;
+        const bTier = b.userOverride || b.tier;
+        return tierConfig[aTier].order - tierConfig[bTier].order;
+      })
       .slice(0, 3)
       .map(i => ({
         id: i.id,
         channel: i.channel,
         title: i.title,
-        tier: i.tier,
+        tier: i.userOverride || i.tier,
         action: i.action
       }));
   }, [insights]);
@@ -1372,6 +1537,25 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     setSelectedInsightId(id);
     handleMarkRead(id);
   };
+
+  // Compute sinceLastVisit stats for infrequent users
+  const sinceLastVisit = useMemo(() => {
+    const unreadInsights = insights.filter(i => !i.isRead && !i.isResolved);
+    const highlights = unreadInsights.filter(i => {
+      const effectiveTier = i.userOverride || i.tier;
+      return effectiveTier === 'highlight';
+    }).length;
+    const notable = unreadInsights.filter(i => {
+      const effectiveTier = i.userOverride || i.tier;
+      return effectiveTier === 'notable';
+    }).length;
+    return {
+      totalInsights: unreadInsights.length,
+      highlights,
+      notable,
+      lastVisitDays
+    };
+  }, [insights, lastVisitDays]);
 
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
@@ -1394,6 +1578,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         onClearHistoricalView={() => setViewingHistorical(null)}
         topActions={topActions}
         onActionClick={handleTopActionClick}
+        sinceLastVisit={sinceLastVisit}
       />
       
       <div className="flex-1 flex min-h-0">
@@ -1403,9 +1588,11 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
             selectedId={selectedInsightId}
             onSelect={setSelectedInsightId}
             onMarkRead={handleMarkRead}
+            onDemote={handleDemote}
             channelFilter={channelFilter}
             onChannelFilterChange={setChannelFilter}
             availableChannels={availableChannels}
+            lastVisitDays={lastVisitDays}
           />
         </div>
 
