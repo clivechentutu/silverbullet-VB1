@@ -717,11 +717,16 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
 
   const sortedInsights = useMemo(() => {
     return [...filteredInsights].sort((a, b) => {
-      if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
+      // 1. First sort by tier order (value)
       const aTier = a.userOverride || a.tier;
       const bTier = b.userOverride || b.tier;
       const tDiff = tierConfig[aTier].order - tierConfig[bTier].order;
       if (tDiff !== 0) return tDiff;
+      
+      // 2. If same tier, sort by read status (unread first)
+      if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
+      
+      // 3. Finally by time (newest first) - though usually handled by stable sorts or implicit order
       return 0;
     });
   }, [filteredInsights]);
