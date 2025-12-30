@@ -4,7 +4,7 @@ import {
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
-  Calendar, LayoutList, Rows3
+  Calendar, LayoutList, Rows3, Info
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Signal {
   id: number;
@@ -45,16 +51,17 @@ interface ChannelConfig {
   color: string;
   bgColor: string;
   borderColor: string;
+  description: string;
 }
 
 const channelConfig: Record<string, ChannelConfig> = {
-  website: { id: 'website', name: 'Website', icon: Globe, color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/30' },
-  backlinks: { id: 'backlinks', name: 'Backlinks', icon: LinkIcon, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/30' },
-  seo: { id: 'seo', name: 'SEO', icon: Search, color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30' },
-  social: { id: 'social', name: 'Social', icon: Users, color: 'text-purple-400', bgColor: 'bg-purple-500/10', borderColor: 'border-purple-500/30' },
-  news: { id: 'news', name: 'News', icon: FileText, color: 'text-rose-400', bgColor: 'bg-rose-500/10', borderColor: 'border-rose-500/30' },
-  ads: { id: 'ads', name: 'Ads', icon: Megaphone, color: 'text-amber-400', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30' },
-  talent: { id: 'talent', name: 'Talent', icon: Briefcase, color: 'text-pink-400', bgColor: 'bg-pink-500/10', borderColor: 'border-pink-500/30' },
+  website: { id: 'website', name: 'Website', icon: Globe, color: 'text-cyan-400', bgColor: 'bg-cyan-500/10', borderColor: 'border-cyan-500/30', description: 'Detecting pricing changes, new product pages, and messaging shifts.' },
+  backlinks: { id: 'backlinks', name: 'Backlinks', icon: LinkIcon, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10', borderColor: 'border-emerald-500/30', description: 'Tracking new high-authority links and PR impact.' },
+  seo: { id: 'seo', name: 'SEO', icon: Search, color: 'text-blue-400', bgColor: 'bg-blue-500/10', borderColor: 'border-blue-500/30', description: 'Monitoring keyword ranking movements and organic visibility.' },
+  social: { id: 'social', name: 'Social', icon: Users, color: 'text-purple-400', bgColor: 'bg-purple-500/10', borderColor: 'border-purple-500/30', description: 'Monitoring executive social media activity and brand mentions.' },
+  news: { id: 'news', name: 'News', icon: FileText, color: 'text-rose-400', bgColor: 'bg-rose-500/10', borderColor: 'border-rose-500/30', description: 'Tracking press releases, funding news, and industry coverage.' },
+  ads: { id: 'ads', name: 'Ads', icon: Megaphone, color: 'text-amber-400', bgColor: 'bg-amber-500/10', borderColor: 'border-amber-500/30', description: 'Monitoring competitor ad campaigns and creative strategies.' },
+  talent: { id: 'talent', name: 'Talent', icon: Briefcase, color: 'text-pink-400', bgColor: 'bg-pink-500/10', borderColor: 'border-pink-500/30', description: 'Analyzing job postings and key leadership hiring patterns.' },
 };
 
 const tierConfig = {
@@ -376,17 +383,27 @@ interface ChannelFilterProps {
 const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }: ChannelFilterProps) => {
   return (
     <div className="flex items-center gap-1 flex-wrap">
-      <button
-        onClick={() => onFilterChange(null)}
-        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-all ${
-          activeFilter === null 
-            ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' 
-            : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
-        }`}
-        data-testid="filter-all"
-      >
-        All
-      </button>
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onFilterChange(null)}
+              className={`px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+                activeFilter === null 
+                  ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' 
+                  : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
+              }`}
+              data-testid="filter-all"
+            >
+              All
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
+            <p className="text-[10px] text-slate-400">Show all intelligence channels</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       {channels.map(channelId => {
         const config = channelConfig[channelId];
         if (!config) return null;
@@ -395,19 +412,38 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }
         const isActive = activeFilter === channelId;
         
         return (
-          <button
-            key={channelId}
-            onClick={() => onFilterChange(channelId)}
-            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-all ${
-              isActive 
-                ? `${config.bgColor} ${config.color} border ${config.borderColor}` 
-                : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
-            }`}
-            data-testid={`filter-${channelId}`}
-          >
-            <Icon size={10} className={isActive ? config.color : 'text-slate-500'} />
-            {count > 0 && <span>{count}</span>}
-          </button>
+          <TooltipProvider key={channelId}>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => onFilterChange(channelId)}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+                    isActive 
+                      ? `${config.bgColor} ${config.color} border ${config.borderColor}` 
+                      : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
+                  }`}
+                  data-testid={`filter-${channelId}`}
+                >
+                  <Icon size={10} className={isActive ? config.color : 'text-slate-500'} />
+                  {count > 0 && <span>{count}</span>}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent 
+                side="bottom" 
+                className="bg-slate-900 border-slate-700 p-2 max-w-[200px] z-[100]"
+              >
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Icon size={12} className={config.color} />
+                    <span className="text-xs font-bold text-white uppercase">{config.name}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                    {config.description}
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         );
       })}
     </div>
