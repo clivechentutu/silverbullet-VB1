@@ -330,7 +330,7 @@ const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
   return (
     <div 
       onClick={onClick}
-      className={`relative p-3 rounded-lg cursor-pointer transition-all ${
+      className={`relative p-3 rounded-lg cursor-pointer transition-colors ${
         isSelected 
           ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
           : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
@@ -607,7 +607,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
                         <div 
                           key={insight.id}
                           onClick={() => handleSelect(insight.id)}
-                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
                             selectedId === insight.id 
                               ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
                               : 'bg-slate-900/30 border border-slate-800/30 hover:border-slate-700'
@@ -626,14 +626,16 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
             );
           })
         ) : (
-          sortedInsights.slice(0, displayLimit).map(insight => (
-            <InsightCard
-              key={insight.id}
-              insight={insight}
-              isSelected={selectedId === insight.id}
-              onClick={() => handleSelect(insight.id)}
-            />
-          ))
+          <div className="space-y-2">
+            {sortedInsights.slice(0, displayLimit).map(insight => (
+              <InsightCard
+                key={insight.id}
+                insight={insight}
+                isSelected={selectedId === insight.id}
+                onClick={() => handleSelect(insight.id)}
+              />
+            ))}
+          </div>
         )}
         
         {viewMode === 'default' && hasMoreInsights && (
