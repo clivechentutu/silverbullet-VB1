@@ -683,13 +683,13 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
     return daysAgo <= windowDays;
   };
 
-  // Count high-priority unread items within adaptive window
+  // Count high-priority items
   const focusCount = useMemo(() => {
     return activeInsights.filter(i => {
       const effectiveTier = i.userOverride || i.tier;
-      return !i.isRead && (effectiveTier === 'highlight' || effectiveTier === 'notable') && isWithinAdaptiveWindow(i.time);
+      return effectiveTier === 'highlight';
     }).length;
-  }, [activeInsights, lastVisitDays]);
+  }, [activeInsights]);
 
   const filteredInsights = useMemo(() => {
     let result = activeInsights;
@@ -699,16 +699,16 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
       result = result.filter(i => i.channel === channelFilter);
     }
     
-    // Apply priority filter with adaptive window
+    // Apply priority filter
     if (priorityFilter === 'focus') {
       result = result.filter(i => {
         const effectiveTier = i.userOverride || i.tier;
-        return !i.isRead && (effectiveTier === 'highlight' || effectiveTier === 'notable') && isWithinAdaptiveWindow(i.time);
+        return effectiveTier === 'highlight';
       });
     } else if (priorityFilter === 'notable') {
       result = result.filter(i => {
         const effectiveTier = i.userOverride || i.tier;
-        return effectiveTier === 'highlight' || effectiveTier === 'notable';
+        return effectiveTier === 'notable';
       });
     }
     
@@ -836,7 +836,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                     data-testid="filter-focus-now"
                   >
                     <Sparkles size={10} className={priorityFilter === 'focus' ? 'text-amber-400' : ''} />
-                    Focus Now
+                    High Value
                     {focusCount > 0 && (
                       <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${
                         priorityFilter === 'focus' ? 'bg-amber-500/30 text-amber-300' : 'bg-brand-500/20 text-brand-400'
@@ -847,7 +847,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-[10px] text-slate-400">Show unread high-priority insights that need your attention</p>
+                  <p className="text-[10px] text-slate-400">Show only High Value insights</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -865,11 +865,11 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                     data-testid="filter-notable"
                   >
                     <Zap size={10} />
-                    Notable+
+                    Notable
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
-                  <p className="text-[10px] text-slate-400">Show only notable and focus-level insights</p>
+                  <p className="text-[10px] text-slate-400">Show only Notable insights</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
