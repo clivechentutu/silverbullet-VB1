@@ -76,11 +76,11 @@ interface SessionCatchUpProps {
   onGenerate: () => void;
   availableChannels: string[];
   totalSignals: number;
+  isExpanded: boolean;
+  setIsExpanded: (expanded: boolean) => void;
 }
 
-const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals }: SessionCatchUpProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
+const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals, isExpanded, setIsExpanded }: SessionCatchUpProps) => {
   return (
     <div className="border-b border-brand-500/20 bg-brand-500/5">
       <div className="px-4 py-3">
@@ -106,7 +106,7 @@ const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, av
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-[10px] text-slate-400"
+                className="text-[10px] text-slate-400 hover:bg-brand-500/10"
                 data-testid="button-toggle-summary"
               >
                 {isExpanded ? 'Hide' : 'Show'}
@@ -118,7 +118,7 @@ const SessionCatchUp = ({ lastLoginTime, isGenerating, summaries, onGenerate, av
               size="sm"
               onClick={onGenerate}
               disabled={isGenerating}
-              className="text-[10px]"
+              className="text-[10px] border-brand-500/30 hover:bg-brand-500/10 text-brand-400"
               data-testid="button-generate-summary"
             >
               {isGenerating ? (
@@ -608,6 +608,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const [channelFilter, setChannelFilter] = useState<string | null>(null);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [sessionSummaries, setSessionSummaries] = useState<ChannelSummary[] | null>(null);
+  const [isCatchUpExpanded, setIsCatchUpExpanded] = useState(false);
 
   const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent'];
   const lastLoginTime = '2 days ago';
@@ -677,7 +678,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     
     setSessionSummaries(generatedSummaries);
     setIsGeneratingSummary(false);
-    setIsExpanded(true); // Automatically expand after generating
+    setIsCatchUpExpanded(true); // Automatically expand after generating
   };
 
   const totalSignals = useMemo(() => {
@@ -814,6 +815,8 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         onGenerate={handleGenerateSummary}
         availableChannels={availableChannels}
         totalSignals={totalSignals}
+        isExpanded={isCatchUpExpanded}
+        setIsExpanded={setIsCatchUpExpanded}
       />
       
       <div className="flex-1 flex min-h-0">
