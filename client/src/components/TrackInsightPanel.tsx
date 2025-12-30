@@ -197,45 +197,6 @@ const SessionCatchUp = ({
         </div>
       )}
       
-      {/* Top Actions Quick View */}
-      {topActions && topActions.length > 0 && !viewingHistorical && (
-        <div className="px-4 py-2 border-b border-amber-500/20 bg-amber-500/5">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles size={12} className="text-amber-400" />
-            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Top Actions</span>
-            <span className="text-[9px] text-slate-500">Requires attention</span>
-          </div>
-          <div className="space-y-1.5">
-            {topActions.slice(0, 3).map((action, idx) => {
-              const chConfig = channelConfig[action.channel];
-              const ChIcon = chConfig?.icon || Globe;
-              return (
-                <button 
-                  key={action.id}
-                  onClick={() => onActionClick?.(action.id)}
-                  className="w-full flex items-start gap-2 p-2 rounded-lg bg-slate-900/50 border border-amber-500/20 cursor-pointer hover:border-amber-500/40 transition-colors text-left focus:outline-none focus:ring-1 focus:ring-amber-500/50"
-                  data-testid={`top-action-${action.id}`}
-                  aria-label={`Action ${idx + 1}: ${action.title}`}
-                >
-                  <div className="flex items-center justify-center w-5 h-5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-bold shrink-0">
-                    {idx + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <ChIcon size={10} className={chConfig?.color} />
-                      <span className={`text-[9px] ${chConfig?.color}`}>{chConfig?.name}</span>
-                    </div>
-                    <p className="text-[10px] text-white font-medium line-clamp-1">{action.title}</p>
-                    <p className="text-[9px] text-slate-400 line-clamp-1 mt-0.5">{action.action}</p>
-                  </div>
-                  <ChevronRight size={12} className="text-amber-500/50 shrink-0 mt-1" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      
       <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
