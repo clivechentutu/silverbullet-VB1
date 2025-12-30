@@ -65,9 +65,36 @@ const channelConfig: Record<string, ChannelConfig> = {
 };
 
 const tierConfig = {
-  highlight: { label: 'Suggested Focus', order: 0 },
-  notable: { label: 'Notable', order: 1 },
-  update: { label: 'Update', order: 2 },
+  highlight: { 
+    label: 'Focus', 
+    order: 0, 
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    borderColor: 'border-amber-500/40',
+    glowColor: 'shadow-amber-500/20',
+    icon: Sparkles,
+    urgent: true
+  },
+  notable: { 
+    label: 'Notable', 
+    order: 1,
+    color: 'text-brand-400',
+    bgColor: 'bg-brand-500/10',
+    borderColor: 'border-brand-500/30',
+    glowColor: 'shadow-brand-500/10',
+    icon: Zap,
+    urgent: false
+  },
+  update: { 
+    label: 'Update', 
+    order: 2,
+    color: 'text-slate-400',
+    bgColor: 'bg-slate-800/30',
+    borderColor: 'border-slate-700/50',
+    glowColor: '',
+    icon: Eye,
+    urgent: false
+  },
 };
 
 interface ChannelSummary {
@@ -86,6 +113,14 @@ interface HistoricalSummary {
   summaries: ChannelSummary[];
 }
 
+interface TopAction {
+  id: string;
+  channel: string;
+  title: string;
+  tier: 'highlight' | 'notable' | 'update';
+  action: string;
+}
+
 interface SessionCatchUpProps {
   lastLoginTime: string;
   isGenerating: boolean;
@@ -99,11 +134,14 @@ interface SessionCatchUpProps {
   onViewHistorical: (summary: HistoricalSummary) => void;
   viewingHistorical: HistoricalSummary | null;
   onClearHistoricalView: () => void;
+  topActions?: TopAction[];
+  onActionClick?: (id: string) => void;
 }
 
 const SessionCatchUp = ({ 
   lastLoginTime, isGenerating, summaries, onGenerate, availableChannels, totalSignals, 
-  isExpanded, setIsExpanded, historicalSummaries, onViewHistorical, viewingHistorical, onClearHistoricalView 
+  isExpanded, setIsExpanded, historicalSummaries, onViewHistorical, viewingHistorical, onClearHistoricalView,
+  topActions, onActionClick
 }: SessionCatchUpProps) => {
   const [showHistory, setShowHistory] = useState(false);
   
@@ -112,6 +150,45 @@ const SessionCatchUp = ({
 
   return (
     <div className="border-b border-brand-500/20 bg-brand-500/5">
+      {/* Top Actions Quick View */}
+      {topActions && topActions.length > 0 && !viewingHistorical && (
+        <div className="px-4 py-2 border-b border-amber-500/20 bg-amber-500/5">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles size={12} className="text-amber-400" />
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Top Actions</span>
+            <span className="text-[9px] text-slate-500">Requires attention</span>
+          </div>
+          <div className="space-y-1.5">
+            {topActions.slice(0, 3).map((action, idx) => {
+              const chConfig = channelConfig[action.channel];
+              const ChIcon = chConfig?.icon || Globe;
+              return (
+                <button 
+                  key={action.id}
+                  onClick={() => onActionClick?.(action.id)}
+                  className="w-full flex items-start gap-2 p-2 rounded-lg bg-slate-900/50 border border-amber-500/20 cursor-pointer hover:border-amber-500/40 transition-colors text-left focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+                  data-testid={`top-action-${action.id}`}
+                  aria-label={`Action ${idx + 1}: ${action.title}`}
+                >
+                  <div className="flex items-center justify-center w-5 h-5 rounded bg-amber-500/20 text-amber-400 text-[9px] font-bold shrink-0">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <ChIcon size={10} className={chConfig?.color} />
+                      <span className={`text-[9px] ${chConfig?.color}`}>{chConfig?.name}</span>
+                    </div>
+                    <p className="text-[10px] text-white font-medium line-clamp-1">{action.title}</p>
+                    <p className="text-[9px] text-slate-400 line-clamp-1 mt-0.5">{action.action}</p>
+                  </div>
+                  <ChevronRight size={12} className="text-amber-500/50 shrink-0 mt-1" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      
       <div className="px-4 py-3">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
@@ -333,19 +410,30 @@ interface InsightCardProps {
 const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
+  const tier = tierConfig[insight.tier];
+  const TierIcon = tier.icon;
+  const isHighlight = insight.tier === 'highlight';
 
   return (
     <div 
       onClick={onClick}
-      className={`relative p-3 rounded-lg cursor-pointer transition-colors ${
+      className={`relative p-3 rounded-lg cursor-pointer transition-all ${
         isSelected 
           ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
-          : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
+          : isHighlight && !insight.isRead
+            ? `bg-amber-500/5 border border-amber-500/30 shadow-lg ${tier.glowColor}`
+            : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
       }`}
       data-testid={`insight-card-${insight.id}`}
     >
+      {/* Tier indicator strip on the left */}
+      {isHighlight && (
+        <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-500 rounded-full" />
+      )}
+      
+      {/* Unread indicator */}
       {!insight.isRead && (
-        <span className="absolute top-3 right-3 w-2 h-2 bg-brand-500 rounded-full" />
+        <span className={`absolute top-3 right-3 w-2 h-2 rounded-full ${isHighlight ? 'bg-amber-500 animate-pulse' : 'bg-brand-500'}`} />
       )}
       
       <div className="flex items-start gap-2.5">
@@ -354,17 +442,32 @@ const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+            {/* Tier badge for highlight items */}
+            {isHighlight && (
+              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30">
+                <TierIcon size={8} className="text-amber-400" />
+                <span className="text-[8px] font-bold text-amber-400 uppercase">{tier.label}</span>
+              </span>
+            )}
             <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
           </div>
           
-          <h4 className="text-xs font-bold text-white mb-1 leading-snug">{insight.title}</h4>
+          <h4 className={`text-xs font-bold mb-1 leading-snug ${isHighlight && !insight.isRead ? 'text-white' : 'text-white'}`}>{insight.title}</h4>
           <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{insight.summary}</p>
           
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
+          <div className="flex items-center justify-between mt-2 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
+              {insight.tier === 'notable' && (
+                <span className="flex items-center gap-0.5 text-[8px] text-brand-400">
+                  <Zap size={8} />
+                  Notable
+                </span>
+              )}
+            </div>
             <ChevronRight size={12} className={isSelected ? chConfig?.color : 'text-slate-600'} />
           </div>
         </div>
@@ -453,6 +556,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }
 type TimeRange = '7d' | '14d' | '30d' | 'all';
 type ViewMode = 'default' | 'compact';
 type TimeGroup = 'today' | 'yesterday' | 'thisWeek' | 'older';
+type PriorityFilter = 'all' | 'focus' | 'notable';
 
 const timeRangeLabels: Record<TimeRange, string> = {
   '7d': 'Last 7 days',
@@ -475,6 +579,13 @@ const getTimeGroup = (time: string): TimeGroup => {
   return 'older';
 };
 
+// Check if insight is within last 72 hours (3 days)
+const isWithin72Hours = (time: string): boolean => {
+  if (time.includes('min ago') || time.includes('h ago')) return true;
+  if (time.includes('1d ago') || time.includes('2d ago') || time.includes('3d ago')) return true;
+  return false;
+};
+
 interface InsightFeedProps {
   insights: ChannelInsight[];
   selectedId: string | null;
@@ -491,14 +602,38 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<TimeGroup>>(new Set());
   const [displayLimit, setDisplayLimit] = useState(20);
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
 
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
 
+  // Count high-priority unread items within 72h for the Focus Now badge
+  const focusCount = useMemo(() => {
+    return activeInsights.filter(i => 
+      !i.isRead && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time)
+    ).length;
+  }, [activeInsights]);
+
   const filteredInsights = useMemo(() => {
-    if (channelFilter === null) return activeInsights;
-    return activeInsights.filter(i => i.channel === channelFilter);
-  }, [activeInsights, channelFilter]);
+    let result = activeInsights;
+    
+    // Apply channel filter
+    if (channelFilter !== null) {
+      result = result.filter(i => i.channel === channelFilter);
+    }
+    
+    // Apply priority filter
+    if (priorityFilter === 'focus') {
+      // Focus Now: unread highlights and notable from last 72h
+      result = result.filter(i => 
+        !i.isRead && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time)
+      );
+    } else if (priorityFilter === 'notable') {
+      result = result.filter(i => i.tier === 'highlight' || i.tier === 'notable');
+    }
+    
+    return result;
+  }, [activeInsights, channelFilter, priorityFilter]);
 
   const sortedInsights = useMemo(() => {
     return [...filteredInsights].sort((a, b) => {
@@ -598,8 +733,63 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
             </Button>
           </div>
         </div>
+        {/* Priority filter row */}
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] text-slate-500">{filteredInsights.length} active</span>
+          <div className="flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setPriorityFilter(priorityFilter === 'focus' ? 'all' : 'focus')}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-bold transition-all ${
+                      priorityFilter === 'focus'
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/10'
+                        : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-amber-500/30 hover:text-amber-400'
+                    }`}
+                    data-testid="filter-focus-now"
+                  >
+                    <Sparkles size={10} className={priorityFilter === 'focus' ? 'text-amber-400' : ''} />
+                    Focus Now
+                    {focusCount > 0 && (
+                      <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${
+                        priorityFilter === 'focus' ? 'bg-amber-500/30 text-amber-300' : 'bg-brand-500/20 text-brand-400'
+                      }`}>
+                        {focusCount}
+                      </span>
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
+                  <p className="text-[10px] text-slate-400">Show unread high-priority insights that need your attention</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip delayDuration={300}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => setPriorityFilter(priorityFilter === 'notable' ? 'all' : 'notable')}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+                      priorityFilter === 'notable'
+                        ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
+                        : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
+                    }`}
+                    data-testid="filter-notable"
+                  >
+                    <Zap size={10} />
+                    Notable+
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
+                  <p className="text-[10px] text-slate-400">Show only notable and focus-level insights</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className="h-3 w-px bg-slate-800" />
+          <span className="text-[10px] text-slate-500">{filteredInsights.length} {priorityFilter !== 'all' ? 'matching' : 'active'}</span>
         </div>
         <ChannelFilter 
           channels={availableChannels}
@@ -639,19 +829,44 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
                     {groupInsights.map(insight => {
                       const chConfig = channelConfig[insight.channel];
                       const ChIcon = chConfig?.icon || Globe;
+                      const tier = tierConfig[insight.tier];
+                      const isHighlight = insight.tier === 'highlight';
+                      const isNotable = insight.tier === 'notable';
+                      
                       return (
                         <div 
                           key={insight.id}
                           onClick={() => handleSelect(insight.id)}
-                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                          className={`relative flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
                             selectedId === insight.id 
                               ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
-                              : 'bg-slate-900/30 border border-slate-800/30 hover:border-slate-700'
+                              : isHighlight && !insight.isRead
+                                ? 'bg-amber-500/5 border border-amber-500/20 hover:border-amber-500/40'
+                                : 'bg-slate-900/30 border border-slate-800/30 hover:border-slate-700'
                           }`}
                         >
-                          {!insight.isRead && <span className="w-1.5 h-1.5 bg-brand-500 rounded-full shrink-0" />}
+                          {/* Tier color strip */}
+                          {isHighlight && (
+                            <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-amber-500 rounded-full" />
+                          )}
+                          {isNotable && (
+                            <div className="absolute left-0 top-1 bottom-1 w-0.5 bg-brand-500 rounded-full" />
+                          )}
+                          
+                          {/* Unread indicator */}
+                          {!insight.isRead && (
+                            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isHighlight ? 'bg-amber-500 animate-pulse' : 'bg-brand-500'}`} />
+                          )}
+                          
+                          {/* Tier icon for highlight */}
+                          {isHighlight && (
+                            <Sparkles size={10} className="text-amber-400 shrink-0" />
+                          )}
+                          
                           <ChIcon size={12} className={chConfig?.color} />
-                          <span className="text-[10px] text-white line-clamp-1 flex-1">{insight.title}</span>
+                          <span className={`text-[10px] line-clamp-1 flex-1 ${isHighlight && !insight.isRead ? 'text-white font-medium' : 'text-white'}`}>
+                            {insight.title}
+                          </span>
                           <span className="text-[8px] text-slate-600 shrink-0">{insight.time}</span>
                         </div>
                       );
@@ -1138,6 +1353,26 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const unreadCount = useMemo(() => insights.filter(i => !i.isRead && !i.isResolved).length, [insights]);
   const totalActive = useMemo(() => insights.filter(i => !i.isResolved).length, [insights]);
 
+  // Compute top actions (unread highlights and notable items within 72h)
+  const topActions = useMemo(() => {
+    return insights
+      .filter(i => !i.isRead && !i.isResolved && (i.tier === 'highlight' || i.tier === 'notable') && isWithin72Hours(i.time))
+      .sort((a, b) => tierConfig[a.tier].order - tierConfig[b.tier].order)
+      .slice(0, 3)
+      .map(i => ({
+        id: i.id,
+        channel: i.channel,
+        title: i.title,
+        tier: i.tier,
+        action: i.action
+      }));
+  }, [insights]);
+
+  const handleTopActionClick = (id: string) => {
+    setSelectedInsightId(id);
+    handleMarkRead(id);
+  };
+
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
   return (
@@ -1157,6 +1392,8 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         onViewHistorical={setViewingHistorical}
         viewingHistorical={viewingHistorical}
         onClearHistoricalView={() => setViewingHistorical(null)}
+        topActions={topActions}
+        onActionClick={handleTopActionClick}
       />
       
       <div className="flex-1 flex min-h-0">
