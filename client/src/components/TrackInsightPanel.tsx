@@ -3,7 +3,8 @@ import {
   Sparkles, Zap, ChevronRight, ChevronDown,
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
-  BrainCircuit, Archive, Check, Eye, TrendingUp, History, X
+  BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
+  Calendar, LayoutList, Rows3
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -413,6 +414,31 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }
   );
 };
 
+type TimeRange = '7d' | '14d' | '30d' | 'all';
+type ViewMode = 'default' | 'compact';
+type TimeGroup = 'today' | 'yesterday' | 'thisWeek' | 'older';
+
+const timeRangeLabels: Record<TimeRange, string> = {
+  '7d': 'Last 7 days',
+  '14d': 'Last 14 days',
+  '30d': 'Last 30 days',
+  'all': 'All time'
+};
+
+const timeGroupLabels: Record<TimeGroup, string> = {
+  today: 'Today',
+  yesterday: 'Yesterday',
+  thisWeek: 'This Week',
+  older: 'Older'
+};
+
+const getTimeGroup = (time: string): TimeGroup => {
+  if (time.includes('h ago') || time.includes('min ago')) return 'today';
+  if (time.includes('1d ago')) return 'yesterday';
+  if (time.includes('2d ago') || time.includes('3d ago') || time.includes('4d ago') || time.includes('5d ago') || time.includes('6d ago')) return 'thisWeek';
+  return 'older';
+};
+
 interface InsightFeedProps {
   insights: ChannelInsight[];
   selectedId: string | null;
@@ -424,6 +450,12 @@ interface InsightFeedProps {
 }
 
 const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter, onChannelFilterChange, availableChannels }: InsightFeedProps) => {
+  const [timeRange, setTimeRange] = useState<TimeRange>('14d');
+  const [viewMode, setViewMode] = useState<ViewMode>('default');
+  const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<TimeGroup>>(new Set());
+  const [displayLimit, setDisplayLimit] = useState(20);
+
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
 
@@ -441,6 +473,20 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
     });
   }, [filteredInsights]);
 
+  const groupedInsights = useMemo(() => {
+    const groups: Record<TimeGroup, ChannelInsight[]> = {
+      today: [],
+      yesterday: [],
+      thisWeek: [],
+      older: []
+    };
+    sortedInsights.forEach(insight => {
+      const group = getTimeGroup(insight.time);
+      groups[group].push(insight);
+    });
+    return groups;
+  }, [sortedInsights]);
+
   const insightCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     availableChannels.forEach(ch => {
@@ -454,10 +500,22 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
     onMarkRead(id);
   };
 
+  const toggleGroup = (group: TimeGroup) => {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(group)) next.delete(group);
+      else next.add(group);
+      return next;
+    });
+  };
+
   const filteredResolved = useMemo(() => {
     if (channelFilter === null) return resolvedInsights;
     return resolvedInsights.filter(i => i.channel === channelFilter);
   }, [resolvedInsights, channelFilter]);
+
+  const hasMoreInsights = sortedInsights.length > displayLimit;
+  const displayedCount = Math.min(displayLimit, sortedInsights.length);
 
   return (
     <div className="h-full flex flex-col">
@@ -465,7 +523,47 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
         <div className="flex items-center gap-2 mb-2">
           <Sparkles size={14} className="text-brand-400" />
           <span className="text-sm font-bold text-white">AI Insights</span>
-          <span className="text-[10px] text-slate-500 ml-auto">{filteredInsights.length} active</span>
+          <div className="flex items-center gap-1 ml-auto">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTimeRangeMenu(!showTimeRangeMenu)}
+                className="h-6 px-2 text-[9px] text-slate-400 hover:bg-slate-800"
+                data-testid="button-time-range"
+              >
+                <Calendar size={10} className="mr-1" />
+                {timeRangeLabels[timeRange]}
+              </Button>
+              {showTimeRangeMenu && (
+                <div className="absolute right-0 top-full mt-1 w-32 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                  {(Object.keys(timeRangeLabels) as TimeRange[]).map(range => (
+                    <div 
+                      key={range}
+                      onClick={() => { setTimeRange(range); setShowTimeRangeMenu(false); }}
+                      className={`px-3 py-1.5 text-[10px] cursor-pointer transition-colors ${
+                        timeRange === range ? 'bg-brand-500/20 text-brand-400' : 'text-slate-400 hover:bg-slate-800'
+                      }`}
+                    >
+                      {timeRangeLabels[range]}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setViewMode(viewMode === 'default' ? 'compact' : 'default')}
+              className={`h-6 w-6 ${viewMode === 'compact' ? 'text-brand-400' : 'text-slate-500'}`}
+              data-testid="button-view-mode"
+            >
+              {viewMode === 'compact' ? <Rows3 size={12} /> : <LayoutList size={12} />}
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[10px] text-slate-500">{filteredInsights.length} active</span>
         </div>
         <ChannelFilter 
           channels={availableChannels}
@@ -482,8 +580,53 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
             <p className="text-sm text-slate-500 font-medium">No new insights</p>
             <p className="text-xs text-slate-600 mt-1">Monitoring is active</p>
           </div>
+        ) : viewMode === 'compact' ? (
+          (Object.keys(groupedInsights) as TimeGroup[]).map(group => {
+            const groupInsights = groupedInsights[group];
+            if (groupInsights.length === 0) return null;
+            const isCollapsed = collapsedGroups.has(group);
+            
+            return (
+              <div key={group} className="mb-3">
+                <div 
+                  onClick={() => toggleGroup(group)}
+                  className="flex items-center justify-between px-1 py-1.5 cursor-pointer hover:bg-slate-900/30 rounded transition-colors"
+                >
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{timeGroupLabels[group]}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] text-slate-600">{groupInsights.length}</span>
+                    <ChevronDown size={10} className={`text-slate-500 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
+                  </div>
+                </div>
+                {!isCollapsed && (
+                  <div className="space-y-1 mt-1">
+                    {groupInsights.map(insight => {
+                      const chConfig = channelConfig[insight.channel];
+                      const ChIcon = chConfig?.icon || Globe;
+                      return (
+                        <div 
+                          key={insight.id}
+                          onClick={() => handleSelect(insight.id)}
+                          className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${
+                            selectedId === insight.id 
+                              ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
+                              : 'bg-slate-900/30 border border-slate-800/30 hover:border-slate-700'
+                          }`}
+                        >
+                          {!insight.isRead && <span className="w-1.5 h-1.5 bg-brand-500 rounded-full shrink-0" />}
+                          <ChIcon size={12} className={chConfig?.color} />
+                          <span className="text-[10px] text-white line-clamp-1 flex-1">{insight.title}</span>
+                          <span className="text-[8px] text-slate-600 shrink-0">{insight.time}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })
         ) : (
-          sortedInsights.map(insight => (
+          sortedInsights.slice(0, displayLimit).map(insight => (
             <InsightCard
               key={insight.id}
               insight={insight}
@@ -491,6 +634,15 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter
               onClick={() => handleSelect(insight.id)}
             />
           ))
+        )}
+        
+        {viewMode === 'default' && hasMoreInsights && (
+          <button 
+            onClick={() => setDisplayLimit(prev => prev + 20)}
+            className="w-full py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
+          >
+            Load more ({sortedInsights.length - displayLimit} remaining)
+          </button>
         )}
 
         {filteredResolved.length > 0 && (
