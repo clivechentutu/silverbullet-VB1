@@ -157,40 +157,114 @@ const InsightCard = ({ insight, isSelected, onClick }: InsightCardProps) => {
   );
 };
 
+interface ChannelFilterProps {
+  channels: string[];
+  activeFilter: string | null;
+  onFilterChange: (channel: string | null) => void;
+  insightCounts: Record<string, number>;
+}
+
+const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }: ChannelFilterProps) => {
+  return (
+    <div className="flex items-center gap-1 flex-wrap">
+      <button
+        onClick={() => onFilterChange(null)}
+        className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-all ${
+          activeFilter === null 
+            ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' 
+            : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
+        }`}
+        data-testid="filter-all"
+      >
+        All
+      </button>
+      {channels.map(channelId => {
+        const config = channelConfig[channelId];
+        if (!config) return null;
+        const Icon = config.icon;
+        const count = insightCounts[channelId] || 0;
+        const isActive = activeFilter === channelId;
+        
+        return (
+          <button
+            key={channelId}
+            onClick={() => onFilterChange(channelId)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-all ${
+              isActive 
+                ? `${config.bgColor} ${config.color} border ${config.borderColor}` 
+                : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
+            }`}
+            data-testid={`filter-${channelId}`}
+          >
+            <Icon size={10} className={isActive ? config.color : 'text-slate-500'} />
+            {count > 0 && <span>{count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 interface InsightFeedProps {
   insights: ChannelInsight[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onMarkRead: (id: string) => void;
+  channelFilter: string | null;
+  onChannelFilterChange: (channel: string | null) => void;
+  availableChannels: string[];
 }
 
-const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead }: InsightFeedProps) => {
+const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, channelFilter, onChannelFilterChange, availableChannels }: InsightFeedProps) => {
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
 
+  const filteredInsights = useMemo(() => {
+    if (channelFilter === null) return activeInsights;
+    return activeInsights.filter(i => i.channel === channelFilter);
+  }, [activeInsights, channelFilter]);
+
   const sortedInsights = useMemo(() => {
-    return [...activeInsights].sort((a, b) => {
+    return [...filteredInsights].sort((a, b) => {
       if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
       const tDiff = tierConfig[a.tier].order - tierConfig[b.tier].order;
       if (tDiff !== 0) return tDiff;
       return 0;
     });
-  }, [activeInsights]);
+  }, [filteredInsights]);
+
+  const insightCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    availableChannels.forEach(ch => {
+      counts[ch] = activeInsights.filter(i => i.channel === ch).length;
+    });
+    return counts;
+  }, [activeInsights, availableChannels]);
 
   const handleSelect = (id: string) => {
     onSelect(id);
     onMarkRead(id);
   };
 
+  const filteredResolved = useMemo(() => {
+    if (channelFilter === null) return resolvedInsights;
+    return resolvedInsights.filter(i => i.channel === channelFilter);
+  }, [resolvedInsights, channelFilter]);
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-3 border-b border-slate-800/50">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-2">
           <Sparkles size={14} className="text-brand-400" />
           <span className="text-sm font-bold text-white">AI Insights</span>
-          <span className="text-[10px] text-slate-500 ml-auto">{activeInsights.length} active</span>
+          <span className="text-[10px] text-slate-500 ml-auto">{filteredInsights.length} active</span>
         </div>
-        <p className="text-[9px] text-slate-500 mt-1">AI-generated summaries from monitored channels</p>
+        <ChannelFilter 
+          channels={availableChannels}
+          activeFilter={channelFilter}
+          onFilterChange={onChannelFilterChange}
+          insightCounts={insightCounts}
+        />
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
@@ -211,7 +285,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead }: InsightFeed
           ))
         )}
 
-        {resolvedInsights.length > 0 && (
+        {filteredResolved.length > 0 && (
           <Collapsible>
             <CollapsibleTrigger asChild>
               <div className="flex items-center justify-between px-1 py-2 cursor-pointer hover:bg-slate-900/30 rounded transition-colors mt-3 border-t border-slate-800/50 pt-4">
@@ -220,14 +294,14 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead }: InsightFeed
                   <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Resolved</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] text-slate-600">{resolvedInsights.length}</span>
+                  <span className="text-[9px] text-slate-600">{filteredResolved.length}</span>
                   <ChevronDown size={10} className="text-slate-500" />
                 </div>
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="space-y-1.5 mt-2">
-                {resolvedInsights.map(insight => {
+                {filteredResolved.map(insight => {
                   const chConfig = channelConfig[insight.channel];
                   const ChIcon = chConfig?.icon || Globe;
                   return (
@@ -414,6 +488,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [scanningChannel, setScanningChannel] = useState<string | null>(null);
   const [insights, setInsights] = useState<ChannelInsight[]>([]);
+  const [channelFilter, setChannelFilter] = useState<string | null>(null);
 
   const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent'];
 
@@ -547,6 +622,9 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
             selectedId={selectedInsightId}
             onSelect={setSelectedInsightId}
             onMarkRead={handleMarkRead}
+            channelFilter={channelFilter}
+            onChannelFilterChange={setChannelFilter}
+            availableChannels={availableChannels}
           />
         </div>
 
