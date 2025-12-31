@@ -748,58 +748,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [updateSuccessState, setUpdateSuccessState] = useState<'idle' | 'adjusting' | 'completed'>('idle');
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [showHistorySheet, setShowHistorySheet] = useState(false);
-  
-  // Historical browsing state
-  const [historyViewMode, setHistoryViewMode] = useState<'sessions' | 'calendar' | 'range'>('sessions');
-  const [selectedDateRange, setSelectedDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
-  const [showSessionDetail, setShowSessionDetail] = useState<string | null>(null);
-  
-  // Mock session data - simulates user login sessions
-  const [sessionHistory] = useState([
-    {
-      id: 'session-current',
-      label: 'Since Last Visit',
-      lastVisit: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      currentVisit: new Date(),
-      stats: { total: 18, high: 5, medium: 8, low: 5 },
-      isCurrentSession: true,
-      highlights: [
-        { scope: 'ChampSignal', message: '3 new high-priority competitors detected', type: 'high' as const },
-        { scope: 'OpusClip', message: '2 pricing changes from tracked competitors', type: 'medium' as const }
-      ]
-    },
-    {
-      id: 'session-1',
-      label: 'Dec 25-28',
-      lastVisit: new Date('2024-12-25'),
-      currentVisit: new Date('2024-12-28'),
-      stats: { total: 24, high: 6, medium: 12, low: 6 },
-      isCurrentSession: false,
-      highlights: [
-        { scope: 'ChampSignal', message: 'Figma launched new AI features', type: 'high' as const }
-      ]
-    },
-    {
-      id: 'session-2',
-      label: 'Dec 20-25',
-      lastVisit: new Date('2024-12-20'),
-      currentVisit: new Date('2024-12-25'),
-      stats: { total: 32, high: 8, medium: 15, low: 9 },
-      isCurrentSession: false,
-      highlights: [
-        { scope: 'OpusClip', message: 'Descript announced enterprise tier', type: 'medium' as const }
-      ]
-    },
-    {
-      id: 'session-3',
-      label: 'Dec 15-20',
-      lastVisit: new Date('2024-12-15'),
-      currentVisit: new Date('2024-12-20'),
-      stats: { total: 28, high: 4, medium: 16, low: 8 },
-      isCurrentSession: false,
-      highlights: []
-    }
-  ]);
 
   // Auto-transition and hide update success message
   useEffect(() => {
@@ -1161,303 +1109,112 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
       </div>
 
-      {/* AI Intelligence Summary - Session-based Discovery Analysis */}
+      {/* AI Intelligence Summary - Period-based Discovery Analysis */}
       <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
-        {/* Header with view mode controls */}
-        <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between gap-4">
+        <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Radar size={14} className="text-brand-400" />
             <span className="text-xs font-bold text-white">Radar Summary</span>
           </div>
-          
-          {/* Historical browsing mode selector */}
-          <div className="flex items-center gap-1 bg-slate-800/50 rounded-lg p-0.5">
-            <button
-              onClick={() => setHistoryViewMode('sessions')}
-              className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all flex items-center gap-1.5 ${
-                historyViewMode === 'sessions' 
-                  ? 'bg-slate-700 text-white' 
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-              data-testid="history-mode-sessions"
-            >
-              <History size={10} />
-              Sessions
-            </button>
-            <button
-              onClick={() => setHistoryViewMode('calendar')}
-              className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all flex items-center gap-1.5 ${
-                historyViewMode === 'calendar' 
-                  ? 'bg-slate-700 text-white' 
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-              data-testid="history-mode-calendar"
-            >
-              <Calendar size={10} />
-              Calendar
-            </button>
-            <button
-              onClick={() => setHistoryViewMode('range')}
-              className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all flex items-center gap-1.5 ${
-                historyViewMode === 'range' 
-                  ? 'bg-slate-700 text-white' 
-                  : 'text-slate-500 hover:text-slate-300'
-              }`}
-              data-testid="history-mode-range"
-            >
-              <ArrowRight size={10} />
-              Range
-            </button>
-          </div>
         </div>
         
-        {/* Since Last Visit - Prominent Session Card */}
-        {sessionHistory[0]?.isCurrentSession && (
-          <div 
-            className="p-4 bg-gradient-to-r from-brand-500/10 via-brand-500/5 to-transparent border-b border-slate-800/50 cursor-pointer hover:bg-brand-500/15 transition-colors"
-            onClick={() => { setSelectedHistoryItem('Since Last Visit'); setShowHistorySheet(true); }}
-            data-testid="card-since-last-visit"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-brand-500/20 border border-brand-500/30 rounded-full">
-                    <div className="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse" />
-                    <span className="text-[10px] font-bold text-brand-400 uppercase tracking-wider">Since Last Visit</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500">
-                    {format(sessionHistory[0].lastVisit, 'MMM d, h:mm a')} - Now
-                  </span>
+        <div className="grid grid-cols-3 divide-x divide-slate-800/50">
+          {[
+            { 
+              label: 'Daily', 
+              date: format(new Date(), 'MMM d'),
+              total: 12, 
+              high: 3,
+              color: 'amber',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
+                  text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'Descript', color: 'text-purple-400' }],
+                  text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
+                }
+              ]
+            },
+            { 
+              label: 'Weekly', 
+              date: 'Dec 18-25',
+              total: 48, 
+              high: 8,
+              color: 'brand',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Sketch Pro', color: 'text-amber-400' }, { name: 'Penpot', color: 'text-blue-400' }],
+                  text: ['Discovered 5 competitors: ', 'Adobe Express', ' (94% match, enterprise integration), ', 'Sketch Pro', ' (88% match, vector-first approach), ', 'Penpot', ' (85% match, open-source alternative).']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'Runway', color: 'text-purple-400' }, { name: 'Kapwing', color: 'text-green-400' }],
+                  text: ['Found 3 competitors: ', 'Runway', ' (91% match, AI video generation) and ', 'Kapwing', ' (86% match, browser-based editing suite).']
+                }
+              ]
+            },
+            { 
+              label: 'Monthly', 
+              date: 'December',
+              total: 156, 
+              high: 24,
+              color: 'blue',
+              scopeInsights: [
+                { 
+                  scope: 'ChampSignal', 
+                  products: [{ name: 'Figma', color: 'text-red-400' }, { name: 'Framer', color: 'text-amber-400' }],
+                  text: ['Top threats: ', 'Figma', ' (96% match, market leader in collaborative design), ', 'Framer', ' (90% match, code-export and responsive design).']
+                },
+                { 
+                  scope: 'OpusClip', 
+                  products: [{ name: 'CapCut', color: 'text-purple-400' }, { name: 'InVideo', color: 'text-green-400' }],
+                  text: ['Key competitors: ', 'CapCut', ' (93% match, mobile-first short video editor), ', 'InVideo', ' (88% match, template-driven video creation).']
+                }
+              ]
+            }
+          ].map((period, i) => (
+            <div key={i} className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer" onClick={() => { setSelectedHistoryItem(period.label); setShowHistorySheet(true); }}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.label}</span>
+                  <span className="text-[9px] text-slate-600">{period.date}</span>
                 </div>
-                
-                {/* Key highlights */}
-                {sessionHistory[0].highlights.length > 0 && (
-                  <div className="space-y-1.5 mb-3">
-                    {sessionHistory[0].highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <div className={`w-1 h-1 rounded-full ${
-                          highlight.type === 'high' ? 'bg-red-400' : 
-                          highlight.type === 'medium' ? 'bg-amber-400' : 'bg-blue-400'
-                        }`} />
-                        <span className="text-[10px] text-slate-500">{highlight.scope}:</span>
-                        <span className={`text-[10px] ${
-                          highlight.type === 'high' ? 'text-red-400' : 
-                          highlight.type === 'medium' ? 'text-amber-400' : 'text-slate-400'
-                        }`}>{highlight.message}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-bold text-white">{period.total}</span>
+                  <span className="text-[9px] text-slate-500">finds</span>
+                  <span className="text-[9px] text-slate-600">/</span>
+                  <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
+                  <span className="text-[9px] text-slate-500">high</span>
+                </div>
               </div>
               
-              {/* Stats summary */}
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-white">{sessionHistory[0].stats.total}</span>
-                    <span className="text-[10px] text-slate-500">new finds</span>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-red-500/10 border border-red-500/20 rounded">
-                    <span className="text-xs font-bold text-red-400">{sessionHistory[0].stats.high}</span>
-                    <span className="text-[9px] text-red-400/70">HIGH</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded">
-                    <span className="text-xs font-bold text-amber-400">{sessionHistory[0].stats.medium}</span>
-                    <span className="text-[9px] text-amber-400/70">MED</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/10 border border-blue-500/20 rounded">
-                    <span className="text-xs font-bold text-blue-400">{sessionHistory[0].stats.low}</span>
-                    <span className="text-[9px] text-blue-400/70">LOW</span>
-                  </div>
-                </div>
-                <ChevronRight size={16} className="text-slate-600" />
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Sessions view - Timeline of past login sessions */}
-        {historyViewMode === 'sessions' && (
-          <div className="divide-y divide-slate-800/30">
-            {sessionHistory.filter(s => !s.isCurrentSession).map((session) => (
-              <div 
-                key={session.id}
-                className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer flex items-center justify-between gap-4"
-                onClick={() => { setSelectedHistoryItem(session.label); setShowHistorySheet(true); }}
-                data-testid={`session-card-${session.id}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-800/50 border border-slate-700/50 flex items-center justify-center">
-                    <Clock size={14} className="text-slate-500" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-medium text-white">{session.label}</span>
-                      <span className="text-[9px] text-slate-600">
-                        {format(session.lastVisit, 'MMM d')} - {format(session.currentVisit, 'MMM d')}
-                      </span>
+              <div className="space-y-2">
+                {period.scopeInsights.map((insight, idx) => (
+                  <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <TargetIcon size={9} className="text-slate-500" />
+                      <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
                     </div>
-                    {session.highlights.length > 0 && (
-                      <p className="text-[10px] text-slate-500 truncate max-w-[300px]">
-                        {session.highlights[0].message}
-                      </p>
-                    )}
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      {insight.text.map((part, partIdx) => {
+                        const matchedProduct = insight.products.find(p => p.name === part);
+                        if (matchedProduct) {
+                          return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                        }
+                        return <span key={partIdx}>{part}</span>;
+                      })}
+                    </p>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{session.stats.total}</span>
-                    <span className="text-[9px] text-slate-500">finds</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-bold text-red-400">{session.stats.high}</span>
-                    <span className="text-[9px] text-slate-600">/</span>
-                    <span className="text-xs font-medium text-amber-400">{session.stats.medium}</span>
-                    <span className="text-[9px] text-slate-600">/</span>
-                    <span className="text-xs font-medium text-blue-400">{session.stats.low}</span>
-                  </div>
-                  <ChevronRight size={14} className="text-slate-600" />
-                </div>
-              </div>
-            ))}
-            
-            {/* Load more sessions */}
-            <div className="p-3 flex items-center justify-center">
-              <button 
-                className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 rounded-lg transition-colors flex items-center gap-1.5"
-                data-testid="button-load-more-sessions"
-              >
-                <History size={10} />
-                Load Earlier Sessions
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* Calendar view - Date picker for historical browsing */}
-        {historyViewMode === 'calendar' && (
-          <div className="p-4">
-            <div className="grid grid-cols-7 gap-1 mb-4">
-              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-[9px] font-bold text-slate-600 uppercase py-1">
-                  {day}
-                </div>
-              ))}
-              {/* Generate calendar days for December 2024 */}
-              {Array.from({ length: 31 }, (_, i) => {
-                const day = i + 1;
-                const hasFindings = [3, 5, 8, 12, 15, 18, 20, 22, 25, 28, 31].includes(day);
-                const highPriority = [5, 15, 25].includes(day);
-                const offset = new Date('2024-12-01').getDay();
-                return (
-                  <button
-                    key={day}
-                    className={`aspect-square rounded-lg text-xs font-medium transition-all flex flex-col items-center justify-center gap-0.5 ${
-                      hasFindings 
-                        ? 'bg-slate-800/50 hover:bg-slate-700/50 text-white' 
-                        : 'text-slate-600 hover:bg-slate-800/30'
-                    }`}
-                    style={{ gridColumnStart: day === 1 ? offset + 1 : undefined }}
-                    onClick={() => {
-                      const date = new Date(`2024-12-${String(day).padStart(2, '0')}`);
-                      setSelectedDateRange({ from: date, to: date });
-                      setSelectedHistoryItem(`Dec ${day}`);
-                      setShowHistorySheet(true);
-                    }}
-                    data-testid={`calendar-day-${day}`}
-                  >
-                    {day}
-                    {hasFindings && (
-                      <div className={`w-1 h-1 rounded-full ${highPriority ? 'bg-red-400' : 'bg-brand-400'}`} />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="flex items-center justify-between pt-3 border-t border-slate-800/50">
-              <span className="text-[10px] text-slate-500">Click a date to view findings from that day</span>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-red-400" />
-                  <span className="text-[9px] text-slate-500">High priority</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-brand-400" />
-                  <span className="text-[9px] text-slate-500">Has findings</span>
-                </div>
+                ))}
               </div>
             </div>
-          </div>
-        )}
-        
-        {/* Range view - Custom date range picker */}
-        {historyViewMode === 'range' && (
-          <div className="p-4">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">From</label>
-                <input
-                  type="date"
-                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500/50"
-                  value={selectedDateRange.from ? format(selectedDateRange.from, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setSelectedDateRange(prev => ({ ...prev, from: e.target.value ? new Date(e.target.value) : null }))}
-                  data-testid="input-date-from"
-                />
-              </div>
-              <ArrowRight size={16} className="text-slate-600 mt-5" />
-              <div className="flex-1">
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">To</label>
-                <input
-                  type="date"
-                  className="w-full bg-slate-800/50 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500/50"
-                  value={selectedDateRange.to ? format(selectedDateRange.to, 'yyyy-MM-dd') : ''}
-                  onChange={(e) => setSelectedDateRange(prev => ({ ...prev, to: e.target.value ? new Date(e.target.value) : null }))}
-                  data-testid="input-date-to"
-                />
-              </div>
-              <button
-                className="mt-5 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium rounded-lg transition-colors disabled:bg-slate-700 disabled:text-slate-500"
-                disabled={!selectedDateRange.from || !selectedDateRange.to}
-                onClick={() => {
-                  if (selectedDateRange.from && selectedDateRange.to) {
-                    setSelectedHistoryItem(`${format(selectedDateRange.from, 'MMM d')} - ${format(selectedDateRange.to, 'MMM d')}`);
-                    setShowHistorySheet(true);
-                  }
-                }}
-                data-testid="button-apply-range"
-              >
-                Apply
-              </button>
-            </div>
-            
-            {/* Quick range presets */}
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Quick:</span>
-              {[
-                { label: 'Last 7 days', days: 7 },
-                { label: 'Last 14 days', days: 14 },
-                { label: 'Last 30 days', days: 30 },
-                { label: 'Last 90 days', days: 90 }
-              ].map(preset => (
-                <button
-                  key={preset.days}
-                  className="px-2.5 py-1 text-[10px] font-medium text-slate-400 hover:text-white bg-slate-800/30 hover:bg-slate-700/50 rounded-lg transition-colors"
-                  onClick={() => {
-                    const to = new Date();
-                    const from = new Date(Date.now() - preset.days * 24 * 60 * 60 * 1000);
-                    setSelectedDateRange({ from, to });
-                  }}
-                  data-testid={`preset-${preset.days}d`}
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-4">
