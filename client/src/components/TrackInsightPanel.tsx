@@ -197,45 +197,73 @@ const SessionCatchUp = ({
         </div>
       )}
       
-      <div className="px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
+      <div className="px-5 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 shrink-0">
+            <Button
+              variant="outline"
+              size="default"
+              onClick={onGenerate}
+              disabled={isGenerating}
+              className="text-xs font-bold border-brand-500/40 hover:bg-brand-500/20 text-brand-400 px-4 h-9 shadow-lg shadow-brand-500/10"
+              data-testid="button-generate-summary"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw size={14} className="mr-2 animate-spin" />
+                  Analyzing...
+                </>
+              ) : summaries ? (
+                <>
+                  <RefreshCw size={14} className="mr-2" />
+                  Refresh
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} className="mr-2" />
+                  Generate Summary
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1 justify-end" onClick={() => {
             if (viewingHistorical) return;
             if (summaries) setIsExpanded(!isExpanded);
           }}>
-            <div className="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors">
-              <BrainCircuit size={16} className="text-brand-400" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
+            <div className="min-w-0 text-right">
+              <div className="flex items-center justify-end gap-2 flex-wrap">
+                <span className="text-sm font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
                   {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                 </span>
                 {viewingHistorical ? (
-                  <span className="text-[9px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
                 ) : (
-                  <span className="text-[9px] text-slate-500">Last visit: {lastLoginTime}</span>
+                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 {viewingHistorical 
                   ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
                   : `${totalSignals} signals collected across ${availableChannels.length} channels`
                 }
               </p>
             </div>
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
+              <BrainCircuit size={20} className="text-brand-400" />
+            </div>
           </div>
           
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 border-l border-brand-500/20 pl-4 ml-2">
             {viewingHistorical ? (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onClearHistoricalView}
-                className="text-[10px] text-slate-400 hover:bg-brand-500/10"
+                className="text-xs text-slate-400 hover:bg-brand-500/10"
                 data-testid="button-close-historical"
               >
-                <X size={12} className="mr-1" />
+                <X size={14} className="mr-1.5" />
                 Close
               </Button>
             ) : (
@@ -246,22 +274,22 @@ const SessionCatchUp = ({
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowHistory(!showHistory)}
-                      className="text-[10px] text-slate-400 hover:bg-brand-500/10"
+                      className="text-xs text-slate-400 hover:bg-brand-500/10"
                       data-testid="button-show-history"
                     >
-                      <History size={12} className="mr-1" />
+                      <History size={14} className="mr-1.5" />
                       History
-                      <Badge variant="secondary" className="ml-1.5 text-[8px] px-1 py-0">
+                      <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
                         {historicalSummaries.length}
                       </Badge>
                     </Button>
                     
                     {showHistory && (
-                      <div className="absolute right-0 top-full mt-1 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                      <div className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
                         <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
                         </div>
-                        <div className="max-h-48 overflow-y-auto">
+                        <div className="max-h-60 overflow-y-auto">
                           {historicalSummaries.map(hist => (
                             <div 
                               key={hist.id}
@@ -269,13 +297,13 @@ const SessionCatchUp = ({
                                 onViewHistorical(hist);
                                 setShowHistory(false);
                               }}
-                              className="px-3 py-2 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+                              className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
                             >
-                              <div className="flex items-center justify-between mb-0.5">
-                                <span className="text-[10px] font-medium text-white">{hist.generatedAt}</span>
-                                <span className="text-[9px] text-slate-500">{hist.totalSignals} signals</span>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                                <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
                               </div>
-                              <span className="text-[9px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+                              <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
                             </div>
                           ))}
                         </div>
@@ -288,38 +316,13 @@ const SessionCatchUp = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="text-[10px] text-slate-400 hover:bg-brand-500/10"
+                    className="text-xs text-slate-400 hover:bg-brand-500/10"
                     data-testid="button-toggle-summary"
                   >
                     {isExpanded ? 'Hide' : 'Show'}
-                    <ChevronDown size={12} className={`ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <ChevronDown size={14} className={`ml-1.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </Button>
                 )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onGenerate}
-                  disabled={isGenerating}
-                  className="text-[10px] border-brand-500/30 hover:bg-brand-500/10 text-brand-400"
-                  data-testid="button-generate-summary"
-                >
-                  {isGenerating ? (
-                    <>
-                      <RefreshCw size={12} className="mr-1.5 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : summaries ? (
-                    <>
-                      <RefreshCw size={12} className="mr-1.5" />
-                      Refresh
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={12} className="mr-1.5" />
-                      Generate Summary
-                    </>
-                  )}
-                </Button>
               </>
             )}
           </div>
