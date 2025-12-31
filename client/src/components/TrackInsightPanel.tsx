@@ -1223,7 +1223,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const [historicalSummaries, setHistoricalSummaries] = useState<HistoricalSummary[]>([]);
   const [viewingHistorical, setViewingHistorical] = useState<HistoricalSummary | null>(null);
 
-  const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent'];
+  const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent', 'ads'];
   const lastLoginTime = '2 days ago';
 
   useEffect(() => {
@@ -1416,6 +1416,69 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
           { id: 14, type: 'News Article', time: '12h ago', content: 'VentureBeat coverage of funding announcement', sourceUrl: '#', channel: 'news' },
         ],
         time: '12h ago', isRead: false, isResolved: false,
+      },
+      {
+        id: 'ads-1', channel: 'ads', title: 'New Competitor Ad Campaign', tier: 'notable',
+        confidence: 'high',
+        summary: 'Targeting enterprise collaboration keywords with aggressive pricing messaging.',
+        keyInfo: 'New ad creatives focusing on "Free Enterprise Migration" and "Better than Figma AI".',
+        impact: 'May increase CAC for your enterprise keywords.',
+        action: 'Review ad copy and consider defensive bidding strategy.',
+        signals: [
+          { id: 18, type: 'Google Ad', time: '1h ago', content: 'Ad targeting "enterprise collaboration": 50% off for first year', sourceUrl: '#', channel: 'ads' },
+          { id: 19, type: 'LinkedIn Ad', time: '3h ago', content: 'Video ad featuring "Seamless migration from legacy tools"', sourceUrl: '#', channel: 'ads' },
+        ],
+        time: '1h ago', isRead: false, isResolved: false,
+      },
+      {
+        id: 'seo-2', channel: 'seo', title: 'Content Velocity Increase', tier: 'update',
+        confidence: 'medium',
+        summary: 'Published 12 new technical articles in the last 48 hours.',
+        keyInfo: 'High density of articles focusing on "AI Workflows" and "Team Productivity".',
+        impact: 'Likely trying to dominate long-tail AI-related search queries.',
+        action: 'Analyze their internal linking structure for these new posts.',
+        signals: [
+          { id: 20, type: 'New Page', time: '2h ago', content: 'Guide: Optimizing AI workflows for remote teams', sourceUrl: '#', channel: 'seo' },
+          { id: 21, type: 'New Page', time: '5h ago', content: 'Top 10 AI integrations for enterprise productivity', sourceUrl: '#', channel: 'seo' },
+        ],
+        time: '2h ago', isRead: false, isResolved: false,
+      },
+      {
+        id: 'bl-2', channel: 'backlinks', title: 'Viral Industry Mention', tier: 'highlight',
+        confidence: 'high',
+        summary: 'Cited as "Industry Leader" in a viral newsletter from a top design influencer.',
+        keyInfo: 'Newsletter has 200k+ subscribers. Resulted in 15+ high-quality backlinks from sub-blogs.',
+        impact: 'Significant boost in direct traffic and domain authority.',
+        action: 'Draft a response or counter-narrative for your own social channels.',
+        signals: [
+          { id: 22, type: 'Backlink', time: '30min ago', content: 'DesignWeekly: "Why [Competitor] is winning the AI race"', sourceUrl: '#', channel: 'backlinks' },
+          { id: 23, type: 'Social Mention', time: '45min ago', content: 'Influencer @designguru: "[Competitor] is the future of work"', sourceUrl: '#', channel: 'social' },
+        ],
+        time: '30min ago', isRead: false, isResolved: false,
+      },
+      {
+        id: 'soc-2', channel: 'social', title: 'Community Engagement Spike', tier: 'notable',
+        confidence: 'medium',
+        summary: 'New Reddit thread about competitor feature request has 500+ comments.',
+        keyInfo: 'Users are highly requesting a "Local-first" mode which competitor seems to be teasing.',
+        impact: 'Community sentiment is shifting positively towards their roadmap.',
+        action: 'Engage in the thread to gather user pain points.',
+        signals: [
+          { id: 24, type: 'Reddit Thread', time: '4h ago', content: 'r/Productivity: Is [Competitor] better than the rest now?', sourceUrl: '#', channel: 'social' },
+        ],
+        time: '4h ago', isRead: false, isResolved: false,
+      },
+      {
+        id: 'tal-2', channel: 'talent', title: 'Strategic Leadership Hire', tier: 'highlight',
+        confidence: 'high',
+        summary: 'Hired former Head of Product from a major direct competitor.',
+        keyInfo: 'Strategic move likely aimed at accelerating their enterprise roadmap.',
+        impact: 'May reveal product strategy shifts in the next 3-6 months.',
+        action: 'Update leadership battle card and monitor product announcements.',
+        signals: [
+          { id: 25, type: 'Leadership Change', time: '1d ago', content: 'New VP of Product: Jane Doe (formerly @BigTech)', sourceUrl: '#', channel: 'talent' },
+        ],
+        time: '1d ago', isRead: false, isResolved: false,
       },
       {
         id: 'web-2', channel: 'website', title: 'Blog Content Update', tier: 'update',
