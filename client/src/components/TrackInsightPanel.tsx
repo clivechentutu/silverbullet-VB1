@@ -615,8 +615,8 @@ type ValueFilter = 'all' | 'high' | 'medium' | 'low';
 
 const valueFilterConfig: Record<ValueFilter, { label: string; shortLabel: string; color: string; bgColor: string; borderColor: string; description: string }> = {
   all: { label: 'All', shortLabel: 'All', color: 'text-slate-400', bgColor: 'bg-slate-800/50', borderColor: 'border-slate-700', description: 'Show all insights' },
-  high: { label: 'High Value', shortLabel: 'H', color: 'text-amber-400', bgColor: 'bg-amber-500/20', borderColor: 'border-amber-500/40', description: 'Critical insights requiring immediate attention' },
-  medium: { label: 'Medium Value', shortLabel: 'M', color: 'text-brand-400', bgColor: 'bg-brand-500/20', borderColor: 'border-brand-500/40', description: 'Notable insights worth reviewing' },
+  high: { label: 'High Value', shortLabel: 'H', color: 'text-red-400', bgColor: 'bg-red-500/20', borderColor: 'border-red-500/40', description: 'Critical insights requiring immediate attention' },
+  medium: { label: 'Medium Value', shortLabel: 'M', color: 'text-yellow-400', bgColor: 'bg-yellow-500/20', borderColor: 'border-yellow-500/40', description: 'Notable insights worth reviewing' },
   low: { label: 'Low Value', shortLabel: 'L', color: 'text-slate-500', bgColor: 'bg-slate-800/50', borderColor: 'border-slate-700', description: 'General updates and minor changes' },
 };
 
