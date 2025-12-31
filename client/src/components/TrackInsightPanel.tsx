@@ -436,7 +436,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
   return (
     <div 
       onClick={onClick}
-      className={`relative p-3 rounded-lg cursor-pointer transition-all ${
+      className={`relative p-2.5 rounded-lg cursor-pointer transition-all ${
         isSelected 
           ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
           : isHighlight && !insight.isRead
@@ -492,10 +492,10 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
             )}
           </div>
           
-          <h4 className={`text-xs font-bold mb-1 leading-snug ${isHighlight && !insight.isRead ? 'text-white' : 'text-white'}`}>{insight.title}</h4>
-          <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{insight.summary}</p>
+          <h4 className={`text-[11px] font-bold mb-0.5 leading-snug ${isHighlight && !insight.isRead ? 'text-white' : 'text-white'}`}>{insight.title}</h4>
+          <p className="text-[10px] text-slate-400 line-clamp-1 leading-snug">{insight.summary}</p>
           
-          <div className="flex items-center justify-between mt-2 gap-2">
+          <div className="flex items-center justify-between mt-1.5 gap-2">
             <div className="flex items-center gap-2">
               <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
               {effectiveTier === 'notable' && (
@@ -787,10 +787,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-3 border-b border-slate-800/50">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles size={14} className="text-brand-400" />
-          <span className="text-sm font-bold text-white">AI Insights</span>
+      <div className="px-3 py-2 border-b border-slate-800/50">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Sparkles size={12} className="text-brand-400" />
+          <span className="text-xs font-bold text-white">AI Insights</span>
           <div className="flex items-center gap-1 ml-auto">
             <div className="relative">
               <Button
@@ -831,8 +831,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
           </div>
         </div>
         {/* Value tier info */}
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-[10px] text-slate-500">{filteredInsights.length} {valueFilter !== 'all' ? 'matching' : 'active'}</span>
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <span className="text-[9px] text-slate-500">{filteredInsights.length} {valueFilter !== 'all' ? 'matching' : 'active'}</span>
         </div>
         <ChannelFilter 
           channels={availableChannels}
@@ -910,7 +910,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         </div>
         
         {/* Insight list */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2.5">
           {sortedInsights.length === 0 ? (
             <div className="text-center py-12">
               <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
@@ -1574,7 +1574,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       />
       
       <div className="flex-1 flex min-h-0">
-        <div className="w-[360px] shrink-0 border-r border-slate-800/50">
+        <div className="w-[420px] shrink-0 border-r border-slate-800/50">
           <InsightFeed 
             insights={insights}
             selectedId={selectedInsightId}
