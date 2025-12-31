@@ -199,33 +199,53 @@ const SessionCatchUp = ({
       
       <div className="px-5 py-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <Button
-              variant="outline"
-              size="default"
-              onClick={onGenerate}
-              disabled={isGenerating}
-              className="text-xs font-bold border-brand-500/40 hover:bg-brand-500/20 text-brand-400 px-4 h-9 shadow-lg shadow-brand-500/10"
-              data-testid="button-generate-summary"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw size={14} className="mr-2 animate-spin" />
-                  Analyzing...
-                </>
-              ) : summaries ? (
-                <>
-                  <RefreshCw size={14} className="mr-2" />
-                  Refresh
-                </>
-              ) : (
-                <>
-                  <Sparkles size={14} className="mr-2" />
-                  Generate Summary
-                </>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="default"
+                onClick={onGenerate}
+                disabled={isGenerating || !!summaries}
+                className={`text-xs font-bold px-4 h-9 shadow-lg transition-all ${
+                  summaries 
+                    ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default shadow-none' 
+                    : 'border-brand-500/40 hover:bg-brand-500/20 text-brand-400 shadow-brand-500/10'
+                }`}
+                data-testid="button-generate-summary"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw size={14} className="mr-2 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : summaries ? (
+                  <>
+                    <Check size={14} className="mr-2 text-emerald-500" />
+                    Summarized
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={14} className="mr-2" />
+                    Generate Summary
+                  </>
+                )}
+              </Button>
+              {summaries && !isGenerating && (
+                <TooltipProvider>
+                  <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                      <div className="p-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors cursor-help">
+                        <Info size={14} />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
+                      <p className="text-[10px] text-slate-300 leading-relaxed">
+                        Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )}
-            </Button>
-          </div>
+            </div>
 
           <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1 justify-end" onClick={() => {
             if (viewingHistorical) return;
