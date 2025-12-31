@@ -1856,6 +1856,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [isAddingTarget, setIsAddingTarget] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [newTaskTrackers, setNewTaskTrackers] = useState(['website', 'backlinks', 'seo']);
+  const [createTabError, setCreateTabError] = useState<string | null>(null);
   
   // Email notification state for Create dialog
   const [createFormTab, setCreateFormTab] = useState<'basic' | 'notifications'>('basic');
@@ -1870,6 +1871,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   
   // Email notification state for Edit dialog
   const [editFormTab, setEditFormTab] = useState<'basic' | 'notifications'>('basic');
+  const [editTabError, setEditTabError] = useState<string | null>(null);
   const [editNotificationEmail, setEditNotificationEmail] = useState('');
   const [isEditVerifyingEmail, setIsEditVerifyingEmail] = useState(false);
   const [isEditEmailVerified, setIsEditEmailVerified] = useState(false);
@@ -1878,6 +1880,20 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [editWeeklyDay, setEditWeeklyDay] = useState('monday');
   const [editWeeklyTime, setEditWeeklyTime] = useState('09:00');
   const [editTimezone, setEditTimezone] = useState('UTC');
+
+  useEffect(() => {
+    if (createTabError) {
+      const timer = setTimeout(() => setCreateTabError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [createTabError]);
+
+  useEffect(() => {
+    if (editTabError) {
+      const timer = setTimeout(() => setEditTabError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [editTabError]);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -3209,25 +3225,31 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           
           <Tabs value={createFormTab} onValueChange={(v) => {
             if (v === 'notifications' && (!newTargetName.trim() || !newTargetUrl.trim())) {
-              toast({
-                title: "Basic Info Required",
-                description: "Please enter a target name and website URL before configuring notifications.",
-                variant: "destructive",
-              });
+              setCreateTabError("Please complete Basic Info first.");
               return;
             }
             setCreateFormTab(v as 'basic' | 'notifications');
           }} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
-              <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
-                <Settings size={14} />
-                Basic Info
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
-                <Bell size={14} />
-                Notifications
-              </TabsTrigger>
-            </TabsList>
+            <div className="relative">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+                <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Settings size={14} />
+                  Basic Info
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Bell size={14} />
+                  Notifications
+                </TabsTrigger>
+              </TabsList>
+              {createTabError && (
+                <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="bg-brand-500/10 border border-brand-500/30 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit">
+                    <AlertTriangle size={12} />
+                    {createTabError}
+                  </div>
+                </div>
+              )}
+            </div>
             
             <TabsContent value="basic" className="space-y-6 py-2">
               <div>
@@ -3527,25 +3549,31 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           
           <Tabs value={editFormTab} onValueChange={(v) => {
             if (v === 'notifications' && (!editTargetName.trim() || !editTargetUrl.trim())) {
-              toast({
-                title: "Basic Info Required",
-                description: "Please enter a target name and website URL before configuring notifications.",
-                variant: "destructive",
-              });
+              setEditTabError("Please complete Basic Info first.");
               return;
             }
             setEditFormTab(v as 'basic' | 'notifications');
           }} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
-              <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
-                <Settings size={14} />
-                Basic Info
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
-                <Bell size={14} />
-                Notifications
-              </TabsTrigger>
-            </TabsList>
+            <div className="relative">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+                <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Settings size={14} />
+                  Basic Info
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Bell size={14} />
+                  Notifications
+                </TabsTrigger>
+              </TabsList>
+              {editTabError && (
+                <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="bg-brand-500/10 border border-brand-500/30 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit">
+                    <AlertTriangle size={12} />
+                    {editTabError}
+                  </div>
+                </div>
+              )}
+            </div>
             
             <TabsContent value="basic" className="space-y-6 py-2">
               <div>
