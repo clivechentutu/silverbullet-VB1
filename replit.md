@@ -99,6 +99,15 @@ Analyzes a competitor website using Gemini AI.
 - Implemented Gemini AI integration for competitive analysis
 - Created Workbench with 6 intelligence views
 - Built responsive dark-themed UI
+- December 2024: Enhanced returning user experience
+  - Added "Welcome Back" banner showing new insights since last visit
+  - Priority breakdown display (Focus/Notable/Update counts)
+  - Enhanced "Past Sessions" browser for historical summaries
+  - Session Catch-Up feature with AI-generated channel summaries
+- December 2024: Email notification system
+  - Single email with 3-stage Magic Link verification
+  - Tab-based dialog for target creation/editing
+  - Inline validation alerts
 
 ## User Preferences
 - Dark theme required
