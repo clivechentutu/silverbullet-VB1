@@ -712,20 +712,13 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
     }
     
     // Apply value filter
-    if (valueFilter === 'high') {
+    if (valueFilter !== 'all') {
       result = result.filter(i => {
         const effectiveTier = i.userOverride || i.tier;
-        return effectiveTier === 'highlight';
-      });
-    } else if (valueFilter === 'medium') {
-      result = result.filter(i => {
-        const effectiveTier = i.userOverride || i.tier;
-        return effectiveTier === 'notable';
-      });
-    } else if (valueFilter === 'low') {
-      result = result.filter(i => {
-        const effectiveTier = i.userOverride || i.tier;
-        return effectiveTier === 'update';
+        const mappedTier = 
+          effectiveTier === 'highlight' ? 'high' : 
+          effectiveTier === 'notable' ? 'medium' : 'low';
+        return mappedTier === valueFilter;
       });
     }
     
@@ -947,9 +940,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                     {groupInsights.map(insight => {
                       const chConfig = channelConfig[insight.channel];
                       const ChIcon = chConfig?.icon || Globe;
-                      const tier = tierConfig[insight.tier];
-                      const isHighlight = insight.tier === 'highlight';
-                      const isNotable = insight.tier === 'notable';
+                      const effectiveTier = insight.userOverride || insight.tier;
+                      const tier = tierConfig[effectiveTier];
+                      const isHighlight = effectiveTier === 'highlight';
+                      const isNotable = effectiveTier === 'notable';
                       
                       return (
                         <div 
