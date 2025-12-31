@@ -1815,6 +1815,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   runningResearchTasks: number;
   setRunningResearchTasks: (count: number | ((prev: number) => number)) => void;
 }) => {
+  const { toast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [newTargetName, setNewTargetName] = useState('');
