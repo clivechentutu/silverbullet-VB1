@@ -1806,53 +1806,55 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-slate-950">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-950 relative">
       <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
       
-      <SessionCatchUp
-        lastLoginTime={lastLoginTime}
-        isGenerating={isGeneratingSummary}
-        summaries={sessionSummaries}
-        onGenerate={handleGenerateSummary}
-        availableChannels={availableChannels}
-        totalSignals={totalSignals}
-        isExpanded={isCatchUpExpanded}
-        setIsExpanded={setIsCatchUpExpanded}
-        historicalSummaries={historicalSummaries}
-        onViewHistorical={setViewingHistorical}
-        viewingHistorical={viewingHistorical}
-        onClearHistoricalView={() => setViewingHistorical(null)}
-        topActions={topActions}
-        onActionClick={handleTopActionClick}
-        sinceLastVisit={sinceLastVisit}
-      />
-      
-      <div className="flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
-            <InsightFeed 
-              insights={insights}
-              selectedId={selectedInsightId}
-              onSelect={setSelectedInsightId}
-              onMarkRead={handleMarkRead}
-              onDemote={handleDemote}
-              channelFilter={channelFilter}
-              onChannelFilterChange={setChannelFilter}
-              availableChannels={availableChannels}
-              lastVisitDays={lastVisitDays}
-            />
-          </div>
-
-          <div className="flex-1 bg-slate-950/30 overflow-hidden">
-            <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
-          </div>
-        </div>
-        
-        <RawSignalFeed 
-          insights={insights}
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto custom-scrollbar scroll-smooth">
+        <SessionCatchUp
+          lastLoginTime={lastLoginTime}
+          isGenerating={isGeneratingSummary}
+          summaries={sessionSummaries}
+          onGenerate={handleGenerateSummary}
           availableChannels={availableChannels}
-          scanningChannel={scanningChannel}
+          totalSignals={totalSignals}
+          isExpanded={isCatchUpExpanded}
+          setIsExpanded={setIsCatchUpExpanded}
+          historicalSummaries={historicalSummaries}
+          onViewHistorical={setViewingHistorical}
+          viewingHistorical={viewingHistorical}
+          onClearHistoricalView={() => setViewingHistorical(null)}
+          topActions={topActions}
+          onActionClick={handleTopActionClick}
+          sinceLastVisit={sinceLastVisit}
         />
+        
+        <div className="flex-none flex flex-col">
+          <div className="flex h-[calc(100vh-200px)] min-h-[400px] shrink-0">
+            <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
+              <InsightFeed 
+                insights={insights}
+                selectedId={selectedInsightId}
+                onSelect={setSelectedInsightId}
+                onMarkRead={handleMarkRead}
+                onDemote={handleDemote}
+                channelFilter={channelFilter}
+                onChannelFilterChange={setChannelFilter}
+                availableChannels={availableChannels}
+                lastVisitDays={lastVisitDays}
+              />
+            </div>
+
+            <div className="flex-1 bg-slate-950/30 overflow-hidden">
+              <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
+            </div>
+          </div>
+          
+          <RawSignalFeed 
+            insights={insights}
+            availableChannels={availableChannels}
+            scanningChannel={scanningChannel}
+          />
+        </div>
       </div>
     </div>
   );
