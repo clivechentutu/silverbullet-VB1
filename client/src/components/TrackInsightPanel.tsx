@@ -1825,8 +1825,8 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       />
       
       <div className="flex flex-col shrink-0">
-        <div className="flex min-h-[500px]">
-          <div className="w-[420px] shrink-0 border-r border-slate-800/50">
+        <div className="flex h-[calc(100vh-180px)] min-h-[500px]">
+          <div className="w-[420px] shrink-0 border-r border-slate-800/50 h-full">
             <InsightFeed 
               insights={insights}
               selectedId={selectedInsightId}
@@ -1840,7 +1840,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
             />
           </div>
 
-          <div className="flex-1 bg-slate-950/30">
+          <div className="flex-1 bg-slate-950/30 h-full">
             <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
           </div>
         </div>
