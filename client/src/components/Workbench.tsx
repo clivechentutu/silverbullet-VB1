@@ -3078,11 +3078,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       </div>
 
       {/* MIDDLE: Target Details */}
-      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-y-auto custom-scrollbar p-6 flex flex-col">
+      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-hidden p-4 flex flex-col">
         {selectedTarget ? (
-          <div className="space-y-6">
+          <div className="flex flex-col h-full gap-4">
             {/* Header with logo and info */}
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
                   <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
