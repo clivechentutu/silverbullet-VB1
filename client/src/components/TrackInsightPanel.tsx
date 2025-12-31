@@ -392,10 +392,21 @@ interface RawSignalFeedProps {
   availableChannels: string[];
 }
 
-const RawSignalFeed = ({ insights, availableChannels }: RawSignalFeedProps) => {
+interface RawSignalFeedPropsExtended extends RawSignalFeedProps {
+  scanningChannel?: string | null;
+}
+
+const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSignalFeedPropsExtended) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [expandedChannels, setExpandedChannels] = useState<Set<string>>(new Set());
+  const [expandedChannels, setExpandedChannels] = useState<Set<string>>(new Set(availableChannels));
   const [channelLimits, setChannelLimits] = useState<Record<string, number>>({});
+  
+  // When main section expands, expand all channels by default
+  useEffect(() => {
+    if (isExpanded) {
+      setExpandedChannels(new Set(availableChannels));
+    }
+  }, [isExpanded, availableChannels]);
 
   // Collect all signals from all insights, grouped by channel
   const signalsByChannel = useMemo(() => {
@@ -440,7 +451,7 @@ const RawSignalFeed = ({ insights, availableChannels }: RawSignalFeedProps) => {
   };
 
   return (
-    <div className="border-t border-slate-800/50 bg-slate-950/50">
+    <div className="border-t border-slate-800/50 bg-slate-950/50 shrink-0">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-900/30 transition-colors">
@@ -461,83 +472,106 @@ const RawSignalFeed = ({ insights, availableChannels }: RawSignalFeedProps) => {
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {availableChannels.map(channelId => {
-              const config = channelConfig[channelId];
-              if (!config) return null;
-              const Icon = config.icon;
-              const signals = signalsByChannel[channelId] || [];
-              const isChannelExpanded = expandedChannels.has(channelId);
-              const limit = channelLimits[channelId] || 5;
-              const displayedSignals = signals.slice(0, limit);
-              const hasMore = signals.length > limit;
-              
-              return (
-                <div 
-                  key={channelId}
-                  className={`rounded-lg border ${config.borderColor} ${config.bgColor} overflow-hidden`}
-                  data-testid={`raw-feed-card-${channelId}`}
-                >
-                  {/* Channel Header */}
+          <div className="px-4 pb-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {availableChannels.map(channelId => {
+                const config = channelConfig[channelId];
+                if (!config) return null;
+                const Icon = config.icon;
+                const signals = signalsByChannel[channelId] || [];
+                const isChannelExpanded = expandedChannels.has(channelId);
+                const limit = channelLimits[channelId] || 5;
+                const displayedSignals = signals.slice(0, limit);
+                const hasMore = signals.length > limit;
+                const isScanning = scanningChannel === channelId;
+                
+                return (
                   <div 
-                    onClick={() => toggleChannel(channelId)}
-                    className="flex items-center justify-between p-3 cursor-pointer hover:bg-black/10 transition-colors"
+                    key={channelId}
+                    className={`rounded-lg border ${config.borderColor} ${config.bgColor} overflow-hidden flex flex-col`}
+                    data-testid={`raw-feed-card-${channelId}`}
                   >
-                    <div className="flex items-center gap-2">
-                      <Icon size={14} className={config.color} />
-                      <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-slate-500">{signals.length} signals</span>
-                      <ChevronDown size={12} className={`text-slate-500 transition-transform ${isChannelExpanded ? 'rotate-180' : ''}`} />
-                    </div>
-                  </div>
-                  
-                  {/* Signal List */}
-                  {isChannelExpanded && (
-                    <div className="border-t border-slate-800/30 p-2 space-y-1.5 max-h-[300px] overflow-y-auto custom-scrollbar">
-                      {signals.length === 0 ? (
-                        <div className="text-center py-4">
-                          <p className="text-[10px] text-slate-600">No signals yet</p>
-                        </div>
-                      ) : (
-                        <>
-                          {displayedSignals.map((signal, idx) => (
-                            <div 
-                              key={`${signal.id}-${idx}`}
-                              className="flex items-start gap-2 p-2 rounded bg-slate-900/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors group"
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2 mb-0.5">
-                                  <span className={`text-[8px] font-bold uppercase tracking-wider ${config.color}`}>
-                                    {signal.type}
-                                  </span>
-                                  <span className="text-[8px] text-slate-600">{signal.time}</span>
+                    {/* Channel Header */}
+                    <div 
+                      onClick={() => toggleChannel(channelId)}
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-black/10 transition-colors shrink-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon size={14} className={config.color} />
+                        <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
+                        {/* Channel active/scanning indicator */}
+                        {isScanning ? (
+                          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
+                            <Zap size={9} className="text-emerald-400 animate-pulse" />
+                            <span className="text-[8px] text-emerald-400 font-medium">Scanning</span>
+                          </div>
+                        ) : (
+                          <TooltipProvider>
+                            <Tooltip delayDuration={200}>
+                              <TooltipTrigger asChild>
+                                <div className="w-4 h-4 rounded-full flex items-center justify-center bg-slate-800/50">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
                                 </div>
-                                <p className="text-[10px] text-slate-300 leading-relaxed line-clamp-2">{signal.content}</p>
-                              </div>
-                              <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 cursor-pointer hover:text-slate-400" />
-                            </div>
-                          ))}
-                          
-                          {hasMore && (
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                loadMoreSignals(channelId);
-                              }}
-                              className="w-full py-1.5 text-[9px] text-slate-500 hover:text-slate-300 bg-slate-900/30 hover:bg-slate-800/30 rounded transition-colors"
-                            >
-                              +{signals.length - limit} more
-                            </button>
-                          )}
-                        </>
-                      )}
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-1.5">
+                                <p className="text-[9px] text-slate-400">Monitoring paused</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[9px] text-slate-500">{signals.length}</span>
+                        <ChevronDown size={12} className={`text-slate-500 transition-transform ${isChannelExpanded ? 'rotate-180' : ''}`} />
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    
+                    {/* Signal List with scroll */}
+                    {isChannelExpanded && (
+                      <div className="border-t border-slate-800/30 p-2 space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar flex-1">
+                        {signals.length === 0 ? (
+                          <div className="text-center py-4">
+                            <p className="text-[10px] text-slate-600">No signals yet</p>
+                          </div>
+                        ) : (
+                          <>
+                            {displayedSignals.map((signal, idx) => (
+                              <div 
+                                key={`${signal.id}-${idx}`}
+                                className="flex items-start gap-2 p-2 rounded bg-slate-900/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors group"
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2 mb-0.5">
+                                    <span className={`text-[8px] font-bold uppercase tracking-wider ${config.color}`}>
+                                      {signal.type}
+                                    </span>
+                                    <span className="text-[8px] text-slate-600">{signal.time}</span>
+                                  </div>
+                                  <p className="text-[10px] text-slate-300 leading-relaxed line-clamp-2">{signal.content}</p>
+                                </div>
+                                <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 cursor-pointer hover:text-slate-400" />
+                              </div>
+                            ))}
+                            
+                            {hasMore && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  loadMoreSignals(channelId);
+                                }}
+                                className="w-full py-1.5 text-[9px] text-slate-500 hover:text-slate-300 bg-slate-900/30 hover:bg-slate-800/30 rounded transition-colors"
+                              >
+                                +{signals.length - limit} more
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
@@ -1840,6 +1874,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         <RawSignalFeed 
           insights={insights}
           availableChannels={availableChannels}
+          scanningChannel={scanningChannel}
         />
       </div>
     </div>
