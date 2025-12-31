@@ -289,24 +289,24 @@ const SessionCatchUp = ({
                         <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
                         </div>
-                        <div className="max-h-60 overflow-y-auto">
-                          {historicalSummaries.map(hist => (
-                            <div 
-                              key={hist.id}
-                              onClick={() => {
-                                onViewHistorical(hist);
-                                setShowHistory(false);
-                              }}
-                              className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
-                            >
-                              <div className="flex items-center justify-between mb-1">
-                                <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
-                                <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
-                              </div>
-                              <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
-                            </div>
-                          ))}
-                        </div>
+          <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+            {historicalSummaries.map(hist => (
+              <div 
+                key={hist.id}
+                onClick={() => {
+                  onViewHistorical(hist);
+                  setShowHistory(false);
+                }}
+                className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                  <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
+                </div>
+                <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+              </div>
+            ))}
+          </div>
                       </div>
                     )}
                   </div>
