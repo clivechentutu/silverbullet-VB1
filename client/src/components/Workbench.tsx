@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -117,7 +117,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrackInsightPanel } from "@/components/TrackInsightPanel";
-import { Mail, Clock, Pencil, Bell } from 'lucide-react';
 
 // Signal detail hover card content component
 interface SignalDetailHoverProps {
@@ -1861,8 +1860,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   // Email notification state for Create dialog
   const [createFormTab, setCreateFormTab] = useState<'basic' | 'notifications'>('basic');
   const [newNotificationEmail, setNewNotificationEmail] = useState('');
-  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [emailSendStatus, setEmailSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState<'unverified' | 'pending' | 'verified'>('unverified');
   const [newFrequencyType, setNewFrequencyType] = useState<'daily' | 'weekly'>('daily');
   const [newDailyTime, setNewDailyTime] = useState('09:00');
   const [newWeeklyDay, setNewWeeklyDay] = useState('monday');
@@ -1873,8 +1872,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [editFormTab, setEditFormTab] = useState<'basic' | 'notifications'>('basic');
   const [editTabError, setEditTabError] = useState<string | null>(null);
   const [editNotificationEmail, setEditNotificationEmail] = useState('');
-  const [isEditVerifyingEmail, setIsEditVerifyingEmail] = useState(false);
-  const [isEditEmailVerified, setIsEditEmailVerified] = useState(false);
+  const [editEmailSendStatus, setEditEmailSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [editEmailVerificationStatus, setEditEmailVerificationStatus] = useState<'unverified' | 'pending' | 'verified'>('unverified');
   const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
   const [editDailyTime, setEditDailyTime] = useState('09:00');
   const [editWeeklyDay, setEditWeeklyDay] = useState('monday');
@@ -3243,7 +3242,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </TabsList>
               {createTabError && (
                 <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <div className="bg-brand-500/10 border border-brand-500/30 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit">
+                  <div className="bg-slate-800 border border-brand-500/40 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit shadow-lg">
                     <AlertTriangle size={12} />
                     {createTabError}
                   </div>
@@ -3304,69 +3303,122 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </TabsContent>
             
             <TabsContent value="notifications" className="space-y-6 py-2">
-              {/* Single Email Management Section */}
+              {/* Single Email Management Section - 3-Stage Magic Link Flow */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                      <input
-                        type="email"
-                        value={newNotificationEmail}
-                        onChange={(e) => {
-                          setNewNotificationEmail(e.target.value);
-                          setIsEmailVerified(false);
-                        }}
-                        placeholder="Enter email address..."
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
-                        disabled={isVerifyingEmail || isEmailVerified}
-                        data-testid="input-new-notification-email"
-                      />
-                    </div>
-                    {!isEmailVerified ? (
+                  {/* Stage 1: Email Entry (when unverified and not sent) */}
+                  {emailVerificationStatus === 'unverified' && emailSendStatus !== 'sent' && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                        <input
+                          type="email"
+                          value={newNotificationEmail}
+                          onChange={(e) => setNewNotificationEmail(e.target.value)}
+                          placeholder="Enter email address..."
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                          disabled={emailSendStatus === 'sending'}
+                          data-testid="input-new-notification-email"
+                        />
+                      </div>
                       <button
                         onClick={async () => {
                           if (newNotificationEmail.trim()) {
-                            setIsVerifyingEmail(true);
-                            // Simulate magic link process
-                            toast({
-                              title: "Magic Link Sent",
-                              description: `A verification link has been sent to ${newNotificationEmail}.`,
-                            });
+                            setEmailSendStatus('sending');
+                            // Simulate sending magic link
                             setTimeout(() => {
-                              setIsEmailVerified(true);
-                              setIsVerifyingEmail(false);
-                              toast({
-                                title: "Email Verified",
-                                description: "Your email has been successfully verified.",
-                              });
-                            }, 2000);
+                              setEmailSendStatus('sent');
+                              setEmailVerificationStatus('pending');
+                            }, 1500);
                           }
                         }}
-                        disabled={!newNotificationEmail.trim() || isVerifyingEmail}
-                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[120px] justify-center"
-                        data-testid="button-verify-email"
+                        disabled={!newNotificationEmail.trim() || emailSendStatus === 'sending'}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[160px] justify-center whitespace-nowrap"
+                        data-testid="button-send-verification"
                       >
-                        {isVerifyingEmail ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-                        Verify
+                        {emailSendStatus === 'sending' ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                        {emailSendStatus === 'sending' ? 'Sending...' : 'Send Verification'}
                       </button>
-                    ) : (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
-                        <Check size={14} />
-                        Verified
-                        <button 
-                          onClick={() => setIsEmailVerified(false)}
-                          className="ml-2 text-slate-500 hover:text-slate-400"
+                    </div>
+                  )}
+
+                  {/* Stage 2: Pending Verification (link sent, awaiting click) */}
+                  {emailVerificationStatus === 'pending' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <Mail size={16} className="text-amber-400" />
+                        <div className="flex-1">
+                          <p className="text-sm text-amber-400 font-medium">Verification link sent!</p>
+                          <p className="text-xs text-slate-400 mt-0.5">Check your inbox at <span className="text-white">{newNotificationEmail}</span></p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setEmailSendStatus('sending');
+                            setTimeout(() => {
+                              setEmailSendStatus('sent');
+                            }, 1500);
+                          }}
+                          disabled={emailSendStatus === 'sending'}
+                          className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1 disabled:opacity-50"
+                          data-testid="button-resend-verification"
+                        >
+                          {emailSendStatus === 'sending' ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                          Resend link
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEmailSendStatus('idle');
+                            setEmailVerificationStatus('unverified');
+                          }}
+                          className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                          data-testid="button-change-email"
                         >
                           <Pencil size={12} />
+                          Change email
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Simulate user clicking the magic link (for demo purposes)
+                            setEmailVerificationStatus('verified');
+                          }}
+                          className="ml-auto text-xs text-slate-600 hover:text-slate-500 underline"
+                          data-testid="button-simulate-verify"
+                        >
+                          (Simulate: I clicked the link)
                         </button>
                       </div>
-                    )}
-                  </div>
-                  {!isEmailVerified && !isVerifyingEmail && (
+                    </div>
+                  )}
+
+                  {/* Stage 3: Verified */}
+                  {emailVerificationStatus === 'verified' && (
+                    <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                      <Check size={16} className="text-emerald-400" />
+                      <div className="flex-1">
+                        <p className="text-sm text-emerald-400 font-medium">Email verified</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{newNotificationEmail}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setEmailSendStatus('idle');
+                          setEmailVerificationStatus('unverified');
+                        }}
+                        className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                        data-testid="button-change-verified-email"
+                      >
+                        <Pencil size={12} />
+                        Change
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Helper text for Stage 1 */}
+                  {emailVerificationStatus === 'unverified' && emailSendStatus !== 'sent' && (
                     <p className="text-[10px] text-slate-500 italic">
-                      Note: You must verify your email via a magic link before tracking can start.
+                      We will send a verification link to confirm your email address.
                     </p>
                   )}
                 </div>
@@ -3508,7 +3560,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     setNewTargetUrl('');
                     setNewTaskTrackers(['website', 'backlinks', 'seo']);
                     setNewNotificationEmail('');
-                    setIsEmailVerified(false);
+                    setEmailSendStatus('idle');
+                    setEmailVerificationStatus('unverified');
                     setNewFrequencyType('daily');
                     setNewDailyTime('09:00');
                     setNewTimezone('UTC');
@@ -3520,7 +3573,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   }
                 }
               }}
-              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget || !isEmailVerified}
+              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget || emailVerificationStatus !== 'verified'}
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
               data-testid="button-create-task-submit"
             >
@@ -3567,7 +3620,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </TabsList>
               {editTabError && (
                 <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <div className="bg-brand-500/10 border border-brand-500/30 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit">
+                  <div className="bg-slate-800 border border-brand-500/40 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit shadow-lg">
                     <AlertTriangle size={12} />
                     {editTabError}
                   </div>
@@ -3617,69 +3670,122 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </TabsContent>
             
             <TabsContent value="notifications" className="space-y-6 py-2">
-              {/* Single Email Management Section */}
+              {/* Single Email Management Section - 3-Stage Magic Link Flow */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-                      <input
-                        type="email"
-                        value={editNotificationEmail}
-                        onChange={(e) => {
-                          setEditNotificationEmail(e.target.value);
-                          setIsEditEmailVerified(false);
-                        }}
-                        placeholder="Enter email address..."
-                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
-                        disabled={isEditVerifyingEmail || isEditEmailVerified}
-                        data-testid="input-edit-notification-email"
-                      />
-                    </div>
-                    {!isEditEmailVerified ? (
+                  {/* Stage 1: Email Entry (when unverified and not sent) */}
+                  {editEmailVerificationStatus === 'unverified' && editEmailSendStatus !== 'sent' && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                        <input
+                          type="email"
+                          value={editNotificationEmail}
+                          onChange={(e) => setEditNotificationEmail(e.target.value)}
+                          placeholder="Enter email address..."
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                          disabled={editEmailSendStatus === 'sending'}
+                          data-testid="input-edit-notification-email"
+                        />
+                      </div>
                       <button
                         onClick={async () => {
                           if (editNotificationEmail.trim()) {
-                            setIsEditVerifyingEmail(true);
-                            // Simulate magic link process
-                            toast({
-                              title: "Magic Link Sent",
-                              description: `A verification link has been sent to ${editNotificationEmail}.`,
-                            });
+                            setEditEmailSendStatus('sending');
+                            // Simulate sending magic link
                             setTimeout(() => {
-                              setIsEditEmailVerified(true);
-                              setIsEditVerifyingEmail(false);
-                              toast({
-                                title: "Email Verified",
-                                description: "Your email has been successfully verified.",
-                              });
-                            }, 2000);
+                              setEditEmailSendStatus('sent');
+                              setEditEmailVerificationStatus('pending');
+                            }, 1500);
                           }
                         }}
-                        disabled={!editNotificationEmail.trim() || isEditVerifyingEmail}
-                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[120px] justify-center"
-                        data-testid="button-edit-verify-email"
+                        disabled={!editNotificationEmail.trim() || editEmailSendStatus === 'sending'}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[160px] justify-center whitespace-nowrap"
+                        data-testid="button-edit-send-verification"
                       >
-                        {isEditVerifyingEmail ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
-                        Verify
+                        {editEmailSendStatus === 'sending' ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                        {editEmailSendStatus === 'sending' ? 'Sending...' : 'Send Verification'}
                       </button>
-                    ) : (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
-                        <Check size={14} />
-                        Verified
-                        <button 
-                          onClick={() => setIsEditEmailVerified(false)}
-                          className="ml-2 text-slate-500 hover:text-slate-400"
+                    </div>
+                  )}
+
+                  {/* Stage 2: Pending Verification (link sent, awaiting click) */}
+                  {editEmailVerificationStatus === 'pending' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <Mail size={16} className="text-amber-400" />
+                        <div className="flex-1">
+                          <p className="text-sm text-amber-400 font-medium">Verification link sent!</p>
+                          <p className="text-xs text-slate-400 mt-0.5">Check your inbox at <span className="text-white">{editNotificationEmail}</span></p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setEditEmailSendStatus('sending');
+                            setTimeout(() => {
+                              setEditEmailSendStatus('sent');
+                            }, 1500);
+                          }}
+                          disabled={editEmailSendStatus === 'sending'}
+                          className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1 disabled:opacity-50"
+                          data-testid="button-edit-resend-verification"
+                        >
+                          {editEmailSendStatus === 'sending' ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                          Resend link
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditEmailSendStatus('idle');
+                            setEditEmailVerificationStatus('unverified');
+                          }}
+                          className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                          data-testid="button-edit-change-email"
                         >
                           <Pencil size={12} />
+                          Change email
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Simulate user clicking the magic link (for demo purposes)
+                            setEditEmailVerificationStatus('verified');
+                          }}
+                          className="ml-auto text-xs text-slate-600 hover:text-slate-500 underline"
+                          data-testid="button-edit-simulate-verify"
+                        >
+                          (Simulate: I clicked the link)
                         </button>
                       </div>
-                    )}
-                  </div>
-                  {!isEditEmailVerified && !isEditVerifyingEmail && (
+                    </div>
+                  )}
+
+                  {/* Stage 3: Verified */}
+                  {editEmailVerificationStatus === 'verified' && (
+                    <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                      <Check size={16} className="text-emerald-400" />
+                      <div className="flex-1">
+                        <p className="text-sm text-emerald-400 font-medium">Email verified</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{editNotificationEmail}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setEditEmailSendStatus('idle');
+                          setEditEmailVerificationStatus('unverified');
+                        }}
+                        className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                        data-testid="button-edit-change-verified-email"
+                      >
+                        <Pencil size={12} />
+                        Change
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Helper text for Stage 1 */}
+                  {editEmailVerificationStatus === 'unverified' && editEmailSendStatus !== 'sent' && (
                     <p className="text-[10px] text-slate-500 italic">
-                      Note: You must verify your email via a magic link before tracking can start.
+                      We will send a verification link to confirm your email address.
                     </p>
                   )}
                 </div>
