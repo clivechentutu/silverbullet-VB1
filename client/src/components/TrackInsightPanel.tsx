@@ -451,20 +451,20 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
   };
 
   return (
-    <div className="border-t border-slate-800/50 bg-slate-950/50 shrink-0">
+    <div className="border-t border-slate-800/50 bg-slate-900/50 shrink-0">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-900/30 transition-colors">
+          <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
             <div className="flex items-center gap-2">
-              <Database size={14} className="text-slate-500" />
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Raw Signal Feed</span>
-              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+              <Database size={14} className="text-slate-400" />
+              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
+              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
                 {totalSignals}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-600">
-                {availableChannels.length} channels
+              <span className="text-[10px] text-slate-500">
+                Monitoring {availableChannels.length} Channels
               </span>
               <ChevronDown size={14} className={`text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
             </div>
