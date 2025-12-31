@@ -1803,7 +1803,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
+    <div className="flex flex-col h-full overflow-hidden bg-slate-950">
       <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
       
       <SessionCatchUp
@@ -1824,9 +1824,9 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         sinceLastVisit={sinceLastVisit}
       />
       
-      <div className="flex flex-col shrink-0">
-        <div className="flex h-[calc(100vh-320px)] min-h-[300px]">
-          <div className="w-[420px] shrink-0 border-r border-slate-800/50 h-full">
+      <div className="flex-1 min-h-0 flex flex-col">
+        <div className="flex-1 min-h-0 flex overflow-hidden">
+          <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
             <InsightFeed 
               insights={insights}
               selectedId={selectedInsightId}
@@ -1840,7 +1840,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
             />
           </div>
 
-          <div className="flex-1 bg-slate-950/30 h-full">
+          <div className="flex-1 bg-slate-950/30 overflow-hidden">
             <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
           </div>
         </div>
