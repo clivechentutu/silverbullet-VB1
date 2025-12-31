@@ -3205,7 +3205,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
           </DialogHeader>
           
-          <Tabs value={createFormTab} onValueChange={(v) => setCreateFormTab(v as 'basic' | 'notifications')} className="w-full">
+          <Tabs value={createFormTab} onValueChange={(v) => {
+            if (v === 'notifications' && (!newTargetName.trim() || !newTargetUrl.trim())) {
+              toast({
+                title: "Basic Info Required",
+                description: "Please enter a target name and website URL before configuring notifications.",
+                variant: "destructive",
+              });
+              return;
+            }
+            setCreateFormTab(v as 'basic' | 'notifications');
+          }} className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
               <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
                 <Settings size={14} />
@@ -3547,7 +3557,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
           </DialogHeader>
           
-          <Tabs value={editFormTab} onValueChange={(v) => setEditFormTab(v as 'basic' | 'notifications')} className="w-full">
+          <Tabs value={editFormTab} onValueChange={(v) => {
+            if (v === 'notifications' && (!editTargetName.trim() || !editTargetUrl.trim())) {
+              toast({
+                title: "Basic Info Required",
+                description: "Please enter a target name and website URL before configuring notifications.",
+                variant: "destructive",
+              });
+              return;
+            }
+            setEditFormTab(v as 'basic' | 'notifications');
+          }} className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
               <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
                 <Settings size={14} />
