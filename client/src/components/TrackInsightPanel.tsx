@@ -668,7 +668,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<TimeGroup>>(new Set());
-  const [displayLimit, setDisplayLimit] = useState(20);
+  const [displayLimit, setDisplayLimit] = useState(50);
   const [valueFilter, setValueFilter] = useState<ValueFilter>('high');
   const [isValueFilterExpanded, setIsValueFilterExpanded] = useState(false);
 
@@ -910,7 +910,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         </div>
         
         {/* Insight list */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4">
           {sortedInsights.length === 0 ? (
             <div className="text-center py-12">
               <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
