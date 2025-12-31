@@ -1806,7 +1806,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-slate-950">
+    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar bg-slate-950">
       <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
       
       <SessionCatchUp
@@ -1827,33 +1827,33 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         sinceLastVisit={sinceLastVisit}
       />
       
-      <div className="flex-1 min-h-0 flex flex-col">
-        <div className="flex-1 min-h-0 flex overflow-hidden">
-          <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
-            <InsightFeed 
-              insights={insights}
-              selectedId={selectedInsightId}
-              onSelect={setSelectedInsightId}
-              onMarkRead={handleMarkRead}
-              onDemote={handleDemote}
-              channelFilter={channelFilter}
-              onChannelFilterChange={setChannelFilter}
-              availableChannels={availableChannels}
-              lastVisitDays={lastVisitDays}
-            />
-          </div>
-
-          <div className="flex-1 bg-slate-950/30 overflow-hidden">
-            <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
-          </div>
+      {/* Core insight area - fixed height, not affected by bottom expansion */}
+      <div className="shrink-0 h-[calc(100vh-280px)] min-h-[350px] flex">
+        <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
+          <InsightFeed 
+            insights={insights}
+            selectedId={selectedInsightId}
+            onSelect={setSelectedInsightId}
+            onMarkRead={handleMarkRead}
+            onDemote={handleDemote}
+            channelFilter={channelFilter}
+            onChannelFilterChange={setChannelFilter}
+            availableChannels={availableChannels}
+            lastVisitDays={lastVisitDays}
+          />
         </div>
-        
-        <RawSignalFeed 
-          insights={insights}
-          availableChannels={availableChannels}
-          scanningChannel={scanningChannel}
-        />
+
+        <div className="flex-1 bg-slate-950/30 overflow-hidden">
+          <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
+        </div>
       </div>
+      
+      {/* Raw Signal Feed - expands downward, user scrolls to view */}
+      <RawSignalFeed 
+        insights={insights}
+        availableChannels={availableChannels}
+        scanningChannel={scanningChannel}
+      />
     </div>
   );
 };
