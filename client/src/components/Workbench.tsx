@@ -106,6 +106,7 @@ const URLPreview = ({ url }: { url: string }) => {
   );
 };
 
+import { useToast } from "@/hooks/use-toast";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -4992,6 +4993,7 @@ const BillingPopover: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
 };
 
 export const Workbench: React.FC = () => {
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState<WorkbenchView>(WorkbenchView.RADAR);
   const [researchPrompt, setResearchPrompt] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
