@@ -3167,13 +3167,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       {/* Create Task Dialog */}
       <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex flex-col items-center text-center mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-2">
-              <Globe className="text-brand-500" size={20} />
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4">
+              <Globe className="text-brand-500" size={24} />
             </div>
-            <div>
-              <DialogTitle className="text-white text-lg">Create Tracking Target</DialogTitle>
-              <p className="text-xs text-slate-400 mt-1">Add a new competitor to track across multiple dimensions</p>
+            <div className="space-y-1.5">
+              <DialogTitle className="text-white text-xl font-bold">Create Tracking Target</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto">Add a new competitor to track across multiple dimensions</p>
             </div>
           </DialogHeader>
           
@@ -3272,13 +3272,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       {/* Edit Configuration Dialog */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex flex-col items-center text-center mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-2">
-              <Globe className="text-brand-500" size={20} />
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4">
+              <Globe className="text-brand-500" size={24} />
             </div>
-            <div>
-              <DialogTitle className="text-white text-lg">Edit Target Configuration</DialogTitle>
-              <p className="text-xs text-slate-400 mt-1">Update target details and tracking settings</p>
+            <div className="space-y-1.5">
+              <DialogTitle className="text-white text-xl font-bold">Edit Target Configuration</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto">Update target details and tracking settings</p>
             </div>
           </DialogHeader>
           
