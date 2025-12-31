@@ -845,6 +845,30 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
       <div className="flex-1 flex overflow-hidden">
         {/* Vertical value tier filter tabs */}
         <div className="flex flex-col border-r border-slate-800/50 bg-slate-950/50">
+          {/* All option */}
+          <TooltipProvider>
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setValueFilter('all')}
+                  className={`flex flex-col items-center justify-center px-2 py-3 border-b border-slate-800/50 transition-all ${
+                    valueFilter === 'all' 
+                      ? 'bg-slate-800/50 border-r-2 border-r-slate-600'
+                      : 'hover:bg-slate-900/50'
+                  }`}
+                  data-testid="filter-value-all"
+                >
+                  <span className={`text-[9px] ${valueFilter === 'all' ? 'text-slate-300' : 'text-slate-600'}`}>
+                    All
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2">
+                <p className="text-[10px] text-slate-400">Show all insights</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {(['high', 'medium', 'low'] as const).map(tier => {
             const config = valueFilterConfig[tier];
             const count = tierCounts[tier];
@@ -884,29 +908,6 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
               </TooltipProvider>
             );
           })}
-          {/* All option */}
-          <TooltipProvider>
-            <Tooltip delayDuration={200}>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setValueFilter('all')}
-                  className={`flex flex-col items-center justify-center px-2 py-3 mt-auto border-t border-slate-800/50 transition-all ${
-                    valueFilter === 'all' 
-                      ? 'bg-slate-800/50 border-r-2 border-r-slate-600'
-                      : 'hover:bg-slate-900/50'
-                  }`}
-                  data-testid="filter-value-all"
-                >
-                  <span className={`text-[9px] ${valueFilter === 'all' ? 'text-slate-300' : 'text-slate-600'}`}>
-                    All
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2">
-                <p className="text-[10px] text-slate-400">Show all insights</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
         
         {/* Insight list */}
