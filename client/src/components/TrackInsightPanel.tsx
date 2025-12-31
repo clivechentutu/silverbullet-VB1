@@ -733,10 +733,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
       const tDiff = tierConfig[aTier].order - tierConfig[bTier].order;
       if (tDiff !== 0) return tDiff;
       
-      // 2. If same tier, sort by read status (unread first)
-      if (a.isRead !== b.isRead) return a.isRead ? 1 : -1;
-      
-      // 3. Finally by time (newest first) - though usually handled by stable sorts or implicit order
+      // 2. Finally by time (newest first)
       return 0;
     });
   }, [filteredInsights]);
