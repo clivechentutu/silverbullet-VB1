@@ -500,25 +500,10 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                         <Icon size={14} className={config.color} />
                         <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
                         {/* Channel active/scanning indicator */}
-                        {isScanning ? (
-                          <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
-                            <Zap size={9} className="text-emerald-400 animate-pulse" />
-                            <span className="text-[8px] text-emerald-400 font-medium">Scanning</span>
-                          </div>
-                        ) : (
-                          <TooltipProvider>
-                            <Tooltip delayDuration={200}>
-                              <TooltipTrigger asChild>
-                                <div className="w-4 h-4 rounded-full flex items-center justify-center bg-slate-800/50">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-1.5">
-                                <p className="text-[9px] text-slate-400">Monitoring paused</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
+                          <Zap size={9} className="text-emerald-400 animate-pulse" />
+                          <span className="text-[8px] text-emerald-400 font-medium">Monitoring</span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-[9px] text-slate-500">{signals.length}</span>
@@ -589,28 +574,19 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
 
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-slate-800/50">
-      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="relative">
             <Radio size={12} className="text-emerald-400" />
             <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
           </div>
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Live</span>
+          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Live Monitoring Active</span>
         </div>
         <div className="h-3 w-px bg-slate-800" />
         <div className="flex items-center gap-1.5 text-slate-400">
           <Clock size={11} />
           <span className="text-[10px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
         </div>
-        {scanningChannel && (
-          <>
-            <div className="h-3 w-px bg-slate-800" />
-            <div className="flex items-center gap-1.5 text-brand-400">
-              <RefreshCw size={11} className="animate-spin" />
-              <span className="text-[10px]">Scanning {channelConfig[scanningChannel]?.name}...</span>
-            </div>
-          </>
-        )}
       </div>
       <div className="flex items-center gap-3">
         <span className="text-[10px] text-slate-500">{totalInsights} insights</span>
@@ -1567,9 +1543,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
   useEffect(() => {
     let idx = 0;
     const scanTimer = setInterval(() => {
-      setScanningChannel(availableChannels[idx]);
       idx = (idx + 1) % availableChannels.length;
-      setTimeout(() => setScanningChannel(null), 2000);
     }, 15000);
     return () => clearInterval(scanTimer);
   }, []);
