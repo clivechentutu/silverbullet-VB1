@@ -113,7 +113,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrackInsightPanel } from "@/components/TrackInsightPanel";
+import { Mail, Clock, Pencil, Bell } from 'lucide-react';
 
 // Signal detail hover card content component
 interface SignalDetailHoverProps {
@@ -1851,6 +1854,28 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [isAddingTarget, setIsAddingTarget] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [newTaskTrackers, setNewTaskTrackers] = useState(['website', 'backlinks', 'seo']);
+  
+  // Email notification state for Create dialog
+  const [createFormTab, setCreateFormTab] = useState<'basic' | 'notifications'>('basic');
+  const [newNotificationEmails, setNewNotificationEmails] = useState<string[]>([]);
+  const [newEmailInput, setNewEmailInput] = useState('');
+  const [newEditingEmailIndex, setNewEditingEmailIndex] = useState<number | null>(null);
+  const [newFrequencyType, setNewFrequencyType] = useState<'daily' | 'weekly'>('daily');
+  const [newDailyTime, setNewDailyTime] = useState('09:00');
+  const [newWeeklyDay, setNewWeeklyDay] = useState('monday');
+  const [newWeeklyTime, setNewWeeklyTime] = useState('09:00');
+  const [newTimezone, setNewTimezone] = useState('UTC');
+  
+  // Email notification state for Edit dialog
+  const [editFormTab, setEditFormTab] = useState<'basic' | 'notifications'>('basic');
+  const [editNotificationEmails, setEditNotificationEmails] = useState<string[]>([]);
+  const [editEmailInput, setEditEmailInput] = useState('');
+  const [editEditingEmailIndex, setEditEditingEmailIndex] = useState<number | null>(null);
+  const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
+  const [editDailyTime, setEditDailyTime] = useState('09:00');
+  const [editWeeklyDay, setEditWeeklyDay] = useState('monday');
+  const [editWeeklyTime, setEditWeeklyTime] = useState('09:00');
+  const [editTimezone, setEditTimezone] = useState('UTC');
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -3165,8 +3190,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
         )}
       </div>
       {/* Create Task Dialog */}
-      <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+      <Dialog open={showCreateTaskModal} onOpenChange={(open) => {
+        setShowCreateTaskModal(open);
+        if (!open) setCreateFormTab('basic');
+      }}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="flex flex-col items-center text-center">
             <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
               <Globe className="text-brand-500" size={24} />
@@ -3177,57 +3205,287 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
-              <input
-                type="text"
-                value={newTargetName}
-                onChange={(e) => setNewTargetName(e.target.value)}
-                placeholder="e.g., Figma"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-new-target-name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+          <Tabs value={createFormTab} onValueChange={(v) => setCreateFormTab(v as 'basic' | 'notifications')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+              <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                <Settings size={14} />
+                Basic Info
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                <Bell size={14} />
+                Notifications
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="basic" className="space-y-6 py-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
                 <input
                   type="text"
-                  value={newTargetUrl}
-                  onChange={(e) => setNewTargetUrl(e.target.value)}
-                  placeholder="e.g., figma.com or https://figma.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-new-target-url"
+                  value={newTargetName}
+                  onChange={(e) => setNewTargetName(e.target.value)}
+                  placeholder="e.g., Figma"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-new-target-name"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
-              <div className="space-y-2">
-                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
-                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                    <input 
-                      type="checkbox" 
-                      checked={newTaskTrackers.includes(tracker.toLowerCase())}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setNewTaskTrackers([...newTaskTrackers, tracker.toLowerCase()]);
-                        } else {
-                          setNewTaskTrackers(newTaskTrackers.filter(t => t !== tracker.toLowerCase()));
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="flex-1 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <input
+                    type="text"
+                    value={newTargetUrl}
+                    onChange={(e) => setNewTargetUrl(e.target.value)}
+                    placeholder="e.g., figma.com or https://figma.com"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    data-testid="input-new-target-url"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+                <div className="space-y-2">
+                  {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                    <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={newTaskTrackers.includes(tracker.toLowerCase())}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setNewTaskTrackers([...newTaskTrackers, tracker.toLowerCase()]);
+                          } else {
+                            setNewTaskTrackers(newTaskTrackers.filter(t => t !== tracker.toLowerCase()));
+                          }
+                        }}
+                        className="w-4 h-4 rounded accent-brand-500" 
+                      />
+                      <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notifications" className="space-y-6 py-2">
+              {/* Email Management Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Emails</label>
+                <div className="space-y-2">
+                  {newNotificationEmails.map((email, index) => (
+                    <div key={index} className="flex items-center gap-2 p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
+                      {newEditingEmailIndex === index ? (
+                        <input
+                          type="email"
+                          value={newEmailInput}
+                          onChange={(e) => setNewEmailInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && newEmailInput.trim()) {
+                              const updated = [...newNotificationEmails];
+                              updated[index] = newEmailInput.trim();
+                              setNewNotificationEmails(updated);
+                              setNewEditingEmailIndex(null);
+                              setNewEmailInput('');
+                            }
+                          }}
+                          className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
+                          autoFocus
+                          data-testid={`input-edit-email-${index}`}
+                        />
+                      ) : (
+                        <div className="flex-1 flex items-center gap-2">
+                          <Mail size={14} className="text-slate-500" />
+                          <span className="text-sm text-slate-300">{email}</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          if (newEditingEmailIndex === index) {
+                            if (newEmailInput.trim()) {
+                              const updated = [...newNotificationEmails];
+                              updated[index] = newEmailInput.trim();
+                              setNewNotificationEmails(updated);
+                            }
+                            setNewEditingEmailIndex(null);
+                            setNewEmailInput('');
+                          } else {
+                            setNewEmailInput(email);
+                            setNewEditingEmailIndex(index);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-700 rounded transition-colors"
+                        data-testid={`button-edit-email-${index}`}
+                      >
+                        {newEditingEmailIndex === index ? <Check size={14} /> : <Pencil size={14} />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setNewNotificationEmails(newNotificationEmails.filter((_, i) => i !== index));
+                          if (newEditingEmailIndex === index) {
+                            setNewEditingEmailIndex(null);
+                            setNewEmailInput('');
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
+                        data-testid={`button-delete-email-${index}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Add new email */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                      <input
+                        type="email"
+                        value={newEditingEmailIndex === null ? newEmailInput : ''}
+                        onChange={(e) => newEditingEmailIndex === null && setNewEmailInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && newEmailInput.trim() && newEditingEmailIndex === null) {
+                            setNewNotificationEmails([...newNotificationEmails, newEmailInput.trim()]);
+                            setNewEmailInput('');
+                          }
+                        }}
+                        placeholder="Add email address..."
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                        disabled={newEditingEmailIndex !== null}
+                        data-testid="input-add-new-email"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (newEmailInput.trim() && newEditingEmailIndex === null) {
+                          setNewNotificationEmails([...newNotificationEmails, newEmailInput.trim()]);
+                          setNewEmailInput('');
                         }
                       }}
-                      className="w-4 h-4 rounded accent-brand-500" 
-                    />
-                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
-                  </label>
-                ))}
+                      disabled={!newEmailInput.trim() || newEditingEmailIndex !== null}
+                      className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
+                      data-testid="button-add-email"
+                    >
+                      <Plus size={14} /> Add
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+              
+              {/* Frequency Settings Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Frequency</label>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setNewFrequencyType('daily')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        newFrequencyType === 'daily' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-frequency-daily"
+                    >
+                      Daily
+                    </button>
+                    <button
+                      onClick={() => setNewFrequencyType('weekly')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        newFrequencyType === 'weekly' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-frequency-weekly"
+                    >
+                      Weekly
+                    </button>
+                  </div>
+                  
+                  {newFrequencyType === 'daily' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={newDailyTime} onValueChange={setNewDailyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-daily-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={newTimezone} onValueChange={setNewTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-timezone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Day</label>
+                        <Select value={newWeeklyDay} onValueChange={setNewWeeklyDay}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-weekly-day">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                              <SelectItem key={day} value={day} className="text-white hover:bg-slate-700 capitalize">{day.charAt(0).toUpperCase() + day.slice(1)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={newWeeklyTime} onValueChange={setNewWeeklyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-weekly-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={newTimezone} onValueChange={setNewTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-timezone-weekly">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <Clock size={12} />
+                    {newFrequencyType === 'daily' 
+                      ? `You'll receive daily signal summaries at ${newDailyTime} (${newTimezone.replace('_', ' ')})`
+                      : `You'll receive weekly signal summaries every ${newWeeklyDay.charAt(0).toUpperCase() + newWeeklyDay.slice(1)} at ${newWeeklyTime} (${newTimezone.replace('_', ' ')})`
+                    }
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
             <button
@@ -3250,6 +3508,10 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     setNewTargetName('');
                     setNewTargetUrl('');
                     setNewTaskTrackers(['website', 'backlinks', 'seo']);
+                    setNewNotificationEmails([]);
+                    setNewFrequencyType('daily');
+                    setNewDailyTime('09:00');
+                    setNewTimezone('UTC');
                     setShowCreateTaskModal(false);
                   } catch (error) {
                     console.error('Failed to create target:', error);
@@ -3270,8 +3532,11 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       </Dialog>
 
       {/* Edit Configuration Dialog */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+      <Dialog open={showEditModal} onOpenChange={(open) => {
+        setShowEditModal(open);
+        if (!open) setEditFormTab('basic');
+      }}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader className="flex flex-col items-center text-center">
             <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
               <Globe className="text-brand-500" size={24} />
@@ -3282,46 +3547,276 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
-              <input
-                type="text"
-                value={editTargetName}
-                onChange={(e) => setEditTargetName(e.target.value)}
-                placeholder="e.g., Figma"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-edit-target-name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+          <Tabs value={editFormTab} onValueChange={(v) => setEditFormTab(v as 'basic' | 'notifications')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+              <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                <Settings size={14} />
+                Basic Info
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                <Bell size={14} />
+                Notifications
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="basic" className="space-y-6 py-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
                 <input
                   type="text"
-                  value={editTargetUrl}
-                  onChange={(e) => setEditTargetUrl(e.target.value)}
-                  placeholder="e.g., figma.com or https://figma.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-edit-target-url"
+                  value={editTargetName}
+                  onChange={(e) => setEditTargetName(e.target.value)}
+                  placeholder="e.g., Figma"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-edit-target-name"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
-              <div className="space-y-2">
-                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
-                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
-                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
-                  </label>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="flex-1 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <input
+                    type="text"
+                    value={editTargetUrl}
+                    onChange={(e) => setEditTargetUrl(e.target.value)}
+                    placeholder="e.g., figma.com or https://figma.com"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    data-testid="input-edit-target-url"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+                <div className="space-y-2">
+                  {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                    <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
+                      <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notifications" className="space-y-6 py-2">
+              {/* Email Management Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Emails</label>
+                <div className="space-y-2">
+                  {editNotificationEmails.map((email, index) => (
+                    <div key={index} className="flex items-center gap-2 p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
+                      {editEditingEmailIndex === index ? (
+                        <input
+                          type="email"
+                          value={editEmailInput}
+                          onChange={(e) => setEditEmailInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && editEmailInput.trim()) {
+                              const updated = [...editNotificationEmails];
+                              updated[index] = editEmailInput.trim();
+                              setEditNotificationEmails(updated);
+                              setEditEditingEmailIndex(null);
+                              setEditEmailInput('');
+                            }
+                          }}
+                          className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
+                          autoFocus
+                          data-testid={`input-edit-notification-email-${index}`}
+                        />
+                      ) : (
+                        <div className="flex-1 flex items-center gap-2">
+                          <Mail size={14} className="text-slate-500" />
+                          <span className="text-sm text-slate-300">{email}</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => {
+                          if (editEditingEmailIndex === index) {
+                            if (editEmailInput.trim()) {
+                              const updated = [...editNotificationEmails];
+                              updated[index] = editEmailInput.trim();
+                              setEditNotificationEmails(updated);
+                            }
+                            setEditEditingEmailIndex(null);
+                            setEditEmailInput('');
+                          } else {
+                            setEditEmailInput(email);
+                            setEditEditingEmailIndex(index);
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-700 rounded transition-colors"
+                        data-testid={`button-edit-notification-email-${index}`}
+                      >
+                        {editEditingEmailIndex === index ? <Check size={14} /> : <Pencil size={14} />}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditNotificationEmails(editNotificationEmails.filter((_, i) => i !== index));
+                          if (editEditingEmailIndex === index) {
+                            setEditEditingEmailIndex(null);
+                            setEditEmailInput('');
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
+                        data-testid={`button-delete-notification-email-${index}`}
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Add new email */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                      <input
+                        type="email"
+                        value={editEditingEmailIndex === null ? editEmailInput : ''}
+                        onChange={(e) => editEditingEmailIndex === null && setEditEmailInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && editEmailInput.trim() && editEditingEmailIndex === null) {
+                            setEditNotificationEmails([...editNotificationEmails, editEmailInput.trim()]);
+                            setEditEmailInput('');
+                          }
+                        }}
+                        placeholder="Add email address..."
+                        className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                        disabled={editEditingEmailIndex !== null}
+                        data-testid="input-add-edit-notification-email"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (editEmailInput.trim() && editEditingEmailIndex === null) {
+                          setEditNotificationEmails([...editNotificationEmails, editEmailInput.trim()]);
+                          setEditEmailInput('');
+                        }
+                      }}
+                      disabled={!editEmailInput.trim() || editEditingEmailIndex !== null}
+                      className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
+                      data-testid="button-add-edit-notification-email"
+                    >
+                      <Plus size={14} /> Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Frequency Settings Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Frequency</label>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setEditFrequencyType('daily')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        editFrequencyType === 'daily' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-edit-frequency-daily"
+                    >
+                      Daily
+                    </button>
+                    <button
+                      onClick={() => setEditFrequencyType('weekly')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        editFrequencyType === 'weekly' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-edit-frequency-weekly"
+                    >
+                      Weekly
+                    </button>
+                  </div>
+                  
+                  {editFrequencyType === 'daily' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={editDailyTime} onValueChange={setEditDailyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-daily-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={editTimezone} onValueChange={setEditTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-timezone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Day</label>
+                        <Select value={editWeeklyDay} onValueChange={setEditWeeklyDay}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-weekly-day">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                              <SelectItem key={day} value={day} className="text-white hover:bg-slate-700 capitalize">{day.charAt(0).toUpperCase() + day.slice(1)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={editWeeklyTime} onValueChange={setEditWeeklyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-weekly-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={editTimezone} onValueChange={setEditTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-timezone-weekly">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <Clock size={12} />
+                    {editFrequencyType === 'daily' 
+                      ? `You'll receive daily signal summaries at ${editDailyTime} (${editTimezone.replace('_', ' ')})`
+                      : `You'll receive weekly signal summaries every ${editWeeklyDay.charAt(0).toUpperCase() + editWeeklyDay.slice(1)} at ${editWeeklyTime} (${editTimezone.replace('_', ' ')})`
+                    }
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
             <button
