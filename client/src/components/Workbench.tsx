@@ -3168,12 +3168,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
           <DialogHeader className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
               <Globe className="text-brand-500" size={24} />
             </div>
-            <div className="space-y-1.5">
-              <DialogTitle className="text-white text-xl font-bold">Create Tracking Target</DialogTitle>
-              <p className="text-sm text-slate-400 max-w-[80%] mx-auto">Add a new competitor to track across multiple dimensions</p>
+            <div className="space-y-1.5 w-full">
+              <DialogTitle className="text-white text-xl font-bold text-center w-full">Create Tracking Target</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto text-center">Add a new competitor to track across multiple dimensions</p>
             </div>
           </DialogHeader>
           
@@ -3273,12 +3273,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
           <DialogHeader className="flex flex-col items-center text-center">
-            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
               <Globe className="text-brand-500" size={24} />
             </div>
-            <div className="space-y-1.5">
-              <DialogTitle className="text-white text-xl font-bold">Edit Target Configuration</DialogTitle>
-              <p className="text-sm text-slate-400 max-w-[80%] mx-auto">Update target details and tracking settings</p>
+            <div className="space-y-1.5 w-full">
+              <DialogTitle className="text-white text-xl font-bold text-center w-full">Edit Target Configuration</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto text-center">Update target details and tracking settings</p>
             </div>
           </DialogHeader>
           
