@@ -1859,9 +1859,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   
   // Email notification state for Create dialog
   const [createFormTab, setCreateFormTab] = useState<'basic' | 'notifications'>('basic');
-  const [newNotificationEmails, setNewNotificationEmails] = useState<string[]>([]);
-  const [newEmailInput, setNewEmailInput] = useState('');
-  const [newEditingEmailIndex, setNewEditingEmailIndex] = useState<number | null>(null);
+  const [newNotificationEmail, setNewNotificationEmail] = useState('');
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [newFrequencyType, setNewFrequencyType] = useState<'daily' | 'weekly'>('daily');
   const [newDailyTime, setNewDailyTime] = useState('09:00');
   const [newWeeklyDay, setNewWeeklyDay] = useState('monday');
@@ -1870,9 +1870,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   
   // Email notification state for Edit dialog
   const [editFormTab, setEditFormTab] = useState<'basic' | 'notifications'>('basic');
-  const [editNotificationEmails, setEditNotificationEmails] = useState<string[]>([]);
-  const [editEmailInput, setEditEmailInput] = useState('');
-  const [editEditingEmailIndex, setEditEditingEmailIndex] = useState<number | null>(null);
+  const [editNotificationEmail, setEditNotificationEmail] = useState('');
+  const [isEditVerifyingEmail, setIsEditVerifyingEmail] = useState(false);
+  const [isEditEmailVerified, setIsEditEmailVerified] = useState(false);
   const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
   const [editDailyTime, setEditDailyTime] = useState('09:00');
   const [editWeeklyDay, setEditWeeklyDay] = useState('monday');
@@ -3282,106 +3282,71 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </TabsContent>
             
             <TabsContent value="notifications" className="space-y-6 py-2">
-              {/* Email Management Section */}
+              {/* Single Email Management Section */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Emails</label>
-                <div className="space-y-2">
-                  {newNotificationEmails.map((email, index) => (
-                    <div key={index} className="flex items-center gap-2 p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
-                      {newEditingEmailIndex === index ? (
-                        <input
-                          type="email"
-                          value={newEmailInput}
-                          onChange={(e) => setNewEmailInput(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && newEmailInput.trim()) {
-                              const updated = [...newNotificationEmails];
-                              updated[index] = newEmailInput.trim();
-                              setNewNotificationEmails(updated);
-                              setNewEditingEmailIndex(null);
-                              setNewEmailInput('');
-                            }
-                          }}
-                          className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
-                          autoFocus
-                          data-testid={`input-edit-email-${index}`}
-                        />
-                      ) : (
-                        <div className="flex-1 flex items-center gap-2">
-                          <Mail size={14} className="text-slate-500" />
-                          <span className="text-sm text-slate-300">{email}</span>
-                        </div>
-                      )}
-                      <button
-                        onClick={() => {
-                          if (newEditingEmailIndex === index) {
-                            if (newEmailInput.trim()) {
-                              const updated = [...newNotificationEmails];
-                              updated[index] = newEmailInput.trim();
-                              setNewNotificationEmails(updated);
-                            }
-                            setNewEditingEmailIndex(null);
-                            setNewEmailInput('');
-                          } else {
-                            setNewEmailInput(email);
-                            setNewEditingEmailIndex(index);
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-700 rounded transition-colors"
-                        data-testid={`button-edit-email-${index}`}
-                      >
-                        {newEditingEmailIndex === index ? <Check size={14} /> : <Pencil size={14} />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setNewNotificationEmails(newNotificationEmails.filter((_, i) => i !== index));
-                          if (newEditingEmailIndex === index) {
-                            setNewEditingEmailIndex(null);
-                            setNewEmailInput('');
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
-                        data-testid={`button-delete-email-${index}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  
-                  {/* Add new email */}
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
                       <input
                         type="email"
-                        value={newEditingEmailIndex === null ? newEmailInput : ''}
-                        onChange={(e) => newEditingEmailIndex === null && setNewEmailInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && newEmailInput.trim() && newEditingEmailIndex === null) {
-                            setNewNotificationEmails([...newNotificationEmails, newEmailInput.trim()]);
-                            setNewEmailInput('');
-                          }
+                        value={newNotificationEmail}
+                        onChange={(e) => {
+                          setNewNotificationEmail(e.target.value);
+                          setIsEmailVerified(false);
                         }}
-                        placeholder="Add email address..."
+                        placeholder="Enter email address..."
                         className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
-                        disabled={newEditingEmailIndex !== null}
-                        data-testid="input-add-new-email"
+                        disabled={isVerifyingEmail || isEmailVerified}
+                        data-testid="input-new-notification-email"
                       />
                     </div>
-                    <button
-                      onClick={() => {
-                        if (newEmailInput.trim() && newEditingEmailIndex === null) {
-                          setNewNotificationEmails([...newNotificationEmails, newEmailInput.trim()]);
-                          setNewEmailInput('');
-                        }
-                      }}
-                      disabled={!newEmailInput.trim() || newEditingEmailIndex !== null}
-                      className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
-                      data-testid="button-add-email"
-                    >
-                      <Plus size={14} /> Add
-                    </button>
+                    {!isEmailVerified ? (
+                      <button
+                        onClick={async () => {
+                          if (newNotificationEmail.trim()) {
+                            setIsVerifyingEmail(true);
+                            // Simulate magic link process
+                            toast({
+                              title: "Magic Link Sent",
+                              description: `A verification link has been sent to ${newNotificationEmail}.`,
+                            });
+                            setTimeout(() => {
+                              setIsEmailVerified(true);
+                              setIsVerifyingEmail(false);
+                              toast({
+                                title: "Email Verified",
+                                description: "Your email has been successfully verified.",
+                              });
+                            }, 2000);
+                          }
+                        }}
+                        disabled={!newNotificationEmail.trim() || isVerifyingEmail}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[120px] justify-center"
+                        data-testid="button-verify-email"
+                      >
+                        {isVerifyingEmail ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                        Verify
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
+                        <Check size={14} />
+                        Verified
+                        <button 
+                          onClick={() => setIsEmailVerified(false)}
+                          className="ml-2 text-slate-500 hover:text-slate-400"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                      </div>
+                    )}
                   </div>
+                  {!isEmailVerified && !isVerifyingEmail && (
+                    <p className="text-[10px] text-slate-500 italic">
+                      Note: You must verify your email via a magic link before tracking can start.
+                    </p>
+                  )}
                 </div>
               </div>
               
@@ -3520,7 +3485,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     setNewTargetName('');
                     setNewTargetUrl('');
                     setNewTaskTrackers(['website', 'backlinks', 'seo']);
-                    setNewNotificationEmails([]);
+                    setNewNotificationEmail('');
+                    setIsEmailVerified(false);
                     setNewFrequencyType('daily');
                     setNewDailyTime('09:00');
                     setNewTimezone('UTC');
@@ -3532,7 +3498,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   }
                 }
               }}
-              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget}
+              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget || !isEmailVerified}
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
               data-testid="button-create-task-submit"
             >
@@ -3623,106 +3589,71 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </TabsContent>
             
             <TabsContent value="notifications" className="space-y-6 py-2">
-              {/* Email Management Section */}
+              {/* Single Email Management Section */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Emails</label>
-                <div className="space-y-2">
-                  {editNotificationEmails.map((email, index) => (
-                    <div key={index} className="flex items-center gap-2 p-3 bg-slate-800/50 border border-slate-700 rounded-lg">
-                      {editEditingEmailIndex === index ? (
-                        <input
-                          type="email"
-                          value={editEmailInput}
-                          onChange={(e) => setEditEmailInput(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && editEmailInput.trim()) {
-                              const updated = [...editNotificationEmails];
-                              updated[index] = editEmailInput.trim();
-                              setEditNotificationEmails(updated);
-                              setEditEditingEmailIndex(null);
-                              setEditEmailInput('');
-                            }
-                          }}
-                          className="flex-1 bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-500"
-                          autoFocus
-                          data-testid={`input-edit-notification-email-${index}`}
-                        />
-                      ) : (
-                        <div className="flex-1 flex items-center gap-2">
-                          <Mail size={14} className="text-slate-500" />
-                          <span className="text-sm text-slate-300">{email}</span>
-                        </div>
-                      )}
-                      <button
-                        onClick={() => {
-                          if (editEditingEmailIndex === index) {
-                            if (editEmailInput.trim()) {
-                              const updated = [...editNotificationEmails];
-                              updated[index] = editEmailInput.trim();
-                              setEditNotificationEmails(updated);
-                            }
-                            setEditEditingEmailIndex(null);
-                            setEditEmailInput('');
-                          } else {
-                            setEditEmailInput(email);
-                            setEditEditingEmailIndex(index);
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-700 rounded transition-colors"
-                        data-testid={`button-edit-notification-email-${index}`}
-                      >
-                        {editEditingEmailIndex === index ? <Check size={14} /> : <Pencil size={14} />}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditNotificationEmails(editNotificationEmails.filter((_, i) => i !== index));
-                          if (editEditingEmailIndex === index) {
-                            setEditEditingEmailIndex(null);
-                            setEditEmailInput('');
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded transition-colors"
-                        data-testid={`button-delete-notification-email-${index}`}
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                  
-                  {/* Add new email */}
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
                       <input
                         type="email"
-                        value={editEditingEmailIndex === null ? editEmailInput : ''}
-                        onChange={(e) => editEditingEmailIndex === null && setEditEmailInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' && editEmailInput.trim() && editEditingEmailIndex === null) {
-                            setEditNotificationEmails([...editNotificationEmails, editEmailInput.trim()]);
-                            setEditEmailInput('');
-                          }
+                        value={editNotificationEmail}
+                        onChange={(e) => {
+                          setEditNotificationEmail(e.target.value);
+                          setIsEditEmailVerified(false);
                         }}
-                        placeholder="Add email address..."
+                        placeholder="Enter email address..."
                         className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
-                        disabled={editEditingEmailIndex !== null}
-                        data-testid="input-add-edit-notification-email"
+                        disabled={isEditVerifyingEmail || isEditEmailVerified}
+                        data-testid="input-edit-notification-email"
                       />
                     </div>
-                    <button
-                      onClick={() => {
-                        if (editEmailInput.trim() && editEditingEmailIndex === null) {
-                          setEditNotificationEmails([...editNotificationEmails, editEmailInput.trim()]);
-                          setEditEmailInput('');
-                        }
-                      }}
-                      disabled={!editEmailInput.trim() || editEditingEmailIndex !== null}
-                      className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-1"
-                      data-testid="button-add-edit-notification-email"
-                    >
-                      <Plus size={14} /> Add
-                    </button>
+                    {!isEditEmailVerified ? (
+                      <button
+                        onClick={async () => {
+                          if (editNotificationEmail.trim()) {
+                            setIsEditVerifyingEmail(true);
+                            // Simulate magic link process
+                            toast({
+                              title: "Magic Link Sent",
+                              description: `A verification link has been sent to ${editNotificationEmail}.`,
+                            });
+                            setTimeout(() => {
+                              setIsEditEmailVerified(true);
+                              setIsEditVerifyingEmail(false);
+                              toast({
+                                title: "Email Verified",
+                                description: "Your email has been successfully verified.",
+                              });
+                            }, 2000);
+                          }
+                        }}
+                        disabled={!editNotificationEmail.trim() || isEditVerifyingEmail}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[120px] justify-center"
+                        data-testid="button-edit-verify-email"
+                      >
+                        {isEditVerifyingEmail ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                        Verify
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">
+                        <Check size={14} />
+                        Verified
+                        <button 
+                          onClick={() => setIsEditEmailVerified(false)}
+                          className="ml-2 text-slate-500 hover:text-slate-400"
+                        >
+                          <Pencil size={12} />
+                        </button>
+                      </div>
+                    )}
                   </div>
+                  {!isEditEmailVerified && !isEditVerifyingEmail && (
+                    <p className="text-[10px] text-slate-500 italic">
+                      Note: You must verify your email via a magic link before tracking can start.
+                    </p>
+                  )}
                 </div>
               </div>
               
