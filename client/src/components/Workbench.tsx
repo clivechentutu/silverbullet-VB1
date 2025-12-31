@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -35,6 +35,10 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
@@ -748,6 +752,282 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [updateSuccessState, setUpdateSuccessState] = useState<'idle' | 'adjusting' | 'completed'>('idle');
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [showHistorySheet, setShowHistorySheet] = useState(false);
+  
+  // Historical Summary States
+  const [selectedSummaryDate, setSelectedSummaryDate] = useState<Date>(new Date());
+  const [showCalendarPopover, setShowCalendarPopover] = useState(false);
+  
+  // Historical summaries data - dates with available summaries
+  const historicalSummaryDates = useMemo(() => {
+    const dates: Date[] = [];
+    const today = new Date();
+    // Simulate: summaries available for certain days in past 30 days
+    [0, 1, 2, 3, 5, 7, 8, 10, 14, 15, 21, 28].forEach(daysAgo => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - daysAgo);
+      d.setHours(0, 0, 0, 0);
+      dates.push(d);
+    });
+    return dates;
+  }, []);
+  
+  // Check if a date has summary
+  const dateHasSummary = (date: Date) => {
+    return historicalSummaryDates.some(d => 
+      d.getFullYear() === date.getFullYear() &&
+      d.getMonth() === date.getMonth() &&
+      d.getDate() === date.getDate()
+    );
+  };
+  
+  // Historical summary data cache - keyed by date string for deterministic results
+  const historicalSummaryCache = useMemo(() => {
+    const cache: Record<string, { date: string; total: number; high: number; scopeInsights: Array<{ scope: string; products: Array<{ name: string; color: string }>; text: string[] }> }> = {};
+    
+    // Today's summary
+    const today = new Date();
+    cache[format(today, 'yyyy-MM-dd')] = {
+      date: format(today, 'MMM d'),
+      total: 12,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
+          text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Descript', color: 'text-purple-400' }],
+          text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
+        }
+      ]
+    };
+    
+    // Yesterday
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    cache[format(yesterday, 'yyyy-MM-dd')] = {
+      date: format(yesterday, 'MMM d'),
+      total: 9,
+      high: 2,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Sketch Pro', color: 'text-blue-400' }],
+          text: ['Detected 1 emerging competitor: ', 'Sketch Pro', ' (85% match, vector-first design approach with cloud sync).']
+        }
+      ]
+    };
+    
+    // 2 days ago
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    cache[format(twoDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twoDaysAgo, 'MMM d'),
+      total: 11,
+      high: 2,
+      scopeInsights: [
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'CapCut', color: 'text-purple-400' }],
+          text: ['Identified ', 'CapCut', ' (93% match, mobile-first short video editor with viral effects library).']
+        }
+      ]
+    };
+    
+    // 3 days ago
+    const threeDaysAgo = new Date(today);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    cache[format(threeDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(threeDaysAgo, 'MMM d'),
+      total: 8,
+      high: 1,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Miro', color: 'text-amber-400' }],
+          text: ['Discovered ', 'Miro', ' (79% match, collaborative whiteboard with design integration).']
+        }
+      ]
+    };
+    
+    // 5 days ago
+    const fiveDaysAgo = new Date(today);
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+    cache[format(fiveDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fiveDaysAgo, 'MMM d'),
+      total: 18,
+      high: 4,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Penpot', color: 'text-emerald-400' }],
+          text: ['Identified 2 competitors: ', 'Adobe Express', ' (90% match, enterprise integration) and ', 'Penpot', ' (82% match, open-source alternative).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Runway', color: 'text-purple-400' }],
+          text: ['Discovered ', 'Runway', ' (91% match, AI video generation and editing platform).']
+        }
+      ]
+    };
+    
+    // 7 days ago
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    cache[format(sevenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(sevenDaysAgo, 'MMM d'),
+      total: 22,
+      high: 5,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Framer', color: 'text-amber-400' }, { name: 'Webflow', color: 'text-blue-400' }],
+          text: ['Key discoveries: ', 'Framer', ' (88% match, code-export) and ', 'Webflow', ' (84% match, no-code website builder).']
+        }
+      ]
+    };
+    
+    // 8 days ago
+    const eightDaysAgo = new Date(today);
+    eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+    cache[format(eightDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(eightDaysAgo, 'MMM d'),
+      total: 14,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'InVideo', color: 'text-green-400' }],
+          text: ['Found ', 'InVideo', ' (88% match, template-driven video creation platform).']
+        }
+      ]
+    };
+    
+    // 10 days ago
+    const tenDaysAgo = new Date(today);
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    cache[format(tenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(tenDaysAgo, 'MMM d'),
+      total: 19,
+      high: 4,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Canva', color: 'text-cyan-400' }],
+          text: ['Major activity from ', 'Canva', ' (95% match, launched new AI design features).']
+        }
+      ]
+    };
+    
+    // 14 days ago
+    const fourteenDaysAgo = new Date(today);
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    cache[format(fourteenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fourteenDaysAgo, 'MMM d'),
+      total: 26,
+      high: 6,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Figma', color: 'text-red-400' }],
+          text: ['High priority: ', 'Figma', ' (96% match, announced major platform update).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Kapwing', color: 'text-green-400' }],
+          text: ['Detected ', 'Kapwing', ' (86% match, browser-based editing suite expansion).']
+        }
+      ]
+    };
+    
+    // 15 days ago
+    const fifteenDaysAgo = new Date(today);
+    fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+    cache[format(fifteenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fifteenDaysAgo, 'MMM d'),
+      total: 15,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Pixlr', color: 'text-pink-400' }],
+          text: ['Emerging player: ', 'Pixlr', ' (75% match, AI-powered photo editing suite).']
+        }
+      ]
+    };
+    
+    // 21 days ago
+    const twentyOneDaysAgo = new Date(today);
+    twentyOneDaysAgo.setDate(twentyOneDaysAgo.getDate() - 21);
+    cache[format(twentyOneDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twentyOneDaysAgo, 'MMM d'),
+      total: 31,
+      high: 7,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Adobe XD', color: 'text-red-400' }, { name: 'Sketch', color: 'text-amber-400' }],
+          text: ['Weekly highlights: ', 'Adobe XD', ' (89% match) and ', 'Sketch', ' (87% match) both released updates.']
+        }
+      ]
+    };
+    
+    // 28 days ago
+    const twentyEightDaysAgo = new Date(today);
+    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
+    cache[format(twentyEightDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twentyEightDaysAgo, 'MMM d'),
+      total: 42,
+      high: 9,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Lunacy', color: 'text-cyan-400' }],
+          text: ['Month-start summary: ', 'Lunacy', ' (81% match, free alternative to Sketch gaining traction).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Lumen5', color: 'text-purple-400' }],
+          text: ['Discovered ', 'Lumen5', ' (77% match, AI video creation for marketing).']
+        }
+      ]
+    };
+    
+    return cache;
+  }, []);
+  
+  // Get historical summary data for a specific date
+  const getHistoricalSummaryForDate = (date: Date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    const cached = historicalSummaryCache[dateKey];
+    
+    if (cached) {
+      return cached;
+    }
+    
+    // Fallback for dates not in cache
+    return {
+      date: format(date, 'MMM d'),
+      total: 0,
+      high: 0,
+      scopeInsights: []
+    };
+  };
+  
+  // Generate date strip for last 7 days
+  const dateStrip = useMemo(() => {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      d.setHours(0, 0, 0, 0);
+      days.push(d);
+    }
+    return days;
+  }, []);
 
   // Auto-transition and hide update success message
   useEffect(() => {
@@ -1109,92 +1389,135 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
       </div>
 
-      {/* AI Intelligence Summary - Period-based Discovery Analysis */}
+      {/* AI Intelligence Summary - Historical Date Navigation */}
       <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
-        <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Radar size={14} className="text-brand-400" />
-            <span className="text-xs font-bold text-white">Radar Summary</span>
+        {/* Header with date navigation */}
+        <div className="px-4 py-2.5 border-b border-slate-800/50">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Radar size={14} className="text-brand-400" />
+              <span className="text-xs font-bold text-white">Radar Summary</span>
+            </div>
+            
+            {/* Date Strip Navigation */}
+            <div className="flex items-center gap-1">
+              {dateStrip.map((date, idx) => {
+                const isToday = idx === 0;
+                const hasSummary = dateHasSummary(date);
+                const isSelected = selectedSummaryDate.getFullYear() === date.getFullYear() &&
+                                   selectedSummaryDate.getMonth() === date.getMonth() &&
+                                   selectedSummaryDate.getDate() === date.getDate();
+                const dayName = isToday ? 'Today' : format(date, 'EEE');
+                const dayNum = format(date, 'd');
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => hasSummary && setSelectedSummaryDate(date)}
+                    disabled={!hasSummary}
+                    className={`flex flex-col items-center px-2 py-1 rounded-lg transition-all relative ${
+                      isSelected 
+                        ? 'bg-brand-500/20 border border-brand-500/40' 
+                        : hasSummary 
+                          ? 'hover:bg-slate-800/50 border border-transparent' 
+                          : 'opacity-40 cursor-not-allowed border border-transparent'
+                    }`}
+                    data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
+                  >
+                    <span className={`text-[9px] font-medium ${isSelected ? 'text-brand-400' : 'text-slate-500'}`}>
+                      {dayName}
+                    </span>
+                    <span className={`text-sm font-bold ${isSelected ? 'text-white' : hasSummary ? 'text-slate-300' : 'text-slate-600'}`}>
+                      {dayNum}
+                    </span>
+                    {hasSummary && (
+                      <div className={`absolute -bottom-0.5 w-1 h-1 rounded-full ${isSelected ? 'bg-brand-400' : 'bg-emerald-500'}`} />
+                    )}
+                  </button>
+                );
+              })}
+              
+              {/* Calendar Popover for older dates */}
+              <Popover open={showCalendarPopover} onOpenChange={setShowCalendarPopover}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="ml-1 text-slate-400 hover:text-white"
+                    data-testid="button-open-calendar"
+                  >
+                    <Calendar size={14} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700" align="end">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedSummaryDate}
+                    onSelect={(date) => {
+                      if (date && dateHasSummary(date)) {
+                        setSelectedSummaryDate(date);
+                        setShowCalendarPopover(false);
+                      }
+                    }}
+                    disabled={(date) => !dateHasSummary(date)}
+                    modifiers={{
+                      hasSummary: historicalSummaryDates
+                    }}
+                    modifiersStyles={{
+                      hasSummary: { 
+                        position: 'relative'
+                      }
+                    }}
+                    components={{
+                      DayContent: ({ date }) => {
+                        const hasSummaryDot = dateHasSummary(date);
+                        return (
+                          <div className="relative flex items-center justify-center w-full h-full">
+                            {date.getDate()}
+                            {hasSummaryDot && (
+                              <div className="absolute bottom-0.5 w-1 h-1 rounded-full bg-emerald-500" />
+                            )}
+                          </div>
+                        );
+                      }
+                    }}
+                    className="rounded-md"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
         
-        <div className="grid grid-cols-3 divide-x divide-slate-800/50">
-          {[
-            { 
-              label: 'Daily', 
-              date: format(new Date(), 'MMM d'),
-              total: 12, 
-              high: 3,
-              color: 'amber',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
-                  text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'Descript', color: 'text-purple-400' }],
-                  text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
-                }
-              ]
-            },
-            { 
-              label: 'Weekly', 
-              date: 'Dec 18-25',
-              total: 48, 
-              high: 8,
-              color: 'brand',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Sketch Pro', color: 'text-amber-400' }, { name: 'Penpot', color: 'text-blue-400' }],
-                  text: ['Discovered 5 competitors: ', 'Adobe Express', ' (94% match, enterprise integration), ', 'Sketch Pro', ' (88% match, vector-first approach), ', 'Penpot', ' (85% match, open-source alternative).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'Runway', color: 'text-purple-400' }, { name: 'Kapwing', color: 'text-green-400' }],
-                  text: ['Found 3 competitors: ', 'Runway', ' (91% match, AI video generation) and ', 'Kapwing', ' (86% match, browser-based editing suite).']
-                }
-              ]
-            },
-            { 
-              label: 'Monthly', 
-              date: 'December',
-              total: 156, 
-              high: 24,
-              color: 'blue',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Figma', color: 'text-red-400' }, { name: 'Framer', color: 'text-amber-400' }],
-                  text: ['Top threats: ', 'Figma', ' (96% match, market leader in collaborative design), ', 'Framer', ' (90% match, code-export and responsive design).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'CapCut', color: 'text-purple-400' }, { name: 'InVideo', color: 'text-green-400' }],
-                  text: ['Key competitors: ', 'CapCut', ' (93% match, mobile-first short video editor), ', 'InVideo', ' (88% match, template-driven video creation).']
-                }
-              ]
-            }
-          ].map((period, i) => (
-            <div key={i} className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer" onClick={() => { setSelectedHistoryItem(period.label); setShowHistorySheet(true); }}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.label}</span>
-                  <span className="text-[9px] text-slate-600">{period.date}</span>
+        {/* Summary Card for Selected Date */}
+        {(() => {
+          const summaryData = getHistoricalSummaryForDate(selectedSummaryDate);
+          const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
+          
+          return (
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-white">
+                    {isToday ? 'Today' : format(selectedSummaryDate, 'EEEE, MMM d')}
+                  </span>
+                  {!isToday && (
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-slate-700 text-slate-400">
+                      Historical
+                    </Badge>
+                  )}
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-lg font-bold text-white">{period.total}</span>
+                  <span className="text-lg font-bold text-white">{summaryData.total}</span>
                   <span className="text-[9px] text-slate-500">finds</span>
                   <span className="text-[9px] text-slate-600">/</span>
-                  <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
+                  <span className="text-sm font-bold text-amber-400">{summaryData.high}</span>
                   <span className="text-[9px] text-slate-500">high</span>
                 </div>
               </div>
               
               <div className="space-y-2">
-                {period.scopeInsights.map((insight, idx) => (
+                {summaryData.scopeInsights.map((insight, idx) => (
                   <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <TargetIcon size={9} className="text-slate-500" />
@@ -1213,8 +1536,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 ))}
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })()}
       </div>
 
       <div className="flex items-center gap-2 mb-4">
