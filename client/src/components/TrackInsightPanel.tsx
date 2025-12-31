@@ -134,9 +134,7 @@ interface SinceLastVisitStats {
   totalInsights: number;
   highlights: number;
   notable: number;
-  updates: number;
   lastVisitDays: number;
-  lastVisitTime: string;
 }
 
 interface SessionCatchUpProps {
@@ -169,57 +167,33 @@ const SessionCatchUp = ({
 
   return (
     <div className="border-b border-brand-500/20 bg-brand-500/5">
-      {/* Since Last Visit Summary - Always shown when there are new insights */}
-      {sinceLastVisit && sinceLastVisit.totalInsights > 0 && !viewingHistorical && (
-        <div className="px-4 py-3 border-b border-brand-500/30 bg-gradient-to-r from-brand-500/10 via-brand-500/5 to-transparent">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-brand-500/20 border border-brand-500/40 flex items-center justify-center">
-                <History size={14} className="text-brand-400" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-brand-400">Welcome Back</span>
-                  <span className="text-[10px] text-slate-500">
-                    {sinceLastVisit.lastVisitDays === 0 
-                      ? sinceLastVisit.lastVisitTime
-                      : sinceLastVisit.lastVisitDays === 1 
-                        ? 'since yesterday'
-                        : `${sinceLastVisit.lastVisitDays} days since last visit`
-                    }
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  {sinceLastVisit.totalInsights} new insight{sinceLastVisit.totalInsights !== 1 ? 's' : ''} discovered while you were away
-                </p>
-              </div>
-            </div>
-            
-            {/* Priority breakdown */}
-            <div className="flex items-center gap-3">
-              {sinceLastVisit.highlights > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                  <Sparkles size={12} className="text-amber-400" />
-                  <span className="text-sm font-bold text-amber-400">{sinceLastVisit.highlights}</span>
-                  <span className="text-[9px] text-amber-400/70 uppercase font-medium">Focus</span>
-                </div>
-              )}
-              {sinceLastVisit.notable > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-brand-500/10 border border-brand-500/30">
-                  <Zap size={12} className="text-brand-400" />
-                  <span className="text-sm font-bold text-brand-400">{sinceLastVisit.notable}</span>
-                  <span className="text-[9px] text-brand-400/70 uppercase font-medium">Notable</span>
-                </div>
-              )}
-              {sinceLastVisit.updates > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-500/10 border border-slate-600/30">
-                  <Eye size={12} className="text-slate-400" />
-                  <span className="text-sm font-bold text-slate-300">{sinceLastVisit.updates}</span>
-                  <span className="text-[9px] text-slate-500 uppercase font-medium">Update</span>
-                </div>
-              )}
-            </div>
+      {/* Since Last Visit Summary - for infrequent users */}
+      {sinceLastVisit && sinceLastVisit.lastVisitDays > 3 && !viewingHistorical && (
+        <div className="px-4 py-2 border-b border-blue-500/20 bg-blue-500/5">
+          <div className="flex items-center gap-2">
+            <History size={12} className="text-blue-400" />
+            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
+            <span className="text-[9px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
           </div>
+          <div className="flex items-center gap-4 mt-1.5">
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
+              <span className="text-[9px] text-slate-400">new insights</span>
+            </div>
+            {sinceLastVisit.highlights > 0 && (
+              <div className="flex items-center gap-1">
+                <Sparkles size={10} className="text-amber-400" />
+                <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights} focus</span>
+              </div>
+            )}
+            {sinceLastVisit.notable > 0 && (
+              <div className="flex items-center gap-1">
+                <Zap size={10} className="text-brand-400" />
+                <span className="text-[10px] text-brand-400 font-medium">{sinceLastVisit.notable} notable</span>
+              </div>
+            )}
+          </div>
+          <p className="text-[9px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
         </div>
       )}
       
@@ -310,95 +284,53 @@ const SessionCatchUp = ({
                 data-testid="button-close-historical"
               >
                 <X size={14} className="mr-1.5" />
-                Back to Current
+                Close
               </Button>
             ) : (
               <>
-                {/* Always show History button - prominent for accessing past sessions */}
-                <div className="relative">
-                  <Button
-                    variant={historicalSummaries.length > 0 ? "outline" : "ghost"}
-                    size="sm"
-                    onClick={() => setShowHistory(!showHistory)}
-                    className={`text-xs ${historicalSummaries.length > 0 ? 'border-slate-700 bg-slate-900/50 text-slate-300' : 'text-slate-500'}`}
-                    data-testid="button-show-history"
-                  >
-                    <Calendar size={14} className="mr-1.5" />
-                    Past Sessions
-                    {historicalSummaries.length > 0 && (
-                      <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0 bg-brand-500/20 text-brand-400 border-brand-500/30">
+                {historicalSummaries.length > 0 && (
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowHistory(!showHistory)}
+                      className="text-xs text-slate-400 hover:bg-brand-500/10"
+                      data-testid="button-show-history"
+                    >
+                      <History size={14} className="mr-1.5" />
+                      History
+                      <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
                         {historicalSummaries.length}
                       </Badge>
-                    )}
-                  </Button>
-                  
-                  {showHistory && (
-                    <div className="absolute right-0 top-full mt-2 w-80 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
-                      <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/90 flex items-center justify-between">
-                        <div>
-                          <span className="text-xs font-bold text-white">Session History</span>
-                          <p className="text-[9px] text-slate-500 mt-0.5">Browse past intelligence summaries</p>
+                    </Button>
+                    
+                    {showHistory && (
+                      <div className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
+                        <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6 text-slate-500"
-                          onClick={() => setShowHistory(false)}
-                        >
-                          <X size={12} />
-                        </Button>
-                      </div>
-                      {historicalSummaries.length === 0 ? (
-                        <div className="px-4 py-6 text-center">
-                          <History size={24} className="text-slate-600 mx-auto mb-2" />
-                          <p className="text-xs text-slate-500">No past sessions yet</p>
-                          <p className="text-[10px] text-slate-600 mt-1">Generate a summary to save it for future reference</p>
-                        </div>
-                      ) : (
-                        <div className="max-h-[320px] overflow-y-auto custom-scrollbar divide-y divide-slate-800/50">
-                          {historicalSummaries.map(hist => (
-                            <div 
-                              key={hist.id}
-                              onClick={() => {
-                                onViewHistorical(hist);
-                                setShowHistory(false);
-                              }}
-                              className="px-4 py-3 hover:bg-slate-800/50 cursor-pointer transition-colors"
-                            >
-                              <div className="flex items-center justify-between mb-1.5">
-                                <span className="text-sm font-medium text-white">{hist.generatedAt}</span>
-                                <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
-                                  {hist.totalSignals} signals
-                                </Badge>
-                              </div>
-                              <div className="flex items-center gap-2 text-[10px] text-slate-500">
-                                <span className="flex items-center gap-1">
-                                  <Calendar size={10} />
-                                  {hist.periodStart} - {hist.periodEnd}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 mt-2">
-                                {hist.summaries.slice(0, 4).map(s => {
-                                  const cfg = channelConfig[s.channel];
-                                  if (!cfg) return null;
-                                  const Icon = cfg.icon;
-                                  return (
-                                    <div key={s.channel} className={`w-5 h-5 rounded ${cfg.bgColor} flex items-center justify-center`}>
-                                      <Icon size={10} className={cfg.color} />
-                                    </div>
-                                  );
-                                })}
-                                {hist.summaries.length > 4 && (
-                                  <span className="text-[9px] text-slate-500">+{hist.summaries.length - 4}</span>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+          <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+            {historicalSummaries.map(hist => (
+              <div 
+                key={hist.id}
+                onClick={() => {
+                  onViewHistorical(hist);
+                  setShowHistory(false);
+                }}
+                className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                  <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
                 </div>
+                <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+              </div>
+            ))}
+          </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {summaries && (
                   <Button
                     variant="ghost"
@@ -1852,7 +1784,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
     handleMarkRead(id);
   };
 
-  // Compute sinceLastVisit stats for returning users
+  // Compute sinceLastVisit stats for infrequent users
   const sinceLastVisit = useMemo(() => {
     const unreadInsights = insights.filter(i => !i.isRead && !i.isResolved);
     const highlights = unreadInsights.filter(i => {
@@ -1863,19 +1795,13 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       const effectiveTier = i.userOverride || i.tier;
       return effectiveTier === 'notable';
     }).length;
-    const updates = unreadInsights.filter(i => {
-      const effectiveTier = i.userOverride || i.tier;
-      return effectiveTier === 'update';
-    }).length;
     return {
       totalInsights: unreadInsights.length,
       highlights,
       notable,
-      updates,
-      lastVisitDays,
-      lastVisitTime: lastLoginTime
+      lastVisitDays
     };
-  }, [insights, lastVisitDays, lastLoginTime]);
+  }, [insights, lastVisitDays]);
 
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
 
