@@ -611,7 +611,14 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }
 type TimeRange = '7d' | '14d' | '30d' | 'all';
 type ViewMode = 'default' | 'compact';
 type TimeGroup = 'today' | 'yesterday' | 'thisWeek' | 'older';
-type PriorityFilter = 'all' | 'focus' | 'notable';
+type ValueFilter = 'all' | 'high' | 'medium' | 'low';
+
+const valueFilterConfig: Record<ValueFilter, { label: string; shortLabel: string; color: string; bgColor: string; borderColor: string; description: string }> = {
+  all: { label: 'All', shortLabel: 'All', color: 'text-slate-400', bgColor: 'bg-slate-800/50', borderColor: 'border-slate-700', description: 'Show all insights' },
+  high: { label: 'High Value', shortLabel: 'H', color: 'text-amber-400', bgColor: 'bg-amber-500/20', borderColor: 'border-amber-500/40', description: 'Critical insights requiring immediate attention' },
+  medium: { label: 'Medium Value', shortLabel: 'M', color: 'text-brand-400', bgColor: 'bg-brand-500/20', borderColor: 'border-brand-500/40', description: 'Notable insights worth reviewing' },
+  low: { label: 'Low Value', shortLabel: 'L', color: 'text-slate-500', bgColor: 'bg-slate-800/50', borderColor: 'border-slate-700', description: 'General updates and minor changes' },
+};
 
 const timeRangeLabels: Record<TimeRange, string> = {
   '7d': 'Last 7 days',
@@ -659,7 +666,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<TimeGroup>>(new Set());
   const [displayLimit, setDisplayLimit] = useState(20);
-  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
+  const [valueFilter, setValueFilter] = useState<ValueFilter>('high');
+  const [isValueFilterExpanded, setIsValueFilterExpanded] = useState(false);
 
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
@@ -683,12 +691,16 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
     return daysAgo <= windowDays;
   };
 
-  // Count high-priority items
-  const focusCount = useMemo(() => {
-    return activeInsights.filter(i => {
+  // Count items by value tier
+  const tierCounts = useMemo(() => {
+    const counts = { high: 0, medium: 0, low: 0 };
+    activeInsights.forEach(i => {
       const effectiveTier = i.userOverride || i.tier;
-      return effectiveTier === 'highlight';
-    }).length;
+      if (effectiveTier === 'highlight') counts.high++;
+      else if (effectiveTier === 'notable') counts.medium++;
+      else counts.low++;
+    });
+    return counts;
   }, [activeInsights]);
 
   const filteredInsights = useMemo(() => {
@@ -699,21 +711,26 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
       result = result.filter(i => i.channel === channelFilter);
     }
     
-    // Apply priority filter
-    if (priorityFilter === 'focus') {
+    // Apply value filter
+    if (valueFilter === 'high') {
       result = result.filter(i => {
         const effectiveTier = i.userOverride || i.tier;
         return effectiveTier === 'highlight';
       });
-    } else if (priorityFilter === 'notable') {
+    } else if (valueFilter === 'medium') {
       result = result.filter(i => {
         const effectiveTier = i.userOverride || i.tier;
         return effectiveTier === 'notable';
       });
+    } else if (valueFilter === 'low') {
+      result = result.filter(i => {
+        const effectiveTier = i.userOverride || i.tier;
+        return effectiveTier === 'update';
+      });
     }
     
     return result;
-  }, [activeInsights, channelFilter, priorityFilter, lastVisitDays]);
+  }, [activeInsights, channelFilter, valueFilter]);
 
   const sortedInsights = useMemo(() => {
     return [...filteredInsights].sort((a, b) => {
@@ -820,63 +837,9 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
             </Button>
           </div>
         </div>
-        {/* Priority filter row */}
+        {/* Value tier info */}
         <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1">
-            <TooltipProvider>
-              <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setPriorityFilter(priorityFilter === 'focus' ? 'all' : 'focus')}
-                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-bold transition-all ${
-                      priorityFilter === 'focus'
-                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-lg shadow-amber-500/10'
-                        : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-amber-500/30 hover:text-amber-400'
-                    }`}
-                    data-testid="filter-focus-now"
-                  >
-                    <Sparkles size={10} className={priorityFilter === 'focus' ? 'text-amber-400' : ''} />
-                    High Value
-                    {focusCount > 0 && (
-                      <span className={`px-1 py-0.5 rounded text-[8px] font-bold ${
-                        priorityFilter === 'focus' ? 'bg-amber-500/30 text-amber-300' : 'bg-brand-500/20 text-brand-400'
-                      }`}>
-                        {focusCount}
-                      </span>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-[10px] text-slate-400">Show only High Value insights</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip delayDuration={300}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => setPriorityFilter(priorityFilter === 'notable' ? 'all' : 'notable')}
-                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
-                      priorityFilter === 'notable'
-                        ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
-                        : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
-                    }`}
-                    data-testid="filter-notable"
-                  >
-                    <Zap size={10} />
-                    Notable
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
-                  <p className="text-[10px] text-slate-400">Show only Notable insights</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          <div className="h-3 w-px bg-slate-800" />
-          <span className="text-[10px] text-slate-500">{filteredInsights.length} {priorityFilter !== 'all' ? 'matching' : 'active'}</span>
+          <span className="text-[10px] text-slate-500">{filteredInsights.length} {valueFilter !== 'all' ? 'matching' : 'active'}</span>
         </div>
         <ChannelFilter 
           channels={availableChannels}
@@ -886,14 +849,82 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
-        {sortedInsights.length === 0 ? (
-          <div className="text-center py-12">
-            <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
-            <p className="text-sm text-slate-500 font-medium">No new insights</p>
-            <p className="text-xs text-slate-600 mt-1">Monitoring is active</p>
-          </div>
-        ) : viewMode === 'compact' ? (
+      <div className="flex-1 flex overflow-hidden">
+        {/* Vertical value tier filter tabs */}
+        <div className="flex flex-col border-r border-slate-800/50 bg-slate-950/50">
+          {(['high', 'medium', 'low'] as const).map(tier => {
+            const config = valueFilterConfig[tier];
+            const count = tierCounts[tier];
+            const isActive = valueFilter === tier;
+            
+            return (
+              <TooltipProvider key={tier}>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setValueFilter(isActive ? 'all' : tier)}
+                      className={`relative flex flex-col items-center justify-center px-2 py-3 transition-all ${
+                        isActive 
+                          ? `${config.bgColor} border-r-2 ${config.borderColor.replace('border-', 'border-r-')}`
+                          : 'hover:bg-slate-900/50'
+                      }`}
+                      data-testid={`filter-value-${tier}`}
+                    >
+                      <span className={`text-[10px] font-bold ${isActive ? config.color : 'text-slate-500'}`}>
+                        {config.shortLabel}
+                      </span>
+                      {count > 0 && (
+                        <span className={`text-[8px] mt-0.5 ${isActive ? config.color : 'text-slate-600'}`}>
+                          {count}
+                        </span>
+                      )}
+                      {isActive && (
+                        <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-6 rounded-l ${config.bgColor.replace('bg-', 'bg-').replace('/20', '')}`} />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2 max-w-[180px]">
+                    <p className="text-[10px] font-medium text-white">{config.label}</p>
+                    <p className="text-[9px] text-slate-400 mt-0.5">{config.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })}
+          {/* All option */}
+          <TooltipProvider>
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setValueFilter('all')}
+                  className={`flex flex-col items-center justify-center px-2 py-3 mt-auto border-t border-slate-800/50 transition-all ${
+                    valueFilter === 'all' 
+                      ? 'bg-slate-800/50 border-r-2 border-r-slate-600'
+                      : 'hover:bg-slate-900/50'
+                  }`}
+                  data-testid="filter-value-all"
+                >
+                  <span className={`text-[9px] ${valueFilter === 'all' ? 'text-slate-300' : 'text-slate-600'}`}>
+                    All
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2">
+                <p className="text-[10px] text-slate-400">Show all insights</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        
+        {/* Insight list */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2">
+          {sortedInsights.length === 0 ? (
+            <div className="text-center py-12">
+              <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
+              <p className="text-sm text-slate-500 font-medium">No insights found</p>
+              <p className="text-xs text-slate-600 mt-1">Try a different filter</p>
+            </div>
+          ) : viewMode === 'compact' ? (
           (Object.keys(groupedInsights) as TimeGroup[]).map(group => {
             const groupInsights = groupedInsights[group];
             if (groupInsights.length === 0) return null;
@@ -1028,6 +1059,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
             </CollapsibleContent>
           </Collapsible>
         )}
+        </div>
       </div>
     </div>
   );
