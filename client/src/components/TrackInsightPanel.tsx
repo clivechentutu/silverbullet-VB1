@@ -4,7 +4,7 @@ import {
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
-  Calendar, LayoutList, Rows3, Info
+  Calendar, LayoutList, Rows3, Info, Database, Layers
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -382,6 +382,163 @@ const SessionCatchUp = ({
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+// Raw Signal Feed - Collapsible section showing all raw signals by channel
+interface RawSignalFeedProps {
+  insights: ChannelInsight[];
+  availableChannels: string[];
+}
+
+const RawSignalFeed = ({ insights, availableChannels }: RawSignalFeedProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeChannel, setActiveChannel] = useState<string | null>(null);
+  const [signalLimit, setSignalLimit] = useState(10);
+
+  // Collect all signals from all insights, grouped by channel
+  const signalsByChannel = useMemo(() => {
+    const grouped: Record<string, Signal[]> = {};
+    availableChannels.forEach(ch => {
+      grouped[ch] = [];
+    });
+    
+    insights.forEach(insight => {
+      insight.signals.forEach(signal => {
+        const ch = signal.channel || insight.channel;
+        if (grouped[ch]) {
+          grouped[ch].push(signal);
+        }
+      });
+    });
+    
+    return grouped;
+  }, [insights, availableChannels]);
+
+  const totalSignals = useMemo(() => {
+    return Object.values(signalsByChannel).reduce((sum, signals) => sum + signals.length, 0);
+  }, [signalsByChannel]);
+
+  const displayedSignals = useMemo(() => {
+    if (!activeChannel) return [];
+    return signalsByChannel[activeChannel]?.slice(0, signalLimit) || [];
+  }, [signalsByChannel, activeChannel, signalLimit]);
+
+  const hasMoreSignals = activeChannel && signalsByChannel[activeChannel] && signalsByChannel[activeChannel].length > signalLimit;
+
+  return (
+    <div className="border-b border-slate-800/50 bg-slate-950/40">
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <CollapsibleTrigger asChild>
+          <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-slate-900/30 transition-colors">
+            <div className="flex items-center gap-2">
+              <Database size={14} className="text-slate-500" />
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Raw Signal Feed</span>
+              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1">
+                {totalSignals}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-600">
+                {availableChannels.length} channels
+              </span>
+              <ChevronDown size={14} className={`text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+            </div>
+          </div>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <div className="px-4 pb-4">
+            {/* Channel tabs */}
+            <div className="flex items-center gap-1 mb-3 overflow-x-auto custom-scrollbar pb-1">
+              {availableChannels.map(channelId => {
+                const config = channelConfig[channelId];
+                if (!config) return null;
+                const Icon = config.icon;
+                const signalCount = signalsByChannel[channelId]?.length || 0;
+                const isActive = activeChannel === channelId;
+                
+                return (
+                  <button
+                    key={channelId}
+                    onClick={() => {
+                      setActiveChannel(isActive ? null : channelId);
+                      setSignalLimit(10);
+                    }}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all shrink-0 ${
+                      isActive 
+                        ? `${config.bgColor} ${config.color} border ${config.borderColor}` 
+                        : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
+                    }`}
+                    data-testid={`raw-feed-channel-${channelId}`}
+                  >
+                    <Icon size={12} className={isActive ? config.color : 'text-slate-500'} />
+                    <span>{config.name}</span>
+                    <span className={`text-[9px] ${isActive ? 'opacity-80' : 'text-slate-600'}`}>
+                      ({signalCount})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {/* Signal list */}
+            {activeChannel ? (
+              <div className="space-y-2">
+                {displayedSignals.length === 0 ? (
+                  <div className="text-center py-6 bg-slate-900/30 rounded-lg border border-slate-800/50">
+                    <Layers size={20} className="text-slate-700 mx-auto mb-2" />
+                    <p className="text-[11px] text-slate-500">No signals in this channel yet</p>
+                  </div>
+                ) : (
+                  displayedSignals.map((signal, idx) => {
+                    const chConfig = channelConfig[activeChannel];
+                    const ChIcon = chConfig?.icon || Globe;
+                    
+                    return (
+                      <div 
+                        key={`${signal.id}-${idx}`}
+                        className="flex items-start gap-2.5 p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/50 hover:border-slate-700 transition-colors group"
+                        data-testid={`raw-signal-${signal.id}`}
+                      >
+                        <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+                          <ChIcon size={12} className={chConfig?.color} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <span className={`text-[9px] font-bold uppercase tracking-wider ${chConfig?.color}`}>
+                              {signal.type}
+                            </span>
+                            <span className="text-[9px] text-slate-600">{signal.time}</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed">{signal.content}</p>
+                        </div>
+                        <ExternalLink size={12} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1 cursor-pointer hover:text-slate-400" />
+                      </div>
+                    );
+                  })
+                )}
+                
+                {hasMoreSignals && (
+                  <button 
+                    onClick={() => setSignalLimit(prev => prev + 10)}
+                    className="w-full py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
+                  >
+                    Load more ({signalsByChannel[activeChannel].length - signalLimit} remaining)
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 bg-slate-900/30 rounded-lg border border-slate-800/50">
+                <Layers size={24} className="text-slate-700 mx-auto mb-2" />
+                <p className="text-[11px] text-slate-500 font-medium">Select a channel to view raw signals</p>
+                <p className="text-[10px] text-slate-600 mt-1">Unprocessed data from all monitoring sources</p>
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 };
@@ -1655,6 +1812,11 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         topActions={topActions}
         onActionClick={handleTopActionClick}
         sinceLastVisit={sinceLastVisit}
+      />
+      
+      <RawSignalFeed 
+        insights={insights}
+        availableChannels={availableChannels}
       />
       
       <div className="flex-1 flex min-h-0">
