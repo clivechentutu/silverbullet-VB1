@@ -462,11 +462,14 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                 {totalSignals}
               </Badge>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-500">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
                 Monitoring {availableChannels.length} Channels
               </span>
-              <ChevronDown size={14} className={`text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+              <div className="flex items-center gap-1 text-brand-400 group-hover:text-brand-300 transition-colors">
+                <span className="text-[10px] font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
+                <ChevronDown size={14} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+              </div>
             </div>
           </div>
         </CollapsibleTrigger>
