@@ -1828,7 +1828,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
       />
       
       {/* Core insight area - fixed height, not affected by bottom expansion */}
-      <div className="shrink-0 h-[calc(100vh-280px)] min-h-[350px] flex">
+      <div className="shrink-0 h-[calc(100vh-340px)] min-h-[280px] flex">
         <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
           <InsightFeed 
             insights={insights}
