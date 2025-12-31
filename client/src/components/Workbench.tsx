@@ -3167,8 +3167,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       {/* Create Task Dialog */}
       <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+          <DialogHeader className="flex flex-col items-center text-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-2">
               <Globe className="text-brand-500" size={20} />
             </div>
             <div>
@@ -3272,8 +3272,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       {/* Edit Configuration Dialog */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
+          <DialogHeader className="flex flex-col items-center text-center mb-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-2">
               <Globe className="text-brand-500" size={20} />
             </div>
             <div>
