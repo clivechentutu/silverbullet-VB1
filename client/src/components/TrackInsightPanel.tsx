@@ -247,12 +247,15 @@ const SessionCatchUp = ({
               )}
             </div>
 
-          <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1 justify-end" onClick={() => {
+          <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1 justify-start" onClick={() => {
             if (viewingHistorical) return;
             if (summaries) setIsExpanded(!isExpanded);
           }}>
-            <div className="min-w-0 text-right">
-              <div className="flex items-center justify-end gap-2 flex-wrap">
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
+              <BrainCircuit size={20} className="text-brand-400" />
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="flex items-center justify-start gap-2 flex-wrap">
                 <span className="text-sm font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
                   {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                 </span>
@@ -268,9 +271,6 @@ const SessionCatchUp = ({
                   : `${totalSignals} signals collected across ${availableChannels.length} channels`
                 }
               </p>
-            </div>
-            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
-              <BrainCircuit size={20} className="text-brand-400" />
             </div>
           </div>
           
