@@ -4,7 +4,7 @@ import {
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
-  Calendar, LayoutList, Rows3, Info, Database, Layers, Star
+  Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1359,7 +1359,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           </div>
 
           <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <Zap size={12} className="text-brand-400" />
                 <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
@@ -1372,10 +1372,10 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     const prompt = `Analyze the competitive insight: "${insight.title}"\n\nContext: ${insight.summary}\n\nKey Finding: ${insight.keyInfo}\n\nPotential Impact: ${insight.impact}\n\nSuggested Action: ${insight.action}\n\nPlease provide a deeper analysis and strategic recommendations.`;
                     onResearch(prompt);
                   }}
-                  className="h-6 px-2 text-[10px] bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
+                  className="h-6 px-2 text-[10px] bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
                   data-testid="button-research-insight"
                 >
-                  <BrainCircuit size={10} className="mr-1" />
+                  <Lightbulb size={10} className="mr-1" />
                   Research
                 </Button>
               )}
