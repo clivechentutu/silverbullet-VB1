@@ -5911,6 +5911,12 @@ export const Workbench: React.FC = () => {
   const [feedFilter, setFeedFilter] = useState('all');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [runningResearchTasks, setRunningResearchTasks] = useState<number>(0);
+  
+  // Global notification settings state (shared with SettingsModal)
+  const [radarNotifyEmail, setRadarNotifyEmail] = useState('');
+  const [radarNotifyDailyDigest, setRadarNotifyDailyDigest] = useState(true);
+  const [editNotificationEmail, setEditNotificationEmail] = useState('');
+  const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
 
   const handleSignalClick = (signalId: string, category: string) => {
     setFeedFilter(category.toLowerCase());
