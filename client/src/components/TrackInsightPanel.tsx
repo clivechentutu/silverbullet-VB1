@@ -718,7 +718,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
                 </TooltipProvider>
               )}
             </div>
-            <ChevronRight size={12} className={isSelected ? chConfig?.color : 'text-slate-600'} />
           </div>
         </div>
       </div>
