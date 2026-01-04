@@ -229,17 +229,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
         <div className="flex flex-1 overflow-hidden">
           <nav className="w-48 shrink-0 border-r border-slate-800 bg-slate-950/50 p-3 space-y-1">
-            {['general', 'api', 'billing', 'security'].map(tab => (
+            {[
+              { id: 'general', label: 'General', icon: User },
+              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'credits', label: 'Credits', icon: Sparkles },
+              { id: 'security', label: 'Security', icon: Shield },
+            ].map(tab => (
               <button 
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all capitalize ${activeTab === tab ? 'bg-slate-800 text-white font-medium' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all ${activeTab === tab.id ? 'bg-slate-800 text-white font-medium' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
               >
-                {tab === 'general' && <User size={14} />}
-                {tab === 'api' && <Key size={14} />}
-                {tab === 'billing' && <CreditCard size={14} />}
-                {tab === 'security' && <Shield size={14} />}
-                {tab}
+                <tab.icon size={14} />
+                {tab.label}
               </button>
             ))}
           </nav>
@@ -276,8 +278,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <input type="email" defaultValue="strategist@acme.com" disabled className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-400 focus:outline-none opacity-70 cursor-not-allowed" />
                   </div>
                 </div>
+              </div>
+            )}
 
-                <div className="space-y-4 pt-4 border-t border-slate-800">
+            {activeTab === 'notifications' && (
+              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+                <div className="space-y-4">
                   <h4 className="text-sm font-bold text-white">Notification Preferences</h4>
                   <div className="space-y-3">
                     {[
@@ -300,69 +306,51 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
 
-            {activeTab === 'api' && (
+            {activeTab === 'credits' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
                 <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-brand-500/20 rounded-lg text-brand-400">
-                      <Sparkles size={24} />
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="font-bold text-white mb-1">AI Intelligence Keys</h4>
-                      <p className="text-sm text-slate-400">CompetiScope uses Gemini 3 Flash for deep market analysis. Configure your keys to manage usage and specialized research agents.</p>
+                      <h4 className="font-bold text-white mb-1">Enterprise Plan</h4>
+                      <p className="text-xs text-slate-400">Next renewal: Feb 1, 2026</p>
                     </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-brand-400">2,450</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Remaining</p>
+                    </div>
+                  </div>
+                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-brand-500 w-[75%]" />
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-slate-500 uppercase">Active Keys</h4>
-                    <button className="text-xs font-bold text-brand-500 hover:text-brand-400 uppercase tracking-widest flex items-center gap-1">
-                      <Plus size={12} /> Create Key
-                    </button>
-                  </div>
-                  
+                  <h4 className="text-xs font-bold text-slate-500 uppercase">Usage History</h4>
                   <div className="bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800">
-                    <div className="p-4 flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <Key size={16} className="text-slate-600" />
+                    {[
+                      { task: 'Competitor Site Scan', cost: 50, time: '2 mins ago' },
+                      { task: 'SWOT Analysis Generation', cost: 120, time: '1 hour ago' },
+                      { task: 'Market Radar Refresh', cost: 300, time: '5 hours ago' },
+                      { task: 'Deep Research Agent', cost: 500, time: 'Yesterday' },
+                    ].map((item, idx) => (
+                      <div key={idx} className="p-4 flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-white">Market-Scanner-Prod</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Last used: 2 mins ago</p>
+                          <p className="text-sm font-medium text-white">{item.task}</p>
+                          <p className="text-[10px] text-slate-500">{item.time}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-slate-200">-{item.cost}</p>
+                          <p className="text-[10px] text-slate-500">Credits</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
-                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
-                      </div>
-                    </div>
-                    <div className="p-4 flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <Key size={16} className="text-slate-600" />
-                        <div>
-                          <p className="text-sm font-medium text-white">Research-Agent-Beta</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Never used</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
-                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'billing' && (
-              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300 text-center py-10">
-                <div className="w-16 h-16 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CreditCard size={32} className="text-slate-600" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Enterprise Plan</h4>
-                <p className="text-sm text-slate-400 max-w-sm mx-auto">You are currently on the Enterprise tier with unlimited tracking and research investigators.</p>
+                
                 <div className="pt-4">
-                  <button className="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition-all">Manage Subscription</button>
+                  <button className="w-full px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg shadow-lg shadow-brand-900/20 transition-all">
+                    Add Credits
+                  </button>
                 </div>
               </div>
             )}
