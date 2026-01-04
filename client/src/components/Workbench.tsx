@@ -5446,10 +5446,10 @@ export const Workbench: React.FC = () => {
     { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
     { id: WorkbenchView.RESEARCH, label: 'Research', icon: Bot, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
-    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Acts Template', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
   ];
 
   const BOTTOM_NAV_ITEMS = [
+    { id: WorkbenchView.PLUGINS, label: 'Plugins', icon: Puzzle, description: 'Act templates, pre-built battle cards, SWOT analysis, and executive summaries.' },
     { id: WorkbenchView.LINK_WORKSPACE, label: 'Link Workspace', icon: LinkIcon, description: 'Integrate with your CRM, Slack, and other tools to sync intelligence.' },
   ];
 
@@ -5518,7 +5518,7 @@ export const Workbench: React.FC = () => {
         );
       case WorkbenchView.LIBRARY:
         return <LibraryView onJumpToResearch={handleJumpToResearch} />;
-      case WorkbenchView.ACTS_TEMPLATE:
+      case WorkbenchView.PLUGINS:
         return <ActsTemplateView />;
       case WorkbenchView.LINK_WORKSPACE:
         return <LinkWorkspaceView />;
