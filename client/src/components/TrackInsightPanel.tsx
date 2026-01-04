@@ -1257,14 +1257,12 @@ interface EvidencePanelProps {
 }
 
 const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
-  const [expandedSection, setExpandedSection] = useState<'keyInfo' | 'impact' | 'action' | null>(null);
   const [signalLimit, setSignalLimit] = useState(5);
-  const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
+  const [isSignalsExpanded, setIsSignalsExpanded] = useState(true);
 
   useEffect(() => {
     setSignalLimit(5);
-    setExpandedSection(null);
-    setIsSignalsExpanded(false);
+    setIsSignalsExpanded(true);
   }, [insight?.id]);
 
   if (!insight) {
