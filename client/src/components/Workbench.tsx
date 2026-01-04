@@ -1459,11 +1459,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           <Dialog open={showRadarNotifications} onOpenChange={setShowRadarNotifications}>
             <DialogTrigger asChild>
               <button 
-                className="p-1.5 rounded-lg bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-brand-400 hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+                onClick={() => setShowRadarNotifications(true)}
+                className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all border border-slate-700 flex items-center gap-1.5"
                 data-testid="button-radar-notifications"
               >
-                <Bell size={14} />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Notifications configure</span>
+                <Bell size={12} />
+                <span className="font-medium">Notifications configure</span>
               </button>
             </DialogTrigger>
             <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-md">
