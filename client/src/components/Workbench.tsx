@@ -6093,7 +6093,7 @@ export const Workbench: React.FC = () => {
   const NAV_ITEMS = [
     { id: WorkbenchView.RADAR, label: 'Radar', icon: Radar, description: 'Discover market trends and new competitors using AI scanning.' },
     { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
-    { id: WorkbenchView.RESEARCH, label: 'Research', icon: Bot, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
+    { id: WorkbenchView.RESEARCH, label: 'Research', icon: Lightbulb, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
     { id: WorkbenchView.ACTS_TEMPLATE, label: 'Extensions', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
   ];
