@@ -5208,8 +5208,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              {!activeSession || activeSession.messages.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
                   <div className="max-w-lg text-center animate-fade-in-up">
-                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-xl shadow-brand-500/20 mb-3">
-                      <Bot size={20} className="text-white" />
+                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/20 mb-3">
+                      <Lightbulb size={20} className="text-white" />
                    </div>
                    <h2 className="text-xl font-bold text-white mb-1">What shall we investigate?</h2>
                    <p className="text-slate-400 text-xs mb-4 max-w-sm">I can analyze competitors, track pricing shifts, or synthesize market trends.</p>
@@ -5245,8 +5245,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                             </div>
                          ) : (
                             <div className="flex gap-4 items-start">
-                               <div className="w-8 h-8 rounded-lg bg-brand-900/20 border border-brand-500/20 flex items-center justify-center shrink-0 mt-1">
-                                  <Bot size={16} className="text-brand-400" />
+                               <div className="w-8 h-8 rounded-lg bg-amber-900/20 border border-amber-500/20 flex items-center justify-center shrink-0 mt-1">
+                                  <Lightbulb size={16} className="text-amber-400" />
                                </div>
                                <div className="flex-1 space-y-3">
                                   {msg.reasoning && msg.reasoning.length > 0 && (
@@ -5293,7 +5293,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
 
           <div className="shrink-0 px-4 md:px-8 pb-4 pt-2">
              <div className="max-w-3xl mx-auto relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 to-purple-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
                 <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col">
                    <textarea
                      value={input}
@@ -5321,7 +5321,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                       <button 
                         onClick={() => { if(!activeSession) startNewSession(); setTimeout(handleSendMessage, 0); }}
                         disabled={!input.trim()}
-                        className="p-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg transition-all"
+                        className="p-2 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg transition-all"
                         data-testid="button-send-research"
                       >
                          <ArrowRight size={16} />
