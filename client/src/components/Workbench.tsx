@@ -1463,20 +1463,11 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   </div>
                 </div>
 
-                <div className="text-center mb-8">
-                  <DialogTitle className="text-2xl font-bold text-white mb-2">Edit Radar Configuration</DialogTitle>
+                <div className="text-center mb-10">
+                  <DialogTitle className="text-2xl font-bold text-white mb-2">Radar Configuration</DialogTitle>
                   <DialogDescription className="text-slate-400">
-                    Update discovery details and tracking settings
+                    Update discovery notifications and tracking settings
                   </DialogDescription>
-                </div>
-
-                <div className="flex bg-slate-900/50 p-1 rounded-xl mb-8">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-slate-400 rounded-lg transition-all hover:text-slate-200">
-                    <Settings size={16} /> Basic Info
-                  </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg shadow-lg shadow-brand-500/20 transition-all">
-                    <Bell size={16} /> Notifications
-                  </button>
                 </div>
                 
                 <div className="space-y-8">
