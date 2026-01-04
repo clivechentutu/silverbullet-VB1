@@ -924,12 +924,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
     let result = insights;
     if (channelFilter === 'saved') {
       result = result.filter(i => i.isResolved);
-    } else {
-      // If not viewing saved, exclude resolved from regular feeds
-      result = result.filter(i => !i.isResolved);
-      if (channelFilter !== null) {
-        result = result.filter(i => i.channel === channelFilter);
-      }
+    } else if (channelFilter !== null) {
+      result = result.filter(i => i.channel === channelFilter);
     }
     
     // Apply value filter
