@@ -1489,6 +1489,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     onSelect={(date) => {
                       if (date && dateHasSummary(date)) {
                         setSelectedSummaryDate(date);
+                        setShowSinceLastVisit(false);
                         setShowCalendarPopover(false);
                       }
                     }}
