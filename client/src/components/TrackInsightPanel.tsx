@@ -199,33 +199,6 @@ const SessionCatchUp = ({
       
       <div className="px-5 py-4">
         <div className="flex items-center justify-start gap-4">
-          <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1" onClick={() => {
-            if (viewingHistorical) return;
-            if (summaries) setIsExpanded(!isExpanded);
-          }}>
-            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
-              <BrainCircuit size={20} className="text-brand-400" />
-            </div>
-            <div className="min-w-0 text-left">
-              <div className="flex items-center justify-start gap-2 flex-wrap">
-                <span className="text-sm font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
-                  {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
-                </span>
-                {viewingHistorical ? (
-                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
-                ) : (
-                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
-                )}
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                {viewingHistorical 
-                  ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
-                  : `${totalSignals} signals collected across ${availableChannels.length} channels`
-                }
-              </p>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
@@ -272,6 +245,33 @@ const SessionCatchUp = ({
                 </Tooltip>
               </TooltipProvider>
             )}
+          </div>
+
+          <div className="flex items-center gap-4 min-w-0 cursor-pointer group flex-1" onClick={() => {
+            if (viewingHistorical) return;
+            if (summaries) setIsExpanded(!isExpanded);
+          }}>
+            <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
+              <BrainCircuit size={20} className="text-brand-400" />
+            </div>
+            <div className="min-w-0 text-left">
+              <div className="flex items-center justify-start gap-2 flex-wrap">
+                <span className="text-sm font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
+                  {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
+                </span>
+                {viewingHistorical ? (
+                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                ) : (
+                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {viewingHistorical 
+                  ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
+                  : `${totalSignals} signals collected across ${availableChannels.length} channels`
+                }
+              </p>
+            </div>
           </div>
           
           <div className="flex items-center gap-2 shrink-0 border-l border-brand-500/20 pl-4 ml-2">
