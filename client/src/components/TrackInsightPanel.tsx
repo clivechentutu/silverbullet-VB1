@@ -1338,9 +1338,9 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
           </div>
         </div>
 
-        <div className="p-4 border-t border-slate-800 bg-slate-900/20">
+        <div className="shrink-0 p-4 border-t border-slate-800 bg-slate-900/40">
           <div 
-            className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-900/30 p-1 rounded transition-colors"
+            className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-800/50 p-1.5 rounded-md transition-colors"
             onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
           >
             <div className="flex items-center gap-1.5">
@@ -1348,16 +1348,16 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-slate-600">{insight.signals.length} detected</span>
-              <ChevronDown size={12} className={`text-slate-500 transition-transform ${isSignalsExpanded ? 'rotate-180' : ''}`} />
+              <span className="text-[9px] text-slate-600 font-medium">{insight.signals.length} detected</span>
+              <ChevronDown size={12} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
             </div>
           </div>
           {isSignalsExpanded && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {displayedSignals.map(signal => (
                 <div 
                   key={signal.id}
-                  className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-900/70 border border-slate-800/50 hover:border-slate-700 transition-colors cursor-pointer group"
+                  className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors cursor-pointer group"
                 >
                   <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
                     <ChIcon size={10} className={chConfig?.color} />
@@ -1380,7 +1380,7 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
                     e.stopPropagation();
                     setSignalLimit(prev => prev + 10);
                   }}
-                  className="w-full mt-3 py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
+                  className="w-full mt-3 py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-950/30 hover:bg-slate-900/50 rounded border border-slate-800/30 transition-colors"
                 >
                   Load {Math.min(10, insight.signals.length - signalLimit)} more
                 </button>
