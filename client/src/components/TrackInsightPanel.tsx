@@ -1278,9 +1278,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
 interface EvidencePanelProps {
   insight: ChannelInsight | null;
   onMarkResolved: () => void;
+  onResearch?: (prompt: string) => void;
 }
 
-const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
+const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelProps) => {
   const [signalLimit, setSignalLimit] = useState(5);
   const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
 
@@ -1358,9 +1359,26 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
           </div>
 
           <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Zap size={12} className="text-brand-400" />
-              <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Zap size={12} className="text-brand-400" />
+                <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
+              </div>
+              {onResearch && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const prompt = `Analyze the competitive insight: "${insight.title}"\n\nContext: ${insight.summary}\n\nKey Finding: ${insight.keyInfo}\n\nPotential Impact: ${insight.impact}\n\nSuggested Action: ${insight.action}\n\nPlease provide a deeper analysis and strategic recommendations.`;
+                    onResearch(prompt);
+                  }}
+                  className="h-6 px-2 text-[10px] bg-brand-500/10 text-brand-400 hover:bg-brand-500/20 border border-brand-500/20"
+                  data-testid="button-research-insight"
+                >
+                  <Search size={10} className="mr-1" />
+                  Research
+                </Button>
+              )}
             </div>
             <p className="text-xs text-brand-200/80 leading-relaxed">{insight.action}</p>
           </div>
@@ -1424,9 +1442,10 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
 interface TrackInsightPanelProps {
   targetName: string;
   targetDomain: string;
+  onResearch?: (prompt: string) => void;
 }
 
-export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPanelProps) => {
+export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: TrackInsightPanelProps) => {
   const [selectedInsightId, setSelectedInsightId] = useState<string | null>(null);
   const [scanningChannel, setScanningChannel] = useState<string | null>(null);
   const [insights, setInsights] = useState<ChannelInsight[]>([]);
@@ -1867,7 +1886,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
         </div>
 
         <div className="flex-1 bg-slate-950/30 overflow-hidden">
-          <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} />
+          <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
         </div>
       </div>
       

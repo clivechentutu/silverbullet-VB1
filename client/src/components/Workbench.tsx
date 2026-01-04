@@ -2752,7 +2752,7 @@ interface Signal {
   dimension?: string;
 }
 
-const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks }: {
+const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks, onResearchPrompt }: {
   targets: Target[];
   selectedTargetId: number | null;
   setSelectedTargetId: (id: number | null) => void;
@@ -2760,6 +2760,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   onTrackResearch: (targetName: string) => void;
   runningResearchTasks: number;
   setRunningResearchTasks: (count: number | ((prev: number) => number)) => void;
+  onResearchPrompt: (prompt: string) => void;
 }) => {
   const { toast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -4146,6 +4147,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <TrackInsightPanel 
                 targetName={selectedTarget.name} 
                 targetDomain={new URL(selectedTarget.url).hostname}
+                onResearch={onResearchPrompt}
               />
             </div>
           </div>
@@ -6154,7 +6156,7 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.RADAR:
         return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
       case WorkbenchView.TARGETS:
-        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} runningResearchTasks={runningResearchTasks} setRunningResearchTasks={setRunningResearchTasks} />;
+        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} runningResearchTasks={runningResearchTasks} setRunningResearchTasks={setRunningResearchTasks} onResearchPrompt={(prompt) => { setResearchPrompt(prompt); setActiveView(WorkbenchView.RESEARCH); }} />;
       case WorkbenchView.RESEARCH:
         return (
           <ResearchView 
