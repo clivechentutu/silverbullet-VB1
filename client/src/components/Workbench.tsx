@@ -1450,105 +1450,106 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <Radar className="text-brand-500" size={24} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-white">Market Radar</h2>
-              <Dialog open={showRadarNotifications} onOpenChange={setShowRadarNotifications}>
-                <DialogTrigger asChild>
-                  <button 
-                    className="p-1.5 rounded-lg bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-brand-400 hover:border-brand-500/30 transition-all flex items-center gap-1.5"
-                    data-testid="button-radar-notifications"
-                  >
-                    <Bell size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Notifications</span>
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-md">
-                  <DialogHeader>
-                    <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-4">
-                      <Bell className="text-brand-500" size={24} />
-                    </div>
-                    <DialogTitle className="text-white text-xl">Radar Notifications</DialogTitle>
-                    <DialogDescription className="text-slate-400">
-                      Configure how you want to be alerted about new market discoveries.
-                    </DialogDescription>
-                  </DialogHeader>
-                  
-                  <div className="space-y-6 py-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800 hover-elevate transition-all">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center">
-                            <Zap className="text-brand-400" size={16} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white">High Priority Alerts</p>
-                            <p className="text-[10px] text-slate-500">Instant notification for similarity &gt; 90%</p>
-                          </div>
-                        </div>
-                        <Switch 
-                          checked={radarNotifyHighPriority} 
-                          onCheckedChange={setRadarNotifyHighPriority}
-                          className="data-[state=checked]:bg-brand-500"
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800 hover-elevate transition-all">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                            <FileText className="text-blue-400" size={16} />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-white">Daily Discovery Digest</p>
-                            <p className="text-[10px] text-slate-500">Summary of all new alternatives found</p>
-                          </div>
-                        </div>
-                        <Switch 
-                          checked={radarNotifyDailyDigest} 
-                          onCheckedChange={setRadarNotifyDailyDigest}
-                          className="data-[state=checked]:bg-brand-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Notification Email</label>
-                      <div className="relative">
-                        <input
-                          type="email"
-                          value={radarNotifyEmail}
-                          onChange={(e) => setRadarNotifyEmail(e.target.value)}
-                          placeholder="your@email.com"
-                          className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={() => setShowRadarNotifications(false)}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold text-sm hover:bg-slate-800 transition-all"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        toast({
-                          title: "Radar settings updated",
-                          description: "Your notification preferences have been saved.",
-                        });
-                        setShowRadarNotifications(false);
-                      }}
-                      className="flex-1 px-4 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-sm hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all"
-                    >
-                      Save Changes
-                    </button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <h2 className="text-xl font-bold text-white">Market Radar</h2>
             <p className="text-sm text-slate-400">Active surveillance across <span className="text-white font-medium">{targetScopes.length} Task scopes</span></p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Dialog open={showRadarNotifications} onOpenChange={setShowRadarNotifications}>
+            <DialogTrigger asChild>
+              <button 
+                className="p-1.5 rounded-lg bg-slate-900/50 border border-slate-800 text-slate-400 hover:text-brand-400 hover:border-brand-500/30 transition-all flex items-center gap-1.5"
+                data-testid="button-radar-notifications"
+              >
+                <Bell size={14} />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Notifications configure</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-md">
+              <DialogHeader>
+                <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center mb-4">
+                  <Bell className="text-brand-500" size={24} />
+                </div>
+                <DialogTitle className="text-white text-xl">Radar Notifications</DialogTitle>
+                <DialogDescription className="text-slate-400">
+                  Configure how you want to be alerted about new market discoveries.
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6 py-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800 hover-elevate transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center">
+                        <Zap className="text-brand-400" size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">High Priority Alerts</p>
+                        <p className="text-[10px] text-slate-500">Instant notification for similarity &gt; 90%</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={radarNotifyHighPriority} 
+                      onCheckedChange={setRadarNotifyHighPriority}
+                      className="data-[state=checked]:bg-brand-500"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900 border border-slate-800 hover-elevate transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                        <FileText className="text-blue-400" size={16} />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white">Daily Discovery Digest</p>
+                        <p className="text-[10px] text-slate-500">Summary of all new alternatives found</p>
+                      </div>
+                    </div>
+                    <Switch 
+                      checked={radarNotifyDailyDigest} 
+                      onCheckedChange={setRadarNotifyDailyDigest}
+                      className="data-[state=checked]:bg-brand-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Notification Email</label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={radarNotifyEmail}
+                      onChange={(e) => setRadarNotifyEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowRadarNotifications(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 font-bold text-sm hover:bg-slate-800 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    toast({
+                      title: "Radar settings updated",
+                      description: "Your notification preferences have been saved.",
+                    });
+                    setShowRadarNotifications(false);
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-sm hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
