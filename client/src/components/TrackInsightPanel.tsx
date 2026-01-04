@@ -205,7 +205,7 @@ const SessionCatchUp = ({
               if (summaries) setIsExpanded(!isExpanded);
             }}>
               <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
-                <BrainCircuit size={20} className="text-brand-400" />
+                <Sparkles size={20} className="text-brand-400" />
               </div>
               <div className="min-w-0 text-left">
                 <div className="flex items-center justify-start gap-2 flex-wrap">
