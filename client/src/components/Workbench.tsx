@@ -4623,6 +4623,23 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </p>
                 </div>
               </div>
+
+              <div className="pt-2 border-t border-slate-800">
+                <label className="flex items-center gap-3 p-3 bg-slate-800/30 border border-slate-700/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-all group">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox" 
+                      defaultChecked 
+                      className="peer w-5 h-5 rounded border-slate-700 bg-slate-900 checked:bg-brand-500 checked:border-brand-500 transition-all appearance-none cursor-pointer" 
+                    />
+                    <Check size={12} className="absolute left-1 top-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Apply to all targets</p>
+                    <p className="text-[10px] text-slate-500">Use these notification settings for all currently tracked competitors</p>
+                  </div>
+                </label>
+              </div>
             </TabsContent>
           </Tabs>
 
