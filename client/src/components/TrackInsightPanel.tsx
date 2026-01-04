@@ -1311,32 +1311,34 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
         <p className="text-xs text-slate-300 leading-relaxed">{insight.summary}</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-        <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
-          <div className="flex items-center gap-2 mb-2">
-            <BrainCircuit size={12} className={chConfig?.color} />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Finding</span>
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
+            <div className="flex items-center gap-2 mb-2">
+              <BrainCircuit size={12} className={chConfig?.color} />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Finding</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">{insight.keyInfo}</p>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed">{insight.keyInfo}</p>
+
+          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp size={12} className="text-brand-400" />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Potential Impact</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">{insight.impact}</p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Zap size={12} className="text-brand-400" />
+              <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
+            </div>
+            <p className="text-xs text-brand-200/80 leading-relaxed">{insight.action}</p>
+          </div>
         </div>
 
-        <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingUp size={12} className="text-brand-400" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Potential Impact</span>
-          </div>
-          <p className="text-xs text-slate-300 leading-relaxed">{insight.impact}</p>
-        </div>
-
-        <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
-          <div className="flex items-center gap-2 mb-2">
-            <Zap size={12} className="text-brand-400" />
-            <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
-          </div>
-          <p className="text-xs text-brand-200/80 leading-relaxed">{insight.action}</p>
-        </div>
-
-        <div className="pt-3 border-t border-slate-800/50">
+        <div className="p-4 border-t border-slate-800 bg-slate-900/20">
           <div 
             className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-900/30 p-1 rounded transition-colors"
             onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
