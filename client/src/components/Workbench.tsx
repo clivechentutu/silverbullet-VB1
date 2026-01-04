@@ -326,10 +326,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
                           />
                         </div>
-                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all">
-                          Send Verification
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all flex items-center gap-2">
+                          <Mail size={16} /> Send Verification
                         </button>
                       </div>
+                      <p className="text-[11px] text-slate-500 italic">We will send a verification link to confirm your email address.</p>
                     </div>
 
                     <div className="space-y-4">
@@ -337,16 +338,47 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       <div className="grid grid-cols-2 gap-3">
                         <button 
                           onClick={() => setRadarNotifyDailyDigest(true)}
-                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
                         >
                           Daily
                         </button>
                         <button 
                           onClick={() => setRadarNotifyDailyDigest(false)}
-                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${!radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${!radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
                         >
                           Weekly
                         </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                          <div className="relative group">
+                            <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                              <option>09:00</option>
+                              <option>12:00</option>
+                              <option>18:00</option>
+                              <option>21:00</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                          <div className="relative group">
+                            <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                              <option>UTC</option>
+                              <option>EST</option>
+                              <option>PST</option>
+                              <option>CST</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <Clock size={12} />
+                        <span>You'll receive {radarNotifyDailyDigest ? 'daily' : 'weekly'} signal summaries at 09:00 (UTC)</span>
                       </div>
                     </div>
                   </TabsContent>
@@ -365,10 +397,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                             className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
                           />
                         </div>
-                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all">
-                          Send Verification
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all flex items-center gap-2">
+                          <Mail size={16} /> Send Verification
                         </button>
                       </div>
+                      <p className="text-[11px] text-slate-500 italic">We will send a verification link to confirm your email address.</p>
                     </div>
 
                     <div className="space-y-4">
@@ -376,16 +409,105 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       <div className="grid grid-cols-2 gap-3">
                         <button 
                           onClick={() => setEditFrequencyType('daily')}
-                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'daily' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'daily' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
                         >
                           Daily
                         </button>
                         <button 
                           onClick={() => setEditFrequencyType('weekly')}
-                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'weekly' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'weekly' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
                         >
                           Weekly
                         </button>
+                      </div>
+                      
+                      {editFrequencyType === 'daily' ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>06:00</option>
+                                <option>07:00</option>
+                                <option>08:00</option>
+                                <option>09:00</option>
+                                <option>10:00</option>
+                                <option>12:00</option>
+                                <option>18:00</option>
+                                <option>21:00</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>UTC</option>
+                                <option>America/New_York</option>
+                                <option>America/Los_Angeles</option>
+                                <option>America/Chicago</option>
+                                <option>Europe/London</option>
+                                <option>Asia/Tokyo</option>
+                                <option>Asia/Shanghai</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Day</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>09:00</option>
+                                <option>12:00</option>
+                                <option>18:00</option>
+                                <option>21:00</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>UTC</option>
+                                <option>America/New_York</option>
+                                <option>America/Los_Angeles</option>
+                                <option>Europe/London</option>
+                                <option>Asia/Tokyo</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <Clock size={12} />
+                        <span>
+                          {editFrequencyType === 'daily' 
+                            ? "You'll receive daily signal summaries at 09:00 (UTC)"
+                            : "You'll receive weekly signal summaries every Monday at 09:00 (UTC)"
+                          }
+                        </span>
                       </div>
 
                       <div className="pt-2 border-t border-slate-800">
@@ -400,7 +522,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-slate-200">Apply to all targets</p>
-                            <p className="text-[10px] text-slate-500">Use these settings for all tracked competitors</p>
+                            <p className="text-[10px] text-slate-500">Use these notification settings for all currently tracked competitors</p>
                           </div>
                         </label>
                       </div>
