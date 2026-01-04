@@ -757,6 +757,43 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [selectedSummaryDate, setSelectedSummaryDate] = useState<Date>(new Date());
   const [showCalendarPopover, setShowCalendarPopover] = useState(false);
   
+  // Session-based tracking: last radar visit time
+  // Use a ref to capture the timestamp ONCE at session start, never re-read during session
+  const previousRadarVisitRef = useRef<Date | null>(null);
+  const sessionStartTimeRef = useRef<Date>(new Date());
+  
+  // Initialize previous visit time only once per session
+  if (previousRadarVisitRef.current === null && typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('competiscope_last_radar_visit');
+      previousRadarVisitRef.current = stored ? new Date(stored) : null;
+    } catch {
+      previousRadarVisitRef.current = null;
+    }
+  }
+  
+  const previousRadarVisit = previousRadarVisitRef.current;
+  const [showSinceLastVisit, setShowSinceLastVisit] = useState(true);
+  
+  // Save the session start timestamp ONLY on actual page exit (beforeunload)
+  useEffect(() => {
+    const saveVisitTimestamp = () => {
+      try {
+        // Save the session start time as the "last visit" for next session
+        localStorage.setItem('competiscope_last_radar_visit', sessionStartTimeRef.current.toISOString());
+      } catch {
+        // localStorage not available
+      }
+    };
+    
+    // Only save on true page exit
+    window.addEventListener('beforeunload', saveVisitTimestamp);
+    
+    return () => {
+      window.removeEventListener('beforeunload', saveVisitTimestamp);
+    };
+  }, []);
+  
   // Historical summaries data - dates with available summaries
   const historicalSummaryDates = useMemo(() => {
     const dates: Date[] = [];
@@ -1485,10 +1522,39 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           </div>
         </div>
         
-        {/* Latest Discoveries - Rolling View across all days */}
+        {/* Latest Discoveries - Session-aware Rolling View */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Latest Discoveries</span>
+            {/* View Toggle: Since Last Visit vs All Recent */}
+            <div className="flex items-center gap-2">
+              {previousRadarVisit && (
+                <>
+                  <button
+                    onClick={() => setShowSinceLastVisit(true)}
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                      showSinceLastVisit 
+                        ? 'bg-brand-500/20 text-brand-400' 
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                    data-testid="button-since-last-visit"
+                  >
+                    Since Last Visit
+                  </button>
+                  <span className="text-slate-700">|</span>
+                </>
+              )}
+              <button
+                onClick={() => setShowSinceLastVisit(false)}
+                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                  !showSinceLastVisit || !previousRadarVisit
+                    ? 'bg-brand-500/20 text-brand-400' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+                data-testid="button-all-recent"
+              >
+                All Recent
+              </button>
+            </div>
             {/* Date Strip - Secondary Navigation */}
             <div className="flex items-center gap-0.5">
               {dateStrip.slice(0, 5).map((date, idx) => {
@@ -1502,10 +1568,15 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 return (
                   <button
                     key={idx}
-                    onClick={() => hasSummary && setSelectedSummaryDate(date)}
+                    onClick={() => {
+                      if (hasSummary) {
+                        setSelectedSummaryDate(date);
+                        setShowSinceLastVisit(false);
+                      }
+                    }}
                     disabled={!hasSummary}
                     className={`flex flex-col items-center px-1.5 py-0.5 rounded transition-all relative ${
-                      isSelected 
+                      isSelected && !showSinceLastVisit
                         ? 'bg-brand-500/20' 
                         : hasSummary 
                           ? 'hover:bg-slate-800/50' 
@@ -1513,10 +1584,10 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     }`}
                     data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
                   >
-                    <span className={`text-[8px] ${isSelected ? 'text-brand-400' : 'text-slate-600'}`}>
+                    <span className={`text-[8px] ${isSelected && !showSinceLastVisit ? 'text-brand-400' : 'text-slate-600'}`}>
                       {isToday ? 'Today' : format(date, 'EEE')}
                     </span>
-                    <span className={`text-[10px] font-bold ${isSelected ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
+                    <span className={`text-[10px] font-bold ${isSelected && !showSinceLastVisit ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
                       {dayNum}
                     </span>
                   </button>
@@ -1525,13 +1596,102 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             </div>
           </div>
           
-          {/* Show insights based on selected date or recent rolling view */}
+          {/* Show insights based on view mode */}
           {(() => {
+            // Mode 1: Since Last Visit - show discoveries since user's last radar visit
+            if (showSinceLastVisit && previousRadarVisit) {
+              const sinceLastVisitInsights = Object.entries(historicalSummaryCache)
+                .filter(([dateKey]) => {
+                  const d = new Date(dateKey);
+                  return d > previousRadarVisit;
+                })
+                .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+                .flatMap(([dateKey, summary]) => 
+                  summary.scopeInsights.map(insight => ({
+                    ...insight,
+                    date: dateKey,
+                    total: summary.total,
+                    isToday: new Date().toDateString() === new Date(dateKey).toDateString()
+                  }))
+                );
+              
+              const daysSinceLastVisit = Math.floor((new Date().getTime() - previousRadarVisit.getTime()) / (1000 * 60 * 60 * 24));
+              const totalNewDiscoveries = sinceLastVisitInsights.reduce((sum, i, idx, arr) => {
+                const prevDate = idx > 0 ? arr[idx - 1].date : null;
+                if (prevDate !== i.date) {
+                  return sum + i.total;
+                }
+                return sum;
+              }, 0);
+              
+              if (sinceLastVisitInsights.length === 0) {
+                return (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/30">
+                      <Clock size={12} className="text-slate-500" />
+                      <span className="text-[9px] text-slate-400">
+                        Last visit: {format(previousRadarVisit, 'MMM d, h:mm a')}
+                      </span>
+                    </div>
+                    <div className="text-center py-3">
+                      <p className="text-[10px] text-slate-500">No new discoveries since your last visit.</p>
+                      <p className="text-[9px] text-slate-600 mt-1">Radar continues to monitor your scopes.</p>
+                    </div>
+                  </div>
+                );
+              }
+              
+              return (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800/30">
+                    <div className="flex items-center gap-2">
+                      <Clock size={12} className="text-brand-400" />
+                      <span className="text-[9px] text-slate-400">
+                        {daysSinceLastVisit === 0 
+                          ? 'Since earlier today' 
+                          : daysSinceLastVisit === 1 
+                            ? 'Since yesterday' 
+                            : `Past ${daysSinceLastVisit} days`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-brand-400">{sinceLastVisitInsights.length}</span>
+                      <span className="text-[9px] text-slate-500">new insights</span>
+                    </div>
+                  </div>
+                  {sinceLastVisitInsights.slice(0, 5).map((insight, idx) => (
+                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <TargetIcon size={9} className="text-slate-500" />
+                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                        <span className="text-[8px] text-slate-600">-</span>
+                        <span className="text-[8px] text-slate-500">
+                          {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
+                        </span>
+                        <Badge variant="outline" className="text-[7px] px-1 py-0 border-brand-500/30 text-brand-400 ml-auto">
+                          NEW
+                        </Badge>
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {insight.text.map((part, partIdx) => {
+                          const matchedProduct = insight.products.find(p => p.name === part);
+                          if (matchedProduct) {
+                            return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                          }
+                          return <span key={partIdx}>{part}</span>;
+                        })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            
+            // Mode 2: Specific date selected
             const selectedDateKey = format(selectedSummaryDate, 'yyyy-MM-dd');
             const selectedDaySummary = historicalSummaryCache[selectedDateKey];
-            const isShowingSpecificDate = selectedDaySummary && selectedDaySummary.scopeInsights.length > 0;
+            const isShowingSpecificDate = selectedDaySummary && selectedDaySummary.scopeInsights.length > 0 && !showSinceLastVisit;
             
-            // If a specific date with data is selected, show that date's insights
             if (isShowingSpecificDate) {
               const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
               return (
@@ -1564,7 +1724,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               );
             }
             
-            // Otherwise show rolling view of recent insights across all days
+            // Mode 3: All recent (rolling 7-day view)
             const allInsights = Object.entries(historicalSummaryCache)
               .filter(([dateKey]) => {
                 const d = new Date(dateKey);
