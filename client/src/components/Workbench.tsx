@@ -1321,15 +1321,39 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
-              <input
-                type="text"
-                defaultValue={editingScopeName || ''}
-                placeholder="Scope name"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-scope-name"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
+                <input
+                  type="text"
+                  defaultValue={editingScopeName || ''}
+                  placeholder="Scope name"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-scope-name"
+                />
+              </div>
+
+              <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Bell size={14} className="text-brand-400" />
+                    <span className="text-sm font-medium text-slate-200">Notifications</span>
+                  </div>
+                  <div className="w-8 h-4 bg-brand-500/20 rounded-full relative cursor-pointer border border-brand-500/30">
+                    <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-brand-400 rounded-full" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="w-3 h-3 rounded border-slate-700 bg-slate-800 text-brand-500" />
+                    <span className="text-[10px] text-slate-400">Instant alerts for High Priority</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="w-3 h-3 rounded border-slate-700 bg-slate-800 text-brand-500" />
+                    <span className="text-[10px] text-slate-400">Daily summary digest</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>
