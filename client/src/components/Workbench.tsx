@@ -28,6 +28,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   HoverCard,
@@ -727,6 +728,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
+  const { toast } = useToast();
   const [activeScope, setActiveScope] = useState<string>('ChampSignal');
   const [scopeStatuses, setScopeStatuses] = useState<Record<string, 'active' | 'paused' | 'stopped'>>({
     'ChampSignal': 'active',
@@ -1480,7 +1482,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                           </div>
                           <div>
                             <p className="text-sm font-bold text-white">High Priority Alerts</p>
-                            <p className="text-[10px] text-slate-500">Instant notification for >90% similarity</p>
+                            <p className="text-[10px] text-slate-500">Instant notification for similarity &gt; 90%</p>
                           </div>
                         </div>
                         <Switch 
