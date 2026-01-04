@@ -208,9 +208,28 @@ const SignalDetailHoverContent = ({ title, time, description, priority, type, do
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  radarNotifyEmail: string;
+  setRadarNotifyEmail: (v: string) => void;
+  radarNotifyDailyDigest: boolean;
+  setRadarNotifyDailyDigest: (v: boolean) => void;
+  editNotificationEmail: string;
+  setEditNotificationEmail: (v: string) => void;
+  editFrequencyType: 'daily' | 'weekly';
+  setEditFrequencyType: (v: 'daily' | 'weekly') => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ 
+  isOpen, 
+  onClose,
+  radarNotifyEmail,
+  setRadarNotifyEmail,
+  radarNotifyDailyDigest,
+  setRadarNotifyDailyDigest,
+  editNotificationEmail,
+  setEditNotificationEmail,
+  editFrequencyType,
+  setEditFrequencyType
+}) => {
   const [activeTab, setActiveTab] = useState('general');
   
   if (!isOpen) return null;
@@ -6029,7 +6048,18 @@ export const Workbench: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-[#020617]">
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        radarNotifyEmail={radarNotifyEmail}
+        setRadarNotifyEmail={setRadarNotifyEmail}
+        radarNotifyDailyDigest={radarNotifyDailyDigest}
+        setRadarNotifyDailyDigest={setRadarNotifyDailyDigest}
+        editNotificationEmail={editNotificationEmail}
+        setEditNotificationEmail={setEditNotificationEmail}
+        editFrequencyType={editFrequencyType}
+        setEditFrequencyType={setEditFrequencyType}
+      />
 
       <nav className="w-64 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
         <div className="p-6 flex items-center gap-2 group cursor-pointer">
