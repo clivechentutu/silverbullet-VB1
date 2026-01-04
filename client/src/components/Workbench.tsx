@@ -283,26 +283,111 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
             {activeTab === 'notifications' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-                <div className="space-y-4">
-                  <h4 className="text-sm font-bold text-white">Notification Preferences</h4>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Weekly Intelligence Digest', desc: 'Summary of all tracked signals and market shifts.' },
-                      { label: 'Immediate Target Alerts', desc: 'Get notified instantly when a competitor changes pricing.' },
-                      { label: 'AI Agent Reports', desc: 'Notifications when deep research investigations are complete.' }
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl">
-                        <div>
-                          <p className="text-sm font-medium text-slate-200">{item.label}</p>
-                          <p className="text-xs text-slate-500">{item.desc}</p>
+                <Tabs defaultValue="radar" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-6">
+                    <TabsTrigger value="radar" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                      <Radar size={14} /> Radar
+                    </TabsTrigger>
+                    <TabsTrigger value="track" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                      <Activity size={14} /> Track
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="radar" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-3">
+                      <label className="text-sm font-bold text-slate-200">Notification Email</label>
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                          <input
+                            type="email"
+                            value={radarNotifyEmail}
+                            onChange={(e) => setRadarNotifyEmail(e.target.value)}
+                            placeholder="Enter email address..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
+                          />
                         </div>
-                        <button className="text-brand-500 hover:text-brand-400 transition-colors">
-                          <ToggleRight size={32} />
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all">
+                          Send Verification
                         </button>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-slate-200">Notification Frequency</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => setRadarNotifyDailyDigest(true)}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                        >
+                          Daily
+                        </button>
+                        <button 
+                          onClick={() => setRadarNotifyDailyDigest(false)}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${!radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                        >
+                          Weekly
+                        </button>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="track" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-3">
+                      <label className="text-sm font-bold text-slate-200">Notification Email</label>
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                          <input
+                            type="email"
+                            value={editNotificationEmail}
+                            onChange={(e) => setEditNotificationEmail(e.target.value)}
+                            placeholder="Enter email address..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
+                          />
+                        </div>
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all">
+                          Send Verification
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-slate-200">Notification Frequency</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => setEditFrequencyType('daily')}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'daily' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                        >
+                          Daily
+                        </button>
+                        <button 
+                          onClick={() => setEditFrequencyType('weekly')}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'weekly' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500'}`}
+                        >
+                          Weekly
+                        </button>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800">
+                        <label className="flex items-center gap-3 p-3 bg-slate-800/30 border border-slate-700/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-all group">
+                          <div className="relative flex items-center">
+                            <input 
+                              type="checkbox" 
+                              defaultChecked 
+                              className="peer w-5 h-5 rounded border-slate-700 bg-slate-900 checked:bg-brand-500 checked:border-brand-500 transition-all appearance-none cursor-pointer" 
+                            />
+                            <Check size={12} className="absolute left-1 top-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-200">Apply to all targets</p>
+                            <p className="text-[10px] text-slate-500">Use these settings for all tracked competitors</p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             )}
 
