@@ -1259,10 +1259,12 @@ interface EvidencePanelProps {
 const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
   const [expandedSection, setExpandedSection] = useState<'keyInfo' | 'impact' | 'action' | null>(null);
   const [signalLimit, setSignalLimit] = useState(5);
+  const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
 
   useEffect(() => {
     setSignalLimit(5);
     setExpandedSection(null);
+    setIsSignalsExpanded(false);
   }, [insight?.id]);
 
   if (!insight) {
@@ -1355,42 +1357,53 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
         </div>
 
         <div className="pt-3 border-t border-slate-800/50">
-          <div className="flex items-center justify-between mb-3">
+          <div 
+            className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-900/30 p-1 rounded transition-colors"
+            onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
+          >
             <div className="flex items-center gap-1.5">
               <ChIcon size={11} className={chConfig?.color} />
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
-            <span className="text-[9px] text-slate-600">{insight.signals.length} detected</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-slate-600">{insight.signals.length} detected</span>
+              <ChevronDown size={12} className={`text-slate-500 transition-transform ${isSignalsExpanded ? 'rotate-180' : ''}`} />
+            </div>
           </div>
-          <div className="space-y-2">
-            {displayedSignals.map(signal => (
-              <div 
-                key={signal.id}
-                className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-900/70 border border-slate-800/50 hover:border-slate-700 transition-colors cursor-pointer group"
-              >
-                <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
-                  <ChIcon size={10} className={chConfig?.color} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <span className={`text-[8px] font-bold uppercase tracking-wider ${chConfig?.color}`}>
-                      {signal.type}
-                    </span>
-                    <span className="text-[8px] text-slate-600">{signal.time}</span>
+          {isSignalsExpanded && (
+            <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+              {displayedSignals.map(signal => (
+                <div 
+                  key={signal.id}
+                  className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-900/70 border border-slate-800/50 hover:border-slate-700 transition-colors cursor-pointer group"
+                >
+                  <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+                    <ChIcon size={10} className={chConfig?.color} />
                   </div>
-                  <p className="text-[10px] text-slate-300 leading-relaxed">{signal.content}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                      <span className={`text-[8px] font-bold uppercase tracking-wider ${chConfig?.color}`}>
+                        {signal.type}
+                      </span>
+                      <span className="text-[8px] text-slate-600">{signal.time}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-300 leading-relaxed">{signal.content}</p>
+                  </div>
+                  <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
                 </div>
-                <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
-              </div>
-            ))}
-          </div>
-          {hasMoreSignals && (
-            <button 
-              onClick={() => setSignalLimit(prev => prev + 10)}
-              className="w-full mt-3 py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
-            >
-              Load {Math.min(10, insight.signals.length - signalLimit)} more
-            </button>
+              ))}
+              {hasMoreSignals && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSignalLimit(prev => prev + 10);
+                  }}
+                  className="w-full mt-3 py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
+                >
+                  Load {Math.min(10, insight.signals.length - signalLimit)} more
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
