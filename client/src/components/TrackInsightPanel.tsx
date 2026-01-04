@@ -4,7 +4,7 @@ import {
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
-  Calendar, LayoutList, Rows3, Info, Database, Layers
+  Calendar, LayoutList, Rows3, Info, Database, Layers, Star
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -1302,10 +1302,14 @@ const EvidencePanel = ({ insight, onMarkResolved }: EvidencePanelProps) => {
             variant="ghost" 
             size="sm" 
             onClick={onMarkResolved}
-            className={`h-7 px-2 text-[10px] ${insight.isResolved ? 'text-emerald-400' : 'text-slate-400'}`}
+            className={`h-7 px-2 text-[10px] transition-all duration-200 ${
+              insight.isResolved 
+                ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' 
+                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700/50'
+            } border`}
           >
-            <Check size={12} className="mr-1" />
-            {insight.isResolved ? 'Resolved' : 'Mark Done'}
+            <Star size={12} className={`mr-1 ${insight.isResolved ? 'fill-amber-500' : ''}`} />
+            {insight.isResolved ? 'Saved' : 'Save'}
           </Button>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">{insight.summary}</p>
