@@ -730,9 +730,10 @@ interface ChannelFilterProps {
   activeFilter: string | null;
   onFilterChange: (channel: string | null) => void;
   insightCounts: Record<string, number>;
+  savedCount: number;
 }
 
-const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }: ChannelFilterProps) => {
+const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, savedCount }: ChannelFilterProps) => {
   return (
     <div className="flex items-center gap-1 flex-wrap">
       <TooltipProvider>
@@ -752,6 +753,28 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts }
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
             <p className="text-[10px] text-slate-400">Show all intelligence channels</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TooltipProvider>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onFilterChange('saved')}
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+                activeFilter === 'saved' 
+                  ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+                  : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
+              }`}
+              data-testid="filter-saved"
+            >
+              <Star size={10} className={activeFilter === 'saved' ? 'fill-amber-400 text-amber-400' : 'text-slate-500'} />
+              {savedCount > 0 && <span>{savedCount}</span>}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
+            <p className="text-[10px] text-slate-400">View saved insights</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -1034,6 +1057,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
           activeFilter={channelFilter}
           onFilterChange={onChannelFilterChange}
           insightCounts={insightCounts}
+          savedCount={resolvedInsights.length}
         />
       </div>
 
