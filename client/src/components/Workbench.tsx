@@ -1389,61 +1389,57 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
       </div>
 
-      {/* AI Intelligence Summary - Historical Date Navigation */}
+      {/* AI Intelligence Summary - Rolling View */}
       <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
-        {/* Header with date navigation */}
+        {/* Header */}
         <div className="px-4 py-2.5 border-b border-slate-800/50">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Radar size={14} className="text-brand-400" />
               <span className="text-xs font-bold text-white">Radar Summary</span>
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 status-icon-active" />
+                <span className="text-[8px] font-medium text-emerald-400">Monitoring</span>
+              </div>
             </div>
             
-            {/* Date Strip Navigation */}
-            <div className="flex items-center gap-1">
-              {dateStrip.map((date, idx) => {
-                const isToday = idx === 0;
-                const hasSummary = dateHasSummary(date);
-                const isSelected = selectedSummaryDate.getFullYear() === date.getFullYear() &&
-                                   selectedSummaryDate.getMonth() === date.getMonth() &&
-                                   selectedSummaryDate.getDate() === date.getDate();
-                const dayName = isToday ? 'Today' : format(date, 'EEE');
-                const dayNum = format(date, 'd');
-                
+            {/* Week Stats Summary - Limited to last 7 days */}
+            <div className="flex items-center gap-3">
+              {(() => {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                const recentEntries = Object.entries(historicalSummaryCache).filter(([dateKey]) => {
+                  return new Date(dateKey) >= sevenDaysAgo;
+                });
+                const weekTotal = recentEntries.reduce((sum, [, s]) => sum + s.total, 0);
+                const weekHigh = recentEntries.reduce((sum, [, s]) => sum + s.high, 0);
+                const activeDays = recentEntries.length;
                 return (
-                  <button
-                    key={idx}
-                    onClick={() => hasSummary && setSelectedSummaryDate(date)}
-                    disabled={!hasSummary}
-                    className={`flex flex-col items-center px-2 py-1 rounded-lg transition-all relative ${
-                      isSelected 
-                        ? 'bg-brand-500/20 border border-brand-500/40' 
-                        : hasSummary 
-                          ? 'hover:bg-slate-800/50 border border-transparent' 
-                          : 'opacity-40 cursor-not-allowed border border-transparent'
-                    }`}
-                    data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
-                  >
-                    <span className={`text-[9px] font-medium ${isSelected ? 'text-brand-400' : 'text-slate-500'}`}>
-                      {dayName}
-                    </span>
-                    <span className={`text-sm font-bold ${isSelected ? 'text-white' : hasSummary ? 'text-slate-300' : 'text-slate-600'}`}>
-                      {dayNum}
-                    </span>
-                    {hasSummary && (
-                      <div className={`absolute -bottom-0.5 w-1 h-1 rounded-full ${isSelected ? 'bg-brand-400' : 'bg-emerald-500'}`} />
-                    )}
-                  </button>
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-white">{weekTotal}</span>
+                      <span className="text-[9px] text-slate-500">discoveries</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-amber-400">{weekHigh}</span>
+                      <span className="text-[9px] text-slate-500">high priority</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[9px] text-slate-500">past</span>
+                      <span className="text-sm font-bold text-slate-300">{activeDays}</span>
+                      <span className="text-[9px] text-slate-500">days</span>
+                    </div>
+                  </>
                 );
-              })}
+              })()}
               
-              {/* Calendar Popover for older dates */}
+              {/* Calendar Popover for browsing specific dates */}
               <Popover open={showCalendarPopover} onOpenChange={setShowCalendarPopover}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="ml-1 text-slate-400 hover:text-white"
+                    className="text-slate-400 hover:text-white"
                     data-testid="button-open-calendar"
                   >
                     <Calendar size={14} />
@@ -1489,39 +1485,122 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           </div>
         </div>
         
-        {/* Summary Card for Selected Date */}
-        {(() => {
-          const summaryData = getHistoricalSummaryForDate(selectedSummaryDate);
-          const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
+        {/* Latest Discoveries - Rolling View across all days */}
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Latest Discoveries</span>
+            {/* Date Strip - Secondary Navigation */}
+            <div className="flex items-center gap-0.5">
+              {dateStrip.slice(0, 5).map((date, idx) => {
+                const isToday = idx === 0;
+                const hasSummary = dateHasSummary(date);
+                const isSelected = selectedSummaryDate.getFullYear() === date.getFullYear() &&
+                                   selectedSummaryDate.getMonth() === date.getMonth() &&
+                                   selectedSummaryDate.getDate() === date.getDate();
+                const dayNum = format(date, 'd');
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => hasSummary && setSelectedSummaryDate(date)}
+                    disabled={!hasSummary}
+                    className={`flex flex-col items-center px-1.5 py-0.5 rounded transition-all relative ${
+                      isSelected 
+                        ? 'bg-brand-500/20' 
+                        : hasSummary 
+                          ? 'hover:bg-slate-800/50' 
+                          : 'opacity-30 cursor-not-allowed'
+                    }`}
+                    data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
+                  >
+                    <span className={`text-[8px] ${isSelected ? 'text-brand-400' : 'text-slate-600'}`}>
+                      {isToday ? 'Today' : format(date, 'EEE')}
+                    </span>
+                    <span className={`text-[10px] font-bold ${isSelected ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
+                      {dayNum}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           
-          return (
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-white">
-                    {isToday ? 'Today' : format(selectedSummaryDate, 'EEEE, MMM d')}
-                  </span>
-                  {!isToday && (
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-slate-700 text-slate-400">
-                      Historical
-                    </Badge>
-                  )}
+          {/* Show insights based on selected date or recent rolling view */}
+          {(() => {
+            const selectedDateKey = format(selectedSummaryDate, 'yyyy-MM-dd');
+            const selectedDaySummary = historicalSummaryCache[selectedDateKey];
+            const isShowingSpecificDate = selectedDaySummary && selectedDaySummary.scopeInsights.length > 0;
+            
+            // If a specific date with data is selected, show that date's insights
+            if (isShowingSpecificDate) {
+              const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
+              return (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[9px] text-slate-500">
+                      {isToday ? 'Today' : format(selectedSummaryDate, 'EEEE, MMM d')}
+                    </span>
+                    <span className="text-[9px] text-slate-600">-</span>
+                    <span className="text-[9px] text-white font-medium">{selectedDaySummary.total} discoveries</span>
+                  </div>
+                  {selectedDaySummary.scopeInsights.map((insight, idx) => (
+                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <TargetIcon size={9} className="text-slate-500" />
+                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {insight.text.map((part, partIdx) => {
+                          const matchedProduct = insight.products.find(p => p.name === part);
+                          if (matchedProduct) {
+                            return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                          }
+                          return <span key={partIdx}>{part}</span>;
+                        })}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-lg font-bold text-white">{summaryData.total}</span>
-                  <span className="text-[9px] text-slate-500">finds</span>
-                  <span className="text-[9px] text-slate-600">/</span>
-                  <span className="text-sm font-bold text-amber-400">{summaryData.high}</span>
-                  <span className="text-[9px] text-slate-500">high</span>
+              );
+            }
+            
+            // Otherwise show rolling view of recent insights across all days
+            const allInsights = Object.entries(historicalSummaryCache)
+              .filter(([dateKey]) => {
+                const d = new Date(dateKey);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return d >= sevenDaysAgo;
+              })
+              .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+              .flatMap(([dateKey, summary]) => 
+                summary.scopeInsights.map(insight => ({
+                  ...insight,
+                  date: dateKey,
+                  isToday: new Date().toDateString() === new Date(dateKey).toDateString()
+                }))
+              )
+              .slice(0, 5);
+            
+            if (allInsights.length === 0) {
+              return (
+                <div className="text-center py-4">
+                  <p className="text-[10px] text-slate-500">Radar is actively scanning. Discoveries will appear here.</p>
                 </div>
-              </div>
-              
+              );
+            }
+            
+            return (
               <div className="space-y-2">
-                {summaryData.scopeInsights.map((insight, idx) => (
+                {allInsights.map((insight, idx) => (
                   <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <TargetIcon size={9} className="text-slate-500" />
                       <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                      <span className="text-[8px] text-slate-600">-</span>
+                      <span className="text-[8px] text-slate-500">
+                        {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
+                      </span>
                     </div>
                     <p className="text-[10px] text-slate-400 leading-relaxed">
                       {insight.text.map((part, partIdx) => {
@@ -1535,9 +1614,9 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   </div>
                 ))}
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 mb-4">
