@@ -6095,7 +6095,7 @@ export const Workbench: React.FC = () => {
     { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
     { id: WorkbenchView.RESEARCH, label: 'Research', icon: Lightbulb, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
-    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Extensions', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
+    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Acts', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
   ];
 
   const BOTTOM_NAV_ITEMS = [
