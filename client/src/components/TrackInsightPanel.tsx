@@ -898,11 +898,15 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
   }, [activeInsights]);
 
   const filteredInsights = useMemo(() => {
-    let result = activeInsights;
-    
-    // Apply channel filter
-    if (channelFilter !== null) {
-      result = result.filter(i => i.channel === channelFilter);
+    let result = insights;
+    if (channelFilter === 'saved') {
+      result = result.filter(i => i.isResolved);
+    } else {
+      // If not viewing saved, exclude resolved from regular feeds
+      result = result.filter(i => !i.isResolved);
+      if (channelFilter !== null) {
+        result = result.filter(i => i.channel === channelFilter);
+      }
     }
     
     // Apply value filter
@@ -917,7 +921,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
     }
     
     return result;
-  }, [activeInsights, channelFilter, valueFilter]);
+  }, [insights, channelFilter, valueFilter]);
 
   const sortedInsights = useMemo(() => {
     return [...filteredInsights].sort((a, b) => {
@@ -1754,6 +1758,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain }: TrackInsightPane
 
   const unreadCount = useMemo(() => insights.filter(i => !i.isRead && !i.isResolved).length, [insights]);
   const totalActive = useMemo(() => insights.filter(i => !i.isResolved).length, [insights]);
+  const savedCount = useMemo(() => insights.filter(i => i.isResolved).length, [insights]);
 
   // Compute top actions (unread highlights and notable items, respecting userOverride)
   const topActions = useMemo(() => {
