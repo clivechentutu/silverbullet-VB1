@@ -11,7 +11,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -6095,7 +6095,7 @@ export const Workbench: React.FC = () => {
     { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
     { id: WorkbenchView.RESEARCH, label: 'Research', icon: Lightbulb, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
-    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Extensions', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
+    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Extensions', icon: Puzzle, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
   ];
 
   const BOTTOM_NAV_ITEMS = [
