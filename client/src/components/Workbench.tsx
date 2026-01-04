@@ -1624,21 +1624,49 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 return sum;
               }, 0);
               
+              // If no new discoveries since last visit, fall back to showing the most recent summary
               if (sinceLastVisitInsights.length === 0) {
-                return (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/30">
-                      <Clock size={12} className="text-slate-500" />
-                      <span className="text-[9px] text-slate-400">
-                        Last visit: {format(previousRadarVisit, 'MMM d, h:mm a')}
-                      </span>
+                // Find the most recent summary with content
+                const sortedSummaries = Object.entries(historicalSummaryCache)
+                  .filter(([, summary]) => summary.scopeInsights.length > 0)
+                  .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime());
+                
+                if (sortedSummaries.length > 0) {
+                  const [latestDateKey, latestSummary] = sortedSummaries[0];
+                  const latestDate = new Date(latestDateKey);
+                  const isToday = new Date().toDateString() === latestDate.toDateString();
+                  
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/30">
+                        <Clock size={12} className="text-slate-500" />
+                        <span className="text-[9px] text-slate-400">
+                          No new updates since {format(previousRadarVisit, 'MMM d, h:mm a')}
+                        </span>
+                        <span className="text-[8px] text-slate-600 ml-auto">
+                          Showing latest: {isToday ? 'Today' : format(latestDate, 'MMM d')}
+                        </span>
+                      </div>
+                      {latestSummary.scopeInsights.map((insight, idx) => (
+                        <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <TargetIcon size={9} className="text-slate-500" />
+                            <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            {insight.text.map((part, partIdx) => {
+                              const matchedProduct = insight.products.find(p => p.name === part);
+                              if (matchedProduct) {
+                                return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                              }
+                              return <span key={partIdx}>{part}</span>;
+                            })}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="text-center py-3">
-                      <p className="text-[10px] text-slate-500">No new discoveries since your last visit.</p>
-                      <p className="text-[9px] text-slate-600 mt-1">Radar continues to monitor your scopes.</p>
-                    </div>
-                  </div>
-                );
+                  );
+                }
               }
               
               return (
