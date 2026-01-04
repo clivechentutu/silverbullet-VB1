@@ -1333,24 +1333,24 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 />
               </div>
 
-              <div className="bg-slate-800/30 border border-slate-700/50 rounded-xl p-4">
+              <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-4 ring-1 ring-brand-500/20">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Bell size={14} className="text-brand-400" />
-                    <span className="text-sm font-medium text-slate-200">Notifications</span>
+                    <span className="text-sm font-bold text-brand-400">Push Notifications</span>
                   </div>
-                  <div className="w-8 h-4 bg-brand-500/20 rounded-full relative cursor-pointer border border-brand-500/30">
-                    <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-brand-400 rounded-full" />
+                  <div className="w-8 h-4 bg-brand-500 rounded-full relative cursor-pointer border border-brand-500/30">
+                    <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <input type="checkbox" defaultChecked className="w-3 h-3 rounded border-slate-700 bg-slate-800 text-brand-500" />
-                    <span className="text-[10px] text-slate-400">Instant alerts for High Priority</span>
+                    <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded border-brand-500/30 bg-slate-800 text-brand-500 focus:ring-brand-500" />
+                    <span className="text-[11px] text-slate-300 font-medium">Instant alerts for High Priority</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <input type="checkbox" defaultChecked className="w-3 h-3 rounded border-slate-700 bg-slate-800 text-brand-500" />
-                    <span className="text-[10px] text-slate-400">Daily summary digest</span>
+                    <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded border-brand-500/30 bg-slate-800 text-brand-500 focus:ring-brand-500" />
+                    <span className="text-[11px] text-slate-300 font-medium">Daily discovery digest</span>
                   </div>
                 </div>
               </div>
