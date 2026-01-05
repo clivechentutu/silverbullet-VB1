@@ -652,110 +652,222 @@ interface CompanyProfile {
   communityStats: { slack: string; github: string };
 }
 
-// Company Profile Card Component
+// Source link type for prose-based cards
+interface SourceLink {
+  text: string;
+  url: string;
+}
+
+// Card data structure for prose-based content
+interface CardData {
+  hasData: boolean;
+  content: string | null;
+  sources: SourceLink[];
+}
+
+// Card configuration for empty states
+const cardConfigs: Record<string, { title: string; icon: typeof Globe; emptyMessage: string }> = {
+  basicInfo: { title: 'Basic Information', icon: Info, emptyMessage: "We're gathering basic information about this company." },
+  funding: { title: 'Funding Overview', icon: DollarSign, emptyMessage: "We're searching for funding information." },
+  coreTeam: { title: 'Core Team', icon: Users, emptyMessage: "We're gathering team information." },
+  productTech: { title: 'Product & Technology', icon: Code2, emptyMessage: "We're analyzing product and tech stack." },
+  partnerships: { title: 'Strategic Partnerships', icon: Handshake, emptyMessage: "We're searching for partnership information." },
+  mediaRep: { title: 'Media & Reputation', icon: Newspaper, emptyMessage: "We're tracking media coverage and reputation." },
+  hiring: { title: 'Hiring & Growth', icon: Briefcase, emptyMessage: "We're monitoring hiring activity." },
+  social: { title: 'Social & Marketing', icon: Share2, emptyMessage: "We're tracking social presence." },
+};
+
+// Helper function to render content with inline source links
+const renderContentWithLinks = (content: string, sources: SourceLink[]) => {
+  if (!content || sources.length === 0) {
+    return <span>{content}</span>;
+  }
+
+  let result = content;
+  const elements: (string | JSX.Element)[] = [];
+  let lastIndex = 0;
+
+  // Sort sources by position in content (to handle overlapping)
+  const sortedSources = [...sources].sort((a, b) => {
+    const posA = content.indexOf(a.text);
+    const posB = content.indexOf(b.text);
+    return posA - posB;
+  });
+
+  sortedSources.forEach((source, idx) => {
+    const index = content.indexOf(source.text, lastIndex);
+    if (index !== -1) {
+      // Add text before this link
+      if (index > lastIndex) {
+        elements.push(content.substring(lastIndex, index));
+      }
+      // Add the link
+      elements.push(
+        <a
+          key={`link-${idx}`}
+          href={source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 transition-colors"
+        >
+          {source.text}
+        </a>
+      );
+      lastIndex = index + source.text.length;
+    }
+  });
+
+  // Add remaining text
+  if (lastIndex < content.length) {
+    elements.push(content.substring(lastIndex));
+  }
+
+  return <>{elements}</>;
+};
+
+// Company Profile Card Component - Prose-based
 const ProfileCard = ({ 
-  icon: Icon, 
-  title, 
-  lastUpdated, 
-  children 
+  cardType,
+  data
 }: { 
-  icon: typeof Globe; 
-  title: string; 
-  lastUpdated: string; 
-  children: React.ReactNode 
+  cardType: string;
+  data: CardData;
 }) => {
+  const config = cardConfigs[cardType];
+  const Icon = config.icon;
+  const hasData = data?.hasData && data?.content;
+
   return (
-    <div className="bg-slate-900/50 border border-slate-800/50 rounded-lg overflow-hidden hover:border-slate-700/50 transition-colors">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/30 bg-slate-950/30">
-        <div className="flex items-center gap-2">
-          <Icon size={14} className="text-brand-400" />
-          <span className="text-xs font-bold text-white">{title}</span>
-        </div>
-        <span className="text-[9px] text-slate-500">Updated {lastUpdated}</span>
+    <div className={`bg-slate-900/50 border border-slate-800/50 rounded-lg overflow-hidden hover:border-slate-700/50 transition-colors flex flex-col ${!hasData ? 'min-h-[160px]' : ''}`}>
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/30 bg-slate-950/30">
+        <Icon size={14} className="text-brand-400" />
+        <span className="text-xs font-bold text-white">{config.title}</span>
       </div>
-      <div className="p-4">
-        {children}
+      
+      <div className={`p-4 flex-1 ${!hasData ? 'flex flex-col items-center justify-center text-center' : ''}`}>
+        {hasData ? (
+          <div className="space-y-3">
+            <p className="text-xs text-slate-300 leading-relaxed">
+              {renderContentWithLinks(data.content!, data.sources)}
+            </p>
+            
+            {data.sources.length > 0 && (
+              <div className="pt-3 border-t border-slate-800/30">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[9px] text-slate-500 uppercase tracking-wider">Sources:</span>
+                  {data.sources.slice(0, 4).map((source, idx) => (
+                    <a
+                      key={idx}
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[9px] px-1.5 py-0.5 bg-slate-800/50 border border-slate-700/50 rounded text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/30 transition-colors"
+                    >
+                      {source.text}
+                    </a>
+                  ))}
+                  {data.sources.length > 4 && (
+                    <span className="text-[9px] text-slate-500">+{data.sources.length - 4} more</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center mx-auto">
+              <Search size={18} className="text-slate-500" />
+            </div>
+            <p className="text-[11px] text-slate-500 max-w-[180px]">{config.emptyMessage}</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-// Company Profile Section
+// Company Profile Section - Prose-based cards
 const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
-  // Mock data for company profile - in real app this would come from API
-  const profile: CompanyProfile = {
-    name: companyName || 'TrendSpotter',
-    website: 'trendspotter.com',
-    location: 'San Francisco, USA',
-    foundedYear: 2019,
-    description: 'Real-time market trend monitoring and competitive analysis platform for SaaS companies.',
-    industry: 'Business Intelligence',
-    companyType: 'SaaS',
-    totalFunding: '$40M',
-    latestRound: { type: 'Series B', amount: '$25M', date: 'March 2024' },
-    investors: ['Sequoia Capital', 'Andreessen Horowitz', 'Y Combinator'],
-    valuation: '~$200M (estimated)',
-    fundingStatus: 'Well-funded',
-    ceo: { name: 'John Smith', title: 'CEO & Co-founder', linkedIn: '#' },
-    executives: [
-      { name: 'Sarah Chen', title: 'CTO', specialty: 'AI/ML Expert', linkedIn: '#' },
-      { name: 'Mike Johnson', title: 'CPO', specialty: 'Product & Design', linkedIn: '#' },
-    ],
-    teamSize: 45,
-    teamGrowth: '+8 in last 3 months',
-    products: ['TrendSpotter Pro', 'TrendSpotter API', 'TrendSpotter Insights'],
-    capabilities: ['Real-time data monitoring', 'AI-driven analysis', 'Custom alerts', 'Team collaboration'],
-    techStack: {
-      frontend: ['React', 'TypeScript', 'TailwindCSS'],
-      backend: ['Node.js', 'Python', 'FastAPI'],
-      infrastructure: ['AWS (EC2, RDS, S3)']
+  // Prose-based mock data - in real app this would come from API
+  const cardData: Record<string, CardData> = {
+    basicInfo: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} is a real-time market trend monitoring and competitive analysis platform for SaaS companies. Founded in April 2019 and based in San Francisco, USA, the company operates in the Business Intelligence sector as a SaaS platform.`,
+      sources: [
+        { text: 'trendspotter.com', url: 'https://trendspotter.com' },
+        { text: 'San Francisco', url: 'https://maps.google.com/?q=San+Francisco' },
+      ]
     },
-    hasApi: true,
-    // Card 5: Strategic Partnerships
-    partnerships: [
-      { name: 'Salesforce', type: 'CRM Integration' },
-      { name: 'HubSpot', type: 'Marketing Integration' },
-      { name: 'Slack', type: 'Communication' },
-      { name: 'Zapier', type: 'Automation' },
-    ],
-    integrationCount: 45,
-    keyIntegrations: ['Stripe', 'GitHub', 'Datadog'],
-    resellerPartners: 12,
-    // Card 6: Media & Reputation
-    recentCoverage: [
-      { publication: 'TechCrunch', title: 'Series B Funding', date: '2w ago' },
-      { publication: 'Forbes', title: 'Top 10 SaaS Tools', date: '1mo ago' },
-      { publication: 'VentureBeat', title: 'Market Analysis', date: '2mo ago' },
-    ],
-    ratings: [
-      { platform: 'G2', rating: 4.8, reviews: 500 },
-      { platform: 'Capterra', rating: 4.7, reviews: 300 },
-    ],
-    awards: ['Gartner Leader 2024', 'Forrester Wave Leader'],
-    // Card 7: Hiring & Growth
-    openPositions: 12,
-    hotRoles: [
-      { title: 'Software Engineer', count: 6 },
-      { title: 'Sales Executive', count: 3 },
-      { title: 'Product Manager', count: 2 },
-      { title: 'Data Scientist', count: 1 },
-    ],
-    employeeGrowthPercent: '+15%',
-    recentHires: [
-      { title: 'VP Sales', previousCompany: 'Salesforce' },
-      { title: 'ML Engineer', previousCompany: 'Google' },
-    ],
-    hiringTrend: 'Accelerating',
-    // Card 8: Social & Marketing
-    socialAccounts: [
-      { platform: 'Twitter', handle: '@trendspotter', followers: '50K', growth: '+15%' },
-      { platform: 'LinkedIn', handle: 'TrendSpotter', followers: '100K', growth: '+8%' },
-      { platform: 'YouTube', handle: 'TrendSpotter', followers: '25K', growth: '+12%' },
-    ],
-    blogStats: { frequency: 'Weekly', monthlyViews: '50K' },
-    newsletterSubscribers: '30K',
-    communityStats: { slack: '5K', github: '2.5K' },
+    funding: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} has raised $40M across multiple funding rounds. The latest round was Series B with $25M raised in March 2024, led by Sequoia Capital. Key investors include Andreessen Horowitz and Y Combinator. The company is estimated to be valued at ~$200M and is considered well-funded.`,
+      sources: [
+        { text: 'Sequoia Capital', url: 'https://crunchbase.com/organization/sequoia-capital' },
+        { text: 'Andreessen Horowitz', url: 'https://crunchbase.com/organization/andreessen-horowitz' },
+        { text: 'Y Combinator', url: 'https://crunchbase.com/organization/y-combinator' },
+        { text: 'Crunchbase', url: 'https://crunchbase.com/organization/trendspotter' },
+      ]
+    },
+    coreTeam: {
+      hasData: true,
+      content: `The leadership team is led by John Smith (CEO & Co-founder). Key executives include Sarah Chen (CTO, AI/ML Expert) and Mike Johnson (CPO, Product & Design). The company has grown to 45 employees, with +8 new hires in the last 3 months, indicating healthy team expansion.`,
+      sources: [
+        { text: 'John Smith', url: 'https://linkedin.com/in/johnsmith' },
+        { text: 'Sarah Chen', url: 'https://linkedin.com/in/sarahchen' },
+        { text: 'Mike Johnson', url: 'https://linkedin.com/in/mikejohnson' },
+        { text: 'LinkedIn', url: 'https://linkedin.com/company/trendspotter' },
+      ]
+    },
+    productTech: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} offers three main products: TrendSpotter Pro (web platform), TrendSpotter API (for integrations), and TrendSpotter Insights (analytics). Core capabilities include real-time data monitoring, AI-driven analysis, custom alerts, and team collaboration. The platform is built on React and TypeScript for the frontend, with Node.js and Python backends, running on AWS infrastructure. A REST API is available for developers.`,
+      sources: [
+        { text: 'React', url: 'https://react.dev' },
+        { text: 'TypeScript', url: 'https://typescriptlang.org' },
+        { text: 'Node.js', url: 'https://nodejs.org' },
+        { text: 'Python', url: 'https://python.org' },
+        { text: 'AWS', url: 'https://aws.amazon.com' },
+      ]
+    },
+    partnerships: {
+      hasData: false,
+      content: null,
+      sources: []
+    },
+    mediaRep: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} has received significant media coverage, including features in TechCrunch (Series B Funding), Forbes (Top 10 SaaS Tools), and VentureBeat (Market Analysis). The platform has strong user ratings on G2 (4.8/5 from 500+ reviews) and Capterra (4.7/5 from 300+ reviews). The company has been recognized as a Gartner Leader 2024 and Forrester Wave Leader.`,
+      sources: [
+        { text: 'TechCrunch', url: 'https://techcrunch.com/trendspotter' },
+        { text: 'Forbes', url: 'https://forbes.com/trendspotter' },
+        { text: 'VentureBeat', url: 'https://venturebeat.com/trendspotter' },
+        { text: 'G2', url: 'https://g2.com/products/trendspotter' },
+        { text: 'Capterra', url: 'https://capterra.com/trendspotter' },
+      ]
+    },
+    hiring: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} is actively hiring with 12 open positions. The company is particularly focused on engineering (6 positions), sales (3 positions), product management (2 positions), and data science (1 position). Recent hires include a VP of Sales from Salesforce and a ML Engineer from Google, indicating strategic growth. The team has grown +15% in the last 6 months with an accelerating hiring trend.`,
+      sources: [
+        { text: 'LinkedIn', url: 'https://linkedin.com/company/trendspotter/jobs' },
+        { text: 'Salesforce', url: 'https://linkedin.com/company/salesforce' },
+        { text: 'Google', url: 'https://linkedin.com/company/google' },
+      ]
+    },
+    social: {
+      hasData: true,
+      content: `${companyName || 'TrendSpotter'} maintains an active online presence with 50K Twitter followers (growing 15% YoY), 100K LinkedIn followers (growing 8% YoY), and 25K YouTube subscribers (growing 12% YoY). Content marketing includes a weekly blog (50K monthly views) and a newsletter with 30K subscribers. The company has built a strong community with 5K Slack members and 2.5K GitHub stars.`,
+      sources: [
+        { text: 'Twitter', url: 'https://twitter.com/trendspotter' },
+        { text: 'LinkedIn', url: 'https://linkedin.com/company/trendspotter' },
+        { text: 'YouTube', url: 'https://youtube.com/trendspotter' },
+        { text: 'blog', url: 'https://blog.trendspotter.com' },
+        { text: 'GitHub', url: 'https://github.com/trendspotter' },
+      ]
+    },
   };
+
+  const cardOrder = ['basicInfo', 'funding', 'coreTeam', 'productTech', 'partnerships', 'mediaRep', 'hiring', 'social'];
 
   return (
     <div className="p-4 overflow-y-auto custom-scrollbar h-full">
@@ -768,333 +880,13 @@ const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {/* Basic Information Card */}
-        <ProfileCard icon={Info} title="Basic Information" lastUpdated="2h ago">
-          <div className="space-y-3">
-            <h3 className="text-sm font-bold text-white">{profile.name}</h3>
-            <div className="flex items-center gap-2 text-xs text-slate-300">
-              <Globe size={12} className="text-cyan-400" />
-              <a href={`https://${profile.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors">
-                {profile.website}
-              </a>
-              <ExternalLink size={10} className="text-slate-500" />
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <MapPin size={12} className="text-slate-500" />
-              {profile.location}
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Calendar size={12} className="text-slate-500" />
-              Founded {profile.foundedYear}
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3 mt-3">
-              {profile.description}
-            </p>
-            <div className="flex items-center gap-2 pt-2">
-              <Badge variant="secondary" className="text-[9px]">{profile.companyType}</Badge>
-              <Badge variant="secondary" className="text-[9px]">{profile.industry}</Badge>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Funding Overview Card */}
-        <ProfileCard icon={DollarSign} title="Funding Overview" lastUpdated="1d ago">
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Total Funding</span>
-              <p className="text-xl font-bold text-emerald-400">{profile.totalFunding}</p>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Latest Round</span>
-              <p className="text-sm font-medium text-white mt-1">
-                {profile.latestRound.type} <span className="text-slate-400">|</span> {profile.latestRound.amount} <span className="text-slate-400">|</span> {profile.latestRound.date}
-              </p>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Top Investors</span>
-              <div className="mt-2 space-y-1">
-                {profile.investors.map((investor, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
-                    <span className="w-1 h-1 bg-brand-500 rounded-full" />
-                    {investor}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center justify-between pt-2 text-[10px]">
-              <span className="text-slate-500">Valuation: <span className="text-slate-300">{profile.valuation}</span></span>
-              <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">{profile.fundingStatus}</Badge>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Core Team Card */}
-        <ProfileCard icon={Users} title="Core Team" lastUpdated="3d ago">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white font-bold text-sm">
-                {profile.ceo.name.split(' ').map(n => n[0]).join('')}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-white">{profile.ceo.name}</p>
-                <p className="text-[10px] text-slate-400">{profile.ceo.title}</p>
-              </div>
-              <Button variant="ghost" size="icon" data-testid="ceo-linkedin">
-                <LinkIcon size={14} className="text-slate-400" />
-              </Button>
-            </div>
-            
-            {profile.executives.map((exec, idx) => (
-              <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-slate-900/50 border border-slate-800/30">
-                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium text-xs">
-                  {exec.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-white truncate">{exec.name}</p>
-                  <p className="text-[9px] text-slate-500">{exec.title} <span className="text-slate-600">|</span> {exec.specialty}</p>
-                </div>
-                <Button variant="ghost" size="icon" data-testid={`exec-linkedin-${idx}`}>
-                  <LinkIcon size={14} className="text-slate-500" />
-                </Button>
-              </div>
-            ))}
-            
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800/50">
-              <div className="text-xs">
-                <span className="text-slate-500">Team Size: </span>
-                <span className="text-white font-medium">{profile.teamSize} employees</span>
-              </div>
-              <Badge variant="outline" className="text-[8px] text-brand-400 border-brand-500/30">
-                <TrendingUp size={8} className="mr-1" />
-                {profile.teamGrowth}
-              </Badge>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Product & Technology Card */}
-        <ProfileCard icon={Code2} title="Product & Technology" lastUpdated="1w ago">
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Main Products</span>
-              <div className="mt-2 space-y-1">
-                {profile.products.map((product, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
-                    <span className="w-1 h-1 bg-cyan-500 rounded-full" />
-                    {product}
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Core Capabilities</span>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {profile.capabilities.map((cap, idx) => (
-                  <Badge key={idx} variant="secondary" className="text-[8px]">{cap}</Badge>
-                ))}
-              </div>
-            </div>
-            
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Technology Stack</span>
-              <div className="mt-2 space-y-2 text-[10px]">
-                <div>
-                  <span className="text-slate-500">Frontend: </span>
-                  <span className="text-slate-300">{profile.techStack.frontend.join(', ')}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500">Backend: </span>
-                  <span className="text-slate-300">{profile.techStack.backend.join(', ')}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500">Infrastructure: </span>
-                  <span className="text-slate-300">{profile.techStack.infrastructure.join(', ')}</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 pt-2">
-              {profile.hasApi && (
-                <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">
-                  <Check size={8} className="mr-1" />
-                  REST API Available
-                </Badge>
-              )}
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Strategic Partnerships Card */}
-        <ProfileCard icon={Handshake} title="Strategic Partnerships" lastUpdated="2w ago">
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Major Partners</span>
-              <div className="mt-2 space-y-1.5">
-                {profile.partnerships.map((partner, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">{partner.name}</span>
-                    <span className="text-[9px] text-slate-500">{partner.type}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-500">Total Integrations</span>
-                <span className="text-sm font-bold text-white">{profile.integrationCount}+</span>
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Key Integrations</span>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {profile.keyIntegrations.map((integ, idx) => (
-                  <Badge key={idx} variant="secondary" className="text-[8px]">{integ}</Badge>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center justify-between pt-2 text-[10px]">
-              <span className="text-slate-500">Reseller Partners: <span className="text-slate-300">{profile.resellerPartners} regions</span></span>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Media & Reputation Card */}
-        <ProfileCard icon={Newspaper} title="Media & Reputation" lastUpdated="1d ago">
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Recent Coverage</span>
-              <div className="mt-2 space-y-1.5">
-                {profile.recentCoverage.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-slate-400">{item.publication}:</span>
-                      <span className="text-slate-300 truncate max-w-[120px]">{item.title}</span>
-                    </div>
-                    <span className="text-[9px] text-slate-500">{item.date}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">User Ratings</span>
-              <div className="mt-2 space-y-1">
-                {profile.ratings.map((rating, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs">
-                    <Star size={10} className="text-amber-400 fill-amber-400" />
-                    <span className="text-slate-300">{rating.platform}: {rating.rating}/5</span>
-                    <span className="text-[9px] text-slate-500">({rating.reviews}+ reviews)</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Awards</span>
-              <div className="mt-2 space-y-1">
-                {profile.awards.map((award, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 text-xs text-slate-300">
-                    <Trophy size={10} className="text-amber-400" />
-                    {award}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Hiring & Growth Card */}
-        <ProfileCard icon={Briefcase} title="Hiring & Growth" lastUpdated="1d ago">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Open Positions</span>
-              <span className="text-xl font-bold text-white">{profile.openPositions}</span>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Hot Hiring Roles</span>
-              <div className="mt-2 space-y-1">
-                {profile.hotRoles.map((role, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">{role.title}</span>
-                    <span className="text-slate-500">({role.count})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-500">Employee Growth</span>
-                <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">
-                  {profile.employeeGrowthPercent} (6mo)
-                </Badge>
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Recent Key Hires</span>
-              <div className="mt-2 space-y-1">
-                {profile.recentHires.map((hire, idx) => (
-                  <div key={idx} className="text-xs text-slate-300">
-                    {hire.title} <span className="text-slate-500">(ex-{hire.previousCompany})</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 pt-2">
-              <span className="text-[10px] text-slate-500">Trend:</span>
-              <Badge variant="outline" className="text-[8px] text-brand-400 border-brand-500/30">
-                <TrendingUp size={8} className="mr-1" />
-                {profile.hiringTrend}
-              </Badge>
-            </div>
-          </div>
-        </ProfileCard>
-
-        {/* Social & Marketing Card */}
-        <ProfileCard icon={Share2} title="Social & Marketing" lastUpdated="1d ago">
-          <div className="space-y-3">
-            <div>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Social Media</span>
-              <div className="mt-2 space-y-1.5">
-                {profile.socialAccounts.map((account, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5">
-                      {account.platform === 'Twitter' && <SiX size={10} className="text-slate-400" />}
-                      {account.platform === 'LinkedIn' && <LinkIcon size={10} className="text-blue-400" />}
-                      {account.platform === 'YouTube' && <SiYoutube size={10} className="text-red-400" />}
-                      <span className="text-slate-300">{account.followers}</span>
-                    </div>
-                    <span className="text-[9px] text-emerald-400">{account.growth}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Content Marketing</span>
-              <div className="mt-2 space-y-1 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Blog</span>
-                  <span className="text-slate-300">{profile.blogStats.frequency} | {profile.blogStats.monthlyViews} views</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-400">Newsletter</span>
-                  <span className="text-slate-300">{profile.newsletterSubscribers} subscribers</span>
-                </div>
-              </div>
-            </div>
-            <div className="border-t border-slate-800/50 pt-3">
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Community</span>
-              <div className="mt-2 flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1">
-                  <MessageSquare size={10} className="text-slate-400" />
-                  <span className="text-slate-300">{profile.communityStats.slack}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Star size={10} className="text-slate-400" />
-                  <span className="text-slate-300">{profile.communityStats.github} stars</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ProfileCard>
+        {cardOrder.map(cardType => (
+          <ProfileCard
+            key={cardType}
+            cardType={cardType}
+            data={cardData[cardType]}
+          />
+        ))}
       </div>
     </div>
   );
