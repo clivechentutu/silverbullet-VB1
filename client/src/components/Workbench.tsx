@@ -3,6 +3,9 @@ import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { WorkbenchView, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { 
   Radar, Crosshair, Bot, Book, Library, Link as LinkIcon, Hexagon, Settings, User, 
   Plus, TrendingUp, Activity, ExternalLink, Zap, Search, ToggleRight, 
@@ -5551,8 +5554,138 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
     );
 };
 
+interface PromptTemplate {
+   id: number;
+   title: string;
+   category: string;
+   desc: string;
+   icon: typeof Swords;
+   color: string;
+   prompt?: string;
+   isCustom?: boolean;
+}
+
+const SortableTemplateCard = ({ 
+   template, 
+   onEdit 
+}: { 
+   template: PromptTemplate; 
+   onEdit: (template: PromptTemplate) => void;
+}) => {
+   const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+   } = useSortable({ id: template.id });
+
+   const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+   };
+
+   return (
+      <div 
+         ref={setNodeRef}
+         style={style}
+         className={`group bg-slate-900/60 border border-slate-800 rounded-lg p-3 transition-all hover:bg-slate-900/80 hover:border-slate-700 ${isDragging ? 'shadow-lg shadow-brand-500/20 border-brand-500/50' : ''}`}
+         data-testid={`template-card-${template.id}`}
+      >
+         <div className="flex items-start gap-3">
+            <div 
+               {...attributes}
+               {...listeners}
+               className="cursor-grab active:cursor-grabbing p-1 text-slate-600 hover:text-slate-400 shrink-0 mt-0.5"
+               data-testid={`drag-handle-${template.id}`}
+            >
+               <GripVertical size={14} />
+            </div>
+            <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
+               <template.icon size={16} />
+            </div>
+            <div className="flex-1 min-w-0">
+               <div className="flex items-center justify-between gap-2 mb-1">
+                  <h4 className="text-sm font-semibold text-white truncate">{template.title}</h4>
+                  <button
+                     onClick={() => onEdit(template)}
+                     className="p-1 text-slate-500 hover:text-brand-400 transition-colors shrink-0"
+                     data-testid={`button-edit-template-${template.id}`}
+                  >
+                     <Edit2 size={12} />
+                  </button>
+               </div>
+               <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{template.desc}</p>
+               <span className="inline-block mt-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-600 bg-slate-950 px-1.5 py-0.5 rounded">
+                  {template.category}
+               </span>
+            </div>
+         </div>
+      </div>
+   );
+};
+
+const TemplateColumn = ({ 
+   title, 
+   templates, 
+   isActive, 
+   columnId,
+   onEdit,
+   onCreateNew 
+}: { 
+   title: string; 
+   templates: PromptTemplate[]; 
+   isActive: boolean;
+   columnId: string;
+   onEdit: (template: PromptTemplate) => void;
+   onCreateNew?: () => void;
+}) => {
+   const { setNodeRef, isOver } = useDroppable({ id: columnId });
+
+   return (
+      <div className={`flex-1 rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-4 transition-all ${isOver ? 'ring-2 ring-brand-500/50' : ''}`}>
+         <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center gap-2">
+               <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
+               <h3 className="text-sm font-bold text-white">{title}</h3>
+               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
+                  {templates.length}
+               </span>
+            </div>
+         </div>
+         <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
+            <div ref={setNodeRef} className="space-y-2 min-h-[200px]">
+               {templates.map(template => (
+                  <SortableTemplateCard 
+                     key={template.id} 
+                     template={template} 
+                     onEdit={onEdit}
+                  />
+               ))}
+               {templates.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-8 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg">
+                     <p className="text-xs">Drag templates here</p>
+                  </div>
+               )}
+            </div>
+         </SortableContext>
+         {onCreateNew && (
+            <button
+               onClick={onCreateNew}
+               className="mt-3 w-full py-2 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/30 transition-all flex items-center justify-center gap-2 text-xs font-medium"
+               data-testid="button-create-template"
+            >
+               <Plus size={14} /> Create New
+            </button>
+         )}
+      </div>
+   );
+};
+
 const ActsTemplateView = () => {
-   const defaultTemplates = [
+   const defaultTemplates: PromptTemplate[] = [
       { id: 1, title: 'Competitor Battle Card', category: 'Sales Enablement', desc: 'One-pager highlighting kill points, objection handling, and pricing traps.', icon: Swords, color: 'text-red-400' },
       { id: 2, title: 'Feature Comparison Matrix', category: 'Product Strategy', desc: 'Detailed side-by-side breakdown of feature availability and limits.', icon: LayoutGrid, color: 'text-blue-400' },
       { id: 3, title: 'Quarterly Market Report', category: 'Executive', desc: 'High-level slide deck summary of market movements and threats.', icon: PieChart, color: 'text-purple-400' },
@@ -5561,47 +5694,98 @@ const ActsTemplateView = () => {
       { id: 6, title: 'SEO Gap Analysis', category: 'Marketing', desc: 'Identify keywords where competitors are outranking you.', icon: Search, color: 'text-pink-400' },
    ];
 
-   const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive', 'Custom'];
-   const [activeCat, setActiveCat] = useState('All');
-   const [enabledTemplates, setEnabledTemplates] = useState<number[]>([1, 2, 3]);
-   const [pinnedTemplates, setPinnedTemplates] = useState<number[]>([]);
-   const [customTemplates, setCustomTemplates] = useState<any[]>([]);
+   const [activeTemplates, setActiveTemplates] = useState<PromptTemplate[]>(defaultTemplates.slice(0, 3));
+   const [inactiveTemplates, setInactiveTemplates] = useState<PromptTemplate[]>(defaultTemplates.slice(3));
+   const [customTemplates, setCustomTemplates] = useState<PromptTemplate[]>([]);
    const [showCreateModal, setShowCreateModal] = useState(false);
+   const [showEditModal, setShowEditModal] = useState(false);
+   const [editingTemplate, setEditingTemplate] = useState<PromptTemplate | null>(null);
    const [newTemplateName, setNewTemplateName] = useState('');
    const [newTemplateDesc, setNewTemplateDesc] = useState('');
    const [newTemplateCategory, setNewTemplateCategory] = useState('Custom');
    const [newTemplatePrompt, setNewTemplatePrompt] = useState('');
+   const [activeId, setActiveId] = useState<number | null>(null);
 
-   const toggleTemplate = (id: number) => {
-      setEnabledTemplates(prev => 
-         prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
-      );
+   const sensors = useSensors(
+      useSensor(PointerSensor, {
+         activationConstraint: {
+            distance: 8,
+         },
+      })
+   );
+
+   const handleDragStart = (event: DragStartEvent) => {
+      setActiveId(event.active.id as number);
    };
 
-   const togglePin = (id: number) => {
-      setPinnedTemplates(prev => {
-         if (prev.includes(id)) {
-            return prev.filter(t => t !== id);
-         } else if (prev.length < 4) {
-            return [...prev, id];
+   const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
+
+      if (!over) return;
+
+      const activeTemplateId = active.id as number;
+      const overId = over.id;
+
+      const isActiveInActive = activeTemplates.some(t => t.id === activeTemplateId);
+      const isActiveInInactive = inactiveTemplates.some(t => t.id === activeTemplateId);
+      
+      const isOverActiveColumn = overId === 'active-column';
+      const isOverInactiveColumn = overId === 'inactive-column';
+      const isOverInActive = activeTemplates.some(t => t.id === overId);
+      const isOverInInactive = inactiveTemplates.some(t => t.id === overId);
+
+      if (isActiveInActive && (isOverInActive || isOverActiveColumn)) {
+         if (isOverActiveColumn) return;
+         const oldIndex = activeTemplates.findIndex(t => t.id === activeTemplateId);
+         const newIndex = activeTemplates.findIndex(t => t.id === overId);
+         setActiveTemplates(arrayMove(activeTemplates, oldIndex, newIndex));
+      } else if (isActiveInInactive && (isOverInInactive || isOverInactiveColumn)) {
+         if (isOverInactiveColumn) return;
+         const oldIndex = inactiveTemplates.findIndex(t => t.id === activeTemplateId);
+         const newIndex = inactiveTemplates.findIndex(t => t.id === overId);
+         setInactiveTemplates(arrayMove(inactiveTemplates, oldIndex, newIndex));
+      } else if (isActiveInActive && (isOverInInactive || isOverInactiveColumn)) {
+         const template = activeTemplates.find(t => t.id === activeTemplateId);
+         if (template) {
+            setActiveTemplates(prev => prev.filter(t => t.id !== activeTemplateId));
+            if (isOverInactiveColumn) {
+               setInactiveTemplates(prev => [...prev, template]);
+            } else {
+               const insertIndex = inactiveTemplates.findIndex(t => t.id === overId);
+               setInactiveTemplates(prev => {
+                  const newArr = [...prev];
+                  newArr.splice(insertIndex, 0, template);
+                  return newArr;
+               });
+            }
          }
-         return prev;
-      });
+      } else if (isActiveInInactive && (isOverInActive || isOverActiveColumn)) {
+         const template = inactiveTemplates.find(t => t.id === activeTemplateId);
+         if (template) {
+            setInactiveTemplates(prev => prev.filter(t => t.id !== activeTemplateId));
+            if (isOverActiveColumn) {
+               setActiveTemplates(prev => [...prev, template]);
+            } else {
+               const insertIndex = activeTemplates.findIndex(t => t.id === overId);
+               setActiveTemplates(prev => {
+                  const newArr = [...prev];
+                  newArr.splice(insertIndex, 0, template);
+                  return newArr;
+               });
+            }
+         }
+      }
    };
 
-   const allTemplates = [...defaultTemplates, ...customTemplates];
-   
-   const sortedTemplates = allTemplates.sort((a, b) => {
-      const aPinned = pinnedTemplates.includes(a.id);
-      const bPinned = pinnedTemplates.includes(b.id);
-      if (aPinned && !bPinned) return -1;
-      if (!aPinned && bPinned) return 1;
-      return 0;
-   });
+   const handleEditTemplate = (template: PromptTemplate) => {
+      setEditingTemplate(template);
+      setShowEditModal(true);
+   };
 
    const handleCreateTemplate = () => {
       if (newTemplateName.trim() && newTemplateDesc.trim() && newTemplatePrompt.trim()) {
-         const newTemplate = {
+         const newTemplate: PromptTemplate = {
             id: Date.now(),
             title: newTemplateName,
             category: newTemplateCategory,
@@ -5611,7 +5795,7 @@ const ActsTemplateView = () => {
             prompt: newTemplatePrompt,
             isCustom: true
          };
-         setCustomTemplates([...customTemplates, newTemplate]);
+         setActiveTemplates(prev => [...prev, newTemplate]);
          setNewTemplateName('');
          setNewTemplateDesc('');
          setNewTemplateCategory('Custom');
@@ -5620,187 +5804,128 @@ const ActsTemplateView = () => {
       }
    };
 
+   const draggedTemplate = activeId 
+      ? [...activeTemplates, ...inactiveTemplates].find(t => t.id === activeId) 
+      : null;
+
    return (
-      <div className="space-y-8 animate-fade-in-up">
-         <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 group">
+      <div className="space-y-6 animate-fade-in-up">
+         <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-5 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 group">
             <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="absolute -right-16 -top-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-colors duration-500"></div>
             
-            <div className="flex items-center gap-5 relative z-10">
-               <div className="w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform duration-300">
-                  <Chrome size={28} />
+            <div className="flex items-center gap-4 relative z-10">
+               <div className="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Chrome size={24} />
                </div>
                <div>
-                  <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-white mb-0.5 flex items-center gap-2">
                      Capture Intelligence Anywhere 
-                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500 text-slate-950 uppercase tracking-wide">New</span>
+                     <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500 text-slate-950 uppercase tracking-wide">New</span>
                   </h3>
-                  <p className="text-sm text-slate-400 max-w-xl leading-relaxed">
-                     Don't just track from here. Install our browser extension to grab pricing, screenshots, and copy directly from competitor websites.
+                  <p className="text-xs text-slate-400 max-w-lg leading-relaxed">
+                     Install our browser extension to grab pricing, screenshots, and copy directly from competitor websites.
                   </p>
                </div>
             </div>
             
-            <button className="relative z-10 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap" data-testid="button-add-chrome">
-               <Chrome size={18} /> Add to Chrome
+            <button className="relative z-10 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap text-sm" data-testid="button-add-chrome">
+               <Chrome size={16} /> Add to Chrome
             </button>
          </div>
 
-         <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
-               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Library className="text-brand-500" /> Intelligence Acts Library
+               <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Library className="text-brand-500" size={22} /> Prompt Templates
                </h2>
-               <p className="text-slate-400 mt-1">Proven templates to turn raw data into actionable business assets.</p>
+               <p className="text-slate-400 text-sm mt-0.5">Drag templates between columns to activate or deactivate them.</p>
             </div>
-            <div className="relative">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-               <input 
-                  type="text" 
-                  placeholder="Search templates..." 
-                  className="bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 w-64"
-                  data-testid="input-search-templates"
+         </div>
+
+         <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+         >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+               <TemplateColumn 
+                  title="Active" 
+                  templates={activeTemplates} 
+                  isActive={true}
+                  columnId="active-column"
+                  onEdit={handleEditTemplate}
+                  onCreateNew={() => setShowCreateModal(true)}
+               />
+               <TemplateColumn 
+                  title="Inactive" 
+                  templates={inactiveTemplates} 
+                  isActive={false}
+                  columnId="inactive-column"
+                  onEdit={handleEditTemplate}
                />
             </div>
-         </div>
 
-         <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800">
-            {categories.map(cat => (
-               <button 
-                  key={cat}
-                  onClick={() => setActiveCat(cat)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${activeCat === cat ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
-                  data-testid={`button-category-${cat.replace(/\s+/g, '-').toLowerCase()}`}
-               >
-                  {cat}
-               </button>
-            ))}
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedTemplates.filter(t => activeCat === 'All' || t.category === activeCat).map(template => {
-               const isEnabled = enabledTemplates.includes(template.id);
-               const isPinned = pinnedTemplates.includes(template.id);
-               return (
-               <div key={template.id} className={`group rounded-xl p-6 transition-all flex flex-col h-full ${isPinned ? 'border-2 border-brand-500/50 bg-brand-500/10' : 'bg-slate-900/40 border border-slate-800 hover:bg-slate-900/60 hover:border-slate-700'}`} data-testid={`template-card-${template.id}`}>
-                  <div className="flex items-start justify-between mb-4">
-                     <div className={`p-3 rounded-lg bg-slate-950 border border-slate-800 ${template.color} group-hover:scale-110 transition-transform`}>
-                        <template.icon size={24} />
-                     </div>
-                     <div className="flex items-center gap-2">
-                        {isPinned && <span className="text-[10px] font-bold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-1 rounded border border-brand-500/30">Pinned</span>}
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-950 px-2 py-1 rounded">
-                           {template.category}
-                        </span>
-                     </div>
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{template.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-6 flex-1">
-                     {template.desc}
-                  </p>
-                  <div className="flex gap-2">
-                    <button 
-                       onClick={() => toggleTemplate(template.id)}
-                       className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 border ${isEnabled ? 'bg-brand-600 hover:bg-brand-500 border-brand-500 text-white' : 'bg-slate-950 hover:bg-slate-900 border-slate-700 text-slate-400'}`}
-                       data-testid={`button-toggle-template-${template.id}`}
-                    >
-                       {isEnabled ? '✓ Active' : 'Inactive'}
-                    </button>
-                    <button
-                       onClick={() => togglePin(template.id)}
-                       disabled={!isPinned && pinnedTemplates.length >= 4}
-                       className={`px-3 py-2.5 rounded-lg transition-all flex items-center justify-center border ${isPinned ? 'bg-brand-500/20 border-brand-500/50 text-brand-400 hover:bg-brand-500/30' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                       title={pinnedTemplates.length >= 4 && !isPinned ? 'Maximum 4 pinned templates' : ''}
-                       data-testid={`button-pin-template-${template.id}`}
-                    >
-                       <Pin size={16} />
-                    </button>
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <button className="px-3 py-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white rounded-lg transition-all flex items-center justify-center group/edit">
-                          <Edit2 size={16} className="group-hover/edit:text-brand-500 transition-colors" />
-                        </button>
-                      </SheetTrigger>
-                      <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
-                        <SheetHeader className="mb-6">
-                          <SheetTitle className="text-white flex items-center gap-2">
-                            <Edit2 className="text-brand-500" size={20} />
-                            Edit Template Prompt
-                          </SheetTitle>
-                          <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
-                        </SheetHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">System Instruction / Prompt Task</label>
-                            <textarea 
-                              className="w-full h-64 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500/50 resize-none custom-scrollbar"
-                              defaultValue={`Analyze the competitor's recent signals and generate a comprehensive ${template.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
-                            />
-                          </div>
-                          <button className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.2)]">
-                            Save Template Configuration
-                          </button>
+            <DragOverlay>
+               {draggedTemplate ? (
+                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-3 shadow-xl shadow-brand-500/20">
+                     <div className="flex items-start gap-3">
+                        <div className="p-1 text-slate-400 shrink-0 mt-0.5">
+                           <GripVertical size={14} />
                         </div>
-                      </SheetContent>
-                    </Sheet>
+                        <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
+                           <draggedTemplate.icon size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <h4 className="text-sm font-semibold text-white truncate">{draggedTemplate.title}</h4>
+                           <p className="text-[11px] text-slate-500 line-clamp-1">{draggedTemplate.desc}</p>
+                        </div>
+                     </div>
                   </div>
-               </div>
-            );
-            })}
-
-            
-            <div 
-               onClick={() => setShowCreateModal(true)}
-               className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" 
-               data-testid="button-create-template"
-            >
-               <div className="p-4 rounded-full bg-slate-900 mb-4">
-                  <Plus size={24} />
-               </div>
-               <h3 className="font-medium mb-1">Create Custom Template</h3>
-               <p className="text-xs max-w-[200px]">Design a new intelligence output format for your team.</p>
-            </div>
-         </div>
+               ) : null}
+            </DragOverlay>
+         </DndContext>
 
          <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-            <DialogContent className="bg-slate-950 border border-slate-800 max-w-2xl">
+            <DialogContent className="bg-slate-950 border border-slate-800 max-w-lg">
                <DialogHeader>
                   <DialogTitle className="text-white flex items-center gap-2">
-                     <Lightbulb className="text-brand-400" size={20} />
+                     <Lightbulb className="text-brand-400" size={18} />
                      Create Custom Template
                   </DialogTitle>
-                  <DialogDescription className="text-slate-400">
+                  <DialogDescription className="text-slate-400 text-sm">
                      Design a new intelligence template tailored to your team's needs.
                   </DialogDescription>
                </DialogHeader>
-               <div className="space-y-4">
+               <div className="space-y-3">
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Template Name</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Template Name</label>
                      <input 
                         type="text"
                         value={newTemplateName}
                         onChange={(e) => setNewTemplateName(e.target.value)}
                         placeholder="e.g., Competitive Threat Assessment"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
                         data-testid="input-template-name"
                      />
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Description</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Description</label>
                      <textarea 
                         value={newTemplateDesc}
                         onChange={(e) => setNewTemplateDesc(e.target.value)}
                         placeholder="Brief description of what this template does..."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-20"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-16"
                         data-testid="input-template-desc"
                      />
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Category</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Category</label>
                      <select 
                         value={newTemplateCategory}
                         onChange={(e) => setNewTemplateCategory(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                         data-testid="select-template-category"
                      >
                         <option>Custom</option>
@@ -5811,19 +5936,19 @@ const ActsTemplateView = () => {
                      </select>
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Prompt / Instructions</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Prompt / Instructions</label>
                      <textarea 
                         value={newTemplatePrompt}
                         onChange={(e) => setNewTemplatePrompt(e.target.value)}
                         placeholder="Enter the AI prompt/instructions for this template..."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-32"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-24"
                         data-testid="textarea-template-prompt"
                      />
                   </div>
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-2 pt-2">
                      <button 
                         onClick={() => setShowCreateModal(false)}
-                        className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                        className="flex-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
                         data-testid="button-cancel-template"
                      >
                         Cancel
@@ -5831,7 +5956,7 @@ const ActsTemplateView = () => {
                      <button 
                         onClick={handleCreateTemplate}
                         disabled={!newTemplateName.trim() || !newTemplateDesc.trim() || !newTemplatePrompt.trim()}
-                        className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                        className="flex-1 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm"
                         data-testid="button-create-template-confirm"
                      >
                         Create Template
@@ -5840,6 +5965,44 @@ const ActsTemplateView = () => {
                </div>
             </DialogContent>
          </Dialog>
+
+         <Sheet open={showEditModal} onOpenChange={setShowEditModal}>
+            <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
+               <SheetHeader className="mb-4">
+                  <SheetTitle className="text-white flex items-center gap-2">
+                     <Edit2 className="text-brand-500" size={18} />
+                     Edit Template Prompt
+                  </SheetTitle>
+                  <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
+               </SheetHeader>
+               {editingTemplate && (
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                        <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${editingTemplate.color}`}>
+                           <editingTemplate.icon size={18} />
+                        </div>
+                        <div>
+                           <h4 className="text-sm font-semibold text-white">{editingTemplate.title}</h4>
+                           <p className="text-[10px] text-slate-500">{editingTemplate.category}</p>
+                        </div>
+                     </div>
+                     <div>
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">System Instruction / Prompt Task</label>
+                        <textarea 
+                           className="w-full h-56 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500/50 resize-none custom-scrollbar"
+                           defaultValue={editingTemplate.prompt || `Analyze the competitor's recent signals and generate a comprehensive ${editingTemplate.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
+                        />
+                     </div>
+                     <button 
+                        onClick={() => setShowEditModal(false)}
+                        className="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.2)]"
+                     >
+                        Save Template Configuration
+                     </button>
+                  </div>
+               )}
+            </SheetContent>
+         </Sheet>
       </div>
    );
 };
