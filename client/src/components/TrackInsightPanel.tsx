@@ -764,7 +764,7 @@ const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
           <Building2 size={18} className="text-brand-400" />
           Company Overview
         </h2>
-        <p className="text-xs text-slate-400 mt-1">Static profile information for {profile.name}</p>
+        <p className="text-xs text-slate-400 mt-1">AI-aggregated data classification and overview from multi-source streams</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
