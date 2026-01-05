@@ -44,6 +44,16 @@ import { Badge } from "@/components/ui/badge";
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
 
+// Helper function to safely parse URLs that may or may not have a protocol
+const safeGetHostname = (url: string): string => {
+  try {
+    const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
+    return new URL(normalizedUrl).hostname.replace('www.', '');
+  } catch {
+    return url.replace('www.', '');
+  }
+};
+
 const TrafficChart = ({ data }: { data: number[] }) => {
   const max = Math.max(...data);
   return (
@@ -2868,7 +2878,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [activeResearchTasks, setActiveResearchTasks] = useState<Array<{signalId: number; prompt: string; status: 'running' | 'completed'}>>([]);
 
   const selectedTarget = targets.find((t) => t.id === selectedTargetId) || targets[0];
-  const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
+  const targetDomain = selectedTarget ? safeGetHostname(selectedTarget.url) : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
 
@@ -3971,7 +3981,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               data-testid={`target-item-${t.id}`}
             >
               <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative">
-                <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
+                <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
@@ -4075,7 +4085,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div className="flex items-start justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
-                  <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
+                  <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(selectedTarget.url)}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
@@ -4146,7 +4156,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div className="flex-1 bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden min-h-0">
               <TrackInsightPanel 
                 targetName={selectedTarget.name} 
-                targetDomain={new URL(selectedTarget.url).hostname}
+                targetDomain={safeGetHostname(selectedTarget.url)}
                 onResearch={onResearchPrompt}
               />
             </div>
@@ -5348,7 +5358,7 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
     const reports = dbReports.map(r => ({
       id: r.id,
       title: r.title,
-      product: new URL(r.url).hostname.replace('www.', ''),
+      product: safeGetHostname(r.url),
       date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       summary: r.summary.substring(0, 150) + (r.summary.length > 150 ? '...' : ''),
       isFavorite: localFavorites.has(r.id)
