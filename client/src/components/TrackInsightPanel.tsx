@@ -2372,7 +2372,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             >
               <div className="flex items-center gap-2">
                 <Building2 size={14} />
-                <span className="text-xs font-medium">Company Profile</span>
+                <span className="text-xs font-medium">Target Profile</span>
               </div>
             </TabsTrigger>
           </TabsList>
