@@ -5,8 +5,10 @@ import {
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
   Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb,
-  Building2, DollarSign, Code2, Handshake, MapPin, Award
+  Building2, DollarSign, Code2, Handshake, MapPin, Award,
+  Newspaper, Trophy, Share2, MessageSquare
 } from 'lucide-react';
+import { SiX, SiYoutube } from 'react-icons/si';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -628,6 +630,26 @@ interface CompanyProfile {
   capabilities: string[];
   techStack: { frontend: string[]; backend: string[]; infrastructure: string[] };
   hasApi: boolean;
+  // Card 5: Strategic Partnerships
+  partnerships: { name: string; type: string }[];
+  integrationCount: number;
+  keyIntegrations: string[];
+  resellerPartners: number;
+  // Card 6: Media & Reputation
+  recentCoverage: { publication: string; title: string; date: string }[];
+  ratings: { platform: string; rating: number; reviews: number }[];
+  awards: string[];
+  // Card 7: Hiring & Growth
+  openPositions: number;
+  hotRoles: { title: string; count: number }[];
+  employeeGrowthPercent: string;
+  recentHires: { title: string; previousCompany: string }[];
+  hiringTrend: string;
+  // Card 8: Social & Marketing
+  socialAccounts: { platform: string; handle: string; followers: string; growth: string }[];
+  blogStats: { frequency: string; monthlyViews: string };
+  newsletterSubscribers: string;
+  communityStats: { slack: string; github: string };
 }
 
 // Company Profile Card Component
@@ -689,6 +711,50 @@ const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
       infrastructure: ['AWS (EC2, RDS, S3)']
     },
     hasApi: true,
+    // Card 5: Strategic Partnerships
+    partnerships: [
+      { name: 'Salesforce', type: 'CRM Integration' },
+      { name: 'HubSpot', type: 'Marketing Integration' },
+      { name: 'Slack', type: 'Communication' },
+      { name: 'Zapier', type: 'Automation' },
+    ],
+    integrationCount: 45,
+    keyIntegrations: ['Stripe', 'GitHub', 'Datadog'],
+    resellerPartners: 12,
+    // Card 6: Media & Reputation
+    recentCoverage: [
+      { publication: 'TechCrunch', title: 'Series B Funding', date: '2w ago' },
+      { publication: 'Forbes', title: 'Top 10 SaaS Tools', date: '1mo ago' },
+      { publication: 'VentureBeat', title: 'Market Analysis', date: '2mo ago' },
+    ],
+    ratings: [
+      { platform: 'G2', rating: 4.8, reviews: 500 },
+      { platform: 'Capterra', rating: 4.7, reviews: 300 },
+    ],
+    awards: ['Gartner Leader 2024', 'Forrester Wave Leader'],
+    // Card 7: Hiring & Growth
+    openPositions: 12,
+    hotRoles: [
+      { title: 'Software Engineer', count: 6 },
+      { title: 'Sales Executive', count: 3 },
+      { title: 'Product Manager', count: 2 },
+      { title: 'Data Scientist', count: 1 },
+    ],
+    employeeGrowthPercent: '+15%',
+    recentHires: [
+      { title: 'VP Sales', previousCompany: 'Salesforce' },
+      { title: 'ML Engineer', previousCompany: 'Google' },
+    ],
+    hiringTrend: 'Accelerating',
+    // Card 8: Social & Marketing
+    socialAccounts: [
+      { platform: 'Twitter', handle: '@trendspotter', followers: '50K', growth: '+15%' },
+      { platform: 'LinkedIn', handle: 'TrendSpotter', followers: '100K', growth: '+8%' },
+      { platform: 'YouTube', handle: 'TrendSpotter', followers: '25K', growth: '+12%' },
+    ],
+    blogStats: { frequency: 'Weekly', monthlyViews: '50K' },
+    newsletterSubscribers: '30K',
+    communityStats: { slack: '5K', github: '2.5K' },
   };
 
   return (
@@ -855,6 +921,177 @@ const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
                   REST API Available
                 </Badge>
               )}
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Strategic Partnerships Card */}
+        <ProfileCard icon={Handshake} title="Strategic Partnerships" lastUpdated="2w ago">
+          <div className="space-y-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Major Partners</span>
+              <div className="mt-2 space-y-1.5">
+                {profile.partnerships.map((partner, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-300">{partner.name}</span>
+                    <span className="text-[9px] text-slate-500">{partner.type}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-500">Total Integrations</span>
+                <span className="text-sm font-bold text-white">{profile.integrationCount}+</span>
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Key Integrations</span>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {profile.keyIntegrations.map((integ, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-[8px]">{integ}</Badge>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-2 text-[10px]">
+              <span className="text-slate-500">Reseller Partners: <span className="text-slate-300">{profile.resellerPartners} regions</span></span>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Media & Reputation Card */}
+        <ProfileCard icon={Newspaper} title="Media & Reputation" lastUpdated="1d ago">
+          <div className="space-y-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Recent Coverage</span>
+              <div className="mt-2 space-y-1.5">
+                {profile.recentCoverage.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-slate-400">{item.publication}:</span>
+                      <span className="text-slate-300 truncate max-w-[120px]">{item.title}</span>
+                    </div>
+                    <span className="text-[9px] text-slate-500">{item.date}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">User Ratings</span>
+              <div className="mt-2 space-y-1">
+                {profile.ratings.map((rating, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs">
+                    <Star size={10} className="text-amber-400 fill-amber-400" />
+                    <span className="text-slate-300">{rating.platform}: {rating.rating}/5</span>
+                    <span className="text-[9px] text-slate-500">({rating.reviews}+ reviews)</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Awards</span>
+              <div className="mt-2 space-y-1">
+                {profile.awards.map((award, idx) => (
+                  <div key={idx} className="flex items-center gap-1.5 text-xs text-slate-300">
+                    <Trophy size={10} className="text-amber-400" />
+                    {award}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Hiring & Growth Card */}
+        <ProfileCard icon={Briefcase} title="Hiring & Growth" lastUpdated="1d ago">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Open Positions</span>
+              <span className="text-xl font-bold text-white">{profile.openPositions}</span>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Hot Hiring Roles</span>
+              <div className="mt-2 space-y-1">
+                {profile.hotRoles.map((role, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-300">{role.title}</span>
+                    <span className="text-slate-500">({role.count})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-slate-500">Employee Growth</span>
+                <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">
+                  {profile.employeeGrowthPercent} (6mo)
+                </Badge>
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Recent Key Hires</span>
+              <div className="mt-2 space-y-1">
+                {profile.recentHires.map((hire, idx) => (
+                  <div key={idx} className="text-xs text-slate-300">
+                    {hire.title} <span className="text-slate-500">(ex-{hire.previousCompany})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 pt-2">
+              <span className="text-[10px] text-slate-500">Trend:</span>
+              <Badge variant="outline" className="text-[8px] text-brand-400 border-brand-500/30">
+                <TrendingUp size={8} className="mr-1" />
+                {profile.hiringTrend}
+              </Badge>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Social & Marketing Card */}
+        <ProfileCard icon={Share2} title="Social & Marketing" lastUpdated="1d ago">
+          <div className="space-y-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Social Media</span>
+              <div className="mt-2 space-y-1.5">
+                {profile.socialAccounts.map((account, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5">
+                      {account.platform === 'Twitter' && <SiX size={10} className="text-slate-400" />}
+                      {account.platform === 'LinkedIn' && <LinkIcon size={10} className="text-blue-400" />}
+                      {account.platform === 'YouTube' && <SiYoutube size={10} className="text-red-400" />}
+                      <span className="text-slate-300">{account.followers}</span>
+                    </div>
+                    <span className="text-[9px] text-emerald-400">{account.growth}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Content Marketing</span>
+              <div className="mt-2 space-y-1 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Blog</span>
+                  <span className="text-slate-300">{profile.blogStats.frequency} | {profile.blogStats.monthlyViews} views</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Newsletter</span>
+                  <span className="text-slate-300">{profile.newsletterSubscribers} subscribers</span>
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Community</span>
+              <div className="mt-2 flex items-center gap-3 text-xs">
+                <div className="flex items-center gap-1">
+                  <MessageSquare size={10} className="text-slate-400" />
+                  <span className="text-slate-300">{profile.communityStats.slack}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Star size={10} className="text-slate-400" />
+                  <span className="text-slate-300">{profile.communityStats.github} stars</span>
+                </div>
+              </div>
             </div>
           </div>
         </ProfileCard>
