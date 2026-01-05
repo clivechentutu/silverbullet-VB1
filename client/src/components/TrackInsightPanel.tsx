@@ -1611,7 +1611,44 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [feedbackReason, setFeedbackReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dialogTab, setDialogTab] = useState<'feedback' | 'prompts'>('feedback');
+  const [isSavingPrompts, setIsSavingPrompts] = useState(false);
   const { toast } = useToast();
+
+  // Official base prompts (read-only)
+  const [officialPrompts] = useState({
+    signalDetection: `Analyze the target website and related digital channels to detect competitive signals. Focus on:
+- Product/feature announcements
+- Pricing changes
+- Marketing campaigns
+- Hiring patterns
+- Technology stack changes
+- Partnership announcements`,
+    insightGeneration: `Generate actionable competitive insights from detected signals. For each insight:
+- Summarize the key finding
+- Assess potential business impact
+- Suggest recommended actions
+- Rate confidence level (high/medium/low)`,
+    prioritization: `Prioritize insights based on:
+- Strategic importance to user's business
+- Time sensitivity
+- Confidence level of detection
+- Potential competitive impact`
+  });
+
+  // User modifications (editable)
+  const [userPrompts, setUserPrompts] = useState({
+    signalDetection: '',
+    insightGeneration: '',
+    prioritization: ''
+  });
+
+  // Combined prompts for display
+  const getCombinedPrompt = (key: keyof typeof officialPrompts) => {
+    return userPrompts[key] 
+      ? `${officialPrompts[key]}\n\n--- User Modifications ---\n${userPrompts[key]}`
+      : officialPrompts[key];
+  };
 
   useEffect(() => {
     setSignalLimit(5);
@@ -1632,13 +1669,37 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
   const handleSubmitFeedback = async () => {
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Simulate AI generating prompt modifications based on feedback
+    const generatedModification = `Based on user feedback: "${feedbackReason.substring(0, 100)}..."
+- Adjusted priority weights for mentioned signal types
+- Updated relevance scoring criteria`;
+    
+    setUserPrompts(prev => ({
+      ...prev,
+      insightGeneration: prev.insightGeneration 
+        ? `${prev.insightGeneration}\n\n${generatedModification}`
+        : generatedModification
+    }));
+    
     setIsSubmitting(false);
-    setShowFeedbackDialog(false);
     setFeedbackReason('');
+    setDialogTab('prompts');
     toast({
       title: "Configuration optimized",
-      description: "AI has analyzed your feedback and updated your tracking prompts. Review changes in Configuration.",
+      description: "AI has updated your prompts. Review changes in the Prompts tab.",
     });
+  };
+
+  const handleSavePrompts = async () => {
+    setIsSavingPrompts(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsSavingPrompts(false);
+    toast({
+      title: "Prompts saved",
+      description: "Your prompt configurations have been saved and will be used for future analysis.",
+    });
+    setShowFeedbackDialog(false);
   };
 
   if (!insight) {
@@ -1729,68 +1790,208 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
         <p className="text-xs text-slate-300 leading-relaxed">{insight.summary}</p>
       </div>
 
-      <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
-        <DialogContent className="bg-slate-900 border-slate-700 max-w-md">
-          <DialogHeader>
+      <Dialog open={showFeedbackDialog} onOpenChange={(open) => {
+        setShowFeedbackDialog(open);
+        if (!open) setDialogTab('feedback');
+      }}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader className="shrink-0">
             <DialogTitle className="text-white flex items-center gap-2">
-              <ThumbsDown size={16} className="text-slate-400" />
-              Improve This Insight
+              <Settings size={16} className="text-brand-400" />
+              Insight Configuration
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Tell us what's wrong and how you'd like it improved. AI will understand and optimize automatically.
+              Provide feedback or customize tracking prompts
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Your feedback</Label>
-              <Textarea
-                value={feedbackReason}
-                onChange={(e) => setFeedbackReason(e.target.value)}
-                placeholder="e.g. This insight is not relevant to my goals. I care more about pricing changes than hiring activity. Please prioritize website and pricing-related signals..."
-                className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[120px] resize-none"
-                data-testid="input-feedback-reason"
-              />
-            </div>
+          <Tabs value={dialogTab} onValueChange={(v) => setDialogTab(v as 'feedback' | 'prompts')} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 shrink-0">
+              <TabsTrigger value="feedback" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-xs">
+                <ThumbsDown size={12} />
+                Submit Feedback
+              </TabsTrigger>
+              <TabsTrigger value="prompts" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-xs">
+                <Code2 size={12} />
+                View Prompts
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="feedback" className="flex-1 overflow-y-auto mt-4 space-y-4">
+              <div className="space-y-2">
+                <Label className="text-xs text-slate-300">Your feedback</Label>
+                <Textarea
+                  value={feedbackReason}
+                  onChange={(e) => setFeedbackReason(e.target.value)}
+                  placeholder="e.g. This insight is not relevant to my goals. I care more about pricing changes than hiring activity. Please prioritize website and pricing-related signals..."
+                  className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[120px] resize-none"
+                  data-testid="input-feedback-reason"
+                />
+              </div>
 
-            <div className="flex items-start gap-2 p-3 rounded-md bg-brand-500/10 border border-brand-500/20">
-              <Settings size={14} className="text-brand-400 shrink-0 mt-0.5" />
-              <p className="text-[10px] text-brand-300 leading-relaxed">
-                AI will analyze your feedback and automatically optimize your tracking configuration. You can review changes in the Configuration panel.
-              </p>
-            </div>
-          </div>
+              <div className="flex items-start gap-2 p-3 rounded-md bg-brand-500/10 border border-brand-500/20">
+                <Sparkles size={14} className="text-brand-400 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-brand-300 leading-relaxed">
+                  AI will analyze your feedback and automatically optimize tracking prompts. After submission, switch to "View Prompts" tab to review and edit changes.
+                </p>
+              </div>
 
-          <DialogFooter className="gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowFeedbackDialog(false)}
-              className="text-slate-400"
-              data-testid="button-feedback-cancel"
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSubmitFeedback}
-              disabled={isSubmitting || !feedbackReason.trim()}
-              className="bg-brand-500 hover:bg-brand-600 text-white"
-              data-testid="button-feedback-submit"
-            >
-              {isSubmitting ? (
-                <>
-                  <RefreshCw size={12} className="mr-1 animate-spin" />
-                  Optimizing...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={12} className="mr-1" />
-                  AI Auto-Optimize
-                </>
-              )}
-            </Button>
-          </DialogFooter>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowFeedbackDialog(false)}
+                  className="text-slate-400"
+                  data-testid="button-feedback-cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSubmitFeedback}
+                  disabled={isSubmitting || !feedbackReason.trim()}
+                  className="bg-brand-500 hover:bg-brand-600 text-white"
+                  data-testid="button-feedback-submit"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <RefreshCw size={12} className="mr-1 animate-spin" />
+                      Optimizing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={12} className="mr-1" />
+                      AI Auto-Optimize
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="prompts" className="flex-1 overflow-y-auto mt-4 space-y-4">
+              <div className="space-y-4">
+                {/* Signal Detection Prompt */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                      <Radio size={10} className="text-brand-400" />
+                      Signal Detection
+                    </Label>
+                    <Badge variant="outline" className="text-[9px] border-slate-700 text-slate-500">Official + Custom</Badge>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
+                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.signalDetection}</pre>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <Textarea
+                      value={userPrompts.signalDetection}
+                      onChange={(e) => setUserPrompts(prev => ({ ...prev, signalDetection: e.target.value }))}
+                      placeholder="Add your customizations here... (e.g., Focus more on pricing signals, ignore social media)"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      data-testid="input-prompt-signal-detection"
+                    />
+                  </div>
+                </div>
+
+                {/* Insight Generation Prompt */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                      <BrainCircuit size={10} className="text-amber-400" />
+                      Insight Generation
+                    </Label>
+                    {userPrompts.insightGeneration && (
+                      <Badge className="text-[9px] bg-brand-500/20 text-brand-400 border-brand-500/30">Modified</Badge>
+                    )}
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
+                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.insightGeneration}</pre>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <Textarea
+                      value={userPrompts.insightGeneration}
+                      onChange={(e) => setUserPrompts(prev => ({ ...prev, insightGeneration: e.target.value }))}
+                      placeholder="Add your customizations here... (e.g., Always include competitor comparison)"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      data-testid="input-prompt-insight-generation"
+                    />
+                  </div>
+                </div>
+
+                {/* Prioritization Prompt */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                      <Layers size={10} className="text-emerald-400" />
+                      Prioritization
+                    </Label>
+                  </div>
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
+                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.prioritization}</pre>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <Textarea
+                      value={userPrompts.prioritization}
+                      onChange={(e) => setUserPrompts(prev => ({ ...prev, prioritization: e.target.value }))}
+                      placeholder="Add your customizations here... (e.g., Prioritize pricing changes above all else)"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      data-testid="input-prompt-prioritization"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 p-3 rounded-md bg-slate-800/50 border border-slate-700/50">
+                <Info size={14} className="text-slate-500 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-slate-400 leading-relaxed">
+                  Your modifications are combined with official prompts during analysis. Changes take effect on the next scan.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setUserPrompts({ signalDetection: '', insightGeneration: '', prioritization: '' });
+                    toast({
+                      title: "Modifications reset",
+                      description: "All custom prompt modifications have been cleared.",
+                    });
+                  }}
+                  className="text-slate-400"
+                  data-testid="button-reset-prompts"
+                >
+                  Reset All
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSavePrompts}
+                  disabled={isSavingPrompts}
+                  className="bg-brand-500 hover:bg-brand-600 text-white"
+                  data-testid="button-save-prompts"
+                >
+                  {isSavingPrompts ? (
+                    <>
+                      <RefreshCw size={12} className="mr-1 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={12} className="mr-1" />
+                      Save Prompts
+                    </>
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
 
