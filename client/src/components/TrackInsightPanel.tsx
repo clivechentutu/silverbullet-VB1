@@ -4,8 +4,10 @@ import {
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
-  Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb
+  Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb,
+  Building2, DollarSign, Code2, Handshake, MapPin, Award
 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -599,6 +601,263 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
             <span className="text-[9px] font-medium text-brand-400">{unreadCount} new</span>
           </span>
         )}
+      </div>
+    </div>
+  );
+};
+
+// Company Profile Types
+interface CompanyProfile {
+  name: string;
+  website: string;
+  location: string;
+  foundedYear: number;
+  description: string;
+  industry: string;
+  companyType: string;
+  totalFunding: string;
+  latestRound: { type: string; amount: string; date: string };
+  investors: string[];
+  valuation: string;
+  fundingStatus: string;
+  ceo: { name: string; title: string; linkedIn: string };
+  executives: { name: string; title: string; specialty: string; linkedIn: string }[];
+  teamSize: number;
+  teamGrowth: string;
+  products: string[];
+  capabilities: string[];
+  techStack: { frontend: string[]; backend: string[]; infrastructure: string[] };
+  hasApi: boolean;
+}
+
+// Company Profile Card Component
+const ProfileCard = ({ 
+  icon: Icon, 
+  title, 
+  lastUpdated, 
+  children 
+}: { 
+  icon: typeof Globe; 
+  title: string; 
+  lastUpdated: string; 
+  children: React.ReactNode 
+}) => {
+  return (
+    <div className="bg-slate-900/50 border border-slate-800/50 rounded-lg overflow-hidden hover:border-slate-700/50 transition-colors">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800/30 bg-slate-950/30">
+        <div className="flex items-center gap-2">
+          <Icon size={14} className="text-brand-400" />
+          <span className="text-xs font-bold text-white">{title}</span>
+        </div>
+        <span className="text-[9px] text-slate-500">Updated {lastUpdated}</span>
+      </div>
+      <div className="p-4">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// Company Profile Section
+const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
+  // Mock data for company profile - in real app this would come from API
+  const profile: CompanyProfile = {
+    name: companyName || 'TrendSpotter',
+    website: 'trendspotter.com',
+    location: 'San Francisco, USA',
+    foundedYear: 2019,
+    description: 'Real-time market trend monitoring and competitive analysis platform for SaaS companies.',
+    industry: 'Business Intelligence',
+    companyType: 'SaaS',
+    totalFunding: '$40M',
+    latestRound: { type: 'Series B', amount: '$25M', date: 'March 2024' },
+    investors: ['Sequoia Capital', 'Andreessen Horowitz', 'Y Combinator'],
+    valuation: '~$200M (estimated)',
+    fundingStatus: 'Well-funded',
+    ceo: { name: 'John Smith', title: 'CEO & Co-founder', linkedIn: '#' },
+    executives: [
+      { name: 'Sarah Chen', title: 'CTO', specialty: 'AI/ML Expert', linkedIn: '#' },
+      { name: 'Mike Johnson', title: 'CPO', specialty: 'Product & Design', linkedIn: '#' },
+    ],
+    teamSize: 45,
+    teamGrowth: '+8 in last 3 months',
+    products: ['TrendSpotter Pro', 'TrendSpotter API', 'TrendSpotter Insights'],
+    capabilities: ['Real-time data monitoring', 'AI-driven analysis', 'Custom alerts', 'Team collaboration'],
+    techStack: {
+      frontend: ['React', 'TypeScript', 'TailwindCSS'],
+      backend: ['Node.js', 'Python', 'FastAPI'],
+      infrastructure: ['AWS (EC2, RDS, S3)']
+    },
+    hasApi: true,
+  };
+
+  return (
+    <div className="p-4 overflow-y-auto custom-scrollbar h-full">
+      <div className="mb-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2">
+          <Building2 size={18} className="text-brand-400" />
+          Company Overview
+        </h2>
+        <p className="text-xs text-slate-400 mt-1">Static profile information for {profile.name}</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Basic Information Card */}
+        <ProfileCard icon={Info} title="Basic Information" lastUpdated="2h ago">
+          <div className="space-y-3">
+            <h3 className="text-sm font-bold text-white">{profile.name}</h3>
+            <div className="flex items-center gap-2 text-xs text-slate-300">
+              <Globe size={12} className="text-cyan-400" />
+              <a href={`https://${profile.website}`} target="_blank" rel="noopener noreferrer" className="hover:text-brand-400 transition-colors">
+                {profile.website}
+              </a>
+              <ExternalLink size={10} className="text-slate-500" />
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <MapPin size={12} className="text-slate-500" />
+              {profile.location}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <Calendar size={12} className="text-slate-500" />
+              Founded {profile.foundedYear}
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed border-t border-slate-800/50 pt-3 mt-3">
+              {profile.description}
+            </p>
+            <div className="flex items-center gap-2 pt-2">
+              <Badge variant="secondary" className="text-[9px]">{profile.companyType}</Badge>
+              <Badge variant="secondary" className="text-[9px]">{profile.industry}</Badge>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Funding Overview Card */}
+        <ProfileCard icon={DollarSign} title="Funding Overview" lastUpdated="1d ago">
+          <div className="space-y-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Total Funding</span>
+              <p className="text-xl font-bold text-emerald-400">{profile.totalFunding}</p>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Latest Round</span>
+              <p className="text-sm font-medium text-white mt-1">
+                {profile.latestRound.type} <span className="text-slate-400">|</span> {profile.latestRound.amount} <span className="text-slate-400">|</span> {profile.latestRound.date}
+              </p>
+            </div>
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Top Investors</span>
+              <div className="mt-2 space-y-1">
+                {profile.investors.map((investor, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
+                    <span className="w-1 h-1 bg-brand-500 rounded-full" />
+                    {investor}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-2 text-[10px]">
+              <span className="text-slate-500">Valuation: <span className="text-slate-300">{profile.valuation}</span></span>
+              <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">{profile.fundingStatus}</Badge>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Core Team Card */}
+        <ProfileCard icon={Users} title="Core Team" lastUpdated="3d ago">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-2 rounded-lg bg-slate-800/30 border border-slate-700/30">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 flex items-center justify-center text-white font-bold text-sm">
+                {profile.ceo.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">{profile.ceo.name}</p>
+                <p className="text-[10px] text-slate-400">{profile.ceo.title}</p>
+              </div>
+              <Button variant="ghost" size="icon" data-testid="ceo-linkedin">
+                <LinkIcon size={14} className="text-slate-400" />
+              </Button>
+            </div>
+            
+            {profile.executives.map((exec, idx) => (
+              <div key={idx} className="flex items-center gap-3 p-2 rounded-lg bg-slate-900/50 border border-slate-800/30">
+                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium text-xs">
+                  {exec.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-white truncate">{exec.name}</p>
+                  <p className="text-[9px] text-slate-500">{exec.title} <span className="text-slate-600">|</span> {exec.specialty}</p>
+                </div>
+                <Button variant="ghost" size="icon" data-testid={`exec-linkedin-${idx}`}>
+                  <LinkIcon size={14} className="text-slate-500" />
+                </Button>
+              </div>
+            ))}
+            
+            <div className="flex items-center justify-between pt-2 border-t border-slate-800/50">
+              <div className="text-xs">
+                <span className="text-slate-500">Team Size: </span>
+                <span className="text-white font-medium">{profile.teamSize} employees</span>
+              </div>
+              <Badge variant="outline" className="text-[8px] text-brand-400 border-brand-500/30">
+                <TrendingUp size={8} className="mr-1" />
+                {profile.teamGrowth}
+              </Badge>
+            </div>
+          </div>
+        </ProfileCard>
+
+        {/* Product & Technology Card */}
+        <ProfileCard icon={Code2} title="Product & Technology" lastUpdated="1w ago">
+          <div className="space-y-3">
+            <div>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Main Products</span>
+              <div className="mt-2 space-y-1">
+                {profile.products.map((product, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs text-slate-300">
+                    <span className="w-1 h-1 bg-cyan-500 rounded-full" />
+                    {product}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Core Capabilities</span>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {profile.capabilities.map((cap, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-[8px]">{cap}</Badge>
+                ))}
+              </div>
+            </div>
+            
+            <div className="border-t border-slate-800/50 pt-3">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Technology Stack</span>
+              <div className="mt-2 space-y-2 text-[10px]">
+                <div>
+                  <span className="text-slate-500">Frontend: </span>
+                  <span className="text-slate-300">{profile.techStack.frontend.join(', ')}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Backend: </span>
+                  <span className="text-slate-300">{profile.techStack.backend.join(', ')}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">Infrastructure: </span>
+                  <span className="text-slate-300">{profile.techStack.infrastructure.join(', ')}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2 pt-2">
+              {profile.hasApi && (
+                <Badge variant="outline" className="text-[8px] text-emerald-400 border-emerald-500/30">
+                  <Check size={8} className="mr-1" />
+                  REST API Available
+                </Badge>
+              )}
+            </div>
+          </div>
+        </ProfileCard>
       </div>
     </div>
   );
@@ -1846,56 +2105,97 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
   }, [insights, lastVisitDays]);
 
   const selectedInsight = insights.find(i => i.id === selectedInsightId) || null;
+  const [activeTab, setActiveTab] = useState<'insights' | 'profile'>('insights');
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar bg-slate-950">
-      <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
-      
-      <SessionCatchUp
-        lastLoginTime={lastLoginTime}
-        isGenerating={isGeneratingSummary}
-        summaries={sessionSummaries}
-        onGenerate={handleGenerateSummary}
-        availableChannels={availableChannels}
-        totalSignals={totalSignals}
-        isExpanded={isCatchUpExpanded}
-        setIsExpanded={setIsCatchUpExpanded}
-        historicalSummaries={historicalSummaries}
-        onViewHistorical={setViewingHistorical}
-        viewingHistorical={viewingHistorical}
-        onClearHistoricalView={() => setViewingHistorical(null)}
-        topActions={topActions}
-        onActionClick={handleTopActionClick}
-        sinceLastVisit={sinceLastVisit}
-      />
-      
-      {/* Core insight area - fixed height, not affected by bottom expansion */}
-      <div className="shrink-0 h-[calc(100vh-420px)] min-h-[200px] flex">
-        <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
-          <InsightFeed 
-            insights={insights}
-            selectedId={selectedInsightId}
-            onSelect={setSelectedInsightId}
-            onMarkRead={handleMarkRead}
-            onDemote={handleDemote}
-            channelFilter={channelFilter}
-            onChannelFilterChange={setChannelFilter}
+    <div className="flex flex-col h-full bg-slate-950">
+      {/* Tab Navigation */}
+      <div className="border-b border-slate-800/50 bg-slate-950/80 px-4">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'insights' | 'profile')} className="w-full">
+          <TabsList className="h-10 bg-transparent border-b-0 p-0 gap-0">
+            <TabsTrigger 
+              value="insights" 
+              data-testid="tab-insights"
+              className="relative h-10 px-4 rounded-none border-b-2 border-transparent data-[state=active]:border-brand-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent text-slate-400 data-[state=active]:text-white"
+            >
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} />
+                <span className="text-xs font-medium">AI Insights</span>
+                {unreadCount > 0 && (
+                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-500/20 border border-brand-500/30 text-[9px] font-bold text-brand-400">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="profile" 
+              data-testid="tab-profile"
+              className="relative h-10 px-4 rounded-none border-b-2 border-transparent data-[state=active]:border-brand-500 data-[state=active]:bg-transparent data-[state=active]:shadow-none bg-transparent text-slate-400 data-[state=active]:text-white"
+            >
+              <div className="flex items-center gap-2">
+                <Building2 size={14} />
+                <span className="text-xs font-medium">Company Profile</span>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'insights' ? (
+        <div className="flex flex-col flex-1 overflow-y-auto custom-scrollbar">
+          <LiveStatusBar scanningChannel={scanningChannel} totalInsights={totalActive} unreadCount={unreadCount} />
+          
+          <SessionCatchUp
+            lastLoginTime={lastLoginTime}
+            isGenerating={isGeneratingSummary}
+            summaries={sessionSummaries}
+            onGenerate={handleGenerateSummary}
             availableChannels={availableChannels}
-            lastVisitDays={lastVisitDays}
+            totalSignals={totalSignals}
+            isExpanded={isCatchUpExpanded}
+            setIsExpanded={setIsCatchUpExpanded}
+            historicalSummaries={historicalSummaries}
+            onViewHistorical={setViewingHistorical}
+            viewingHistorical={viewingHistorical}
+            onClearHistoricalView={() => setViewingHistorical(null)}
+            topActions={topActions}
+            onActionClick={handleTopActionClick}
+            sinceLastVisit={sinceLastVisit}
+          />
+          
+          {/* Core insight area - fixed height, not affected by bottom expansion */}
+          <div className="shrink-0 h-[calc(100vh-420px)] min-h-[200px] flex">
+            <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
+              <InsightFeed 
+                insights={insights}
+                selectedId={selectedInsightId}
+                onSelect={setSelectedInsightId}
+                onMarkRead={handleMarkRead}
+                onDemote={handleDemote}
+                channelFilter={channelFilter}
+                onChannelFilterChange={setChannelFilter}
+                availableChannels={availableChannels}
+                lastVisitDays={lastVisitDays}
+              />
+            </div>
+
+            <div className="flex-1 bg-slate-950/30 overflow-hidden">
+              <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
+            </div>
+          </div>
+          
+          {/* Raw Signal Feed - expands downward, user scrolls to view */}
+          <RawSignalFeed 
+            insights={insights}
+            availableChannels={availableChannels}
+            scanningChannel={scanningChannel}
           />
         </div>
-
-        <div className="flex-1 bg-slate-950/30 overflow-hidden">
-          <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
-        </div>
-      </div>
-      
-      {/* Raw Signal Feed - expands downward, user scrolls to view */}
-      <RawSignalFeed 
-        insights={insights}
-        availableChannels={availableChannels}
-        scanningChannel={scanningChannel}
-      />
+      ) : (
+        <CompanyProfileSection companyName="TrendSpotter" />
+      )}
     </div>
   );
 };
