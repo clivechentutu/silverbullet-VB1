@@ -5963,8 +5963,24 @@ const ActsTemplateView = () => {
       ? [...activeTemplates, ...inactiveTemplates].find(t => t.id === activeId) 
       : null;
 
+   const officialTemplates: PromptTemplate[] = [
+      { id: 101, title: 'Growth Audit', category: 'Marketing', desc: 'Identify organic growth levers and untapped acquisition channels.', icon: TrendingUp, color: 'text-emerald-400' },
+      { id: 102, title: 'Product Market Fit', category: 'Strategy', desc: 'Score competitor features against user sentiment and market demand.', icon: Target, color: 'text-indigo-400' },
+      { id: 103, title: 'Churn Prediction', category: 'Sales', desc: 'Analyze competitor pricing shifts to predict potential customer churn.', icon: AlertTriangle, color: 'text-amber-400' },
+   ];
+
+   const addOfficialTemplate = (template: PromptTemplate) => {
+      const newTemplate = { ...template, id: Date.now() + Math.random() };
+      setInactiveTemplates(prev => [...prev, newTemplate]);
+      toast({
+         title: "Template Added",
+         description: `${template.title} has been added to your inactive list.`,
+      });
+   };
+
    return (
       <div className="space-y-6 animate-fade-in-up">
+         {/* ... existing header code ... */}
          <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-5 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 group">
             <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="absolute -right-16 -top-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-colors duration-500"></div>
@@ -6047,6 +6063,43 @@ const ActsTemplateView = () => {
                ) : null}
             </DragOverlay>
          </DndContext>
+
+         <div className="pt-4 border-t border-slate-800/50">
+            <div className="flex items-center justify-between mb-4">
+               <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                     <Sparkles size={16} className="text-brand-400" />
+                     Official ACTS Templates
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Pick pre-configured high-performance prompts to add to your workspace.</p>
+               </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+               {officialTemplates.map((template) => (
+                  <div 
+                     key={template.id} 
+                     className="bg-slate-900/40 border border-slate-800 rounded-xl p-3 hover:border-slate-700 transition-all group"
+                  >
+                     <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-lg bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
+                           <template.icon size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <h4 className="text-[13px] font-bold text-white mb-0.5">{template.title}</h4>
+                           <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed mb-3">{template.desc}</p>
+                           <button 
+                              onClick={() => addOfficialTemplate(template)}
+                              className="w-full py-1.5 bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5"
+                           >
+                              <Plus size={12} /> Add to My List
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               ))}
+            </div>
+         </div>
 
          <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
             <DialogContent className="bg-slate-950 border border-slate-800 max-w-lg">
