@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   Sparkles, Zap, ChevronRight, ChevronDown,
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
-  Briefcase, Clock, Radio, RefreshCw, AlertTriangle, 
+  Briefcase, Clock, Radio, RefreshCw, AlertTriangle, Activity,
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
   Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb,
   Building2, DollarSign, Code2, Handshake, MapPin, Award,
@@ -573,31 +573,99 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
 
 const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanningChannel: string | null; totalInsights: number; unreadCount: number }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [scanIndex, setScanIndex] = useState(0);
+  const [activityIndex, setActivityIndex] = useState(0);
+  
+  const scanTargets = [
+    'LinkedIn profiles',
+    'Twitter mentions',
+    'News articles',
+    'Job postings',
+    'GitHub activity',
+    'Press releases',
+    'SEC filings',
+    'Product updates'
+  ];
+  
+  const activities = [
+    { action: 'Scanning', target: 'competitor websites' },
+    { action: 'Analyzing', target: 'market signals' },
+    { action: 'Processing', target: 'social media feeds' },
+    { action: 'Monitoring', target: 'news sources' },
+    { action: 'Tracking', target: 'hiring trends' },
+    { action: 'Indexing', target: 'product changes' },
+  ];
   
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+  
+  useEffect(() => {
+    const scanTimer = setInterval(() => {
+      setScanIndex(prev => (prev + 1) % scanTargets.length);
+    }, 2500);
+    return () => clearInterval(scanTimer);
+  }, []);
+  
+  useEffect(() => {
+    const activityTimer = setInterval(() => {
+      setActivityIndex(prev => (prev + 1) % activities.length);
+    }, 3000);
+    return () => clearInterval(activityTimer);
+  }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-slate-800/50">
-        <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-slate-800/50 overflow-hidden">
+      <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="relative flex items-center justify-center">
-            <Radio size={12} className="text-emerald-400" />
-            <span className="absolute w-3 h-3 bg-emerald-500/20 rounded-full animate-ping" />
-            <span className="absolute w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <div className="relative w-5 h-5 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border border-emerald-500/30" />
+            <div className="absolute inset-0.5 rounded-full border border-emerald-500/20" />
+            <div 
+              className="absolute inset-0 rounded-full border-t border-emerald-400"
+              style={{ animation: 'spin 1.5s linear infinite' }}
+            />
+            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
           </div>
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Live Monitoring Active</span>
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider leading-none">Live Tracking</span>
+            <span className="text-[8px] text-emerald-500/70 leading-tight mt-0.5">8 channels active</span>
+          </div>
         </div>
-        <div className="h-3 w-px bg-slate-800/50" />
-        <div className="flex items-center gap-1.5 text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800/30">
-          <Clock size={11} className="text-slate-500" />
-          <span className="text-[10px] font-mono tracking-tight">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+        
+        <div className="h-4 w-px bg-slate-800/50" />
+        
+        <div className="flex items-center gap-2 min-w-[180px]">
+          <div className="flex gap-0.5">
+            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+          </div>
+          <div className="overflow-hidden">
+            <span 
+              key={activityIndex}
+              className="text-[9px] text-slate-400 block animate-fade-in"
+            >
+              <span className="text-emerald-400/80">{activities[activityIndex].action}</span>
+              <span className="text-slate-500"> {activities[activityIndex].target}</span>
+            </span>
+          </div>
+        </div>
+        
+        <div className="h-4 w-px bg-slate-800/50" />
+        
+        <div className="flex items-center gap-1.5 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800/30">
+          <Clock size={10} className="text-slate-500" />
+          <span className="text-[9px] font-mono text-slate-400">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
         </div>
       </div>
+      
       <div className="flex items-center gap-3">
-        <span className="text-[10px] text-slate-500">{totalInsights} insights</span>
+        <div className="flex items-center gap-1.5 text-[9px] text-slate-500">
+          <Activity size={10} className="text-slate-600" />
+          <span>{totalInsights} signals</span>
+        </div>
         {unreadCount > 0 && (
           <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-500/20 border border-brand-500/30">
             <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse" />
