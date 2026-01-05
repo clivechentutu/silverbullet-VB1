@@ -5607,8 +5607,11 @@ const SortableTemplateCard = ({
                <template.icon size={12} />
             </div>
             <div className="flex-1 min-w-0">
-               <h4 className="text-[11px] font-semibold text-white truncate">{template.title}</h4>
-               <p className="text-[9px] text-slate-500 truncate">{template.category}</p>
+               <h4 className="text-[13px] font-bold text-white mb-0.5">{template.title}</h4>
+               <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{template.desc}</p>
+               <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-[9px] font-medium text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">{template.category}</span>
+               </div>
             </div>
             <button
                onClick={() => onEdit(template)}
