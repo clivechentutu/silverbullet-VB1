@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 
 interface Signal {
@@ -1611,7 +1610,6 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
   const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
   const [feedbackReason, setFeedbackReason] = useState('');
-  const [feedbackType, setFeedbackType] = useState<string>('relevance');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -1633,14 +1631,13 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
 
   const handleSubmitFeedback = async () => {
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSubmitting(false);
     setShowFeedbackDialog(false);
     setFeedbackReason('');
-    setFeedbackType('relevance');
     toast({
-      title: "Feedback received",
-      description: "Your configuration will be automatically optimized. You can review changes in Configuration settings.",
+      title: "Configuration optimized",
+      description: "AI has analyzed your feedback and updated your tracking prompts. Review changes in Configuration.",
     });
   };
 
@@ -1740,40 +1737,18 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
               Improve This Insight
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Your feedback helps us optimize tracking configuration automatically.
+              Tell us what's wrong and how you'd like it improved. AI will understand and optimize automatically.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label className="text-xs text-slate-300">What needs improvement?</Label>
-              <RadioGroup value={feedbackType} onValueChange={setFeedbackType} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="relevance" id="relevance" className="border-slate-600" />
-                  <Label htmlFor="relevance" className="text-xs text-slate-400 cursor-pointer">Not relevant to my tracking goals</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="priority" id="priority" className="border-slate-600" />
-                  <Label htmlFor="priority" className="text-xs text-slate-400 cursor-pointer">Priority level is incorrect</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="accuracy" id="accuracy" className="border-slate-600" />
-                  <Label htmlFor="accuracy" className="text-xs text-slate-400 cursor-pointer">Analysis or summary is inaccurate</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="other" id="other" className="border-slate-600" />
-                  <Label htmlFor="other" className="text-xs text-slate-400 cursor-pointer">Other reason</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs text-slate-300">Tell us more (optional)</Label>
+              <Label className="text-xs text-slate-300">Your feedback</Label>
               <Textarea
                 value={feedbackReason}
                 onChange={(e) => setFeedbackReason(e.target.value)}
-                placeholder="Describe what adjustments you'd like to see..."
-                className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[80px] resize-none"
+                placeholder="e.g. This insight is not relevant to my goals. I care more about pricing changes than hiring activity. Please prioritize website and pricing-related signals..."
+                className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[120px] resize-none"
                 data-testid="input-feedback-reason"
               />
             </div>
@@ -1781,7 +1756,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             <div className="flex items-start gap-2 p-3 rounded-md bg-brand-500/10 border border-brand-500/20">
               <Settings size={14} className="text-brand-400 shrink-0 mt-0.5" />
               <p className="text-[10px] text-brand-300 leading-relaxed">
-                Based on your feedback, we'll automatically adjust your tracking configuration. You can review and modify these changes in the Configuration panel.
+                AI will analyze your feedback and automatically optimize your tracking configuration. You can review changes in the Configuration panel.
               </p>
             </div>
           </div>
@@ -1799,17 +1774,20 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             <Button
               size="sm"
               onClick={handleSubmitFeedback}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !feedbackReason.trim()}
               className="bg-brand-500 hover:bg-brand-600 text-white"
               data-testid="button-feedback-submit"
             >
               {isSubmitting ? (
                 <>
                   <RefreshCw size={12} className="mr-1 animate-spin" />
-                  Submitting...
+                  Optimizing...
                 </>
               ) : (
-                'Submit Feedback'
+                <>
+                  <Sparkles size={12} className="mr-1" />
+                  AI Auto-Optimize
+                </>
               )}
             </Button>
           </DialogFooter>
