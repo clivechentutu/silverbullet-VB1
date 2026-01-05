@@ -5840,6 +5840,7 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
 };
 
 const ActsTemplateView = () => {
+   const { toast } = useToast();
    const defaultTemplates: PromptTemplate[] = [
       { id: 1, title: 'Competitor Battle Card', category: 'Sales Enablement', desc: 'One-pager highlighting kill points, objection handling, and pricing traps.', icon: Swords, color: 'text-red-400' },
       { id: 2, title: 'Feature Comparison Matrix', category: 'Product Strategy', desc: 'Detailed side-by-side breakdown of feature availability and limits.', icon: LayoutGrid, color: 'text-blue-400' },
@@ -5965,7 +5966,7 @@ const ActsTemplateView = () => {
 
    const officialTemplates: PromptTemplate[] = [
       { id: 101, title: 'Growth Audit', category: 'Marketing', desc: 'Identify organic growth levers and untapped acquisition channels.', icon: TrendingUp, color: 'text-emerald-400' },
-      { id: 102, title: 'Product Market Fit', category: 'Strategy', desc: 'Score competitor features against user sentiment and market demand.', icon: Target, color: 'text-indigo-400' },
+      { id: 102, title: 'Product Market Fit', category: 'Strategy', desc: 'Score competitor features against user sentiment and market demand.', icon: Crosshair, color: 'text-indigo-400' },
       { id: 103, title: 'Churn Prediction', category: 'Sales', desc: 'Analyze competitor pricing shifts to predict potential customer churn.', icon: AlertTriangle, color: 'text-amber-400' },
    ];
 
