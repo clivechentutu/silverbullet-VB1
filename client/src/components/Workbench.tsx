@@ -5640,46 +5640,46 @@ const TemplateColumn = ({
    const { setNodeRef, isOver } = useDroppable({ id: columnId });
 
    return (
-      <div 
-         ref={setNodeRef}
-         className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50 bg-brand-500/10' : ''} flex flex-col`}
-         style={{ height: '600px' }}
-      >
-         <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
-            <div className="flex items-center gap-2">
-               <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
-               <h3 className="text-xs font-bold text-white">{title}</h3>
-               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
-                  {templates.length}
-               </span>
-            </div>
+      <div className="flex flex-col">
+         <div className="flex items-center gap-2 mb-2 h-[28px]">
+            <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
+            <h3 className="text-xs font-bold text-slate-300">{title}</h3>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
+               {templates.length}
+            </span>
          </div>
-         <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-1.5 flex-1 overflow-y-auto custom-scrollbar">
-               {templates.map(template => (
-                  <SortableTemplateCard 
-                     key={template.id} 
-                     template={template} 
-                     onEdit={onEdit}
-                  />
-               ))}
-               {templates.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full">
-                     <Library size={20} className="mb-2 opacity-50" />
-                     <p className="text-[10px]">Drag templates here</p>
-                  </div>
-               )}
-            </div>
-         </SortableContext>
-         {onCreateNew && (
-            <button
-               onClick={onCreateNew}
-               className="mt-2 w-full py-1.5 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/30 transition-all flex items-center justify-center gap-1.5 text-[10px] font-medium shrink-0"
-               data-testid="button-create-template"
-            >
-               <Plus size={12} /> Create New
-            </button>
-         )}
+         <div 
+            ref={setNodeRef}
+            className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/30'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50 bg-brand-500/10' : ''} flex flex-col`}
+            style={{ height: '540px' }}
+         >
+            <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
+               <div className="space-y-2 flex-1 overflow-y-auto custom-scrollbar pr-1">
+                  {templates.map(template => (
+                     <SortableTemplateCard 
+                        key={template.id} 
+                        template={template} 
+                        onEdit={onEdit}
+                     />
+                  ))}
+                  {templates.length === 0 && (
+                     <div className="flex flex-col items-center justify-center py-12 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full">
+                        <Library size={24} className="mb-2 opacity-40" />
+                        <p className="text-xs">Drag templates here</p>
+                     </div>
+                  )}
+               </div>
+            </SortableContext>
+            {onCreateNew && (
+               <button
+                  onClick={onCreateNew}
+                  className="mt-3 w-full py-2 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/50 transition-all flex items-center justify-center gap-2 text-xs font-medium shrink-0"
+                  data-testid="button-create-template"
+               >
+                  <Plus size={14} /> Create New
+               </button>
+            )}
+         </div>
       </div>
    );
 };
@@ -5692,7 +5692,7 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
    const moreTools = activeTemplates.slice(4);
 
    return (
-      <div className="w-[320px] mx-auto rounded-2xl border border-slate-600 bg-slate-800 overflow-hidden flex flex-col shadow-2xl shadow-black/50" style={{ height: '580px' }}>
+      <div className="w-full rounded-xl border border-slate-700 bg-slate-800 overflow-hidden flex flex-col shadow-xl shadow-black/30" style={{ height: '540px' }}>
          <div className="bg-slate-700 px-3 py-2 flex items-center gap-2 border-b border-slate-600 shrink-0">
             <div className="flex items-center gap-1">
                <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
@@ -6001,54 +6001,44 @@ const ActsTemplateView = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
          >
-            <div className="flex gap-5" style={{ minHeight: '620px' }}>
-               <div className="flex gap-3 w-[380px] shrink-0">
-                  <div className="flex-1 h-full">
-                     <TemplateColumn 
-                        title="Active" 
-                        templates={activeTemplates} 
-                        isActive={true}
-                        columnId="active-column"
-                        onEdit={handleEditTemplate}
-                        onCreateNew={() => setShowCreateModal(true)}
-                     />
-                  </div>
-                  <div className="flex-1 h-full">
-                     <TemplateColumn 
-                        title="Inactive" 
-                        templates={inactiveTemplates} 
-                        isActive={false}
-                        columnId="inactive-column"
-                        onEdit={handleEditTemplate}
-                     />
-                  </div>
-               </div>
+            <div className="grid grid-cols-[1fr_1fr_340px] gap-4 items-start">
+               <TemplateColumn 
+                  title="Active" 
+                  templates={activeTemplates} 
+                  isActive={true}
+                  columnId="active-column"
+                  onEdit={handleEditTemplate}
+                  onCreateNew={() => setShowCreateModal(true)}
+               />
+               <TemplateColumn 
+                  title="Inactive" 
+                  templates={inactiveTemplates} 
+                  isActive={false}
+                  columnId="inactive-column"
+                  onEdit={handleEditTemplate}
+               />
                
-               <div className="flex-1 flex flex-col">
-                  <div className="flex items-center gap-2 mb-3">
+               <div className="flex flex-col">
+                  <div className="flex items-center gap-2 mb-2 h-[28px]">
                      <Chrome size={14} className="text-slate-400" />
                      <span className="text-xs font-bold text-slate-300">Extension Preview</span>
                      <span className="text-[9px] px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded font-medium">Live</span>
                   </div>
-                  <div className="flex-1 flex items-start justify-center">
-                     <BrowserExtensionPreview activeTemplates={activeTemplates} />
-                  </div>
+                  <BrowserExtensionPreview activeTemplates={activeTemplates} />
                </div>
             </div>
 
             <DragOverlay>
                {draggedTemplate ? (
-                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-44">
+                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-40">
                      <div className="flex items-center gap-2">
-                        <div className="p-1 text-slate-400 shrink-0">
+                        <div className="text-slate-400 shrink-0">
                            <GripVertical size={12} />
                         </div>
-                        <div className={`p-1.5 rounded-md bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
-                           <draggedTemplate.icon size={12} />
+                        <div className={`p-1 rounded bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
+                           <draggedTemplate.icon size={10} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                           <h4 className="text-[10px] font-semibold text-white truncate">{draggedTemplate.title}</h4>
-                        </div>
+                        <span className="text-[10px] font-medium text-white truncate">{draggedTemplate.title}</span>
                      </div>
                   </div>
                ) : null}
@@ -6134,15 +6124,17 @@ const ActsTemplateView = () => {
             </DialogContent>
          </Dialog>
 
-         <Sheet open={showEditModal} onOpenChange={setShowEditModal}>
-            <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
-               <SheetHeader className="mb-4">
-                  <SheetTitle className="text-white flex items-center gap-2">
-                     <Edit2 className="text-brand-500" size={18} />
+         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+            <DialogContent className="bg-slate-950 border border-slate-800 max-w-lg">
+               <DialogHeader>
+                  <DialogTitle className="text-white flex items-center gap-2">
+                     <Edit2 className="text-brand-400" size={18} />
                      Edit Template Prompt
-                  </SheetTitle>
-                  <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
-               </SheetHeader>
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-400 text-sm">
+                     Customize the AI instructions for this intelligence output.
+                  </DialogDescription>
+               </DialogHeader>
                {editingTemplate && (
                   <div className="space-y-4">
                      <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">
@@ -6155,22 +6147,33 @@ const ActsTemplateView = () => {
                         </div>
                      </div>
                      <div>
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">System Instruction / Prompt Task</label>
+                        <label className="text-xs font-semibold text-white block mb-1.5">System Instruction / Prompt</label>
                         <textarea 
-                           className="w-full h-56 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500/50 resize-none custom-scrollbar"
+                           className="w-full h-40 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500 resize-none"
                            defaultValue={editingTemplate.prompt || `Analyze the competitor's recent signals and generate a comprehensive ${editingTemplate.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
+                           data-testid="textarea-edit-prompt"
                         />
                      </div>
-                     <button 
-                        onClick={() => setShowEditModal(false)}
-                        className="w-full py-2.5 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.2)]"
-                     >
-                        Save Template Configuration
-                     </button>
+                     <div className="flex gap-2 pt-2">
+                        <button 
+                           onClick={() => setShowEditModal(false)}
+                           className="flex-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+                           data-testid="button-cancel-edit"
+                        >
+                           Cancel
+                        </button>
+                        <button 
+                           onClick={() => setShowEditModal(false)}
+                           className="flex-1 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors font-semibold text-sm"
+                           data-testid="button-save-template"
+                        >
+                           Save Changes
+                        </button>
+                     </div>
                   </div>
                )}
-            </SheetContent>
-         </Sheet>
+            </DialogContent>
+         </Dialog>
       </div>
    );
 };
