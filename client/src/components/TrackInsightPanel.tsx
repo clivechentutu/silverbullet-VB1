@@ -583,16 +583,17 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
     <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-slate-800/50">
         <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="relative">
+          <div className="relative flex items-center justify-center">
             <Radio size={12} className="text-emerald-400" />
-            <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="absolute w-3 h-3 bg-emerald-500/20 rounded-full animate-ping" />
+            <span className="absolute w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
           </div>
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Live Monitoring Active</span>
+          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Live Monitoring Active</span>
         </div>
-        <div className="h-3 w-px bg-slate-800" />
-        <div className="flex items-center gap-1.5 text-slate-400">
-          <Clock size={11} />
-          <span className="text-[10px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+        <div className="h-3 w-px bg-slate-800/50" />
+        <div className="flex items-center gap-1.5 text-slate-400 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800/30">
+          <Clock size={11} className="text-slate-500" />
+          <span className="text-[10px] font-mono tracking-tight">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
         </div>
       </div>
       <div className="flex items-center gap-3">
