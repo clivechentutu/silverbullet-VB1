@@ -14,7 +14,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle, Lock, Send
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -5591,37 +5591,32 @@ const SortableTemplateCard = ({
       <div 
          ref={setNodeRef}
          style={style}
-         className={`group bg-slate-900/60 border border-slate-800 rounded-lg p-3 transition-all hover:bg-slate-900/80 hover:border-slate-700 ${isDragging ? 'shadow-lg shadow-brand-500/20 border-brand-500/50' : ''}`}
+         className={`group bg-slate-900/60 border border-slate-800 rounded-lg p-2 transition-all hover:bg-slate-900/80 hover:border-slate-700 ${isDragging ? 'shadow-lg shadow-brand-500/20 border-brand-500/50' : ''}`}
          data-testid={`template-card-${template.id}`}
       >
-         <div className="flex items-start gap-3">
+         <div className="flex items-center gap-2">
             <div 
                {...attributes}
                {...listeners}
-               className="cursor-grab active:cursor-grabbing p-1 text-slate-600 hover:text-slate-400 shrink-0 mt-0.5"
+               className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-400 shrink-0"
                data-testid={`drag-handle-${template.id}`}
             >
-               <GripVertical size={14} />
+               <GripVertical size={12} />
             </div>
-            <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
-               <template.icon size={16} />
+            <div className={`p-1.5 rounded-md bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
+               <template.icon size={12} />
             </div>
             <div className="flex-1 min-w-0">
-               <div className="flex items-center justify-between gap-2 mb-1">
-                  <h4 className="text-sm font-semibold text-white truncate">{template.title}</h4>
-                  <button
-                     onClick={() => onEdit(template)}
-                     className="p-1 text-slate-500 hover:text-brand-400 transition-colors shrink-0"
-                     data-testid={`button-edit-template-${template.id}`}
-                  >
-                     <Edit2 size={12} />
-                  </button>
-               </div>
-               <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{template.desc}</p>
-               <span className="inline-block mt-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-600 bg-slate-950 px-1.5 py-0.5 rounded">
-                  {template.category}
-               </span>
+               <h4 className="text-[11px] font-semibold text-white truncate">{template.title}</h4>
+               <p className="text-[9px] text-slate-500 truncate">{template.category}</p>
             </div>
+            <button
+               onClick={() => onEdit(template)}
+               className="p-1 text-slate-500 hover:text-brand-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+               data-testid={`button-edit-template-${template.id}`}
+            >
+               <Edit2 size={10} />
+            </button>
          </div>
       </div>
    );
@@ -5645,18 +5640,18 @@ const TemplateColumn = ({
    const { setNodeRef, isOver } = useDroppable({ id: columnId });
 
    return (
-      <div className={`flex-1 rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-4 transition-all ${isOver ? 'ring-2 ring-brand-500/50' : ''}`}>
-         <div className="flex items-center justify-between gap-2 mb-4">
+      <div className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50' : ''} flex flex-col h-full`}>
+         <div className="flex items-center justify-between gap-2 mb-3">
             <div className="flex items-center gap-2">
                <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
-               <h3 className="text-sm font-bold text-white">{title}</h3>
-               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
+               <h3 className="text-xs font-bold text-white">{title}</h3>
+               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
                   {templates.length}
                </span>
             </div>
          </div>
          <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            <div ref={setNodeRef} className="space-y-2 min-h-[200px]">
+            <div ref={setNodeRef} className="space-y-1.5 flex-1 overflow-y-auto custom-scrollbar min-h-[300px]">
                {templates.map(template => (
                   <SortableTemplateCard 
                      key={template.id} 
@@ -5665,8 +5660,8 @@ const TemplateColumn = ({
                   />
                ))}
                {templates.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-8 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg">
-                     <p className="text-xs">Drag templates here</p>
+                  <div className="flex flex-col items-center justify-center py-6 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full min-h-[100px]">
+                     <p className="text-[10px]">Drag templates here</p>
                   </div>
                )}
             </div>
@@ -5674,12 +5669,164 @@ const TemplateColumn = ({
          {onCreateNew && (
             <button
                onClick={onCreateNew}
-               className="mt-3 w-full py-2 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/30 transition-all flex items-center justify-center gap-2 text-xs font-medium"
+               className="mt-2 w-full py-1.5 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/30 transition-all flex items-center justify-center gap-1.5 text-[10px] font-medium shrink-0"
                data-testid="button-create-template"
             >
-               <Plus size={14} /> Create New
+               <Plus size={12} /> Create New
             </button>
          )}
+      </div>
+   );
+};
+
+const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptTemplate[] }) => {
+   const [currentSlide, setCurrentSlide] = useState(0);
+   const featuredTemplate = activeTemplates[currentSlide] || activeTemplates[0];
+   
+   const quickActions = activeTemplates.slice(0, 4);
+   const moreTools = activeTemplates.slice(4);
+
+   return (
+      <div className="rounded-xl border border-slate-700 bg-slate-900/50 overflow-hidden flex flex-col h-full">
+         <div className="bg-slate-800 px-3 py-2 flex items-center gap-2 border-b border-slate-700 shrink-0">
+            <div className="flex items-center gap-1.5">
+               <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+            </div>
+            <div className="flex-1 flex items-center gap-2 bg-slate-900/50 rounded-md px-2 py-1 ml-2">
+               <Lock size={10} className="text-slate-500" />
+               <span className="text-[10px] text-slate-400 truncate">https://www.acme-logistics.com</span>
+            </div>
+            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[8px] font-bold text-white">
+               CS
+            </div>
+         </div>
+         
+         <div className="bg-white flex-1 overflow-y-auto custom-scrollbar">
+            <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[10px] font-bold">
+                     CS
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">CompetiScope</span>
+               </div>
+               <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                  <User size={12} className="text-gray-500" />
+               </div>
+            </div>
+
+            {featuredTemplate && (
+               <div className="p-3">
+                  <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl p-3 text-white relative overflow-hidden">
+                     <div className="absolute top-2 left-2">
+                        <span className="text-[8px] font-bold uppercase bg-white/20 px-1.5 py-0.5 rounded">Best Match</span>
+                     </div>
+                     <div className="absolute top-2 right-2 flex gap-1">
+                        <button 
+                           onClick={() => setCurrentSlide(prev => Math.max(0, prev - 1))}
+                           className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           disabled={currentSlide === 0}
+                        >
+                           <ChevronLeft size={10} />
+                        </button>
+                        <button 
+                           onClick={() => setCurrentSlide(prev => Math.min(activeTemplates.length - 1, prev + 1))}
+                           className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           disabled={currentSlide === activeTemplates.length - 1}
+                        >
+                           <ChevronRight size={10} />
+                        </button>
+                     </div>
+                     <div className="mt-5 mb-2 flex items-center gap-2">
+                        <Sparkles size={14} className="text-yellow-300" />
+                        <h3 className="text-sm font-bold">{featuredTemplate.title}</h3>
+                     </div>
+                     <p className="text-[10px] text-white/80 mb-3 line-clamp-2">{featuredTemplate.desc}</p>
+                     <button className="w-full bg-white text-violet-600 font-bold py-1.5 rounded-lg text-xs hover:bg-gray-50 transition-colors">
+                        Run
+                     </button>
+                     <div className="flex justify-center gap-1 mt-2">
+                        {activeTemplates.slice(0, 3).map((_, idx) => (
+                           <div key={idx} className={`w-1.5 h-1.5 rounded-full ${idx === currentSlide ? 'bg-white' : 'bg-white/40'}`} />
+                        ))}
+                     </div>
+                  </div>
+               </div>
+            )}
+
+            {quickActions.length > 0 && (
+               <div className="px-3 pb-2">
+                  <div className="flex items-center justify-between mb-2">
+                     <div className="flex items-center gap-1">
+                        <Zap size={10} className="text-violet-500" />
+                        <span className="text-[10px] font-bold text-gray-700">Quick Actions</span>
+                     </div>
+                     <span className="text-[9px] text-violet-500 font-medium">View All</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                     {quickActions.map((template) => (
+                        <div key={template.id} className="bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-colors border border-gray-100">
+                           <div className="flex items-start gap-1.5">
+                              <div className="w-5 h-5 rounded bg-violet-100 flex items-center justify-center shrink-0">
+                                 <template.icon size={10} className="text-violet-500" />
+                              </div>
+                              <div className="min-w-0">
+                                 <p className="text-[9px] font-semibold text-gray-800 truncate">{template.title.split(' ').slice(0, 2).join(' ')}</p>
+                                 <p className="text-[8px] text-gray-500 truncate">{template.desc.split(' ').slice(0, 3).join(' ')}...</p>
+                              </div>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
+            {moreTools.length > 0 && (
+               <div className="px-3 pb-2">
+                  <div className="flex items-center gap-1 mb-2">
+                     <Settings size={10} className="text-violet-500" />
+                     <span className="text-[10px] font-bold text-gray-700">More Tools</span>
+                  </div>
+                  <div className="space-y-1">
+                     {moreTools.map((template) => (
+                        <div key={template.id} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                           <div className="flex items-center gap-2">
+                              <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center">
+                                 <template.icon size={10} className="text-gray-500" />
+                              </div>
+                              <div>
+                                 <p className="text-[9px] font-medium text-gray-800">{template.title}</p>
+                                 <p className="text-[8px] text-gray-500">{template.desc.split(' ').slice(0, 5).join(' ')}...</p>
+                              </div>
+                           </div>
+                           <span className="text-[9px] text-violet-500 font-medium">Run</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
+            {activeTemplates.length === 0 && (
+               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+                     <Library size={18} className="text-gray-400" />
+                  </div>
+                  <p className="text-[10px] text-gray-500">No active templates</p>
+                  <p className="text-[9px] text-gray-400">Drag templates to Active column</p>
+               </div>
+            )}
+         </div>
+         
+         <div className="bg-gray-50 border-t border-gray-200 p-2 shrink-0">
+            <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-2 py-1.5">
+               <Sparkles size={12} className="text-violet-500" />
+               <span className="text-[10px] text-gray-400 flex-1">Ask CompetiScope to do something...</span>
+               <div className="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
+                  <Send size={8} className="text-white" />
+               </div>
+            </div>
+         </div>
       </div>
    );
 };
@@ -5849,37 +5996,55 @@ const ActsTemplateView = () => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
          >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-               <TemplateColumn 
-                  title="Active" 
-                  templates={activeTemplates} 
-                  isActive={true}
-                  columnId="active-column"
-                  onEdit={handleEditTemplate}
-                  onCreateNew={() => setShowCreateModal(true)}
-               />
-               <TemplateColumn 
-                  title="Inactive" 
-                  templates={inactiveTemplates} 
-                  isActive={false}
-                  columnId="inactive-column"
-                  onEdit={handleEditTemplate}
-               />
+            <div className="flex gap-4 min-h-[520px]">
+               <div className="flex gap-3 w-[45%] shrink-0">
+                  <div className="w-1/2">
+                     <TemplateColumn 
+                        title="Active" 
+                        templates={activeTemplates} 
+                        isActive={true}
+                        columnId="active-column"
+                        onEdit={handleEditTemplate}
+                        onCreateNew={() => setShowCreateModal(true)}
+                     />
+                  </div>
+                  <div className="w-1/2">
+                     <TemplateColumn 
+                        title="Inactive" 
+                        templates={inactiveTemplates} 
+                        isActive={false}
+                        columnId="inactive-column"
+                        onEdit={handleEditTemplate}
+                     />
+                  </div>
+               </div>
+               
+               <div className="flex-1">
+                  <div className="h-full">
+                     <div className="flex items-center gap-2 mb-2">
+                        <Chrome size={14} className="text-slate-400" />
+                        <span className="text-xs font-bold text-slate-300">Extension Preview</span>
+                        <span className="text-[9px] text-slate-500">Real-time</span>
+                     </div>
+                     <div className="h-[calc(100%-28px)]">
+                        <BrowserExtensionPreview activeTemplates={activeTemplates} />
+                     </div>
+                  </div>
+               </div>
             </div>
 
             <DragOverlay>
                {draggedTemplate ? (
-                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-3 shadow-xl shadow-brand-500/20">
-                     <div className="flex items-start gap-3">
-                        <div className="p-1 text-slate-400 shrink-0 mt-0.5">
-                           <GripVertical size={14} />
+                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-48">
+                     <div className="flex items-center gap-2">
+                        <div className="p-1 text-slate-400 shrink-0">
+                           <GripVertical size={12} />
                         </div>
-                        <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
-                           <draggedTemplate.icon size={16} />
+                        <div className={`p-1.5 rounded-md bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
+                           <draggedTemplate.icon size={12} />
                         </div>
                         <div className="flex-1 min-w-0">
-                           <h4 className="text-sm font-semibold text-white truncate">{draggedTemplate.title}</h4>
-                           <p className="text-[11px] text-slate-500 line-clamp-1">{draggedTemplate.desc}</p>
+                           <h4 className="text-xs font-semibold text-white truncate">{draggedTemplate.title}</h4>
                         </div>
                      </div>
                   </div>
