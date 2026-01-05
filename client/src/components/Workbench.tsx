@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { WorkbenchView, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, rectIntersection, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { 
@@ -5640,8 +5640,12 @@ const TemplateColumn = ({
    const { setNodeRef, isOver } = useDroppable({ id: columnId });
 
    return (
-      <div className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50' : ''} flex flex-col h-full`}>
-         <div className="flex items-center justify-between gap-2 mb-3">
+      <div 
+         ref={setNodeRef}
+         className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/20'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50 bg-brand-500/10' : ''} flex flex-col`}
+         style={{ height: '600px' }}
+      >
+         <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
             <div className="flex items-center gap-2">
                <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
                <h3 className="text-xs font-bold text-white">{title}</h3>
@@ -5651,7 +5655,7 @@ const TemplateColumn = ({
             </div>
          </div>
          <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
-            <div ref={setNodeRef} className="space-y-1.5 flex-1 overflow-y-auto custom-scrollbar min-h-[300px]">
+            <div className="space-y-1.5 flex-1 overflow-y-auto custom-scrollbar">
                {templates.map(template => (
                   <SortableTemplateCard 
                      key={template.id} 
@@ -5660,7 +5664,8 @@ const TemplateColumn = ({
                   />
                ))}
                {templates.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-6 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full min-h-[100px]">
+                  <div className="flex flex-col items-center justify-center py-8 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full">
+                     <Library size={20} className="mb-2 opacity-50" />
                      <p className="text-[10px]">Drag templates here</p>
                   </div>
                )}
@@ -5687,68 +5692,68 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
    const moreTools = activeTemplates.slice(4);
 
    return (
-      <div className="rounded-xl border border-slate-700 bg-slate-900/50 overflow-hidden flex flex-col h-full">
-         <div className="bg-slate-800 px-3 py-2 flex items-center gap-2 border-b border-slate-700 shrink-0">
-            <div className="flex items-center gap-1.5">
-               <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
-               <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
-               <div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
+      <div className="w-[320px] mx-auto rounded-2xl border border-slate-600 bg-slate-800 overflow-hidden flex flex-col shadow-2xl shadow-black/50" style={{ height: '580px' }}>
+         <div className="bg-slate-700 px-3 py-2 flex items-center gap-2 border-b border-slate-600 shrink-0">
+            <div className="flex items-center gap-1">
+               <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
             </div>
-            <div className="flex-1 flex items-center gap-2 bg-slate-900/50 rounded-md px-2 py-1 ml-2">
-               <Lock size={10} className="text-slate-500" />
-               <span className="text-[10px] text-slate-400 truncate">https://www.acme-logistics.com</span>
+            <div className="flex-1 flex items-center gap-1.5 bg-slate-800 rounded px-2 py-1 ml-1">
+               <Lock size={9} className="text-slate-500" />
+               <span className="text-[9px] text-slate-400 truncate">https://www.acme-logistics.com</span>
             </div>
-            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[8px] font-bold text-white">
+            <div className="w-5 h-5 rounded bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[7px] font-bold text-white">
                CS
             </div>
          </div>
          
-         <div className="bg-white flex-1 overflow-y-auto custom-scrollbar">
-            <div className="p-3 border-b border-gray-100 flex items-center justify-between">
+         <div className="bg-white flex-1 overflow-y-auto">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[10px] font-bold">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[10px] font-bold">
                      CS
                   </div>
                   <span className="text-sm font-bold text-gray-800">CompetiScope</span>
                </div>
-               <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                  <User size={12} className="text-gray-500" />
+               <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                  <User size={14} className="text-gray-500" />
                </div>
             </div>
 
             {featuredTemplate && (
-               <div className="p-3">
-                  <div className="bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl p-3 text-white relative overflow-hidden">
-                     <div className="absolute top-2 left-2">
-                        <span className="text-[8px] font-bold uppercase bg-white/20 px-1.5 py-0.5 rounded">Best Match</span>
+               <div className="p-4">
+                  <div className="bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl p-4 text-white relative overflow-hidden">
+                     <div className="absolute top-3 left-3">
+                        <span className="text-[8px] font-bold uppercase bg-white/25 px-2 py-0.5 rounded-full tracking-wide">Best Match</span>
                      </div>
-                     <div className="absolute top-2 right-2 flex gap-1">
+                     <div className="absolute top-3 right-3 flex gap-1">
                         <button 
                            onClick={() => setCurrentSlide(prev => Math.max(0, prev - 1))}
-                           className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                            disabled={currentSlide === 0}
                         >
-                           <ChevronLeft size={10} />
+                           <ChevronLeft size={12} />
                         </button>
                         <button 
                            onClick={() => setCurrentSlide(prev => Math.min(activeTemplates.length - 1, prev + 1))}
-                           className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                            disabled={currentSlide === activeTemplates.length - 1}
                         >
-                           <ChevronRight size={10} />
+                           <ChevronRight size={12} />
                         </button>
                      </div>
-                     <div className="mt-5 mb-2 flex items-center gap-2">
-                        <Sparkles size={14} className="text-yellow-300" />
-                        <h3 className="text-sm font-bold">{featuredTemplate.title}</h3>
+                     <div className="mt-7 mb-2 flex items-center gap-2">
+                        <Sparkles size={16} className="text-yellow-300" />
+                        <h3 className="text-base font-bold">{featuredTemplate.title}</h3>
                      </div>
-                     <p className="text-[10px] text-white/80 mb-3 line-clamp-2">{featuredTemplate.desc}</p>
-                     <button className="w-full bg-white text-violet-600 font-bold py-1.5 rounded-lg text-xs hover:bg-gray-50 transition-colors">
+                     <p className="text-[11px] text-white/80 mb-4 leading-relaxed">{featuredTemplate.desc}</p>
+                     <button className="w-full bg-white text-violet-600 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors shadow-lg">
                         Run
                      </button>
-                     <div className="flex justify-center gap-1 mt-2">
+                     <div className="flex justify-center gap-1.5 mt-3">
                         {activeTemplates.slice(0, 3).map((_, idx) => (
-                           <div key={idx} className={`w-1.5 h-1.5 rounded-full ${idx === currentSlide ? 'bg-white' : 'bg-white/40'}`} />
+                           <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === currentSlide ? 'bg-white scale-110' : 'bg-white/40'}`} />
                         ))}
                      </div>
                   </div>
@@ -5756,24 +5761,24 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
             )}
 
             {quickActions.length > 0 && (
-               <div className="px-3 pb-2">
-                  <div className="flex items-center justify-between mb-2">
-                     <div className="flex items-center gap-1">
-                        <Zap size={10} className="text-violet-500" />
-                        <span className="text-[10px] font-bold text-gray-700">Quick Actions</span>
+               <div className="px-4 pb-3">
+                  <div className="flex items-center justify-between mb-3">
+                     <div className="flex items-center gap-1.5">
+                        <Zap size={12} className="text-violet-500" />
+                        <span className="text-xs font-bold text-gray-700">Quick Actions</span>
                      </div>
-                     <span className="text-[9px] text-violet-500 font-medium">View All</span>
+                     <span className="text-[10px] text-violet-500 font-semibold">View All</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
+                  <div className="grid grid-cols-2 gap-2">
                      {quickActions.map((template) => (
-                        <div key={template.id} className="bg-gray-50 rounded-lg p-2 hover:bg-gray-100 transition-colors border border-gray-100">
-                           <div className="flex items-start gap-1.5">
-                              <div className="w-5 h-5 rounded bg-violet-100 flex items-center justify-center shrink-0">
-                                 <template.icon size={10} className="text-violet-500" />
+                        <div key={template.id} className="bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors border border-gray-100 cursor-pointer">
+                           <div className="flex items-start gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                                 <template.icon size={14} className="text-violet-500" />
                               </div>
-                              <div className="min-w-0">
-                                 <p className="text-[9px] font-semibold text-gray-800 truncate">{template.title.split(' ').slice(0, 2).join(' ')}</p>
-                                 <p className="text-[8px] text-gray-500 truncate">{template.desc.split(' ').slice(0, 3).join(' ')}...</p>
+                              <div className="min-w-0 flex-1">
+                                 <p className="text-[11px] font-semibold text-gray-800 leading-tight">{template.title.split(' ').slice(0, 2).join(' ')}</p>
+                                 <p className="text-[9px] text-gray-500 mt-0.5 line-clamp-1">{template.desc.split(' ').slice(0, 4).join(' ')}...</p>
                               </div>
                            </div>
                         </div>
@@ -5783,24 +5788,24 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
             )}
 
             {moreTools.length > 0 && (
-               <div className="px-3 pb-2">
-                  <div className="flex items-center gap-1 mb-2">
-                     <Settings size={10} className="text-violet-500" />
-                     <span className="text-[10px] font-bold text-gray-700">More Tools</span>
+               <div className="px-4 pb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                     <Settings size={12} className="text-violet-500" />
+                     <span className="text-xs font-bold text-gray-700">More Tools</span>
                   </div>
                   <div className="space-y-1">
                      {moreTools.map((template) => (
-                        <div key={template.id} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
-                           <div className="flex items-center gap-2">
-                              <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center">
-                                 <template.icon size={10} className="text-gray-500" />
+                        <div key={template.id} className="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+                           <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
+                                 <template.icon size={12} className="text-gray-500" />
                               </div>
                               <div>
-                                 <p className="text-[9px] font-medium text-gray-800">{template.title}</p>
-                                 <p className="text-[8px] text-gray-500">{template.desc.split(' ').slice(0, 5).join(' ')}...</p>
+                                 <p className="text-[11px] font-medium text-gray-800">{template.title}</p>
+                                 <p className="text-[9px] text-gray-500">{template.desc.split(' ').slice(0, 5).join(' ')}...</p>
                               </div>
                            </div>
-                           <span className="text-[9px] text-violet-500 font-medium">Run</span>
+                           <span className="text-[10px] text-violet-500 font-semibold px-2 py-1 bg-violet-50 rounded-lg">Run</span>
                         </div>
                      ))}
                   </div>
@@ -5808,22 +5813,22 @@ const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptT
             )}
 
             {activeTemplates.length === 0 && (
-               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-                     <Library size={18} className="text-gray-400" />
+               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                     <Library size={24} className="text-gray-400" />
                   </div>
-                  <p className="text-[10px] text-gray-500">No active templates</p>
-                  <p className="text-[9px] text-gray-400">Drag templates to Active column</p>
+                  <p className="text-sm text-gray-500 font-medium">No active templates</p>
+                  <p className="text-xs text-gray-400 mt-1">Drag templates to Active column</p>
                </div>
             )}
          </div>
          
-         <div className="bg-gray-50 border-t border-gray-200 p-2 shrink-0">
-            <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-200 px-2 py-1.5">
-               <Sparkles size={12} className="text-violet-500" />
-               <span className="text-[10px] text-gray-400 flex-1">Ask CompetiScope to do something...</span>
-               <div className="w-5 h-5 rounded-full bg-violet-500 flex items-center justify-center">
-                  <Send size={8} className="text-white" />
+         <div className="bg-gray-50 border-t border-gray-200 p-3 shrink-0">
+            <div className="flex items-center gap-2 bg-white rounded-xl border border-gray-200 px-3 py-2.5 shadow-sm">
+               <Sparkles size={14} className="text-violet-500" />
+               <span className="text-xs text-gray-400 flex-1">Ask CompetiScope...</span>
+               <div className="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-md">
+                  <Send size={12} className="text-white" />
                </div>
             </div>
          </div>
@@ -5992,13 +5997,13 @@ const ActsTemplateView = () => {
 
          <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={rectIntersection}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
          >
-            <div className="flex gap-4 min-h-[520px]">
-               <div className="flex gap-3 w-[45%] shrink-0">
-                  <div className="w-1/2">
+            <div className="flex gap-5" style={{ minHeight: '620px' }}>
+               <div className="flex gap-3 w-[380px] shrink-0">
+                  <div className="flex-1 h-full">
                      <TemplateColumn 
                         title="Active" 
                         templates={activeTemplates} 
@@ -6008,7 +6013,7 @@ const ActsTemplateView = () => {
                         onCreateNew={() => setShowCreateModal(true)}
                      />
                   </div>
-                  <div className="w-1/2">
+                  <div className="flex-1 h-full">
                      <TemplateColumn 
                         title="Inactive" 
                         templates={inactiveTemplates} 
@@ -6019,23 +6024,21 @@ const ActsTemplateView = () => {
                   </div>
                </div>
                
-               <div className="flex-1">
-                  <div className="h-full">
-                     <div className="flex items-center gap-2 mb-2">
-                        <Chrome size={14} className="text-slate-400" />
-                        <span className="text-xs font-bold text-slate-300">Extension Preview</span>
-                        <span className="text-[9px] text-slate-500">Real-time</span>
-                     </div>
-                     <div className="h-[calc(100%-28px)]">
-                        <BrowserExtensionPreview activeTemplates={activeTemplates} />
-                     </div>
+               <div className="flex-1 flex flex-col">
+                  <div className="flex items-center gap-2 mb-3">
+                     <Chrome size={14} className="text-slate-400" />
+                     <span className="text-xs font-bold text-slate-300">Extension Preview</span>
+                     <span className="text-[9px] px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded font-medium">Live</span>
+                  </div>
+                  <div className="flex-1 flex items-start justify-center">
+                     <BrowserExtensionPreview activeTemplates={activeTemplates} />
                   </div>
                </div>
             </div>
 
             <DragOverlay>
                {draggedTemplate ? (
-                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-48">
+                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-44">
                      <div className="flex items-center gap-2">
                         <div className="p-1 text-slate-400 shrink-0">
                            <GripVertical size={12} />
@@ -6044,7 +6047,7 @@ const ActsTemplateView = () => {
                            <draggedTemplate.icon size={12} />
                         </div>
                         <div className="flex-1 min-w-0">
-                           <h4 className="text-xs font-semibold text-white truncate">{draggedTemplate.title}</h4>
+                           <h4 className="text-[10px] font-semibold text-white truncate">{draggedTemplate.title}</h4>
                         </div>
                      </div>
                   </div>
