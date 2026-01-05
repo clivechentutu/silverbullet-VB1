@@ -6,7 +6,7 @@ import {
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
   Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb,
   Building2, DollarSign, Code2, Handshake, MapPin, Award,
-  Newspaper, Trophy, Share2, MessageSquare
+  Newspaper, Trophy, Share2, MessageSquare, ThumbsUp, ThumbsDown, Settings
 } from 'lucide-react';
 import { SiX, SiYoutube } from 'react-icons/si';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +23,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
 
 interface Signal {
   id: number;
@@ -1597,11 +1609,40 @@ interface EvidencePanelProps {
 const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelProps) => {
   const [signalLimit, setSignalLimit] = useState(5);
   const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
+  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [feedbackReason, setFeedbackReason] = useState('');
+  const [feedbackType, setFeedbackType] = useState<string>('relevance');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setSignalLimit(5);
     setIsSignalsExpanded(false);
   }, [insight?.id]);
+
+  const handlePositiveFeedback = () => {
+    toast({
+      title: "Thank you for your feedback",
+      description: "Glad this insight was valuable to you. We'll continue to prioritize similar discoveries.",
+    });
+  };
+
+  const handleNegativeFeedback = () => {
+    setShowFeedbackDialog(true);
+  };
+
+  const handleSubmitFeedback = async () => {
+    setIsSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsSubmitting(false);
+    setShowFeedbackDialog(false);
+    setFeedbackReason('');
+    setFeedbackType('relevance');
+    toast({
+      title: "Feedback received",
+      description: "Your configuration will be automatically optimized. You can review changes in Configuration settings.",
+    });
+  };
 
   if (!insight) {
     return (
@@ -1636,22 +1677,144 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
               <h3 className="text-sm font-bold text-white leading-snug">{insight.title}</h3>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onMarkResolved}
-            className={`h-7 px-2 text-[10px] transition-all duration-200 ${
-              insight.isResolved 
-                ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' 
-                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700/50'
-            } border`}
-          >
-            <Star size={12} className={`mr-1 ${insight.isResolved ? 'fill-amber-500' : ''}`} />
-            {insight.isResolved ? 'Saved' : 'Save'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={handlePositiveFeedback}
+                    className="h-7 w-7 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                    data-testid="button-feedback-positive"
+                  >
+                    <ThumbsUp size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
+                  <p className="text-[10px]">This insight was helpful</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={handleNegativeFeedback}
+                    className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                    data-testid="button-feedback-negative"
+                  >
+                    <ThumbsDown size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
+                  <p className="text-[10px]">This insight needs improvement</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onMarkResolved}
+              className={`h-7 px-2 text-[10px] transition-all duration-200 ${
+                insight.isResolved 
+                  ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700/50'
+              } border`}
+            >
+              <Star size={12} className={`mr-1 ${insight.isResolved ? 'fill-amber-500' : ''}`} />
+              {insight.isResolved ? 'Saved' : 'Save'}
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">{insight.summary}</p>
       </div>
+
+      <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <ThumbsDown size={16} className="text-slate-400" />
+              Improve This Insight
+            </DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Your feedback helps us optimize tracking configuration automatically.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-300">What needs improvement?</Label>
+              <RadioGroup value={feedbackType} onValueChange={setFeedbackType} className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="relevance" id="relevance" className="border-slate-600" />
+                  <Label htmlFor="relevance" className="text-xs text-slate-400 cursor-pointer">Not relevant to my tracking goals</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="priority" id="priority" className="border-slate-600" />
+                  <Label htmlFor="priority" className="text-xs text-slate-400 cursor-pointer">Priority level is incorrect</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="accuracy" id="accuracy" className="border-slate-600" />
+                  <Label htmlFor="accuracy" className="text-xs text-slate-400 cursor-pointer">Analysis or summary is inaccurate</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other" className="border-slate-600" />
+                  <Label htmlFor="other" className="text-xs text-slate-400 cursor-pointer">Other reason</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-slate-300">Tell us more (optional)</Label>
+              <Textarea
+                value={feedbackReason}
+                onChange={(e) => setFeedbackReason(e.target.value)}
+                placeholder="Describe what adjustments you'd like to see..."
+                className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[80px] resize-none"
+                data-testid="input-feedback-reason"
+              />
+            </div>
+
+            <div className="flex items-start gap-2 p-3 rounded-md bg-brand-500/10 border border-brand-500/20">
+              <Settings size={14} className="text-brand-400 shrink-0 mt-0.5" />
+              <p className="text-[10px] text-brand-300 leading-relaxed">
+                Based on your feedback, we'll automatically adjust your tracking configuration. You can review and modify these changes in the Configuration panel.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowFeedbackDialog(false)}
+              className="text-slate-400"
+              data-testid="button-feedback-cancel"
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSubmitFeedback}
+              disabled={isSubmitting}
+              className="bg-brand-500 hover:bg-brand-600 text-white"
+              data-testid="button-feedback-submit"
+            >
+              {isSubmitting ? (
+                <>
+                  <RefreshCw size={12} className="mr-1 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Feedback'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
