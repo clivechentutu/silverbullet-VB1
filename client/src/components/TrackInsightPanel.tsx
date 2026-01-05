@@ -170,10 +170,10 @@ const SessionCatchUp = ({
   const displayExpanded = viewingHistorical ? true : isExpanded;
 
   return (
-    <div className="border-b border-brand-500/20 bg-brand-500/5">
+    <div className="mx-4 mt-3 mb-2">
       {/* Since Last Visit Summary - for infrequent users */}
       {sinceLastVisit && sinceLastVisit.lastVisitDays > 3 && !viewingHistorical && (
-        <div className="px-4 py-2 border-b border-blue-500/20 bg-blue-500/5">
+        <div className="px-3 py-2 mb-2 rounded-md border border-blue-500/20 bg-blue-500/5">
           <div className="flex items-center gap-2">
             <History size={12} className="text-blue-400" />
             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
@@ -201,19 +201,19 @@ const SessionCatchUp = ({
         </div>
       )}
       
-      <div className="px-5 py-4">
+      <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 p-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
               if (viewingHistorical) return;
               if (summaries) setIsExpanded(!isExpanded);
             }}>
-              <div className="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center shrink-0 group-hover:bg-brand-500/30 transition-colors shadow-inner">
-                <Sparkles size={20} className="text-brand-400" />
+              <div className="w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-700/50 flex items-center justify-center shrink-0 group-hover:bg-slate-800 transition-colors">
+                <Sparkles size={16} className="text-slate-400" />
               </div>
               <div className="min-w-0 text-left">
                 <div className="flex items-center justify-start gap-2 flex-wrap">
-                  <span className="text-sm font-bold text-brand-400 group-hover:text-brand-300 transition-colors">
+                  <span className="text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
                     {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                   </span>
                   {viewingHistorical ? (
@@ -222,7 +222,7 @@ const SessionCatchUp = ({
                     <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
                   )}
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   {viewingHistorical 
                     ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
                     : `${totalSignals} signals collected across ${availableChannels.length} channels`
@@ -236,10 +236,10 @@ const SessionCatchUp = ({
               size="default"
               onClick={onGenerate}
               disabled={isGenerating || !!summaries}
-              className={`text-xs font-bold px-4 h-9 shadow-lg transition-all ${
+              className={`text-xs font-medium px-4 h-8 transition-all ${
                 summaries 
-                  ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default shadow-none' 
-                  : 'border-brand-500/40 hover:bg-brand-500/20 text-brand-400 shadow-brand-500/10'
+                  ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default' 
+                  : 'border-brand-500/40 hover:bg-brand-500/10 text-brand-400'
               }`}
               data-testid="button-generate-summary"
             >
@@ -278,7 +278,7 @@ const SessionCatchUp = ({
             )}
           </div>
           
-          <div className="flex items-center gap-2 shrink-0 border-l border-brand-500/20 pl-4 ml-2">
+          <div className="flex items-center gap-2 shrink-0 border-l border-slate-700/50 pl-4 ml-2">
             {viewingHistorical ? (
               <Button
                 variant="ghost"
@@ -573,19 +573,7 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
 
 const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanningChannel: string | null; totalInsights: number; unreadCount: number }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [scanIndex, setScanIndex] = useState(0);
   const [activityIndex, setActivityIndex] = useState(0);
-  
-  const scanTargets = [
-    'LinkedIn profiles',
-    'Twitter mentions',
-    'News articles',
-    'Job postings',
-    'GitHub activity',
-    'Press releases',
-    'SEC filings',
-    'Product updates'
-  ];
   
   const activities = [
     { action: 'Scanning', target: 'competitor websites' },
@@ -602,13 +590,6 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
   }, []);
   
   useEffect(() => {
-    const scanTimer = setInterval(() => {
-      setScanIndex(prev => (prev + 1) % scanTargets.length);
-    }, 2500);
-    return () => clearInterval(scanTimer);
-  }, []);
-  
-  useEffect(() => {
     const activityTimer = setInterval(() => {
       setActivityIndex(prev => (prev + 1) % activities.length);
     }, 3000);
@@ -616,62 +597,37 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-slate-950/80 border-b border-slate-800/50 overflow-hidden">
+    <div className="flex items-center justify-between px-4 py-1.5 bg-slate-900/40 border-b border-slate-800/30">
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <div className="relative w-5 h-5 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border border-emerald-500/30" />
-            <div className="absolute inset-0.5 rounded-full border border-emerald-500/20" />
-            <div 
-              className="absolute inset-0 rounded-full border-t border-emerald-400"
-              style={{ animation: 'spin 1.5s linear infinite' }}
-            />
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+        <div className="flex items-center gap-1.5">
+          <div className="relative w-2 h-2">
+            <span className="absolute inset-0 bg-emerald-500 rounded-full" />
+            <span className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-50" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-wider leading-none">Live Tracking</span>
-            <span className="text-[8px] text-emerald-500/70 leading-tight mt-0.5">8 channels active</span>
-          </div>
+          <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wide">Live</span>
         </div>
         
-        <div className="h-4 w-px bg-slate-800/50" />
+        <span className="text-slate-700">|</span>
         
-        <div className="flex items-center gap-2 min-w-[180px]">
+        <div className="flex items-center gap-1.5">
           <div className="flex gap-0.5">
-            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-            <span className="w-0.5 h-3 bg-emerald-500/60 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
           </div>
-          <div className="overflow-hidden">
-            <span 
-              key={activityIndex}
-              className="text-[9px] text-slate-400 block animate-fade-in"
-            >
-              <span className="text-emerald-400/80">{activities[activityIndex].action}</span>
-              <span className="text-slate-500"> {activities[activityIndex].target}</span>
-            </span>
-          </div>
-        </div>
-        
-        <div className="h-4 w-px bg-slate-800/50" />
-        
-        <div className="flex items-center gap-1.5 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800/30">
-          <Clock size={10} className="text-slate-500" />
-          <span className="text-[9px] font-mono text-slate-400">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
+          <span 
+            key={activityIndex}
+            className="text-[9px] text-slate-500 animate-fade-in"
+          >
+            {activities[activityIndex].action} {activities[activityIndex].target}
+          </span>
         </div>
       </div>
       
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 text-[9px] text-slate-500">
-          <Activity size={10} className="text-slate-600" />
-          <span>{totalInsights} signals</span>
-        </div>
-        {unreadCount > 0 && (
-          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-brand-500/20 border border-brand-500/30">
-            <span className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse" />
-            <span className="text-[9px] font-medium text-brand-400">{unreadCount} new</span>
-          </span>
-        )}
+      <div className="flex items-center gap-3 text-[9px] text-slate-600">
+        <span>{totalInsights} signals</span>
+        <span className="text-slate-700">|</span>
+        <span className="font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
       </div>
     </div>
   );
