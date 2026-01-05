@@ -177,3 +177,72 @@ export const chatRequestSchema = z.object({
 });
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
+
+// Workbench UI Types
+export interface RadarCompetitor {
+  id: number;
+  name: string;
+  url: string;
+  score: number;
+  category: string;
+  date: string;
+  description: string;
+  isFavorite?: boolean;
+}
+
+export interface RadarTaskAnalysis {
+  positioning: string;
+  domain: string;
+  coreFeatures: string[];
+  scenarios: string[];
+  discoveryPrompt: string;
+}
+
+export interface TargetScope {
+  name: string;
+  url: string;
+}
+
+export type ScopeStatus = 'active' | 'paused' | 'stopped';
+
+export interface NotificationSettings {
+  email: string;
+  frequencyType: 'daily' | 'weekly';
+  dailyTime: string;
+  weeklyDay: string;
+  weeklyTime: string;
+  timezone: string;
+  emailVerificationStatus: 'unverified' | 'pending' | 'verified';
+}
+
+export interface PromptConfiguration {
+  signalDetection: string;
+  insightGeneration: string;
+  prioritization: string;
+}
+
+export interface CreditUsage {
+  date: string;
+  action: string;
+  credits: number;
+  type: 'radar' | 'research' | 'discovery' | 'track' | 'analysis';
+}
+
+export interface Template {
+  id: number;
+  title: string;
+  category: string;
+  desc: string;
+  icon: string;
+  color: string;
+  isCustom?: boolean;
+}
+
+export interface IntegrationConnection {
+  id: string;
+  name: string;
+  icon: string;
+  category: string;
+  connected: boolean;
+  status?: 'syncing' | 'error' | 'idle';
+}
