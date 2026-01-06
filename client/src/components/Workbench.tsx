@@ -1,8 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { WorkbenchView, type Target, type AnalysisReport, type ResearchSession as DBResearchSession, type ChatMessage as DBChatMessage } from '@shared/schema';
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCenter, rectIntersection, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core';
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { 
   Radar, Crosshair, Bot, Book, Library, Link as LinkIcon, Hexagon, Settings, User, 
   Plus, TrendingUp, Activity, ExternalLink, Zap, Search, ToggleRight, 
@@ -11,7 +14,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle, Lock, Send
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -28,6 +31,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   HoverCard,
@@ -35,9 +39,23 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const AlertZap = Zap;
 const TrendingUpIcon = TrendingUp;
+
+// Helper function to safely parse URLs that may or may not have a protocol
+const safeGetHostname = (url: string): string => {
+  try {
+    const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
+    return new URL(normalizedUrl).hostname.replace('www.', '');
+  } catch {
+    return url.replace('www.', '');
+  }
+};
 
 const TrafficChart = ({ data }: { data: number[] }) => {
   const max = Math.max(...data);
@@ -106,6 +124,7 @@ const URLPreview = ({ url }: { url: string }) => {
   );
 };
 
+import { useToast } from "@/hooks/use-toast";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -113,6 +132,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrackInsightPanel } from "@/components/TrackInsightPanel";
 
 // Signal detail hover card content component
 interface SignalDetailHoverProps {
@@ -199,16 +221,35 @@ const SignalDetailHoverContent = ({ title, time, description, priority, type, do
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  radarNotifyEmail: string;
+  setRadarNotifyEmail: (v: string) => void;
+  radarNotifyDailyDigest: boolean;
+  setRadarNotifyDailyDigest: (v: boolean) => void;
+  editNotificationEmail: string;
+  setEditNotificationEmail: (v: string) => void;
+  editFrequencyType: 'daily' | 'weekly';
+  setEditFrequencyType: (v: 'daily' | 'weekly') => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ 
+  isOpen, 
+  onClose,
+  radarNotifyEmail,
+  setRadarNotifyEmail,
+  radarNotifyDailyDigest,
+  setRadarNotifyDailyDigest,
+  editNotificationEmail,
+  setEditNotificationEmail,
+  editFrequencyType,
+  setEditFrequencyType
+}) => {
   const [activeTab, setActiveTab] = useState('general');
   
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+      <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[700px] max-h-[90vh] animate-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
             <Settings className="text-brand-500" size={20} /> Settings
@@ -220,17 +261,19 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
 
         <div className="flex flex-1 overflow-hidden">
           <nav className="w-48 shrink-0 border-r border-slate-800 bg-slate-950/50 p-3 space-y-1">
-            {['general', 'api', 'billing', 'security'].map(tab => (
+            {[
+              { id: 'general', label: 'General', icon: User },
+              { id: 'notifications', label: 'Notifications', icon: Bell },
+              { id: 'credits', label: 'Credits', icon: Sparkles },
+              { id: 'security', label: 'Security', icon: Shield },
+            ].map(tab => (
               <button 
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all capitalize ${activeTab === tab ? 'bg-slate-800 text-white font-medium' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-sm transition-all ${activeTab === tab.id ? 'bg-slate-800 text-white font-medium' : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'}`}
               >
-                {tab === 'general' && <User size={14} />}
-                {tab === 'api' && <Key size={14} />}
-                {tab === 'billing' && <CreditCard size={14} />}
-                {tab === 'security' && <Shield size={14} />}
-                {tab}
+                <tab.icon size={14} />
+                {tab.label}
               </button>
             ))}
           </nav>
@@ -267,93 +310,286 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <input type="email" defaultValue="strategist@acme.com" disabled className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-400 focus:outline-none opacity-70 cursor-not-allowed" />
                   </div>
                 </div>
-
-                <div className="space-y-4 pt-4 border-t border-slate-800">
-                  <h4 className="text-sm font-bold text-white">Notification Preferences</h4>
-                  <div className="space-y-3">
-                    {[
-                      { label: 'Weekly Intelligence Digest', desc: 'Summary of all tracked signals and market shifts.' },
-                      { label: 'Immediate Target Alerts', desc: 'Get notified instantly when a competitor changes pricing.' },
-                      { label: 'AI Agent Reports', desc: 'Notifications when deep research investigations are complete.' }
-                    ].map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-4 bg-slate-950/50 border border-slate-800 rounded-xl">
-                        <div>
-                          <p className="text-sm font-medium text-slate-200">{item.label}</p>
-                          <p className="text-xs text-slate-500">{item.desc}</p>
-                        </div>
-                        <button className="text-brand-500 hover:text-brand-400 transition-colors">
-                          <ToggleRight size={32} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
             )}
 
-            {activeTab === 'api' && (
+            {activeTab === 'notifications' && (
+              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+                <Tabs defaultValue="radar" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-6">
+                    <TabsTrigger value="radar" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                      <Radar size={14} /> Radar
+                    </TabsTrigger>
+                    <TabsTrigger value="track" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                      <Activity size={14} /> Track
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="radar" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-3">
+                      <label className="text-sm font-bold text-slate-200">Notification Email</label>
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                          <input
+                            type="email"
+                            value={radarNotifyEmail}
+                            onChange={(e) => setRadarNotifyEmail(e.target.value)}
+                            placeholder="Enter email address..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
+                          />
+                        </div>
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all flex items-center gap-2">
+                          <Mail size={16} /> Send Verification
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-500 italic">We will send a verification link to confirm your email address.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-slate-200">Notification Frequency</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => setRadarNotifyDailyDigest(true)}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                        >
+                          Daily
+                        </button>
+                        <button 
+                          onClick={() => setRadarNotifyDailyDigest(false)}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${!radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                        >
+                          Weekly
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                          <div className="relative group">
+                            <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                              <option>09:00</option>
+                              <option>12:00</option>
+                              <option>18:00</option>
+                              <option>21:00</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                          <div className="relative group">
+                            <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                              <option>UTC</option>
+                              <option>EST</option>
+                              <option>PST</option>
+                              <option>CST</option>
+                            </select>
+                            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <Clock size={12} />
+                        <span>You'll receive {radarNotifyDailyDigest ? 'daily' : 'weekly'} signal summaries at 09:00 (UTC)</span>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="track" className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="space-y-3">
+                      <label className="text-sm font-bold text-slate-200">Notification Email</label>
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                          <input
+                            type="email"
+                            value={editNotificationEmail}
+                            onChange={(e) => setEditNotificationEmail(e.target.value)}
+                            placeholder="Enter email address..."
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
+                          />
+                        </div>
+                        <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all flex items-center gap-2">
+                          <Mail size={16} /> Send Verification
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-500 italic">We will send a verification link to confirm your email address.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-slate-200">Notification Frequency</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => setEditFrequencyType('daily')}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'daily' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                        >
+                          Daily
+                        </button>
+                        <button 
+                          onClick={() => setEditFrequencyType('weekly')}
+                          className={`py-3 rounded-xl border font-bold text-sm transition-all ${editFrequencyType === 'weekly' ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                        >
+                          Weekly
+                        </button>
+                      </div>
+                      
+                      {editFrequencyType === 'daily' ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>06:00</option>
+                                <option>07:00</option>
+                                <option>08:00</option>
+                                <option>09:00</option>
+                                <option>10:00</option>
+                                <option>12:00</option>
+                                <option>18:00</option>
+                                <option>21:00</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>UTC</option>
+                                <option>America/New_York</option>
+                                <option>America/Los_Angeles</option>
+                                <option>America/Chicago</option>
+                                <option>Europe/London</option>
+                                <option>Asia/Tokyo</option>
+                                <option>Asia/Shanghai</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Day</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>09:00</option>
+                                <option>12:00</option>
+                                <option>18:00</option>
+                                <option>21:00</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                            <div className="relative group">
+                              <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                                <option>UTC</option>
+                                <option>America/New_York</option>
+                                <option>America/Los_Angeles</option>
+                                <option>Europe/London</option>
+                                <option>Asia/Tokyo</option>
+                              </select>
+                              <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                        <Clock size={12} />
+                        <span>
+                          {editFrequencyType === 'daily' 
+                            ? "You'll receive daily signal summaries at 09:00 (UTC)"
+                            : "You'll receive weekly signal summaries every Monday at 09:00 (UTC)"
+                          }
+                        </span>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800">
+                        <label className="flex items-center gap-3 p-3 bg-slate-800/30 border border-slate-700/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-all group">
+                          <div className="relative flex items-center">
+                            <input 
+                              type="checkbox" 
+                              defaultChecked 
+                              className="peer w-5 h-5 rounded border-slate-700 bg-slate-900 checked:bg-brand-500 checked:border-brand-500 transition-all appearance-none cursor-pointer" 
+                            />
+                            <Check size={12} className="absolute left-1 top-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-slate-200">Apply to all targets</p>
+                            <p className="text-[10px] text-slate-500">Use these notification settings for all currently tracked competitors</p>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
+
+            {activeTab === 'credits' && (
               <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
                 <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-brand-500/20 rounded-lg text-brand-400">
-                      <Sparkles size={24} />
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h4 className="font-bold text-white mb-1">AI Intelligence Keys</h4>
-                      <p className="text-sm text-slate-400">CompetiScope uses Gemini 3 Flash for deep market analysis. Configure your keys to manage usage and specialized research agents.</p>
+                      <h4 className="font-bold text-white mb-1">Enterprise Plan</h4>
+                      <p className="text-xs text-slate-400">Next renewal: Feb 1, 2026</p>
                     </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-brand-400">2,450</p>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Credits Remaining</p>
+                    </div>
+                  </div>
+                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-brand-500 w-[75%]" />
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold text-slate-500 uppercase">Active Keys</h4>
-                    <button className="text-xs font-bold text-brand-500 hover:text-brand-400 uppercase tracking-widest flex items-center gap-1">
-                      <Plus size={12} /> Create Key
-                    </button>
-                  </div>
-                  
+                  <h4 className="text-xs font-bold text-slate-500 uppercase">Usage History</h4>
                   <div className="bg-slate-950 border border-slate-800 rounded-xl divide-y divide-slate-800">
-                    <div className="p-4 flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <Key size={16} className="text-slate-600" />
+                    {[
+                      { task: 'Competitor Site Scan', cost: 50, time: '2 mins ago' },
+                      { task: 'SWOT Analysis Generation', cost: 120, time: '1 hour ago' },
+                      { task: 'Market Radar Refresh', cost: 300, time: '5 hours ago' },
+                      { task: 'Deep Research Agent', cost: 500, time: 'Yesterday' },
+                    ].map((item, idx) => (
+                      <div key={idx} className="p-4 flex items-center justify-between">
                         <div>
-                          <p className="text-sm font-medium text-white">Market-Scanner-Prod</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Last used: 2 mins ago</p>
+                          <p className="text-sm font-medium text-white">{item.task}</p>
+                          <p className="text-[10px] text-slate-500">{item.time}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-slate-200">-{item.cost}</p>
+                          <p className="text-[10px] text-slate-500">Credits</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
-                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
-                      </div>
-                    </div>
-                    <div className="p-4 flex items-center justify-between group">
-                      <div className="flex items-center gap-3">
-                        <Key size={16} className="text-slate-600" />
-                        <div>
-                          <p className="text-sm font-medium text-white">Research-Agent-Beta</p>
-                          <p className="text-[10px] text-slate-500 font-mono">Never used</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 hover:text-white text-slate-500"><Download size={16} /></button>
-                        <button className="p-2 hover:text-white text-slate-500"><Trash2 size={16} /></button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
-
-            {activeTab === 'billing' && (
-              <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300 text-center py-10">
-                <div className="w-16 h-16 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <CreditCard size={32} className="text-slate-600" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Enterprise Plan</h4>
-                <p className="text-sm text-slate-400 max-w-sm mx-auto">You are currently on the Enterprise tier with unlimited tracking and research investigators.</p>
+                
                 <div className="pt-4">
-                  <button className="px-6 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition-all">Manage Subscription</button>
+                  <button className="w-full px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg shadow-lg shadow-brand-900/20 transition-all">
+                    Add Credits
+                  </button>
                 </div>
               </div>
             )}
@@ -719,6 +955,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
+  const { toast } = useToast();
   const [activeScope, setActiveScope] = useState<string>('ChampSignal');
   const [scopeStatuses, setScopeStatuses] = useState<Record<string, 'active' | 'paused' | 'stopped'>>({
     'ChampSignal': 'active',
@@ -744,6 +981,323 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [updateSuccessState, setUpdateSuccessState] = useState<'idle' | 'adjusting' | 'completed'>('idle');
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<string | null>(null);
   const [showHistorySheet, setShowHistorySheet] = useState(false);
+  
+  // Historical Summary States
+  const [selectedSummaryDate, setSelectedSummaryDate] = useState<Date>(new Date());
+  const [showRadarNotifications, setShowRadarNotifications] = useState(false);
+  const [radarNotifyHighPriority, setRadarNotifyHighPriority] = useState(true);
+  const [radarNotifyDailyDigest, setRadarNotifyDailyDigest] = useState(true);
+  const [radarNotifyEmail, setRadarNotifyEmail] = useState('');
+  const [showCalendarPopover, setShowCalendarPopover] = useState(false);
+  
+  // Session-based tracking: last radar visit time
+  // Use a ref to capture the timestamp ONCE at session start, never re-read during session
+  const previousRadarVisitRef = useRef<Date | null>(null);
+  const sessionStartTimeRef = useRef<Date>(new Date());
+  
+  // Initialize previous visit time only once per session
+  if (previousRadarVisitRef.current === null && typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('competiscope_last_radar_visit');
+      previousRadarVisitRef.current = stored ? new Date(stored) : null;
+    } catch {
+      previousRadarVisitRef.current = null;
+    }
+  }
+  
+  const previousRadarVisit = previousRadarVisitRef.current;
+  const [showSinceLastVisit, setShowSinceLastVisit] = useState(true);
+  
+  // Save the session start timestamp ONLY on actual page exit (beforeunload)
+  useEffect(() => {
+    const saveVisitTimestamp = () => {
+      try {
+        // Save the session start time as the "last visit" for next session
+        localStorage.setItem('competiscope_last_radar_visit', sessionStartTimeRef.current.toISOString());
+      } catch {
+        // localStorage not available
+      }
+    };
+    
+    // Only save on true page exit
+    window.addEventListener('beforeunload', saveVisitTimestamp);
+    
+    return () => {
+      window.removeEventListener('beforeunload', saveVisitTimestamp);
+    };
+  }, []);
+  
+  // Historical summaries data - dates with available summaries
+  const historicalSummaryDates = useMemo(() => {
+    const dates: Date[] = [];
+    const today = new Date();
+    // Simulate: summaries available for certain days in past 30 days
+    [0, 1, 2, 3, 5, 7, 8, 10, 14, 15, 21, 28].forEach(daysAgo => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - daysAgo);
+      d.setHours(0, 0, 0, 0);
+      dates.push(d);
+    });
+    return dates;
+  }, []);
+  
+  // Check if a date has summary
+  const dateHasSummary = (date: Date) => {
+    return historicalSummaryDates.some(d => 
+      d.getFullYear() === date.getFullYear() &&
+      d.getMonth() === date.getMonth() &&
+      d.getDate() === date.getDate()
+    );
+  };
+  
+  // Historical summary data cache - keyed by date string for deterministic results
+  const historicalSummaryCache = useMemo(() => {
+    const cache: Record<string, { date: string; total: number; high: number; scopeInsights: Array<{ scope: string; products: Array<{ name: string; color: string }>; text: string[] }> }> = {};
+    
+    // Today's summary
+    const today = new Date();
+    cache[format(today, 'yyyy-MM-dd')] = {
+      date: format(today, 'MMM d'),
+      total: 12,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
+          text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Descript', color: 'text-purple-400' }],
+          text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
+        }
+      ]
+    };
+    
+    // Yesterday
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    cache[format(yesterday, 'yyyy-MM-dd')] = {
+      date: format(yesterday, 'MMM d'),
+      total: 9,
+      high: 2,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Sketch Pro', color: 'text-blue-400' }],
+          text: ['Detected 1 emerging competitor: ', 'Sketch Pro', ' (85% match, vector-first design approach with cloud sync).']
+        }
+      ]
+    };
+    
+    // 2 days ago
+    const twoDaysAgo = new Date(today);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+    cache[format(twoDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twoDaysAgo, 'MMM d'),
+      total: 11,
+      high: 2,
+      scopeInsights: [
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'CapCut', color: 'text-purple-400' }],
+          text: ['Identified ', 'CapCut', ' (93% match, mobile-first short video editor with viral effects library).']
+        }
+      ]
+    };
+    
+    // 3 days ago
+    const threeDaysAgo = new Date(today);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    cache[format(threeDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(threeDaysAgo, 'MMM d'),
+      total: 8,
+      high: 1,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Miro', color: 'text-amber-400' }],
+          text: ['Discovered ', 'Miro', ' (79% match, collaborative whiteboard with design integration).']
+        }
+      ]
+    };
+    
+    // 5 days ago
+    const fiveDaysAgo = new Date(today);
+    fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+    cache[format(fiveDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fiveDaysAgo, 'MMM d'),
+      total: 18,
+      high: 4,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Penpot', color: 'text-emerald-400' }],
+          text: ['Identified 2 competitors: ', 'Adobe Express', ' (90% match, enterprise integration) and ', 'Penpot', ' (82% match, open-source alternative).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Runway', color: 'text-purple-400' }],
+          text: ['Discovered ', 'Runway', ' (91% match, AI video generation and editing platform).']
+        }
+      ]
+    };
+    
+    // 7 days ago
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    cache[format(sevenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(sevenDaysAgo, 'MMM d'),
+      total: 22,
+      high: 5,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Framer', color: 'text-amber-400' }, { name: 'Webflow', color: 'text-blue-400' }],
+          text: ['Key discoveries: ', 'Framer', ' (88% match, code-export) and ', 'Webflow', ' (84% match, no-code website builder).']
+        }
+      ]
+    };
+    
+    // 8 days ago
+    const eightDaysAgo = new Date(today);
+    eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
+    cache[format(eightDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(eightDaysAgo, 'MMM d'),
+      total: 14,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'InVideo', color: 'text-green-400' }],
+          text: ['Found ', 'InVideo', ' (88% match, template-driven video creation platform).']
+        }
+      ]
+    };
+    
+    // 10 days ago
+    const tenDaysAgo = new Date(today);
+    tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+    cache[format(tenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(tenDaysAgo, 'MMM d'),
+      total: 19,
+      high: 4,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Canva', color: 'text-cyan-400' }],
+          text: ['Major activity from ', 'Canva', ' (95% match, launched new AI design features).']
+        }
+      ]
+    };
+    
+    // 14 days ago
+    const fourteenDaysAgo = new Date(today);
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    cache[format(fourteenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fourteenDaysAgo, 'MMM d'),
+      total: 26,
+      high: 6,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Figma', color: 'text-red-400' }],
+          text: ['High priority: ', 'Figma', ' (96% match, announced major platform update).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Kapwing', color: 'text-green-400' }],
+          text: ['Detected ', 'Kapwing', ' (86% match, browser-based editing suite expansion).']
+        }
+      ]
+    };
+    
+    // 15 days ago
+    const fifteenDaysAgo = new Date(today);
+    fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+    cache[format(fifteenDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(fifteenDaysAgo, 'MMM d'),
+      total: 15,
+      high: 3,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Pixlr', color: 'text-pink-400' }],
+          text: ['Emerging player: ', 'Pixlr', ' (75% match, AI-powered photo editing suite).']
+        }
+      ]
+    };
+    
+    // 21 days ago
+    const twentyOneDaysAgo = new Date(today);
+    twentyOneDaysAgo.setDate(twentyOneDaysAgo.getDate() - 21);
+    cache[format(twentyOneDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twentyOneDaysAgo, 'MMM d'),
+      total: 31,
+      high: 7,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Adobe XD', color: 'text-red-400' }, { name: 'Sketch', color: 'text-amber-400' }],
+          text: ['Weekly highlights: ', 'Adobe XD', ' (89% match) and ', 'Sketch', ' (87% match) both released updates.']
+        }
+      ]
+    };
+    
+    // 28 days ago
+    const twentyEightDaysAgo = new Date(today);
+    twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
+    cache[format(twentyEightDaysAgo, 'yyyy-MM-dd')] = {
+      date: format(twentyEightDaysAgo, 'MMM d'),
+      total: 42,
+      high: 9,
+      scopeInsights: [
+        { 
+          scope: 'ChampSignal', 
+          products: [{ name: 'Lunacy', color: 'text-cyan-400' }],
+          text: ['Month-start summary: ', 'Lunacy', ' (81% match, free alternative to Sketch gaining traction).']
+        },
+        { 
+          scope: 'OpusClip', 
+          products: [{ name: 'Lumen5', color: 'text-purple-400' }],
+          text: ['Discovered ', 'Lumen5', ' (77% match, AI video creation for marketing).']
+        }
+      ]
+    };
+    
+    return cache;
+  }, []);
+  
+  // Get historical summary data for a specific date
+  const getHistoricalSummaryForDate = (date: Date) => {
+    const dateKey = format(date, 'yyyy-MM-dd');
+    const cached = historicalSummaryCache[dateKey];
+    
+    if (cached) {
+      return cached;
+    }
+    
+    // Fallback for dates not in cache
+    return {
+      date: format(date, 'MMM d'),
+      total: 0,
+      high: 0,
+      scopeInsights: []
+    };
+  };
+  
+  // Generate date strip for last 7 days
+  const dateStrip = useMemo(() => {
+    const days: Date[] = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      d.setHours(0, 0, 0, 0);
+      days.push(d);
+    }
+    return days;
+  }, []);
 
   // Auto-transition and hide update success message
   useEffect(() => {
@@ -1000,15 +1554,39 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
-              <input
-                type="text"
-                defaultValue={editingScopeName || ''}
-                placeholder="Scope name"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-scope-name"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Scope Name</label>
+                <input
+                  type="text"
+                  defaultValue={editingScopeName || ''}
+                  placeholder="Scope name"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-scope-name"
+                />
+              </div>
+
+              <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-4 ring-1 ring-brand-500/20">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Bell size={14} className="text-brand-400" />
+                    <span className="text-sm font-bold text-brand-400">Push Notifications</span>
+                  </div>
+                  <div className="w-8 h-4 bg-brand-500 rounded-full relative cursor-pointer border border-brand-500/30">
+                    <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-white rounded-full shadow-sm" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded border-brand-500/30 bg-slate-800 text-brand-500 focus:ring-brand-500" />
+                    <span className="text-[11px] text-slate-300 font-medium">Instant alerts for High Priority</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" defaultChecked className="w-3.5 h-3.5 rounded border-brand-500/30 bg-slate-800 text-brand-500 focus:ring-brand-500" />
+                    <span className="text-[11px] text-slate-300 font-medium">Daily discovery digest</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>
@@ -1103,98 +1681,495 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <p className="text-sm text-slate-400">Active surveillance across <span className="text-white font-medium">{targetScopes.length} Task scopes</span></p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <Dialog open={showRadarNotifications} onOpenChange={setShowRadarNotifications}>
+            <DialogTrigger asChild>
+              <button 
+                onClick={() => setShowRadarNotifications(true)}
+                className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-all border border-slate-700 flex items-center gap-1.5"
+                data-testid="button-radar-notifications"
+              >
+                <Bell size={12} />
+                <span className="font-medium">Notifications configure</span>
+              </button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#020617] border-slate-800 text-white max-w-xl p-0 overflow-hidden">
+              <div className="p-8">
+                <div className="flex justify-center mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+                    <Globe className="text-brand-500" size={32} />
+                  </div>
+                </div>
+
+                <div className="text-center mb-10">
+                  <DialogTitle className="text-2xl font-bold text-white mb-2">Radar Configuration</DialogTitle>
+                  <DialogDescription className="text-slate-400">
+                    Update discovery notifications and tracking settings
+                  </DialogDescription>
+                </div>
+                
+                <div className="space-y-8">
+                  <div className="space-y-3">
+                    <label className="text-sm font-bold text-slate-200">Notification Email</label>
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                        <input
+                          type="email"
+                          value={radarNotifyEmail}
+                          onChange={(e) => setRadarNotifyEmail(e.target.value)}
+                          placeholder="Enter email address..."
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-brand-500 transition-all"
+                        />
+                      </div>
+                      <button className="px-6 py-3 bg-brand-500/10 border border-brand-500/20 text-brand-400 font-bold text-sm rounded-xl hover:bg-brand-500/20 transition-all flex items-center gap-2">
+                        <Mail size={16} /> Send Verification
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-slate-500 italic">We will send a verification link to confirm your email address.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <label className="text-sm font-bold text-slate-200">Notification Frequency</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button 
+                        onClick={() => setRadarNotifyDailyDigest(true)}
+                        className={`py-3 rounded-xl border font-bold text-sm transition-all ${radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                      >
+                        Daily
+                      </button>
+                      <button 
+                        onClick={() => setRadarNotifyDailyDigest(false)}
+                        className={`py-3 rounded-xl border font-bold text-sm transition-all ${!radarNotifyDailyDigest ? 'bg-brand-500/10 border-brand-500 text-brand-400' : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-700'}`}
+                      >
+                        Weekly
+                      </button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Time</label>
+                        <div className="relative group">
+                          <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                            <option>09:00</option>
+                            <option>12:00</option>
+                            <option>18:00</option>
+                            <option>21:00</option>
+                          </select>
+                          <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Timezone</label>
+                        <div className="relative group">
+                          <select className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white appearance-none focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                            <option>UTC</option>
+                            <option>EST</option>
+                            <option>PST</option>
+                            <option>CST</option>
+                          </select>
+                          <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 group-hover:text-slate-300 transition-colors pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                      <Clock size={12} />
+                      <span>You'll receive daily signal summaries at 09:00 (UTC)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mt-12">
+                  <button
+                    onClick={() => setShowRadarNotifications(false)}
+                    className="flex-1 px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-800 text-slate-400 font-bold text-sm hover:bg-slate-800 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      toast({
+                        title: "Radar settings updated",
+                        description: "Your notification preferences have been saved.",
+                      });
+                      setShowRadarNotifications(false);
+                    }}
+                    className="flex-2 px-8 py-3 rounded-xl bg-brand-500 text-white font-bold text-sm hover:bg-brand-600 shadow-lg shadow-brand-500/20 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Check size={18} /> Save Changes
+                  </button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
-      {/* AI Intelligence Summary - Period-based Discovery Analysis */}
+      {/* AI Intelligence Summary - Rolling View */}
       <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
-        <div className="px-4 py-2.5 border-b border-slate-800/50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Radar size={14} className="text-brand-400" />
-            <span className="text-xs font-bold text-white">Radar Summary</span>
+        {/* Header */}
+        <div className="px-4 py-2.5 border-b border-slate-800/50">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Radar size={14} className="text-brand-400" />
+              <span className="text-xs font-bold text-white">Radar Summary</span>
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 status-icon-active" />
+                <span className="text-[8px] font-medium text-emerald-400">Monitoring</span>
+              </div>
+            </div>
+            
+            {/* Week Stats Summary - Limited to last 7 days */}
+            <div className="flex items-center gap-3">
+              {(() => {
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                const recentEntries = Object.entries(historicalSummaryCache).filter(([dateKey]) => {
+                  return new Date(dateKey) >= sevenDaysAgo;
+                });
+                const weekTotal = recentEntries.reduce((sum, [, s]) => sum + s.total, 0);
+                const weekHigh = recentEntries.reduce((sum, [, s]) => sum + s.high, 0);
+                const activeDays = recentEntries.length;
+                return (
+                  <>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-white">{weekTotal}</span>
+                      <span className="text-[9px] text-slate-500">discoveries</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-amber-400">{weekHigh}</span>
+                      <span className="text-[9px] text-slate-500">high priority</span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-[9px] text-slate-500">past</span>
+                      <span className="text-sm font-bold text-slate-300">{activeDays}</span>
+                      <span className="text-[9px] text-slate-500">days</span>
+                    </div>
+                  </>
+                );
+              })()}
+              
+              {/* Calendar Popover for browsing specific dates */}
+              <Popover open={showCalendarPopover} onOpenChange={setShowCalendarPopover}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-slate-400 hover:text-white"
+                    data-testid="button-open-calendar"
+                  >
+                    <Calendar size={14} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700" align="end">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedSummaryDate}
+                    onSelect={(date) => {
+                      if (date && dateHasSummary(date)) {
+                        setSelectedSummaryDate(date);
+                        setShowSinceLastVisit(false);
+                        setShowCalendarPopover(false);
+                      }
+                    }}
+                    disabled={(date) => !dateHasSummary(date)}
+                    modifiers={{
+                      hasSummary: historicalSummaryDates
+                    }}
+                    modifiersStyles={{
+                      hasSummary: { 
+                        position: 'relative'
+                      }
+                    }}
+                    components={{
+                      DayContent: ({ date }) => {
+                        const hasSummaryDot = dateHasSummary(date);
+                        return (
+                          <div className="relative flex items-center justify-center w-full h-full">
+                            {date.getDate()}
+                            {hasSummaryDot && (
+                              <div className="absolute bottom-0.5 w-1 h-1 rounded-full bg-emerald-500" />
+                            )}
+                          </div>
+                        );
+                      }
+                    }}
+                    className="rounded-md"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         </div>
         
-        <div className="grid grid-cols-3 divide-x divide-slate-800/50">
-          {[
-            { 
-              label: 'Daily', 
-              date: format(new Date(), 'MMM d'),
-              total: 12, 
-              high: 3,
-              color: 'amber',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
-                  text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'Descript', color: 'text-purple-400' }],
-                  text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
-                }
-              ]
-            },
-            { 
-              label: 'Weekly', 
-              date: 'Dec 18-25',
-              total: 48, 
-              high: 8,
-              color: 'brand',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Sketch Pro', color: 'text-amber-400' }, { name: 'Penpot', color: 'text-blue-400' }],
-                  text: ['Discovered 5 competitors: ', 'Adobe Express', ' (94% match, enterprise integration), ', 'Sketch Pro', ' (88% match, vector-first approach), ', 'Penpot', ' (85% match, open-source alternative).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'Runway', color: 'text-purple-400' }, { name: 'Kapwing', color: 'text-green-400' }],
-                  text: ['Found 3 competitors: ', 'Runway', ' (91% match, AI video generation) and ', 'Kapwing', ' (86% match, browser-based editing suite).']
-                }
-              ]
-            },
-            { 
-              label: 'Monthly', 
-              date: 'December',
-              total: 156, 
-              high: 24,
-              color: 'blue',
-              scopeInsights: [
-                { 
-                  scope: 'ChampSignal', 
-                  products: [{ name: 'Figma', color: 'text-red-400' }, { name: 'Framer', color: 'text-amber-400' }],
-                  text: ['Top threats: ', 'Figma', ' (96% match, market leader in collaborative design), ', 'Framer', ' (90% match, code-export and responsive design).']
-                },
-                { 
-                  scope: 'OpusClip', 
-                  products: [{ name: 'CapCut', color: 'text-purple-400' }, { name: 'InVideo', color: 'text-green-400' }],
-                  text: ['Key competitors: ', 'CapCut', ' (93% match, mobile-first short video editor), ', 'InVideo', ' (88% match, template-driven video creation).']
-                }
-              ]
-            }
-          ].map((period, i) => (
-            <div key={i} className="p-3 hover:bg-slate-800/20 transition-colors cursor-pointer" onClick={() => { setSelectedHistoryItem(period.label); setShowHistorySheet(true); }}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.label}</span>
-                  <span className="text-[9px] text-slate-600">{period.date}</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-lg font-bold text-white">{period.total}</span>
-                  <span className="text-[9px] text-slate-500">finds</span>
-                  <span className="text-[9px] text-slate-600">/</span>
-                  <span className={`text-sm font-bold ${period.color === 'amber' ? 'text-amber-400' : period.color === 'brand' ? 'text-brand-400' : 'text-blue-400'}`}>{period.high}</span>
-                  <span className="text-[9px] text-slate-500">high</span>
-                </div>
-              </div>
+        {/* Latest Discoveries - Session-aware Rolling View */}
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            {/* View Toggle: Since Last Visit vs All Recent */}
+            <div className="flex items-center gap-2">
+              {previousRadarVisit && (
+                <>
+                  <button
+                    onClick={() => setShowSinceLastVisit(true)}
+                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                      showSinceLastVisit 
+                        ? 'bg-brand-500/20 text-brand-400' 
+                        : 'text-slate-500 hover:text-slate-300'
+                    }`}
+                    data-testid="button-since-last-visit"
+                  >
+                    Since Last Visit
+                  </button>
+                  <span className="text-slate-700">|</span>
+                </>
+              )}
+              <button
+                onClick={() => setShowSinceLastVisit(false)}
+                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                  !showSinceLastVisit || !previousRadarVisit
+                    ? 'bg-brand-500/20 text-brand-400' 
+                    : 'text-slate-500 hover:text-slate-300'
+                }`}
+                data-testid="button-all-recent"
+              >
+                All Recent
+              </button>
+            </div>
+            {/* Date Strip - Secondary Navigation */}
+            <div className="flex items-center gap-0.5">
+              {dateStrip.slice(0, 5).map((date, idx) => {
+                const isToday = idx === 0;
+                const hasSummary = dateHasSummary(date);
+                const isSelected = selectedSummaryDate.getFullYear() === date.getFullYear() &&
+                                   selectedSummaryDate.getMonth() === date.getMonth() &&
+                                   selectedSummaryDate.getDate() === date.getDate();
+                const dayNum = format(date, 'd');
+                
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (hasSummary) {
+                        setSelectedSummaryDate(date);
+                        setShowSinceLastVisit(false);
+                      }
+                    }}
+                    disabled={!hasSummary}
+                    className={`flex flex-col items-center px-1.5 py-0.5 rounded transition-all relative ${
+                      isSelected && !showSinceLastVisit
+                        ? 'bg-brand-500/20' 
+                        : hasSummary 
+                          ? 'hover:bg-slate-800/50' 
+                          : 'opacity-30 cursor-not-allowed'
+                    }`}
+                    data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
+                  >
+                    <span className={`text-[8px] ${isSelected && !showSinceLastVisit ? 'text-brand-400' : 'text-slate-600'}`}>
+                      {isToday ? 'Today' : format(date, 'EEE')}
+                    </span>
+                    <span className={`text-[10px] font-bold ${isSelected && !showSinceLastVisit ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
+                      {dayNum}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Show insights based on view mode */}
+          {(() => {
+            // Mode 1: Since Last Visit - show discoveries since user's last radar visit
+            if (showSinceLastVisit && previousRadarVisit) {
+              const sinceLastVisitInsights = Object.entries(historicalSummaryCache)
+                .filter(([dateKey]) => {
+                  const d = new Date(dateKey);
+                  return d > previousRadarVisit;
+                })
+                .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+                .flatMap(([dateKey, summary]) => 
+                  summary.scopeInsights.map(insight => ({
+                    ...insight,
+                    date: dateKey,
+                    total: summary.total,
+                    isToday: new Date().toDateString() === new Date(dateKey).toDateString()
+                  }))
+                );
               
+              const daysSinceLastVisit = Math.floor((new Date().getTime() - previousRadarVisit.getTime()) / (1000 * 60 * 60 * 24));
+              const totalNewDiscoveries = sinceLastVisitInsights.reduce((sum, i, idx, arr) => {
+                const prevDate = idx > 0 ? arr[idx - 1].date : null;
+                if (prevDate !== i.date) {
+                  return sum + i.total;
+                }
+                return sum;
+              }, 0);
+              
+              // If no new discoveries since last visit, fall back to showing the most recent summary
+              if (sinceLastVisitInsights.length === 0) {
+                // Find the most recent summary with content
+                const sortedSummaries = Object.entries(historicalSummaryCache)
+                  .filter(([, summary]) => summary.scopeInsights.length > 0)
+                  .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime());
+                
+                if (sortedSummaries.length > 0) {
+                  const [latestDateKey, latestSummary] = sortedSummaries[0];
+                  const latestDate = new Date(latestDateKey);
+                  const isToday = new Date().toDateString() === latestDate.toDateString();
+                  
+                  return (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/30">
+                        <Clock size={12} className="text-slate-500" />
+                        <span className="text-[9px] text-slate-400">
+                          No new updates since {format(previousRadarVisit, 'MMM d, h:mm a')}
+                        </span>
+                        <span className="text-[8px] text-slate-600 ml-auto">
+                          Showing latest: {isToday ? 'Today' : format(latestDate, 'MMM d')}
+                        </span>
+                      </div>
+                      {latestSummary.scopeInsights.map((insight, idx) => (
+                        <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <TargetIcon size={9} className="text-slate-500" />
+                            <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            {insight.text.map((part, partIdx) => {
+                              const matchedProduct = insight.products.find(p => p.name === part);
+                              if (matchedProduct) {
+                                return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                              }
+                              return <span key={partIdx}>{part}</span>;
+                            })}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                }
+              }
+              
+              return (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800/30">
+                    <div className="flex items-center gap-2">
+                      <Clock size={12} className="text-brand-400" />
+                      <span className="text-[9px] text-slate-400">
+                        {daysSinceLastVisit === 0 
+                          ? 'Since earlier today' 
+                          : daysSinceLastVisit === 1 
+                            ? 'Since yesterday' 
+                            : `Past ${daysSinceLastVisit} days`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-bold text-brand-400">{sinceLastVisitInsights.length}</span>
+                      <span className="text-[9px] text-slate-500">new insights</span>
+                    </div>
+                  </div>
+                  {sinceLastVisitInsights.slice(0, 5).map((insight, idx) => (
+                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <TargetIcon size={9} className="text-slate-500" />
+                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                        <span className="text-[8px] text-slate-600">-</span>
+                        <span className="text-[8px] text-slate-500">
+                          {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
+                        </span>
+                        <Badge variant="outline" className="text-[7px] px-1 py-0 border-brand-500/30 text-brand-400 ml-auto">
+                          NEW
+                        </Badge>
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {insight.text.map((part, partIdx) => {
+                          const matchedProduct = insight.products.find(p => p.name === part);
+                          if (matchedProduct) {
+                            return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                          }
+                          return <span key={partIdx}>{part}</span>;
+                        })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            
+            // Mode 2: Specific date selected
+            const selectedDateKey = format(selectedSummaryDate, 'yyyy-MM-dd');
+            const selectedDaySummary = historicalSummaryCache[selectedDateKey];
+            const isShowingSpecificDate = selectedDaySummary && selectedDaySummary.scopeInsights.length > 0 && !showSinceLastVisit;
+            
+            if (isShowingSpecificDate) {
+              const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
+              return (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[9px] text-slate-500">
+                      {isToday ? 'Today' : format(selectedSummaryDate, 'EEEE, MMM d')}
+                    </span>
+                    <span className="text-[9px] text-slate-600">-</span>
+                    <span className="text-[9px] text-white font-medium">{selectedDaySummary.total} discoveries</span>
+                  </div>
+                  {selectedDaySummary.scopeInsights.map((insight, idx) => (
+                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <TargetIcon size={9} className="text-slate-500" />
+                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                        {insight.text.map((part, partIdx) => {
+                          const matchedProduct = insight.products.find(p => p.name === part);
+                          if (matchedProduct) {
+                            return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                          }
+                          return <span key={partIdx}>{part}</span>;
+                        })}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              );
+            }
+            
+            // Mode 3: All recent (rolling 7-day view)
+            const allInsights = Object.entries(historicalSummaryCache)
+              .filter(([dateKey]) => {
+                const d = new Date(dateKey);
+                const sevenDaysAgo = new Date();
+                sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                return d >= sevenDaysAgo;
+              })
+              .sort(([a], [b]) => new Date(b).getTime() - new Date(a).getTime())
+              .flatMap(([dateKey, summary]) => 
+                summary.scopeInsights.map(insight => ({
+                  ...insight,
+                  date: dateKey,
+                  isToday: new Date().toDateString() === new Date(dateKey).toDateString()
+                }))
+              )
+              .slice(0, 5);
+            
+            if (allInsights.length === 0) {
+              return (
+                <div className="text-center py-4">
+                  <p className="text-[10px] text-slate-500">Radar is actively scanning. Discoveries will appear here.</p>
+                </div>
+              );
+            }
+            
+            return (
               <div className="space-y-2">
-                {period.scopeInsights.map((insight, idx) => (
+                {allInsights.map((insight, idx) => (
                   <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <TargetIcon size={9} className="text-slate-500" />
                       <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                      <span className="text-[8px] text-slate-600">-</span>
+                      <span className="text-[8px] text-slate-500">
+                        {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
+                      </span>
                     </div>
                     <p className="text-[10px] text-slate-400 leading-relaxed">
                       {insight.text.map((part, partIdx) => {
@@ -1208,8 +2183,8 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   </div>
                 ))}
               </div>
-            </div>
-          ))}
+            );
+          })()}
         </div>
       </div>
 
@@ -1273,17 +2248,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     <p className="text-xs text-slate-500 font-medium">{scope.name}</p>
                   </div>
                   <div className="p-1">
-                    <button 
-                      className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
-                      data-testid={`action-configure-${scope.name}`}
-                      onClick={() => {
-                        setEditingScopeName(scope.name);
-                        setShowScopeActions(null);
-                      }}
-                    >
-                      <Settings size={14} className="text-slate-400" />
-                      Configure
-                    </button>
                     <button 
                       className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
                       data-testid={`action-pause-${scope.name}`}
@@ -1801,7 +2765,7 @@ interface Signal {
   dimension?: string;
 }
 
-const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks }: {
+const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarget, onTrackResearch, runningResearchTasks, setRunningResearchTasks, onResearchPrompt }: {
   targets: Target[];
   selectedTargetId: number | null;
   setSelectedTargetId: (id: number | null) => void;
@@ -1809,7 +2773,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   onTrackResearch: (targetName: string) => void;
   runningResearchTasks: number;
   setRunningResearchTasks: (count: number | ((prev: number) => number)) => void;
+  onResearchPrompt: (prompt: string) => void;
 }) => {
+  const { toast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [newTargetName, setNewTargetName] = useState('');
@@ -1850,6 +2816,44 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [isAddingTarget, setIsAddingTarget] = useState(false);
   const [showCreateTaskModal, setShowCreateTaskModal] = useState(false);
   const [newTaskTrackers, setNewTaskTrackers] = useState(['website', 'backlinks', 'seo']);
+  const [createTabError, setCreateTabError] = useState<string | null>(null);
+  
+  // Email notification state for Create dialog
+  const [createFormTab, setCreateFormTab] = useState<'basic' | 'notifications'>('basic');
+  const [newNotificationEmail, setNewNotificationEmail] = useState('');
+  const [emailSendStatus, setEmailSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState<'unverified' | 'pending' | 'verified'>('unverified');
+  const [newFrequencyType, setNewFrequencyType] = useState<'daily' | 'weekly'>('daily');
+  const [newDailyTime, setNewDailyTime] = useState('09:00');
+  const [newWeeklyDay, setNewWeeklyDay] = useState('monday');
+  const [newWeeklyTime, setNewWeeklyTime] = useState('09:00');
+  const [newTimezone, setNewTimezone] = useState('UTC');
+  
+  // Email notification state for Edit dialog
+  const [editFormTab, setEditFormTab] = useState<'basic' | 'notifications'>('basic');
+  const [editTabError, setEditTabError] = useState<string | null>(null);
+  const [editNotificationEmail, setEditNotificationEmail] = useState('');
+  const [editEmailSendStatus, setEditEmailSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [editEmailVerificationStatus, setEditEmailVerificationStatus] = useState<'unverified' | 'pending' | 'verified'>('unverified');
+  const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
+  const [editDailyTime, setEditDailyTime] = useState('09:00');
+  const [editWeeklyDay, setEditWeeklyDay] = useState('monday');
+  const [editWeeklyTime, setEditWeeklyTime] = useState('09:00');
+  const [editTimezone, setEditTimezone] = useState('UTC');
+
+  useEffect(() => {
+    if (createTabError) {
+      const timer = setTimeout(() => setCreateTabError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [createTabError]);
+
+  useEffect(() => {
+    if (editTabError) {
+      const timer = setTimeout(() => setEditTabError(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [editTabError]);
 
   const signalsData: Signal[] = [
     { id: 1, type: 'pricing', category: 'Plan Change', time: '2h ago', content: 'New "Pro Plus" tier added at $49/mo. Positioned between Pro and Enterprise.', domain: 'figma.com', color: 'text-emerald-400', bgColor: 'bg-emerald-500', value: 'high', sourceUrl: 'https://figma.com/pricing' },
@@ -1877,7 +2881,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const [activeResearchTasks, setActiveResearchTasks] = useState<Array<{signalId: number; prompt: string; status: 'running' | 'completed'}>>([]);
 
   const selectedTarget = targets.find((t) => t.id === selectedTargetId) || targets[0];
-  const targetDomain = selectedTarget ? new URL(selectedTarget.url).hostname.replace('www.', '') : '';
+  const targetDomain = selectedTarget ? safeGetHostname(selectedTarget.url) : '';
 
   const targetSignals = signalsData.filter(s => s.domain === targetDomain);
 
@@ -2980,7 +3984,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               data-testid={`target-item-${t.id}`}
             >
               <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative">
-                <img src={`https://www.google.com/s2/favicons?domain=${new URL(t.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
+                <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
               <div className="flex-1 min-w-0 flex items-center gap-2">
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
@@ -3077,14 +4081,14 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       </div>
 
       {/* MIDDLE: Target Details */}
-      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-y-auto custom-scrollbar p-6 flex flex-col">
+      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-hidden p-4 flex flex-col">
         {selectedTarget ? (
-          <div className="space-y-6">
+          <div className="flex flex-col h-full gap-4">
             {/* Header with logo and info */}
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden shadow-sm">
-                  <img src={`https://www.google.com/s2/favicons?domain=${new URL(selectedTarget.url).hostname}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
+                  <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(selectedTarget.url)}&sz=128`} className="w-full h-full object-contain" alt={selectedTarget.name} />
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
@@ -3151,823 +4155,350 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               </div>
             </div>
 
-
-            {/* AI Summary Area */}
-            <div className="bg-brand-500/5 border border-brand-500/20 rounded-xl p-4 flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center shrink-0">
-                <Sparkles size={20} className="text-brand-400 animate-pulse" />
-              </div>
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-bold text-white flex items-center gap-2 shrink-0">
-                      AI Intelligence Summary 
-                      <Zap size={14} className="text-brand-400 animate-pulse" />
-                    </h3>
-                    <div className="flex items-center bg-slate-900/50 border border-slate-800 rounded-lg p-0.5 h-7">
-                      <button 
-                        onClick={() => setSummaryFrequency('daily')}
-                        className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'daily' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                      >
-                        DAILY
-                      </button>
-                      <button 
-                        onClick={() => setSummaryFrequency('weekly')}
-                        className={`px-2.5 h-full text-[10px] font-bold rounded-md transition-all ${summaryFrequency === 'weekly' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-300'}`}
-                      >
-                        WEEKLY
-                      </button>
-                    </div>
-                  </div>
-                  <Sheet open={showHistorySheet} onOpenChange={setShowHistorySheet}>
-                    <SheetTrigger asChild>
-                      <button className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide flex items-center gap-2 px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60">
-                        <History size={12} className="text-brand-400" /> History Summary
-                      </button>
-                    </SheetTrigger>
-                    <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md custom-scrollbar overflow-y-auto">
-                      <SheetHeader className="mb-4">
-                        <SheetTitle className="text-white flex items-center gap-2">
-                          <History className="text-brand-500" size={20} />
-                          Intelligence History
-                        </SheetTitle>
-                        <p className="text-xs text-slate-500">Timeline of AI-generated competitor insights and alerts.</p>
-                      </SheetHeader>
-                      <div className="flex items-center gap-2 mb-6">
-                        <button
-                          onClick={() => setHistoryFilter('all')}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border ${historyFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="history-filter-all"
-                        >
-                          All
-                        </button>
-                        <button
-                          onClick={() => setHistoryFilter('unread')}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${historyFilter === 'unread' ? 'bg-blue-500 text-white border-blue-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="history-filter-unread"
-                        >
-                          <Circle size={10} /> Unread
-                        </button>
-                        <button
-                          onClick={() => setHistoryFilter('saved')}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${historyFilter === 'saved' ? 'bg-amber-500 text-white border-amber-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                          data-testid="history-filter-saved"
-                        >
-                          <Star size={10} /> Saved ({savedSummaries.length})
-                        </button>
-                      </div>
-                      <div className="relative space-y-6 before:absolute before:inset-0 before:left-[11px] before:w-px before:bg-slate-800 before:h-full">
-                        {/* History Item 1 - Market Strategy Shift */}
-                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('pivot')) || (historyFilter === 'saved' && savedSummaries.includes('pivot'))) && (
-                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pivot' ? 'ring-2 ring-emerald-500/30 rounded-lg bg-emerald-500/5 p-2 -ml-2' : ''}`}>
-                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-emerald-500/50 flex items-center justify-center z-10">
-                            <TrendingUp size={12} className="text-emerald-400" />
-                          </div>
-                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pivot' ? 'border-emerald-500/50 shadow-lg shadow-emerald-500/10' : 'border-slate-800'}`}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Market Strategy Shift</span>
-                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
-                            </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
-                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
-                              <button
-                                onClick={() => {
-                                  if (readSummaries.includes('pivot')) {
-                                    setReadSummaries(readSummaries.filter(id => id !== 'pivot'));
-                                  } else {
-                                    setReadSummaries([...readSummaries, 'pivot']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('pivot') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-mark-read-pivot"
-                              >
-                                <Check size={10} /> {readSummaries.includes('pivot') ? 'Read' : 'Mark as Read'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (savedSummaries.includes('pivot')) {
-                                    setSavedSummaries(savedSummaries.filter(id => id !== 'pivot'));
-                                  } else {
-                                    setSavedSummaries([...savedSummaries, 'pivot']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('pivot') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-save-pivot"
-                              >
-                                <Star size={10} className={savedSummaries.includes('pivot') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pivot') ? 'Saved' : 'Save'}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        )}
-
-                        {/* History Item 2 - Pricing Model Changes */}
-                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('pricing')) || (historyFilter === 'saved' && savedSummaries.includes('pricing'))) && (
-                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'pricing' ? 'ring-2 ring-red-500/30 rounded-lg bg-red-500/5 p-2 -ml-2' : ''}`}>
-                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-red-500/50 flex items-center justify-center z-10">
-                            <ShieldAlert size={12} className="text-red-400" />
-                          </div>
-                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'pricing' ? 'border-red-500/50 shadow-lg shadow-red-500/10' : 'border-slate-800'}`}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Pricing Model Changes</span>
-                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
-                            </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
-                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
-                              <button
-                                onClick={() => {
-                                  if (readSummaries.includes('pricing')) {
-                                    setReadSummaries(readSummaries.filter(id => id !== 'pricing'));
-                                  } else {
-                                    setReadSummaries([...readSummaries, 'pricing']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('pricing') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-mark-read-pricing"
-                              >
-                                <Check size={10} /> {readSummaries.includes('pricing') ? 'Read' : 'Mark as Read'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (savedSummaries.includes('pricing')) {
-                                    setSavedSummaries(savedSummaries.filter(id => id !== 'pricing'));
-                                  } else {
-                                    setSavedSummaries([...savedSummaries, 'pricing']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('pricing') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-save-pricing"
-                              >
-                                <Star size={10} className={savedSummaries.includes('pricing') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('pricing') ? 'Saved' : 'Save'}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        )}
-
-                        {/* History Item 3 - Growth Momentum */}
-                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('growth')) || (historyFilter === 'saved' && savedSummaries.includes('growth'))) && (
-                        <div className={`relative pl-8 transition-all duration-500 ${selectedHistoryItem === 'growth' ? 'ring-2 ring-amber-500/30 rounded-lg bg-amber-500/5 p-2 -ml-2' : ''}`}>
-                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-amber-500/50 flex items-center justify-center z-10">
-                            <Zap size={12} className="text-amber-400" />
-                          </div>
-                          <div className={`bg-slate-900/50 border rounded-lg p-3 hover:border-slate-700 transition-colors ${selectedHistoryItem === 'growth' ? 'border-amber-500/50 shadow-lg shadow-amber-500/10' : 'border-slate-800'}`}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Growth Momentum</span>
-                              <span className="text-[10px] text-slate-500">{getPeriodLabel()}</span>
-                            </div>
-                            <p className="text-xs text-slate-300 font-medium mb-2">Significant spike in external authority and social mentions.</p>
-                            <div className="space-y-1.5 border-t border-slate-800/50 pt-2 mt-2">
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
-                              <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
-                            </div>
-                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
-                              <button
-                                onClick={() => {
-                                  if (readSummaries.includes('growth')) {
-                                    setReadSummaries(readSummaries.filter(id => id !== 'growth'));
-                                  } else {
-                                    setReadSummaries([...readSummaries, 'growth']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('growth') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-mark-read-growth"
-                              >
-                                <Check size={10} /> {readSummaries.includes('growth') ? 'Read' : 'Mark as Read'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (savedSummaries.includes('growth')) {
-                                    setSavedSummaries(savedSummaries.filter(id => id !== 'growth'));
-                                  } else {
-                                    setSavedSummaries([...savedSummaries, 'growth']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('growth') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-save-growth"
-                              >
-                                <Star size={10} className={savedSummaries.includes('growth') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('growth') ? 'Saved' : 'Save'}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        )}
-                        {/* History Item 4 - Competitive Response */}
-                        {(historyFilter === 'all' || (historyFilter === 'unread' && !readSummaries.includes('strategic')) || (historyFilter === 'saved' && savedSummaries.includes('strategic'))) && (
-                        <div className="relative pl-8">
-                          <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border border-blue-500/50 flex items-center justify-center z-10">
-                            <TargetIcon size={12} className="text-blue-400" />
-                          </div>
-                          <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-3 hover:border-slate-700 transition-colors">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Competitive Response</span>
-                              <span className="text-[10px] text-slate-500">Dec 18, 2024</span>
-                            </div>
-                            <p className="text-xs text-slate-300">Quietly updated Enterprise SLA terms, matching your recent platform uptime guarantee.</p>
-                            <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-800/50">
-                              <button
-                                onClick={() => {
-                                  if (readSummaries.includes('strategic')) {
-                                    setReadSummaries(readSummaries.filter(id => id !== 'strategic'));
-                                  } else {
-                                    setReadSummaries([...readSummaries, 'strategic']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${readSummaries.includes('strategic') ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-mark-read-strategic"
-                              >
-                                <Check size={10} /> {readSummaries.includes('strategic') ? 'Read' : 'Mark as Read'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (savedSummaries.includes('strategic')) {
-                                    setSavedSummaries(savedSummaries.filter(id => id !== 'strategic'));
-                                  } else {
-                                    setSavedSummaries([...savedSummaries, 'strategic']);
-                                  }
-                                }}
-                                className={`flex items-center gap-1.5 px-2 py-1 rounded text-[10px] font-medium transition-all ${savedSummaries.includes('strategic') ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white hover:border-slate-600'}`}
-                                data-testid="button-save-strategic"
-                              >
-                                <Star size={10} className={savedSummaries.includes('strategic') ? 'fill-amber-400' : ''} /> {savedSummaries.includes('strategic') ? 'Saved' : 'Save'}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        )}
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('pivot');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <TrendingUp size={12} className="text-emerald-400" /> Market Strategy Shift
-                      </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
-                    </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Detected 4 signals indicating shift toward Enterprise Infrastructure.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-emerald-500/80 font-bold mr-1">Key Info:</span> 2 new Enterprise landing pages + 1 SSO technical doc update.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> High risk to mid-market accounts; increased competitive pressure on security compliance.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Brief sales team on new SOC2 comparison; update Enterprise security battle card.</p>
-                    </div>
-                  </div>
-                  <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('pricing');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <ShieldAlert size={12} className="text-red-400" /> Pricing Model Changes
-                      </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
-                    </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Price model consolidation across {summaryFrequency === 'daily' ? '1 tracker' : '3 trackers'}.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-red-500/80 font-bold mr-1">Key Info:</span> New $49/mo flat rate identified; temporary promotional banner detected on ads.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Aggressive undercutting of your per-seat model in the 5-15 user segment.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Launch "Total Cost of Ownership" calculator for prospects comparing flat vs per-seat.</p>
-                    </div>
-                  </div>
-                  <div 
-                    onClick={() => {
-                      setSelectedHistoryItem('growth');
-                      setShowHistorySheet(true);
-                    }}
-                    className="bg-slate-950/50 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/50 transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest flex items-center gap-1.5">
-                        <Zap size={12} className="text-amber-400" /> Growth Momentum
-                      </p>
-                      <span className="text-[10px] text-slate-600 font-medium">{getPeriodLabel()}</span>
-                    </div>
-                    <p className="text-sm text-slate-200 font-medium mb-2 leading-tight">Significant spike in external authority and social mentions.</p>
-                    <div className="space-y-1.5 border-t border-slate-800/50 pt-2.5">
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-500/80 font-bold mr-1">Key Info:</span> 3 high-DA backlinks from tech news + {summaryFrequency === 'daily' ? '20%' : '45%'} increase in X/Twitter mentions.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-brand-400/80 font-bold mr-1">Impact:</span> Domain authority likely to rise by +2 in next update; higher SEO visibility for core keywords.</p>
-                      <p className="text-[10px] text-slate-400 leading-relaxed"><span className="text-amber-400/80 font-bold mr-1">Action:</span> Boost budget on "alternatives to [competitor]" search ads; initiate outreach to shared media contacts.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Signals - By Tracking Dimension (Multi-column Draggable) */}
-            <div>
-              <div className="flex items-center justify-between gap-4 mb-6">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2 shrink-0">
-                  <AlertZap size={16} className="text-brand-500" /> Signals ({comprehensiveSignals.length} Found)
-                </h3>
-                <Sheet open={showFullFeed} onOpenChange={(open) => {
-                    setShowFullFeed(open);
-                    if (!open) {
-                      setActiveTrackerType(null);
-                      setSelectedSignal(null);
-                      setFeedFilter('all');
-                    } else {
-                      // When opening, ensure we're showing domain-wide signals
-                      setActiveTrackerType(null);
-                      setFeedFilter('all');
-                      // Default to latest signal
-                      if (comprehensiveSignals.length > 0) {
-                        setSelectedSignal(comprehensiveSignals[0]);
-                      }
-                    }
-                  }}>
-                  <SheetTrigger asChild>
-                    <button 
-                      className="text-xs font-bold text-white hover:text-brand-200 transition-colors uppercase tracking-wide px-3 py-1.5 bg-brand-500/10 border border-brand-500/40 rounded-lg hover:bg-brand-500/20 hover:border-brand-500/60"
-                      data-testid="button-view-full-feed"
-                    >
-                      View Full Feed
-                    </button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-full sm:max-w-4xl bg-slate-950 border-slate-800 p-0 overflow-hidden flex flex-col">
-                    <SheetHeader className="p-6 border-b border-slate-800 shrink-0">
-                      <SheetTitle className="text-xl font-bold text-white flex items-center gap-2">
-                        <AlertZap size={20} className="text-brand-500" /> 
-                        {activeTrackerType ? (
-                          <>
-                            {activeTrackerType.charAt(0).toUpperCase() + activeTrackerType.slice(1)} Tracker Signals
-                            <span className="text-sm font-normal text-slate-500">({filteredSignals.length})</span>
-                          </>
-                        ) : (
-                          <>{selectedTarget?.name} Intelligence Signals</>
-                        )}
-                      </SheetTitle>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {activeTrackerType 
-                          ? `Timeline of ${activeTrackerType} tracker signals for ${selectedTarget?.name}. Click any item to view details.`
-                          : `Real-time intelligence feed for ${selectedTarget?.name}.`
-                        }
-                      </p>
-                      {!activeTrackerType && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                          <button 
-                            onClick={() => setFeedFilter('all')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${feedFilter === 'all' ? 'bg-brand-500 text-white border-brand-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-all"
-                          >
-                            All ({comprehensiveSignals.length})
-                          </button>
-                          {Object.entries(dimensionConfig).map(([dim, config]) => {
-                            const DimIcon = config.icon;
-                            const count = comprehensiveSignals.filter(s => s.dimension === dim).length;
-                            return (
-                              <button 
-                                key={dim}
-                                onClick={() => setFeedFilter(dim as typeof feedFilter)}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1 ${feedFilter === dim ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                                data-testid={`filter-${dim}`}
-                                title={config.label}
-                              >
-                                <DimIcon size={12} /> ({count})
-                              </button>
-                            );
-                          })}
-                          <button 
-                            onClick={() => setFeedFilter('favorites')}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1.5 ${feedFilter === 'favorites' ? 'bg-slate-600 text-white border-slate-500' : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'}`}
-                            data-testid="filter-favorites"
-                          >
-                            <Pin size={12} /> Pin ({comprehensiveSignals.filter(s => signalFavorites.includes(s.id)).length})
-                          </button>
-                        </div>
-                      )}
-                    </SheetHeader>
-                    
-                    <div className="flex-1 overflow-hidden flex">
-                      <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                      {filteredSignals.length > 0 ? (
-                        <div className="relative">
-                          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-brand-500/50 via-slate-700 to-transparent" />
-                          <div className="space-y-4 pl-10">
-                            {filteredSignals.map((signal, index) => (
-                              <div key={signal.id} id={`signal-feed-${signal.id}`} className="relative animate-in slide-in-from-right-4 duration-300 scroll-mt-20">
-                                <div className="absolute -left-10 top-4 flex flex-col items-center">
-                                  <div className={`w-3 h-3 rounded-full ring-4 ring-slate-950 z-10 ${
-                                    signal.value === 'high' ? 'bg-red-500' :
-                                    signal.value === 'medium' ? 'bg-yellow-500' :
-                                    'bg-slate-500'
-                                  }`} />
-                                  <span className="text-[9px] text-slate-500 mt-1 whitespace-nowrap transform -rotate-0">{signal.time}</span>
-                                </div>
-                                <div 
-                                  onClick={() => {
-                                    console.log('Clicked signal:', signal);
-                                    setSelectedSignal(signal);
-                                  }}
-                                  className={`p-4 rounded-xl transition-all group cursor-pointer ${
-                                    selectedSignal?.id === signal.id 
-                                      ? 'bg-brand-500/10 border-2 border-brand-500/50 shadow-lg shadow-brand-500/10' 
-                                      : 'bg-slate-900/50 border border-slate-800 hover:border-brand-500/30'
-                                  }`}
-                                >
-                                  <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
-                                        <img src={`https://www.google.com/s2/favicons?domain=${signal.domain}&sz=32`} className="w-full h-full object-contain" alt={signal.domain} />
-                                      </div>
-                                      <span className="text-[10px] text-slate-400 font-medium">{signal.domain}</span>
-                                    </div>
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (signalFavorites.includes(signal.id)) {
-                                          setSignalFavorites(signalFavorites.filter(id => id !== signal.id));
-                                        } else {
-                                          setSignalFavorites([...signalFavorites, signal.id]);
-                                        }
-                                      }}
-                                      className={`transition-colors ${signalFavorites.includes(signal.id) ? 'text-amber-400' : 'text-slate-600 hover:text-slate-400'}`}
-                                      data-testid={`button-favorite-signal-${signal.id}`}
-                                    >
-                                      <Star size={14} className={signalFavorites.includes(signal.id) ? 'fill-amber-400' : ''} />
-                                    </button>
-                                  </div>
-                                  <p className="text-sm text-slate-200 leading-relaxed mb-3">{signal.content}</p>
-                                  <div className="flex items-center gap-2 mb-3 flex-wrap">
-                                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                                      signal.value === 'high' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                      signal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                                      'bg-slate-700/50 text-slate-400 border border-slate-600/30'
-                                    }`}>
-                                      {signal.value === 'high' ? 'HIGH' : signal.value === 'medium' ? 'MED' : 'LOW'}
-                                    </span>
-                                    <span className="px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800/80 text-slate-400 border border-slate-700/50">
-                                      {signal.category}
-                                    </span>
-                                    {signal.dimension && dimensionConfig[signal.dimension] && (() => {
-                                      const dimConfig = dimensionConfig[signal.dimension];
-                                      const DimIcon = dimConfig.icon;
-                                      return (
-                                        <span className="px-2 py-0.5 rounded text-[9px] font-medium uppercase tracking-wider bg-slate-800/50 text-slate-500 border border-slate-700/30 flex items-center gap-1">
-                                          <DimIcon size={10} /> {dimConfig.label}
-                                        </span>
-                                      );
-                                    })()}
-                                  </div>
-                                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                    <button 
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (!researchingSignals.has(signal.id)) {
-                                          setResearchPromptSignal(signal);
-                                          setResearchPrompt('');
-                                        }
-                                      }}
-                                      disabled={researchingSignals.has(signal.id)}
-                                      className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                                        researchingSignals.has(signal.id) 
-                                          ? 'bg-brand-500/20 text-brand-400 border border-brand-500/40 cursor-not-allowed' 
-                                          : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-600'
-                                      }`}
-                                      data-testid={`signal-research-${signal.id}`}
-                                    >
-                                      {researchingSignals.has(signal.id) ? (
-                                        <>
-                                          <Loader2 size={12} className="animate-spin" /> Researching...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Search size={12} /> Research
-                                        </>
-                                      )}
-                                    </button>
-                                    <a 
-                                      href={signal.sourceUrl} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      onClick={(e) => e.stopPropagation()}
-                                      className="p-1.5 text-slate-500 hover:text-brand-400 transition-colors flex items-center gap-1" 
-                                      data-testid={`link-signal-source-${signal.id}`}
-                                      title="View Original Source"
-                                    >
-                                      <ExternalLink size={14} />
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-slate-600 space-y-4 py-20">
-                          <Search size={48} className="opacity-20" />
-                          <p className="text-sm font-medium">No intelligence signals found in this category.</p>
-                        </div>
-                      )}
-                      </div>
-
-                      {selectedSignal && (
-                        <div className="w-96 border-l border-slate-800 bg-slate-900/50 flex flex-col animate-in slide-in-from-right duration-300 shrink-0">
-                          <div className="p-6 border-b border-slate-800 flex items-center justify-between shrink-0">
-                            <h3 className="text-lg font-bold text-white">Signal Details</h3>
-                            <button 
-                              onClick={() => setSelectedSignal(null)}
-                              className="text-slate-500 hover:text-white transition-colors"
-                            >
-                              <X size={20} />
-                            </button>
-                          </div>
-                          <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                            <div>
-                              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Signal Title</p>
-                              <p className="text-sm text-white leading-relaxed">{selectedSignal.content}</p>
-                            </div>
-                            
-                            <div>
-                              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Source</p>
-                              <a 
-                                href={selectedSignal.sourceUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-                                data-testid="link-source-url"
-                              >
-                                <div className="w-6 h-6 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700">
-                                  <img src={`https://www.google.com/s2/favicons?domain=${selectedSignal.domain}&sz=32`} className="w-full h-full object-contain" alt={selectedSignal.domain} />
-                                </div>
-                                <span className="text-sm text-brand-400 hover:text-brand-300 cursor-pointer font-medium">{selectedSignal.domain}</span>
-                              </a>
-                            </div>
-
-                            <div>
-                              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Classification</p>
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-slate-400">Category:</span>
-                                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${selectedSignal.bgColor}/20 ${selectedSignal.color}`}>{selectedSignal.category}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-slate-400">Value:</span>
-                                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                                    selectedSignal.value === 'high' ? 'bg-red-500/20 text-red-400' :
-                                    selectedSignal.value === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-slate-500/20 text-slate-400'
-                                  }`}>{selectedSignal.value === 'high' ? 'High' : selectedSignal.value === 'medium' ? 'Medium' : 'Low'}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-xs text-slate-400">Type:</span>
-                                  <span className="px-2 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400">{selectedSignal.type}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div>
-                              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Analysis</p>
-                              <div className="space-y-3">
-                                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-                                  <p className="text-[10px] font-bold text-brand-400 mb-2 flex items-center gap-1.5">
-                                    <BrainCircuit size={12} /> Strategic Impact
-                                  </p>
-                                  <p className="text-xs text-slate-300 leading-relaxed">This signal indicates a strategic shift in their market positioning. The competitive advantage is moderate and should be monitored for follow-up actions.</p>
-                                </div>
-                                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-                                  <p className="text-[10px] font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
-                                    <TrendingUp size={12} /> Trend Direction
-                                  </p>
-                                  <p className="text-xs text-slate-300 leading-relaxed">Strong upward momentum detected. This competitor is actively expanding capabilities in this area with sustained investment.</p>
-                                </div>
-                                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-                                  <p className="text-[10px] font-bold text-amber-400 mb-2 flex items-center gap-1.5">
-                                    <AlertTriangle size={12} /> Action Items
-                                  </p>
-                                  <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
-                                    <li>Review internal roadmap for competitive gaps</li>
-                                    <li>Assess customer feedback on this feature area</li>
-                                    <li>Schedule competitive war room discussion</li>
-                                  </ul>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Research Prompt Dialog */}
-                    <Dialog open={!!researchPromptSignal} onOpenChange={(open) => !open && setResearchPromptSignal(null)}>
-                      <DialogContent className="bg-slate-950 border-slate-800 text-white max-w-lg">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2 text-white">
-                            <Search className="text-brand-400" size={20} />
-                            Deep Research
-                          </DialogTitle>
-                          <DialogDescription className="text-slate-400">
-                            Start a research task based on this signal
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="mt-4 space-y-4">
-                          <div className="p-3 bg-slate-900/50 border border-slate-800 rounded-lg">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal</p>
-                            <p className="text-sm text-slate-300 italic">"{researchPromptSignal?.content}"</p>
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${researchPromptSignal?.bgColor}/20 ${researchPromptSignal?.color}`}>
-                                {researchPromptSignal?.category}
-                              </span>
-                              <span className="text-[10px] text-slate-500">{researchPromptSignal?.domain}</span>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <label className="block text-xs font-medium text-slate-400 mb-2">
-                              What would you like to research about this signal?
-                            </label>
-                            <textarea
-                              value={researchPrompt}
-                              onChange={(e) => setResearchPrompt(e.target.value)}
-                              placeholder="e.g., Analyze the competitive implications of this pricing change and suggest counter-strategies..."
-                              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all resize-none"
-                              rows={3}
-                              data-testid="input-research-prompt"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-3 pt-2">
-                            <button
-                              onClick={() => setResearchPromptSignal(null)}
-                              className="flex-1 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors"
-                              data-testid="button-cancel-research"
-                            >
-                              Cancel
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (researchPromptSignal && researchPrompt.trim()) {
-                                  // Add to researching signals
-                                  setResearchingSignals(prev => new Set(Array.from(prev).concat(researchPromptSignal.id)));
-                                  
-                                  // Add to active research tasks
-                                  setActiveResearchTasks(prev => [...prev, {
-                                    signalId: researchPromptSignal.id,
-                                    prompt: researchPrompt,
-                                    status: 'running'
-                                  }]);
-                                  
-                                  // Update parent component running tasks count
-                                  setRunningResearchTasks(prev => prev + 1);
-                                  
-                                  // Close dialog
-                                  setResearchPromptSignal(null);
-                                  
-                                  // Create research session via API
-                                  try {
-                                    await apiRequest('POST', '/api/chat', {
-                                      message: `Research this competitive signal: "${researchPromptSignal.content}" - ${researchPrompt}`,
-                                      type: 'signal-research'
-                                    });
-                                    queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
-                                    
-                                    // Simulate research completion after 30 seconds
-                                    setTimeout(() => {
-                                      setResearchingSignals(prev => {
-                                        const newSet = new Set(prev);
-                                        newSet.delete(researchPromptSignal.id);
-                                        return newSet;
-                                      });
-                                      setActiveResearchTasks(prev => 
-                                        prev.map(t => t.signalId === researchPromptSignal.id 
-                                          ? {...t, status: 'completed'} 
-                                          : t
-                                        )
-                                      );
-                                      // Decrement parent running tasks count
-                                      setRunningResearchTasks(prev => Math.max(0, prev - 1));
-                                    }, 30000);
-                                  } catch (e) {
-                                    console.error('Failed to create research task:', e);
-                                    // Clean up all research state on error
-                                    setResearchingSignals(prev => {
-                                      const newSet = new Set(prev);
-                                      newSet.delete(researchPromptSignal.id);
-                                      return newSet;
-                                    });
-                                    // Remove from active research tasks list
-                                    setActiveResearchTasks(prev => 
-                                      prev.filter(t => t.signalId !== researchPromptSignal.id)
-                                    );
-                                    // Decrement parent running tasks count
-                                    setRunningResearchTasks(prev => Math.max(0, prev - 1));
-                                  }
-                                }
-                              }}
-                              disabled={!researchPrompt.trim()}
-                              className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${
-                                researchPrompt.trim() 
-                                  ? 'bg-brand-500 hover:bg-brand-600 text-white' 
-                                  : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                              }`}
-                              data-testid="button-start-research"
-                            >
-                              <Rocket size={14} />
-                              Start Research
-                            </button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </SheetContent>
-                </Sheet>
-              </div>
-
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-                {trackerOrder.map(id => trackers[id as keyof typeof trackers])}
-              </div>
+            {/* AI Insight Panel - Refactored Track Interface */}
+            <div className="flex-1 bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden min-h-0">
+              <TrackInsightPanel 
+                targetName={selectedTarget.name} 
+                targetDomain={safeGetHostname(selectedTarget.url)}
+                onResearch={onResearchPrompt}
+              />
             </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full text-slate-500">Select a target</div>
         )}
       </div>
-
       {/* Create Task Dialog */}
-      <Dialog open={showCreateTaskModal} onOpenChange={setShowCreateTaskModal}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-              <Globe className="text-brand-500" size={20} />
+      <Dialog open={showCreateTaskModal} onOpenChange={(open) => {
+        setShowCreateTaskModal(open);
+        if (!open) setCreateFormTab('basic');
+      }}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
+              <Globe className="text-brand-500" size={24} />
             </div>
-            <div>
-              <DialogTitle className="text-white text-lg">Create Tracking Target</DialogTitle>
-              <p className="text-xs text-slate-400 mt-1">Add a new competitor to track across multiple dimensions</p>
+            <div className="space-y-1.5 w-full">
+              <DialogTitle className="text-white text-xl font-bold text-center w-full">Create Tracking Target</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto text-center">Add a new competitor to track across multiple dimensions</p>
             </div>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
-              <input
-                type="text"
-                value={newTargetName}
-                onChange={(e) => setNewTargetName(e.target.value)}
-                placeholder="e.g., Figma"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-new-target-name"
-              />
+          <Tabs value={createFormTab} onValueChange={(v) => {
+            if (v === 'notifications' && (!newTargetName.trim() || !newTargetUrl.trim())) {
+              setCreateTabError("Please complete Basic Info first.");
+              return;
+            }
+            setCreateFormTab(v as 'basic' | 'notifications');
+          }} className="w-full">
+            <div className="relative">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+                <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Settings size={14} />
+                  Basic Info
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Bell size={14} />
+                  Notifications
+                </TabsTrigger>
+              </TabsList>
+              {createTabError && (
+                <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="bg-slate-800 border border-brand-500/40 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit shadow-lg">
+                    <AlertTriangle size={12} />
+                    {createTabError}
+                  </div>
+                </div>
+              )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            
+            <TabsContent value="basic" className="space-y-6 py-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
                 <input
                   type="text"
-                  value={newTargetUrl}
-                  onChange={(e) => setNewTargetUrl(e.target.value)}
-                  placeholder="e.g., figma.com or https://figma.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-new-target-url"
+                  value={newTargetName}
+                  onChange={(e) => setNewTargetName(e.target.value)}
+                  placeholder="e.g., Figma"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-new-target-name"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
-              <div className="space-y-2">
-                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
-                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                    <input 
-                      type="checkbox" 
-                      checked={newTaskTrackers.includes(tracker.toLowerCase())}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setNewTaskTrackers([...newTaskTrackers, tracker.toLowerCase()]);
-                        } else {
-                          setNewTaskTrackers(newTaskTrackers.filter(t => t !== tracker.toLowerCase()));
-                        }
-                      }}
-                      className="w-4 h-4 rounded accent-brand-500" 
-                    />
-                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
-                  </label>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="flex-1 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <input
+                    type="text"
+                    value={newTargetUrl}
+                    onChange={(e) => setNewTargetUrl(e.target.value)}
+                    placeholder="e.g., figma.com or https://figma.com"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    data-testid="input-new-target-url"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+                <div className="space-y-2">
+                  {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                    <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                      <input 
+                        type="checkbox" 
+                        checked={newTaskTrackers.includes(tracker.toLowerCase())}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setNewTaskTrackers([...newTaskTrackers, tracker.toLowerCase()]);
+                          } else {
+                            setNewTaskTrackers(newTaskTrackers.filter(t => t !== tracker.toLowerCase()));
+                          }
+                        }}
+                        className="w-4 h-4 rounded accent-brand-500" 
+                      />
+                      <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notifications" className="space-y-6 py-2">
+              {/* Single Email Management Section - 3-Stage Magic Link Flow */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
+                <div className="space-y-3">
+                  {/* Stage 1: Email Entry (when unverified and not sent) */}
+                  {emailVerificationStatus === 'unverified' && emailSendStatus !== 'sent' && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                        <input
+                          type="email"
+                          value={newNotificationEmail}
+                          onChange={(e) => setNewNotificationEmail(e.target.value)}
+                          placeholder="Enter email address..."
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                          disabled={emailSendStatus === 'sending'}
+                          data-testid="input-new-notification-email"
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (newNotificationEmail.trim()) {
+                            setEmailSendStatus('sending');
+                            // Simulate sending magic link
+                            setTimeout(() => {
+                              setEmailSendStatus('sent');
+                              setEmailVerificationStatus('pending');
+                            }, 1500);
+                          }
+                        }}
+                        disabled={!newNotificationEmail.trim() || emailSendStatus === 'sending'}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[160px] justify-center whitespace-nowrap"
+                        data-testid="button-send-verification"
+                      >
+                        {emailSendStatus === 'sending' ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                        {emailSendStatus === 'sending' ? 'Sending...' : 'Send Verification'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Stage 2: Pending Verification (link sent, awaiting click) */}
+                  {emailVerificationStatus === 'pending' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <Mail size={16} className="text-amber-400" />
+                        <div className="flex-1">
+                          <p className="text-sm text-amber-400 font-medium">Verification link sent!</p>
+                          <p className="text-xs text-slate-400 mt-0.5">Check your inbox at <span className="text-white">{newNotificationEmail}</span></p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setEmailSendStatus('sending');
+                            setTimeout(() => {
+                              setEmailSendStatus('sent');
+                            }, 1500);
+                          }}
+                          disabled={emailSendStatus === 'sending'}
+                          className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1 disabled:opacity-50"
+                          data-testid="button-resend-verification"
+                        >
+                          {emailSendStatus === 'sending' ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                          Resend link
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEmailSendStatus('idle');
+                            setEmailVerificationStatus('unverified');
+                          }}
+                          className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                          data-testid="button-change-email"
+                        >
+                          <Pencil size={12} />
+                          Change email
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Simulate user clicking the magic link (for demo purposes)
+                            setEmailVerificationStatus('verified');
+                          }}
+                          className="ml-auto text-xs text-slate-600 hover:text-slate-500 underline"
+                          data-testid="button-simulate-verify"
+                        >
+                          (Simulate: I clicked the link)
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stage 3: Verified */}
+                  {emailVerificationStatus === 'verified' && (
+                    <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                      <Check size={16} className="text-emerald-400" />
+                      <div className="flex-1">
+                        <p className="text-sm text-emerald-400 font-medium">Email verified</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{newNotificationEmail}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setEmailSendStatus('idle');
+                          setEmailVerificationStatus('unverified');
+                        }}
+                        className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                        data-testid="button-change-verified-email"
+                      >
+                        <Pencil size={12} />
+                        Change
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Helper text for Stage 1 */}
+                  {emailVerificationStatus === 'unverified' && emailSendStatus !== 'sent' && (
+                    <p className="text-[10px] text-slate-500 italic">
+                      We will send a verification link to confirm your email address.
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Frequency Settings Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Frequency</label>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setNewFrequencyType('daily')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        newFrequencyType === 'daily' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-frequency-daily"
+                    >
+                      Daily
+                    </button>
+                    <button
+                      onClick={() => setNewFrequencyType('weekly')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        newFrequencyType === 'weekly' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-frequency-weekly"
+                    >
+                      Weekly
+                    </button>
+                  </div>
+                  
+                  {newFrequencyType === 'daily' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={newDailyTime} onValueChange={setNewDailyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-daily-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={newTimezone} onValueChange={setNewTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-timezone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Day</label>
+                        <Select value={newWeeklyDay} onValueChange={setNewWeeklyDay}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-weekly-day">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                              <SelectItem key={day} value={day} className="text-white hover:bg-slate-700 capitalize">{day.charAt(0).toUpperCase() + day.slice(1)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={newWeeklyTime} onValueChange={setNewWeeklyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-weekly-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={newTimezone} onValueChange={setNewTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-timezone-weekly">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <Clock size={12} />
+                    {newFrequencyType === 'daily' 
+                      ? `You'll receive daily signal summaries at ${newDailyTime} (${newTimezone.replace('_', ' ')})`
+                      : `You'll receive weekly signal summaries every ${newWeeklyDay.charAt(0).toUpperCase() + newWeeklyDay.slice(1)} at ${newWeeklyTime} (${newTimezone.replace('_', ' ')})`
+                    }
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
             <button
@@ -3990,6 +4521,12 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                     setNewTargetName('');
                     setNewTargetUrl('');
                     setNewTaskTrackers(['website', 'backlinks', 'seo']);
+                    setNewNotificationEmail('');
+                    setEmailSendStatus('idle');
+                    setEmailVerificationStatus('unverified');
+                    setNewFrequencyType('daily');
+                    setNewDailyTime('09:00');
+                    setNewTimezone('UTC');
                     setShowCreateTaskModal(false);
                   } catch (error) {
                     console.error('Failed to create target:', error);
@@ -3998,7 +4535,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   }
                 }
               }}
-              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget}
+              disabled={!newTargetName.trim() || !newTargetUrl.trim() || isAddingTarget || emailVerificationStatus !== 'verified'}
               className="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-all flex items-center gap-2"
               data-testid="button-create-task-submit"
             >
@@ -4010,58 +4547,342 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       </Dialog>
 
       {/* Edit Configuration Dialog */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
-          <DialogHeader className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
-              <Globe className="text-brand-500" size={20} />
+      <Dialog open={showEditModal} onOpenChange={(open) => {
+        setShowEditModal(open);
+        if (!open) setEditFormTab('basic');
+      }}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center mb-4 mx-auto">
+              <Globe className="text-brand-500" size={24} />
             </div>
-            <div>
-              <DialogTitle className="text-white text-lg">Edit Target Configuration</DialogTitle>
-              <p className="text-xs text-slate-400 mt-1">Update target details and tracking settings</p>
+            <div className="space-y-1.5 w-full">
+              <DialogTitle className="text-white text-xl font-bold text-center w-full">Edit Target Configuration</DialogTitle>
+              <p className="text-sm text-slate-400 max-w-[80%] mx-auto text-center">Update target details and tracking settings</p>
             </div>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
-              <input
-                type="text"
-                value={editTargetName}
-                onChange={(e) => setEditTargetName(e.target.value)}
-                placeholder="e.g., Figma"
-                className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                data-testid="input-edit-target-name"
-              />
+          <Tabs value={editFormTab} onValueChange={(v) => {
+            if (v === 'notifications' && (!editTargetName.trim() || !editTargetUrl.trim())) {
+              setEditTabError("Please complete Basic Info first.");
+              return;
+            }
+            setEditFormTab(v as 'basic' | 'notifications');
+          }} className="w-full">
+            <div className="relative">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 mb-4">
+                <TabsTrigger value="basic" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Settings size={14} />
+                  Basic Info
+                </TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all">
+                  <Bell size={14} />
+                  Notifications
+                </TabsTrigger>
+              </TabsList>
+              {editTabError && (
+                <div className="absolute -top-10 left-0 right-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="bg-slate-800 border border-brand-500/40 text-brand-400 text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-2 justify-center mx-auto w-fit shadow-lg">
+                    <AlertTriangle size={12} />
+                    {editTabError}
+                  </div>
+                </div>
+              )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            
+            <TabsContent value="basic" className="space-y-6 py-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Name</label>
                 <input
                   type="text"
-                  value={editTargetUrl}
-                  onChange={(e) => setEditTargetUrl(e.target.value)}
-                  placeholder="e.g., figma.com or https://figma.com"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
-                  data-testid="input-edit-target-url"
+                  value={editTargetName}
+                  onChange={(e) => setEditTargetName(e.target.value)}
+                  placeholder="e.g., Figma"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                  data-testid="input-edit-target-name"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
-              <div className="space-y-2">
-                {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
-                  <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
-                    <span className="text-sm text-slate-300">{tracker} Tracker</span>
-                  </label>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Target Website URL</label>
+                <div className="flex-1 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <input
+                    type="text"
+                    value={editTargetUrl}
+                    onChange={(e) => setEditTargetUrl(e.target.value)}
+                    placeholder="e.g., figma.com or https://figma.com"
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/50 transition-all"
+                    data-testid="input-edit-target-url"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Active Trackers</label>
+                <div className="space-y-2">
+                  {['Website', 'Backlinks', 'SEO', 'Social', 'News', 'Ads'].map((tracker) => (
+                    <label key={tracker} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800 transition-colors">
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded accent-brand-500" />
+                      <span className="text-sm text-slate-300">{tracker} Tracker</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notifications" className="space-y-6 py-2">
+              {/* Single Email Management Section - 3-Stage Magic Link Flow */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Email</label>
+                <div className="space-y-3">
+                  {/* Stage 1: Email Entry (when unverified and not sent) */}
+                  {editEmailVerificationStatus === 'unverified' && editEmailSendStatus !== 'sent' && (
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
+                        <input
+                          type="email"
+                          value={editNotificationEmail}
+                          onChange={(e) => setEditNotificationEmail(e.target.value)}
+                          placeholder="Enter email address..."
+                          className="w-full bg-slate-800 border border-slate-700 rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                          disabled={editEmailSendStatus === 'sending'}
+                          data-testid="input-edit-notification-email"
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (editNotificationEmail.trim()) {
+                            setEditEmailSendStatus('sending');
+                            // Simulate sending magic link
+                            setTimeout(() => {
+                              setEditEmailSendStatus('sent');
+                              setEditEmailVerificationStatus('pending');
+                            }, 1500);
+                          }
+                        }}
+                        disabled={!editNotificationEmail.trim() || editEmailSendStatus === 'sending'}
+                        className="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 min-w-[160px] justify-center whitespace-nowrap"
+                        data-testid="button-edit-send-verification"
+                      >
+                        {editEmailSendStatus === 'sending' ? <Loader2 size={14} className="animate-spin" /> : <Mail size={14} />}
+                        {editEmailSendStatus === 'sending' ? 'Sending...' : 'Send Verification'}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Stage 2: Pending Verification (link sent, awaiting click) */}
+                  {editEmailVerificationStatus === 'pending' && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                        <Mail size={16} className="text-amber-400" />
+                        <div className="flex-1">
+                          <p className="text-sm text-amber-400 font-medium">Verification link sent!</p>
+                          <p className="text-xs text-slate-400 mt-0.5">Check your inbox at <span className="text-white">{editNotificationEmail}</span></p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setEditEmailSendStatus('sending');
+                            setTimeout(() => {
+                              setEditEmailSendStatus('sent');
+                            }, 1500);
+                          }}
+                          disabled={editEmailSendStatus === 'sending'}
+                          className="text-sm text-brand-400 hover:text-brand-300 flex items-center gap-1 disabled:opacity-50"
+                          data-testid="button-edit-resend-verification"
+                        >
+                          {editEmailSendStatus === 'sending' ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                          Resend link
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditEmailSendStatus('idle');
+                            setEditEmailVerificationStatus('unverified');
+                          }}
+                          className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                          data-testid="button-edit-change-email"
+                        >
+                          <Pencil size={12} />
+                          Change email
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Simulate user clicking the magic link (for demo purposes)
+                            setEditEmailVerificationStatus('verified');
+                          }}
+                          className="ml-auto text-xs text-slate-600 hover:text-slate-500 underline"
+                          data-testid="button-edit-simulate-verify"
+                        >
+                          (Simulate: I clicked the link)
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stage 3: Verified */}
+                  {editEmailVerificationStatus === 'verified' && (
+                    <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+                      <Check size={16} className="text-emerald-400" />
+                      <div className="flex-1">
+                        <p className="text-sm text-emerald-400 font-medium">Email verified</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{editNotificationEmail}</p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setEditEmailSendStatus('idle');
+                          setEditEmailVerificationStatus('unverified');
+                        }}
+                        className="text-sm text-slate-500 hover:text-slate-400 flex items-center gap-1"
+                        data-testid="button-edit-change-verified-email"
+                      >
+                        <Pencil size={12} />
+                        Change
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Helper text for Stage 1 */}
+                  {editEmailVerificationStatus === 'unverified' && editEmailSendStatus !== 'sent' && (
+                    <p className="text-[10px] text-slate-500 italic">
+                      We will send a verification link to confirm your email address.
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              {/* Frequency Settings Section */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-3">Notification Frequency</label>
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setEditFrequencyType('daily')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        editFrequencyType === 'daily' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-edit-frequency-daily"
+                    >
+                      Daily
+                    </button>
+                    <button
+                      onClick={() => setEditFrequencyType('weekly')}
+                      className={`flex-1 p-3 rounded-lg border text-sm font-medium transition-all ${
+                        editFrequencyType === 'weekly' 
+                          ? 'bg-brand-500/20 border-brand-500 text-brand-400' 
+                          : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600'
+                      }`}
+                      data-testid="button-edit-frequency-weekly"
+                    >
+                      Weekly
+                    </button>
+                  </div>
+                  
+                  {editFrequencyType === 'daily' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={editDailyTime} onValueChange={setEditDailyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-daily-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={editTimezone} onValueChange={setEditTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-timezone">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Day</label>
+                        <Select value={editWeeklyDay} onValueChange={setEditWeeklyDay}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-weekly-day">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                              <SelectItem key={day} value={day} className="text-white hover:bg-slate-700 capitalize">{day.charAt(0).toUpperCase() + day.slice(1)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Time</label>
+                        <Select value={editWeeklyTime} onValueChange={setEditWeeklyTime}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-weekly-time">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'].map(time => (
+                              <SelectItem key={time} value={time} className="text-white hover:bg-slate-700">{time}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-slate-500 mb-1.5">Timezone</label>
+                        <Select value={editTimezone} onValueChange={setEditTimezone}>
+                          <SelectTrigger className="bg-slate-800 border-slate-700 text-white" data-testid="select-edit-timezone-weekly">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-800 border-slate-700">
+                            {['UTC', 'America/New_York', 'America/Los_Angeles', 'America/Chicago', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Singapore', 'Australia/Sydney'].map(tz => (
+                              <SelectItem key={tz} value={tz} className="text-white hover:bg-slate-700">{tz.replace('_', ' ')}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <Clock size={12} />
+                    {editFrequencyType === 'daily' 
+                      ? `You'll receive daily signal summaries at ${editDailyTime} (${editTimezone.replace('_', ' ')})`
+                      : `You'll receive weekly signal summaries every ${editWeeklyDay.charAt(0).toUpperCase() + editWeeklyDay.slice(1)} at ${editWeeklyTime} (${editTimezone.replace('_', ' ')})`
+                    }
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800">
+                <label className="flex items-center gap-3 p-3 bg-slate-800/30 border border-slate-700/50 rounded-xl cursor-pointer hover:bg-slate-800/50 transition-all group">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox" 
+                      defaultChecked 
+                      className="peer w-5 h-5 rounded border-slate-700 bg-slate-900 checked:bg-brand-500 checked:border-brand-500 transition-all appearance-none cursor-pointer" 
+                    />
+                    <Check size={12} className="absolute left-1 top-1 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Apply to all targets</p>
+                    <p className="text-[10px] text-slate-500">Use these notification settings for all currently tracked competitors</p>
+                  </div>
+                </label>
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex items-center justify-between gap-3 pt-4 border-t border-slate-800">
             <button
@@ -4400,8 +5221,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              {!activeSession || activeSession.messages.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
                   <div className="max-w-lg text-center animate-fade-in-up">
-                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center shadow-xl shadow-brand-500/20 mb-3">
-                      <Bot size={20} className="text-white" />
+                   <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-xl shadow-amber-500/20 mb-3">
+                      <Lightbulb size={20} className="text-white" />
                    </div>
                    <h2 className="text-xl font-bold text-white mb-1">What shall we investigate?</h2>
                    <p className="text-slate-400 text-xs mb-4 max-w-sm">I can analyze competitors, track pricing shifts, or synthesize market trends.</p>
@@ -4437,8 +5258,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                             </div>
                          ) : (
                             <div className="flex gap-4 items-start">
-                               <div className="w-8 h-8 rounded-lg bg-brand-900/20 border border-brand-500/20 flex items-center justify-center shrink-0 mt-1">
-                                  <Bot size={16} className="text-brand-400" />
+                               <div className="w-8 h-8 rounded-lg bg-amber-900/20 border border-amber-500/20 flex items-center justify-center shrink-0 mt-1">
+                                  <Lightbulb size={16} className="text-amber-400" />
                                </div>
                                <div className="flex-1 space-y-3">
                                   {msg.reasoning && msg.reasoning.length > 0 && (
@@ -4485,7 +5306,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
 
           <div className="shrink-0 px-4 md:px-8 pb-4 pt-2">
              <div className="max-w-3xl mx-auto relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-500/20 to-purple-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/20 to-orange-600/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
                 <div className="relative bg-slate-900 border border-slate-700 rounded-xl shadow-2xl flex flex-col">
                    <textarea
                      value={input}
@@ -4513,7 +5334,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                       <button 
                         onClick={() => { if(!activeSession) startNewSession(); setTimeout(handleSendMessage, 0); }}
                         disabled={!input.trim()}
-                        className="p-2 bg-brand-600 hover:bg-brand-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg transition-all"
+                        className="p-2 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-lg transition-all"
                         data-testid="button-send-research"
                       >
                          <ArrowRight size={16} />
@@ -4540,7 +5361,7 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
     const reports = dbReports.map(r => ({
       id: r.id,
       title: r.title,
-      product: new URL(r.url).hostname.replace('www.', ''),
+      product: safeGetHostname(r.url),
       date: new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       summary: r.summary.substring(0, 150) + (r.summary.length > 150 ? '...' : ''),
       isFavorite: localFavorites.has(r.id)
@@ -4733,8 +5554,294 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
     );
 };
 
+interface PromptTemplate {
+   id: number;
+   title: string;
+   category: string;
+   desc: string;
+   icon: typeof Swords;
+   color: string;
+   prompt?: string;
+   isCustom?: boolean;
+}
+
+const SortableTemplateCard = ({ 
+   template, 
+   onEdit 
+}: { 
+   template: PromptTemplate; 
+   onEdit: (template: PromptTemplate) => void;
+}) => {
+   const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+   } = useSortable({ id: template.id });
+
+   const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+   };
+
+   return (
+      <div 
+         ref={setNodeRef}
+         style={style}
+         className={`group bg-slate-900/60 border border-slate-800 rounded-lg p-2 transition-all hover:bg-slate-900/80 hover:border-slate-700 ${isDragging ? 'shadow-lg shadow-brand-500/20 border-brand-500/50' : ''}`}
+         data-testid={`template-card-${template.id}`}
+      >
+         <div className="flex items-center gap-2">
+            <div 
+               {...attributes}
+               {...listeners}
+               className="cursor-grab active:cursor-grabbing text-slate-600 hover:text-slate-400 shrink-0"
+               data-testid={`drag-handle-${template.id}`}
+            >
+               <GripVertical size={12} />
+            </div>
+            <div className={`p-1.5 rounded-md bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
+               <template.icon size={12} />
+            </div>
+            <div className="flex-1 min-w-0">
+               <h4 className="text-[13px] font-bold text-white mb-0.5">{template.title}</h4>
+               <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">{template.desc}</p>
+               <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-[9px] font-medium text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">{template.category}</span>
+               </div>
+            </div>
+            <button
+               onClick={() => onEdit(template)}
+               className="p-1 text-slate-500 hover:text-brand-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
+               data-testid={`button-edit-template-${template.id}`}
+            >
+               <Edit2 size={10} />
+            </button>
+         </div>
+      </div>
+   );
+};
+
+const TemplateColumn = ({ 
+   title, 
+   templates, 
+   isActive, 
+   columnId,
+   onEdit,
+   onCreateNew 
+}: { 
+   title: string; 
+   templates: PromptTemplate[]; 
+   isActive: boolean;
+   columnId: string;
+   onEdit: (template: PromptTemplate) => void;
+   onCreateNew?: () => void;
+}) => {
+   const { setNodeRef, isOver } = useDroppable({ id: columnId });
+
+   return (
+      <div className="flex flex-col">
+         <div className="flex items-center gap-2 mb-2 h-[28px]">
+            <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-brand-500' : 'bg-slate-600'}`} />
+            <h3 className="text-xs font-bold text-slate-300">{title}</h3>
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>
+               {templates.length}
+            </span>
+         </div>
+         <div 
+            ref={setNodeRef}
+            className={`rounded-xl border ${isActive ? 'border-brand-500/30 bg-brand-500/5' : 'border-slate-800 bg-slate-900/30'} p-3 transition-all ${isOver ? 'ring-2 ring-brand-500/50 bg-brand-500/10' : ''} flex flex-col`}
+            style={{ height: '540px' }}
+         >
+            <SortableContext items={templates.map(t => t.id)} strategy={verticalListSortingStrategy}>
+               <div className="space-y-2 flex-1 overflow-y-auto custom-scrollbar pr-1">
+                  {templates.map(template => (
+                     <SortableTemplateCard 
+                        key={template.id} 
+                        template={template} 
+                        onEdit={onEdit}
+                     />
+                  ))}
+                  {templates.length === 0 && (
+                     <div className="flex flex-col items-center justify-center py-12 text-slate-600 border-2 border-dashed border-slate-800 rounded-lg h-full">
+                        <Library size={24} className="mb-2 opacity-40" />
+                        <p className="text-xs">Drag templates here</p>
+                     </div>
+                  )}
+               </div>
+            </SortableContext>
+            {onCreateNew && (
+               <button
+                  onClick={onCreateNew}
+                  className="mt-3 w-full py-2 border border-dashed border-slate-700 rounded-lg text-slate-500 hover:text-slate-300 hover:border-slate-600 hover:bg-slate-900/50 transition-all flex items-center justify-center gap-2 text-xs font-medium shrink-0"
+                  data-testid="button-create-template"
+               >
+                  <Plus size={14} /> Create New
+               </button>
+            )}
+         </div>
+      </div>
+   );
+};
+
+const BrowserExtensionPreview = ({ activeTemplates }: { activeTemplates: PromptTemplate[] }) => {
+   const [currentSlide, setCurrentSlide] = useState(0);
+   const featuredTemplate = activeTemplates[currentSlide] || activeTemplates[0];
+   
+   const quickActions = activeTemplates.slice(0, 4);
+   const moreTools = activeTemplates.slice(4);
+
+   return (
+      <div className="w-full rounded-xl border border-slate-700 bg-slate-800 overflow-hidden flex flex-col shadow-xl shadow-black/30" style={{ height: '540px' }}>
+         <div className="bg-slate-700 px-3 py-2 flex items-center gap-2 border-b border-slate-600 shrink-0">
+            <div className="flex items-center gap-1">
+               <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+               <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+            </div>
+            <div className="flex-1 flex items-center gap-1.5 bg-slate-800 rounded px-2 py-1 ml-1">
+               <Lock size={9} className="text-slate-500" />
+               <span className="text-[9px] text-slate-400 truncate">https://www.acme-logistics.com</span>
+            </div>
+            <div className="w-5 h-5 rounded bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-[7px] font-bold text-white">
+               CS
+            </div>
+         </div>
+         
+         <div className="bg-white flex-1 overflow-y-auto">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[10px] font-bold">
+                     CS
+                  </div>
+                  <span className="text-sm font-bold text-gray-800">CompetiScope</span>
+               </div>
+               <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                  <User size={14} className="text-gray-500" />
+               </div>
+            </div>
+
+            {featuredTemplate && (
+               <div className="p-4">
+                  <div className="bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 rounded-xl p-4 text-white relative overflow-hidden">
+                     <div className="absolute top-3 left-3">
+                        <span className="text-[8px] font-bold uppercase bg-white/25 px-2 py-0.5 rounded-full tracking-wide">Best Match</span>
+                     </div>
+                     <div className="absolute top-3 right-3 flex gap-1">
+                        <button 
+                           onClick={() => setCurrentSlide(prev => Math.max(0, prev - 1))}
+                           className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           disabled={currentSlide === 0}
+                        >
+                           <ChevronLeft size={12} />
+                        </button>
+                        <button 
+                           onClick={() => setCurrentSlide(prev => Math.min(activeTemplates.length - 1, prev + 1))}
+                           className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                           disabled={currentSlide === activeTemplates.length - 1}
+                        >
+                           <ChevronRight size={12} />
+                        </button>
+                     </div>
+                     <div className="mt-7 mb-2 flex items-center gap-2">
+                        <Sparkles size={16} className="text-yellow-300" />
+                        <h3 className="text-base font-bold">{featuredTemplate.title}</h3>
+                     </div>
+                     <p className="text-[11px] text-white/80 mb-4 leading-relaxed">{featuredTemplate.desc}</p>
+                     <button className="w-full bg-white text-violet-600 font-bold py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors shadow-lg">
+                        Run
+                     </button>
+                     <div className="flex justify-center gap-1.5 mt-3">
+                        {activeTemplates.slice(0, 3).map((_, idx) => (
+                           <div key={idx} className={`w-2 h-2 rounded-full transition-all ${idx === currentSlide ? 'bg-white scale-110' : 'bg-white/40'}`} />
+                        ))}
+                     </div>
+                  </div>
+               </div>
+            )}
+
+            {quickActions.length > 0 && (
+               <div className="px-4 pb-3">
+                  <div className="flex items-center justify-between mb-3">
+                     <div className="flex items-center gap-1.5">
+                        <Zap size={12} className="text-violet-500" />
+                        <span className="text-xs font-bold text-gray-700">Quick Actions</span>
+                     </div>
+                     <span className="text-[10px] text-violet-500 font-semibold">View All</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                     {quickActions.map((template) => (
+                        <div key={template.id} className="bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors border border-gray-100 cursor-pointer">
+                           <div className="flex items-start gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                                 <template.icon size={14} className="text-violet-500" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                 <p className="text-[11px] font-semibold text-gray-800 leading-tight">{template.title.split(' ').slice(0, 2).join(' ')}</p>
+                                 <p className="text-[9px] text-gray-500 mt-0.5 line-clamp-1">{template.desc.split(' ').slice(0, 4).join(' ')}...</p>
+                              </div>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
+            {moreTools.length > 0 && (
+               <div className="px-4 pb-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                     <Settings size={12} className="text-violet-500" />
+                     <span className="text-xs font-bold text-gray-700">More Tools</span>
+                  </div>
+                  <div className="space-y-1">
+                     {moreTools.map((template) => (
+                        <div key={template.id} className="flex items-center justify-between py-2 px-1 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
+                           <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center">
+                                 <template.icon size={12} className="text-gray-500" />
+                              </div>
+                              <div>
+                                 <p className="text-[11px] font-medium text-gray-800">{template.title}</p>
+                                 <p className="text-[9px] text-gray-500">{template.desc.split(' ').slice(0, 5).join(' ')}...</p>
+                              </div>
+                           </div>
+                           <span className="text-[10px] text-violet-500 font-semibold px-2 py-1 bg-violet-50 rounded-lg">Run</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
+            )}
+
+            {activeTemplates.length === 0 && (
+               <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                     <Library size={24} className="text-gray-400" />
+                  </div>
+                  <p className="text-sm text-gray-500 font-medium">No active templates</p>
+                  <p className="text-xs text-gray-400 mt-1">Drag templates to Active column</p>
+               </div>
+            )}
+         </div>
+         
+         <div className="bg-gray-50 border-t border-gray-200 p-3 shrink-0">
+            <div className="flex items-center gap-2 bg-white rounded-xl border border-gray-200 px-3 py-2.5 shadow-sm">
+               <Sparkles size={14} className="text-violet-500" />
+               <span className="text-xs text-gray-400 flex-1">Ask CompetiScope...</span>
+               <div className="w-7 h-7 rounded-full bg-violet-500 flex items-center justify-center shadow-md">
+                  <Send size={12} className="text-white" />
+               </div>
+            </div>
+         </div>
+      </div>
+   );
+};
+
 const ActsTemplateView = () => {
-   const defaultTemplates = [
+   const { toast } = useToast();
+   const defaultTemplates: PromptTemplate[] = [
       { id: 1, title: 'Competitor Battle Card', category: 'Sales Enablement', desc: 'One-pager highlighting kill points, objection handling, and pricing traps.', icon: Swords, color: 'text-red-400' },
       { id: 2, title: 'Feature Comparison Matrix', category: 'Product Strategy', desc: 'Detailed side-by-side breakdown of feature availability and limits.', icon: LayoutGrid, color: 'text-blue-400' },
       { id: 3, title: 'Quarterly Market Report', category: 'Executive', desc: 'High-level slide deck summary of market movements and threats.', icon: PieChart, color: 'text-purple-400' },
@@ -4743,47 +5850,98 @@ const ActsTemplateView = () => {
       { id: 6, title: 'SEO Gap Analysis', category: 'Marketing', desc: 'Identify keywords where competitors are outranking you.', icon: Search, color: 'text-pink-400' },
    ];
 
-   const categories = ['All', 'Sales Enablement', 'Product Strategy', 'Marketing', 'Executive', 'Custom'];
-   const [activeCat, setActiveCat] = useState('All');
-   const [enabledTemplates, setEnabledTemplates] = useState<number[]>([1, 2, 3]);
-   const [pinnedTemplates, setPinnedTemplates] = useState<number[]>([]);
-   const [customTemplates, setCustomTemplates] = useState<any[]>([]);
+   const [activeTemplates, setActiveTemplates] = useState<PromptTemplate[]>(defaultTemplates.slice(0, 3));
+   const [inactiveTemplates, setInactiveTemplates] = useState<PromptTemplate[]>(defaultTemplates.slice(3));
+   const [customTemplates, setCustomTemplates] = useState<PromptTemplate[]>([]);
    const [showCreateModal, setShowCreateModal] = useState(false);
+   const [showEditModal, setShowEditModal] = useState(false);
+   const [editingTemplate, setEditingTemplate] = useState<PromptTemplate | null>(null);
    const [newTemplateName, setNewTemplateName] = useState('');
    const [newTemplateDesc, setNewTemplateDesc] = useState('');
    const [newTemplateCategory, setNewTemplateCategory] = useState('Custom');
    const [newTemplatePrompt, setNewTemplatePrompt] = useState('');
+   const [activeId, setActiveId] = useState<number | null>(null);
 
-   const toggleTemplate = (id: number) => {
-      setEnabledTemplates(prev => 
-         prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
-      );
+   const sensors = useSensors(
+      useSensor(PointerSensor, {
+         activationConstraint: {
+            distance: 8,
+         },
+      })
+   );
+
+   const handleDragStart = (event: DragStartEvent) => {
+      setActiveId(event.active.id as number);
    };
 
-   const togglePin = (id: number) => {
-      setPinnedTemplates(prev => {
-         if (prev.includes(id)) {
-            return prev.filter(t => t !== id);
-         } else if (prev.length < 4) {
-            return [...prev, id];
+   const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event;
+      setActiveId(null);
+
+      if (!over) return;
+
+      const activeTemplateId = active.id as number;
+      const overId = over.id;
+
+      const isActiveInActive = activeTemplates.some(t => t.id === activeTemplateId);
+      const isActiveInInactive = inactiveTemplates.some(t => t.id === activeTemplateId);
+      
+      const isOverActiveColumn = overId === 'active-column';
+      const isOverInactiveColumn = overId === 'inactive-column';
+      const isOverInActive = activeTemplates.some(t => t.id === overId);
+      const isOverInInactive = inactiveTemplates.some(t => t.id === overId);
+
+      if (isActiveInActive && (isOverInActive || isOverActiveColumn)) {
+         if (isOverActiveColumn) return;
+         const oldIndex = activeTemplates.findIndex(t => t.id === activeTemplateId);
+         const newIndex = activeTemplates.findIndex(t => t.id === overId);
+         setActiveTemplates(arrayMove(activeTemplates, oldIndex, newIndex));
+      } else if (isActiveInInactive && (isOverInInactive || isOverInactiveColumn)) {
+         if (isOverInactiveColumn) return;
+         const oldIndex = inactiveTemplates.findIndex(t => t.id === activeTemplateId);
+         const newIndex = inactiveTemplates.findIndex(t => t.id === overId);
+         setInactiveTemplates(arrayMove(inactiveTemplates, oldIndex, newIndex));
+      } else if (isActiveInActive && (isOverInInactive || isOverInactiveColumn)) {
+         const template = activeTemplates.find(t => t.id === activeTemplateId);
+         if (template) {
+            setActiveTemplates(prev => prev.filter(t => t.id !== activeTemplateId));
+            if (isOverInactiveColumn) {
+               setInactiveTemplates(prev => [...prev, template]);
+            } else {
+               const insertIndex = inactiveTemplates.findIndex(t => t.id === overId);
+               setInactiveTemplates(prev => {
+                  const newArr = [...prev];
+                  newArr.splice(insertIndex, 0, template);
+                  return newArr;
+               });
+            }
          }
-         return prev;
-      });
+      } else if (isActiveInInactive && (isOverInActive || isOverActiveColumn)) {
+         const template = inactiveTemplates.find(t => t.id === activeTemplateId);
+         if (template) {
+            setInactiveTemplates(prev => prev.filter(t => t.id !== activeTemplateId));
+            if (isOverActiveColumn) {
+               setActiveTemplates(prev => [...prev, template]);
+            } else {
+               const insertIndex = activeTemplates.findIndex(t => t.id === overId);
+               setActiveTemplates(prev => {
+                  const newArr = [...prev];
+                  newArr.splice(insertIndex, 0, template);
+                  return newArr;
+               });
+            }
+         }
+      }
    };
 
-   const allTemplates = [...defaultTemplates, ...customTemplates];
-   
-   const sortedTemplates = allTemplates.sort((a, b) => {
-      const aPinned = pinnedTemplates.includes(a.id);
-      const bPinned = pinnedTemplates.includes(b.id);
-      if (aPinned && !bPinned) return -1;
-      if (!aPinned && bPinned) return 1;
-      return 0;
-   });
+   const handleEditTemplate = (template: PromptTemplate) => {
+      setEditingTemplate(template);
+      setShowEditModal(true);
+   };
 
    const handleCreateTemplate = () => {
       if (newTemplateName.trim() && newTemplateDesc.trim() && newTemplatePrompt.trim()) {
-         const newTemplate = {
+         const newTemplate: PromptTemplate = {
             id: Date.now(),
             title: newTemplateName,
             category: newTemplateCategory,
@@ -4793,7 +5951,7 @@ const ActsTemplateView = () => {
             prompt: newTemplatePrompt,
             isCustom: true
          };
-         setCustomTemplates([...customTemplates, newTemplate]);
+         setActiveTemplates(prev => [...prev, newTemplate]);
          setNewTemplateName('');
          setNewTemplateDesc('');
          setNewTemplateCategory('Custom');
@@ -4802,187 +5960,187 @@ const ActsTemplateView = () => {
       }
    };
 
+   const draggedTemplate = activeId 
+      ? [...activeTemplates, ...inactiveTemplates].find(t => t.id === activeId) 
+      : null;
+
+   const officialTemplates: PromptTemplate[] = [
+      { id: 101, title: 'Growth Audit', category: 'Marketing', desc: 'Identify organic growth levers and untapped acquisition channels.', icon: TrendingUp, color: 'text-emerald-400' },
+      { id: 102, title: 'Product Market Fit', category: 'Strategy', desc: 'Score competitor features against user sentiment and market demand.', icon: Crosshair, color: 'text-indigo-400' },
+      { id: 103, title: 'Churn Prediction', category: 'Sales', desc: 'Analyze competitor pricing shifts to predict potential customer churn.', icon: AlertTriangle, color: 'text-amber-400' },
+   ];
+
+   const addOfficialTemplate = (template: PromptTemplate) => {
+      const newTemplate = { ...template, id: Date.now() + Math.random() };
+      setInactiveTemplates(prev => [...prev, newTemplate]);
+      toast({
+         title: "Template Added",
+         description: `${template.title} has been added to your inactive list.`,
+      });
+   };
+
    return (
-      <div className="space-y-8 animate-fade-in-up">
-         <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-6 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 group">
+      <div className="space-y-6 animate-fade-in-up">
+         {/* ... existing header code ... */}
+         <div className="bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 rounded-xl p-5 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4 group">
             <div className="absolute inset-0 bg-blue-500/5 group-hover:bg-blue-500/10 transition-colors duration-500"></div>
             <div className="absolute -right-16 -top-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/20 transition-colors duration-500"></div>
             
-            <div className="flex items-center gap-5 relative z-10">
-               <div className="w-14 h-14 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform duration-300">
-                  <Chrome size={28} />
+            <div className="flex items-center gap-4 relative z-10">
+               <div className="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-110 transition-transform duration-300">
+                  <Chrome size={24} />
                </div>
                <div>
-                  <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-white mb-0.5 flex items-center gap-2">
                      Capture Intelligence Anywhere 
-                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500 text-slate-950 uppercase tracking-wide">New</span>
+                     <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500 text-slate-950 uppercase tracking-wide">New</span>
                   </h3>
-                  <p className="text-sm text-slate-400 max-w-xl leading-relaxed">
-                     Don't just track from here. Install our browser extension to grab pricing, screenshots, and copy directly from competitor websites.
+                  <p className="text-xs text-slate-400 max-w-lg leading-relaxed">
+                     Install our browser extension to grab pricing, screenshots, and copy directly from competitor websites.
                   </p>
                </div>
             </div>
             
-            <button className="relative z-10 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap" data-testid="button-add-chrome">
-               <Chrome size={18} /> Add to Chrome
+            <button className="relative z-10 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap text-sm" data-testid="button-add-chrome">
+               <Chrome size={16} /> Add to Chrome
             </button>
          </div>
 
-         <div className="flex flex-col md:flex-row justify-between items-end gap-4">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
             <div>
-               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Library className="text-brand-500" /> Intelligence Acts Library
+               <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Library className="text-brand-500" size={22} /> Prompt Templates
                </h2>
-               <p className="text-slate-400 mt-1">Proven templates to turn raw data into actionable business assets.</p>
+               <p className="text-slate-400 text-sm mt-0.5">Drag templates between columns to activate or deactivate them.</p>
             </div>
-            <div className="relative">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-               <input 
-                  type="text" 
-                  placeholder="Search templates..." 
-                  className="bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500 w-64"
-                  data-testid="input-search-templates"
+         </div>
+
+         <DndContext
+            sensors={sensors}
+            collisionDetection={rectIntersection}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+         >
+            <div className="grid grid-cols-[1fr_1fr_340px] gap-4 items-start">
+               <TemplateColumn 
+                  title="Active" 
+                  templates={activeTemplates} 
+                  isActive={true}
+                  columnId="active-column"
+                  onEdit={handleEditTemplate}
+                  onCreateNew={() => setShowCreateModal(true)}
                />
+               <TemplateColumn 
+                  title="Inactive" 
+                  templates={inactiveTemplates} 
+                  isActive={false}
+                  columnId="inactive-column"
+                  onEdit={handleEditTemplate}
+               />
+               
+               <div className="flex flex-col">
+                  <div className="flex items-center gap-2 mb-2 h-[28px]">
+                     <Chrome size={14} className="text-slate-400" />
+                     <span className="text-xs font-bold text-slate-300">Extension Preview</span>
+                     <span className="text-[9px] px-1.5 py-0.5 bg-green-500/20 text-green-400 rounded font-medium">Live</span>
+                  </div>
+                  <BrowserExtensionPreview activeTemplates={activeTemplates} />
+               </div>
             </div>
-         </div>
 
-         <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800">
-            {categories.map(cat => (
-               <button 
-                  key={cat}
-                  onClick={() => setActiveCat(cat)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${activeCat === cat ? 'bg-slate-800 text-white' : 'text-slate-500 hover:text-slate-300'}`}
-                  data-testid={`button-category-${cat.replace(/\s+/g, '-').toLowerCase()}`}
-               >
-                  {cat}
-               </button>
-            ))}
-         </div>
-
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedTemplates.filter(t => activeCat === 'All' || t.category === activeCat).map(template => {
-               const isEnabled = enabledTemplates.includes(template.id);
-               const isPinned = pinnedTemplates.includes(template.id);
-               return (
-               <div key={template.id} className={`group rounded-xl p-6 transition-all flex flex-col h-full ${isPinned ? 'border-2 border-brand-500/50 bg-brand-500/10' : 'bg-slate-900/40 border border-slate-800 hover:bg-slate-900/60 hover:border-slate-700'}`} data-testid={`template-card-${template.id}`}>
-                  <div className="flex items-start justify-between mb-4">
-                     <div className={`p-3 rounded-lg bg-slate-950 border border-slate-800 ${template.color} group-hover:scale-110 transition-transform`}>
-                        <template.icon size={24} />
-                     </div>
+            <DragOverlay>
+               {draggedTemplate ? (
+                  <div className="bg-slate-900 border border-brand-500/50 rounded-lg p-2 shadow-xl shadow-brand-500/20 w-40">
                      <div className="flex items-center gap-2">
-                        {isPinned && <span className="text-[10px] font-bold uppercase tracking-wider text-brand-400 bg-brand-500/10 px-2 py-1 rounded border border-brand-500/30">Pinned</span>}
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-950 px-2 py-1 rounded">
-                           {template.category}
-                        </span>
+                        <div className="text-slate-400 shrink-0">
+                           <GripVertical size={12} />
+                        </div>
+                        <div className={`p-1 rounded bg-slate-950 border border-slate-800 ${draggedTemplate.color} shrink-0`}>
+                           <draggedTemplate.icon size={10} />
+                        </div>
+                        <span className="text-[10px] font-medium text-white truncate">{draggedTemplate.title}</span>
                      </div>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{template.title}</h3>
-                  <p className="text-sm text-slate-400 leading-relaxed mb-6 flex-1">
-                     {template.desc}
-                  </p>
-                  <div className="flex gap-2">
-                    <button 
-                       onClick={() => toggleTemplate(template.id)}
-                       className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 border ${isEnabled ? 'bg-brand-600 hover:bg-brand-500 border-brand-500 text-white' : 'bg-slate-950 hover:bg-slate-900 border-slate-700 text-slate-400'}`}
-                       data-testid={`button-toggle-template-${template.id}`}
-                    >
-                       {isEnabled ? '✓ Active' : 'Inactive'}
-                    </button>
-                    <button
-                       onClick={() => togglePin(template.id)}
-                       disabled={!isPinned && pinnedTemplates.length >= 4}
-                       className={`px-3 py-2.5 rounded-lg transition-all flex items-center justify-center border ${isPinned ? 'bg-brand-500/20 border-brand-500/50 text-brand-400 hover:bg-brand-500/30' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:bg-slate-900'} disabled:opacity-50 disabled:cursor-not-allowed`}
-                       title={pinnedTemplates.length >= 4 && !isPinned ? 'Maximum 4 pinned templates' : ''}
-                       data-testid={`button-pin-template-${template.id}`}
-                    >
-                       <Pin size={16} />
-                    </button>
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <button className="px-3 py-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-400 hover:text-white rounded-lg transition-all flex items-center justify-center group/edit">
-                          <Edit2 size={16} className="group-hover/edit:text-brand-500 transition-colors" />
-                        </button>
-                      </SheetTrigger>
-                      <SheetContent className="bg-slate-950 border-l border-slate-800 sm:max-w-md">
-                        <SheetHeader className="mb-6">
-                          <SheetTitle className="text-white flex items-center gap-2">
-                            <Edit2 className="text-brand-500" size={20} />
-                            Edit Template Prompt
-                          </SheetTitle>
-                          <p className="text-xs text-slate-500">Customize the AI instructions for this intelligence output.</p>
-                        </SheetHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-2">System Instruction / Prompt Task</label>
-                            <textarea 
-                              className="w-full h-64 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500/50 resize-none custom-scrollbar"
-                              defaultValue={`Analyze the competitor's recent signals and generate a comprehensive ${template.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
-                            />
-                          </div>
-                          <button className="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-sm font-bold transition-all shadow-[0_0_15px_rgba(20,184,166,0.2)]">
-                            Save Template Configuration
-                          </button>
-                        </div>
-                      </SheetContent>
-                    </Sheet>
-                  </div>
-               </div>
-            );
-            })}
+               ) : null}
+            </DragOverlay>
+         </DndContext>
 
-            
-            <div 
-               onClick={() => setShowCreateModal(true)}
-               className="bg-dashed border border-slate-800 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center text-slate-500 hover:bg-slate-900/30 hover:text-slate-300 hover:border-slate-700 transition-all cursor-pointer" 
-               data-testid="button-create-template"
-            >
-               <div className="p-4 rounded-full bg-slate-900 mb-4">
-                  <Plus size={24} />
+         <div className="pt-4 border-t border-slate-800/50">
+            <div className="flex items-center justify-between mb-4">
+               <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                     <Sparkles size={16} className="text-brand-400" />
+                     Official ACTS Templates
+                  </h3>
+                  <p className="text-[11px] text-slate-500">Pick pre-configured high-performance prompts to add to your workspace.</p>
                </div>
-               <h3 className="font-medium mb-1">Create Custom Template</h3>
-               <p className="text-xs max-w-[200px]">Design a new intelligence output format for your team.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+               {officialTemplates.map((template) => (
+                  <div 
+                     key={template.id} 
+                     className="bg-slate-900/40 border border-slate-800 rounded-xl p-3 hover:border-slate-700 transition-all group"
+                  >
+                     <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-lg bg-slate-950 border border-slate-800 ${template.color} shrink-0`}>
+                           <template.icon size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                           <h4 className="text-[13px] font-bold text-white mb-0.5">{template.title}</h4>
+                           <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed mb-3">{template.desc}</p>
+                           <button 
+                              onClick={() => addOfficialTemplate(template)}
+                              className="w-full py-1.5 bg-slate-800 hover:bg-brand-600 text-slate-300 hover:text-white rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1.5"
+                           >
+                              <Plus size={12} /> Add to My List
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               ))}
             </div>
          </div>
 
          <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-            <DialogContent className="bg-slate-950 border border-slate-800 max-w-2xl">
+            <DialogContent className="bg-slate-950 border border-slate-800 max-w-lg">
                <DialogHeader>
                   <DialogTitle className="text-white flex items-center gap-2">
-                     <Lightbulb className="text-brand-400" size={20} />
+                     <Lightbulb className="text-brand-400" size={18} />
                      Create Custom Template
                   </DialogTitle>
-                  <DialogDescription className="text-slate-400">
+                  <DialogDescription className="text-slate-400 text-sm">
                      Design a new intelligence template tailored to your team's needs.
                   </DialogDescription>
                </DialogHeader>
-               <div className="space-y-4">
+               <div className="space-y-3">
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Template Name</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Template Name</label>
                      <input 
                         type="text"
                         value={newTemplateName}
                         onChange={(e) => setNewTemplateName(e.target.value)}
                         placeholder="e.g., Competitive Threat Assessment"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500"
                         data-testid="input-template-name"
                      />
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Description</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Description</label>
                      <textarea 
                         value={newTemplateDesc}
                         onChange={(e) => setNewTemplateDesc(e.target.value)}
                         placeholder="Brief description of what this template does..."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-20"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-16"
                         data-testid="input-template-desc"
                      />
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Category</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Category</label>
                      <select 
                         value={newTemplateCategory}
                         onChange={(e) => setNewTemplateCategory(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-brand-500"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
                         data-testid="select-template-category"
                      >
                         <option>Custom</option>
@@ -4993,19 +6151,19 @@ const ActsTemplateView = () => {
                      </select>
                   </div>
                   <div>
-                     <label className="text-sm font-semibold text-white block mb-2">Prompt / Instructions</label>
+                     <label className="text-xs font-semibold text-white block mb-1.5">Prompt / Instructions</label>
                      <textarea 
                         value={newTemplatePrompt}
                         onChange={(e) => setNewTemplatePrompt(e.target.value)}
                         placeholder="Enter the AI prompt/instructions for this template..."
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-32"
+                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none h-24"
                         data-testid="textarea-template-prompt"
                      />
                   </div>
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-2 pt-2">
                      <button 
                         onClick={() => setShowCreateModal(false)}
-                        className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                        className="flex-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
                         data-testid="button-cancel-template"
                      >
                         Cancel
@@ -5013,13 +6171,64 @@ const ActsTemplateView = () => {
                      <button 
                         onClick={handleCreateTemplate}
                         disabled={!newTemplateName.trim() || !newTemplateDesc.trim() || !newTemplatePrompt.trim()}
-                        className="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                        className="flex-1 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-sm"
                         data-testid="button-create-template-confirm"
                      >
                         Create Template
                      </button>
                   </div>
                </div>
+            </DialogContent>
+         </Dialog>
+
+         <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+            <DialogContent className="bg-slate-950 border border-slate-800 max-w-lg">
+               <DialogHeader>
+                  <DialogTitle className="text-white flex items-center gap-2">
+                     <Edit2 className="text-brand-400" size={18} />
+                     Edit Template Prompt
+                  </DialogTitle>
+                  <DialogDescription className="text-slate-400 text-sm">
+                     Customize the AI instructions for this intelligence output.
+                  </DialogDescription>
+               </DialogHeader>
+               {editingTemplate && (
+                  <div className="space-y-4">
+                     <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                        <div className={`p-2 rounded-md bg-slate-950 border border-slate-800 ${editingTemplate.color}`}>
+                           <editingTemplate.icon size={18} />
+                        </div>
+                        <div>
+                           <h4 className="text-sm font-semibold text-white">{editingTemplate.title}</h4>
+                           <p className="text-[10px] text-slate-500">{editingTemplate.category}</p>
+                        </div>
+                     </div>
+                     <div>
+                        <label className="text-xs font-semibold text-white block mb-1.5">System Instruction / Prompt</label>
+                        <textarea 
+                           className="w-full h-40 bg-slate-900 border border-slate-800 rounded-lg p-3 text-sm text-slate-300 focus:outline-none focus:border-brand-500 resize-none"
+                           defaultValue={editingTemplate.prompt || `Analyze the competitor's recent signals and generate a comprehensive ${editingTemplate.title}. \n\nFocus on: \n1. Strategic shifts in messaging\n2. Key pricing changes\n3. New feature impact\n4. Recommended response strategy`}
+                           data-testid="textarea-edit-prompt"
+                        />
+                     </div>
+                     <div className="flex gap-2 pt-2">
+                        <button 
+                           onClick={() => setShowEditModal(false)}
+                           className="flex-1 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm"
+                           data-testid="button-cancel-edit"
+                        >
+                           Cancel
+                        </button>
+                        <button 
+                           onClick={() => setShowEditModal(false)}
+                           className="flex-1 px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors font-semibold text-sm"
+                           data-testid="button-save-template"
+                        >
+                           Save Changes
+                        </button>
+                     </div>
+                  </div>
+               )}
             </DialogContent>
          </Dialog>
       </div>
@@ -5217,6 +6426,7 @@ const BillingPopover: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ is
 };
 
 export const Workbench: React.FC = () => {
+  const { toast } = useToast();
   const [activeView, setActiveView] = useState<WorkbenchView>(WorkbenchView.RADAR);
   const [researchPrompt, setResearchPrompt] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -5226,6 +6436,12 @@ export const Workbench: React.FC = () => {
   const [feedFilter, setFeedFilter] = useState('all');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [runningResearchTasks, setRunningResearchTasks] = useState<number>(0);
+  
+  // Global notification settings state (shared with SettingsModal)
+  const [radarNotifyEmail, setRadarNotifyEmail] = useState('');
+  const [radarNotifyDailyDigest, setRadarNotifyDailyDigest] = useState(true);
+  const [editNotificationEmail, setEditNotificationEmail] = useState('');
+  const [editFrequencyType, setEditFrequencyType] = useState<'daily' | 'weekly'>('daily');
 
   const handleSignalClick = (signalId: string, category: string) => {
     setFeedFilter(category.toLowerCase());
@@ -5278,9 +6494,9 @@ export const Workbench: React.FC = () => {
   const NAV_ITEMS = [
     { id: WorkbenchView.RADAR, label: 'Radar', icon: Radar, description: 'Discover market trends and new competitors using AI scanning.' },
     { id: WorkbenchView.TARGETS, label: 'Track', icon: Crosshair, description: 'Monitor specific competitors for pricing changes, feature launches, and traffic shifts.' },
-    { id: WorkbenchView.RESEARCH, label: 'Research', icon: Bot, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
+    { id: WorkbenchView.RESEARCH, label: 'Research', icon: Lightbulb, description: 'Deep-dive AI analysis agent to generate reports and answer strategic questions.' },
     { id: WorkbenchView.LIBRARY, label: 'Library', icon: Book, description: 'Access your archive of generated research reports and deep-dives.' },
-    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Acts Template', icon: Library, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
+    { id: WorkbenchView.ACTS_TEMPLATE, label: 'Extensions', icon: Puzzle, description: 'Pre-built templates for battle cards, SWOT analysis, and executive summaries.' },
   ];
 
   const BOTTOM_NAV_ITEMS = [
@@ -5341,7 +6557,7 @@ export const Workbench: React.FC = () => {
       case WorkbenchView.RADAR:
         return <RadarView onTrackSignal={handleTrackSignal} onResearch={handleResearchFromRadar} />;
       case WorkbenchView.TARGETS:
-        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} runningResearchTasks={runningResearchTasks} setRunningResearchTasks={setRunningResearchTasks} />;
+        return <TargetsView targets={targets as any} selectedTargetId={selectedTargetId} setSelectedTargetId={setSelectedTargetId} onAddTarget={handleAddTarget} onTrackResearch={handleTrackResearch} runningResearchTasks={runningResearchTasks} setRunningResearchTasks={setRunningResearchTasks} onResearchPrompt={(prompt) => { setResearchPrompt(prompt); setActiveView(WorkbenchView.RESEARCH); }} />;
       case WorkbenchView.RESEARCH:
         return (
           <ResearchView 
@@ -5363,7 +6579,18 @@ export const Workbench: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-[#020617]">
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+        radarNotifyEmail={radarNotifyEmail}
+        setRadarNotifyEmail={setRadarNotifyEmail}
+        radarNotifyDailyDigest={radarNotifyDailyDigest}
+        setRadarNotifyDailyDigest={setRadarNotifyDailyDigest}
+        editNotificationEmail={editNotificationEmail}
+        setEditNotificationEmail={setEditNotificationEmail}
+        editFrequencyType={editFrequencyType}
+        setEditFrequencyType={setEditFrequencyType}
+      />
 
       <nav className="w-64 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
         <div className="p-6 flex items-center gap-2 group cursor-pointer">

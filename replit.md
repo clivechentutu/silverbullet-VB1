@@ -22,22 +22,35 @@ CompetiScope is an enterprise-grade market intelligence platform powered by Goog
 client/
   src/
     components/
-      Header.tsx         - Main navigation header
-      ScenarioSelector.tsx - Intelligence module selector
-      LandingPage.tsx    - Home page with URL input
-      Workbench.tsx      - Main dashboard with 6 views
+      Header.tsx              - Main navigation header
+      ScenarioSelector.tsx    - Intelligence module selector
+      LandingPage.tsx         - Home page with URL input
+      Workbench.tsx           - Main dashboard with 6 views
+      TrackInsightPanel.tsx   - Track view insight panel with feedback system
+    features/
+      workbench/
+        hooks/
+          useWorkbenchData.ts - Centralized data fetching hooks
+        constants/
+          channelConfig.ts    - Shared channel configuration
+        components/
+          StatCard.tsx        - Reusable stat card component
+          EmptyState.tsx      - Empty state display component
+        utils/
+          helpers.ts          - Utility functions
+        index.ts              - Feature exports
     lib/
-      constants.ts       - Scenario definitions
-      queryClient.ts     - TanStack Query setup
-    App.tsx              - Main app with routing
+      constants.ts            - Scenario definitions
+      queryClient.ts          - TanStack Query setup
+    App.tsx                   - Main app with routing
     
 server/
-  routes.ts              - API endpoints
-  gemini.ts              - Gemini AI integration
-  storage.ts             - Data storage interface
+  routes.ts                   - API endpoints
+  gemini.ts                   - Gemini AI integration
+  storage.ts                  - Data storage interface
   
 shared/
-  schema.ts              - TypeScript types and Zod schemas
+  schema.ts                   - TypeScript types, Zod schemas, and UI types
 ```
 
 ## Features
@@ -95,10 +108,31 @@ Analyzes a competitor website using Gemini AI.
 ```
 
 ## Recent Changes
+- January 2025: Code architecture improvements
+  - Added shared types to schema.ts (RadarCompetitor, PromptConfiguration, NotificationSettings, etc.)
+  - Created features/workbench module with hooks, constants, components, and utilities
+  - Added tabbed feedback dialog with AI auto-optimization and prompt configuration
+  - Improved code maintainability with reusable components and hooks
 - December 2024: Initial build of CompetiScope platform
 - Implemented Gemini AI integration for competitive analysis
 - Created Workbench with 6 intelligence views
 - Built responsive dark-themed UI
+
+## Code Architecture
+
+### Features Module Pattern
+The project uses a features-based architecture for better code organization:
+- `client/src/features/workbench/` - Workbench dashboard feature
+  - `hooks/` - Custom React hooks for data fetching
+  - `constants/` - Shared configuration (channelConfig, etc.)
+  - `components/` - Reusable UI components
+  - `utils/` - Utility functions
+
+### Shared Types
+All shared types are defined in `shared/schema.ts`:
+- Database models (Target, AnalysisReport, ResearchSession, Signal)
+- UI types (RadarCompetitor, PromptConfiguration, NotificationSettings, etc.)
+- Zod validation schemas for API requests
 
 ## User Preferences
 - Dark theme required
