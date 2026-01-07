@@ -1006,7 +1006,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
             {/* Tier badge for highlight items */}
             {isHighlight && (
               <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30">
-                <TierIcon size={8} className="text-amber-400" />
                 <span className="text-[8px] font-bold text-amber-400 uppercase">{tier.label}</span>
               </span>
             )}
