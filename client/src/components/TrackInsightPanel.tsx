@@ -206,9 +206,12 @@ const SessionCatchUp = ({
         </div>
       )}
       
-    <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 p-4">
+    <div className="rounded-lg border border-brand-500/20 bg-brand-500/5 p-4 shadow-sm shadow-brand-500/5 relative overflow-hidden group">
+      {/* Decorative AI background element */}
+      <div className="absolute -right-8 -top-8 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl group-hover:bg-brand-500/15 transition-colors pointer-events-none" />
+      
       <div 
-        className={`flex items-center justify-between gap-4 ${summaries && !isGenerating ? 'cursor-pointer' : ''}`}
+        className={`flex items-center justify-between gap-4 relative z-10 ${summaries && !isGenerating ? 'cursor-pointer' : ''}`}
         onClick={() => {
           if (viewingHistorical || isGenerating || !summaries) return;
           setIsExpanded(!isExpanded);
@@ -216,8 +219,8 @@ const SessionCatchUp = ({
       >
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 min-w-0 group">
-            <div className="w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-700/50 flex items-center justify-center shrink-0 group-hover:bg-slate-800 transition-colors">
-              <Sparkles size={16} className="text-slate-400" />
+            <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0 group-hover:bg-brand-500/20 transition-colors">
+              <Sparkles size={16} className="text-brand-400" />
             </div>
             <div className="min-w-0 text-left">
               <div className="flex items-center justify-start gap-2 flex-wrap">
@@ -292,7 +295,7 @@ const SessionCatchUp = ({
           )}
         </div>
         
-        <div className="flex items-center gap-2 shrink-0 border-l border-slate-700/50 pl-4 ml-2">
+        <div className="flex items-center gap-2 shrink-0 border-l border-brand-500/20 pl-4 ml-2">
           {viewingHistorical ? (
             <Button
               variant="ghost"
