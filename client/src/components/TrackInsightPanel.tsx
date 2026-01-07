@@ -1003,13 +1003,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            {/* Tier badge for highlight items */}
-            {isHighlight && (
-              <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-amber-500/20 border border-amber-500/30">
-                <TierIcon size={8} className="text-amber-400" />
-                <span className="text-[8px] font-bold text-amber-400 uppercase">{tier.label}</span>
-              </span>
-            )}
             <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
