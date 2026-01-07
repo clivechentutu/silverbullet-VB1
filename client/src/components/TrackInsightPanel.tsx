@@ -968,6 +968,11 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
     onDemote?.(insight.id);
   };
 
+  const mappedTier = 
+    effectiveTier === 'highlight' ? 'high' : 
+    effectiveTier === 'notable' ? 'medium' : 'low';
+  const tierFilterConfig = valueFilterConfig[mappedTier];
+
   return (
     <div 
       ref={setCardRef}
@@ -1003,13 +1008,13 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
             <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
-            {/* AI Confidence indicator */}
+            {/* AI Confidence/Tier indicator aligned with value filters */}
             <TooltipProvider>
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
-                  <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] ${confConfig.bgColor} ${confConfig.color}`}>
+                  <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
                     <BrainCircuit size={7} />
-                    {insight.confidence === 'high' ? 'H' : insight.confidence === 'medium' ? 'M' : 'L'}
+                    {tierFilterConfig.shortLabel}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
