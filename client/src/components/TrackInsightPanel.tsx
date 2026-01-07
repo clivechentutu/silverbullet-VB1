@@ -1018,7 +1018,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-[10px] text-slate-300 font-medium">{confConfig.label}</p>
+                  <p className="text-[10px] text-slate-300 font-medium">{tierFilterConfig.label}</p>
                   <p className="text-[9px] text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
                 </TooltipContent>
               </Tooltip>
