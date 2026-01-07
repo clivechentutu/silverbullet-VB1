@@ -1646,9 +1646,10 @@ interface EvidencePanelProps {
   insight: ChannelInsight | null;
   onMarkResolved: () => void;
   onResearch?: (prompt: string) => void;
+  setSourceSignalsRef?: (el: HTMLElement | null) => void;
 }
 
-const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelProps) => {
+const EvidencePanel = ({ insight, onMarkResolved, onResearch, setSourceSignalsRef }: EvidencePanelProps) => {
   const [signalLimit, setSignalLimit] = useState(5);
   const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
@@ -2084,6 +2085,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
 
         <div className="shrink-0 p-4 border-t border-slate-800 bg-slate-900/40">
           <div 
+            ref={el => setSourceSignalsRef?.(el)}
             className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-800/50 p-1.5 rounded-md transition-colors"
             onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
           >
@@ -2157,11 +2159,14 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
   const containerRef = useRef<HTMLDivElement>(null);
   const detailPanelRef = useRef<HTMLDivElement>(null);
   const [selectedCardEl, setSelectedCardEl] = useState<HTMLDivElement | null>(null);
+  const [sourceSignalsEl, setSourceSignalsEl] = useState<HTMLElement | null>(null);
   const [connectorPath, setConnectorPath] = useState<string>('');
+  const [secondaryConnectorPath, setSecondaryConnectorPath] = useState<string>('');
   
   const updateConnectorPath = useCallback(() => {
     if (!selectedCardEl || !detailPanelRef.current || !containerRef.current) {
       setConnectorPath('');
+      setSecondaryConnectorPath('');
       return;
     }
     
@@ -2179,7 +2184,17 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
     
     const path = `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
     setConnectorPath(path);
-  }, [selectedCardEl]);
+
+    if (sourceSignalsEl) {
+      const signalRect = sourceSignalsEl.getBoundingClientRect();
+      const sEndX = signalRect.left - containerRect.left;
+      const sEndY = signalRect.top + signalRect.height / 2 - containerRect.top;
+      const sPath = `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${sEndX - controlOffset} ${sEndY}, ${sEndX} ${sEndY}`;
+      setSecondaryConnectorPath(sPath);
+    } else {
+      setSecondaryConnectorPath('');
+    }
+  }, [selectedCardEl, sourceSignalsEl]);
   
   useEffect(() => {
     updateConnectorPath();
@@ -2656,7 +2671,17 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
                 className="absolute inset-0 pointer-events-none z-10"
                 style={{ width: '100%', height: '100%' }}
               >
-                <defs>
+                {secondaryConnectorPath && (
+              <path
+                d={secondaryConnectorPath}
+                fill="none"
+                stroke="url(#blue-gradient)"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                className="opacity-40"
+              />
+            )}
+            <defs>
                   <linearGradient id="connectorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity="0.6" />
                     <stop offset="100%" stopColor="rgb(56, 189, 248)" stopOpacity="0.4" />
@@ -2696,7 +2721,12 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             </div>
 
             <div ref={detailPanelRef} className="flex-1 bg-slate-950/30 overflow-hidden">
-              <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
+              <EvidencePanel 
+                insight={selectedInsight} 
+                onMarkResolved={handleMarkResolved} 
+                onResearch={onResearch} 
+                setSourceSignalsRef={setSourceSignalsEl}
+              />
             </div>
           </div>
           
