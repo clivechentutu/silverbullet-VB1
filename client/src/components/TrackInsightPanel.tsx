@@ -964,10 +964,14 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
         <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-500 rounded-full" />
       )}
       
-      {/* Unread indicator */}
-      {!insight.isRead && (
-        <span className={`absolute top-3 right-3 w-2 h-2 rounded-full ${isHighlight ? 'bg-amber-500 animate-pulse' : 'bg-brand-500'}`} />
-      )}
+      {/* Read/Unread indicator */}
+      <div className="absolute top-3 right-3">
+        {!insight.isRead ? (
+          <span className="flex w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        ) : (
+          <Check size={10} className="text-emerald-500" />
+        )}
+      </div>
       
       <div className="flex items-start gap-2.5">
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700`}>
@@ -1006,7 +1010,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
             )}
           </div>
           
-          <h4 className={`text-[11px] font-bold mb-0.5 leading-snug ${isHighlight && !insight.isRead ? 'text-white' : 'text-white'}`}>{insight.title}</h4>
+          <h4 className="text-[11px] font-bold mb-0.5 leading-snug text-white">{insight.title}</h4>
           <p className="text-[10px] text-slate-400 line-clamp-1 leading-snug">{insight.summary}</p>
           
           <div className="flex items-center justify-between mt-1.5 gap-2">
