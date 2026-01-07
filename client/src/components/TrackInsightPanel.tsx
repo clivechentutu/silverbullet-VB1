@@ -190,24 +190,18 @@ const SessionCatchUp = ({
             <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
             <span className="text-[9px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
           </div>
-          <div className="flex items-center gap-4 mt-1.5">
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
-              <span className="text-[9px] text-slate-400">new insights</span>
-            </div>
+            {sinceLastVisit.totalInsights > 0 && (
+              <div className="flex items-center gap-1">
+                <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
+                <span className="text-[9px] text-slate-400">new insights</span>
+              </div>
+            )}
             {sinceLastVisit.highlights > 0 && (
               <div className="flex items-center gap-1">
                 <Sparkles size={10} className="text-amber-400" />
                 <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
               </div>
             )}
-            {sinceLastVisit.notable > 0 && (
-              <div className="flex items-center gap-1">
-                <Zap size={10} className="text-brand-400" />
-                <span className="text-[10px] text-brand-400 font-medium">{sinceLastVisit.notable} notable</span>
-              </div>
-            )}
-          </div>
           <p className="text-[9px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
         </div>
       )}
@@ -1032,12 +1026,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
           <div className="flex items-center justify-between mt-1.5 gap-2">
             <div className="flex items-center gap-2">
               <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
-              {effectiveTier === 'notable' && (
-                <span className="flex items-center gap-0.5 text-[8px] text-brand-400">
-                  <Zap size={8} />
-                  Notable
-                </span>
-              )}
               {/* Demote button - show until item reaches update tier */}
               {effectiveTier !== 'update' && (
                 <TooltipProvider>
