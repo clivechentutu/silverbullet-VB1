@@ -212,156 +212,177 @@ const SessionCatchUp = ({
         </div>
       )}
       
-      <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 min-w-0 cursor-pointer group" onClick={() => {
-              if (viewingHistorical) return;
-              if (summaries) setIsExpanded(!isExpanded);
-            }}>
-              <div className="w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-700/50 flex items-center justify-center shrink-0 group-hover:bg-slate-800 transition-colors">
-                <Sparkles size={16} className="text-slate-400" />
-              </div>
-              <div className="min-w-0 text-left">
-                <div className="flex items-center justify-start gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
-                    {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
-                  </span>
-                  {viewingHistorical ? (
-                    <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
-                  ) : (
-                    <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  {viewingHistorical 
-                    ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
-                    : `${totalSignals} signals collected across ${availableChannels.length} channels`
-                  }
-                </p>
-              </div>
+    <div className="rounded-lg border border-slate-800/60 bg-slate-900/30 p-4">
+      <div 
+        className={`flex items-center justify-between gap-4 ${summaries && !isGenerating ? 'cursor-pointer' : ''}`}
+        onClick={() => {
+          if (viewingHistorical || isGenerating || !summaries) return;
+          setIsExpanded(!isExpanded);
+        }}
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 group">
+            <div className="w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-700/50 flex items-center justify-center shrink-0 group-hover:bg-slate-800 transition-colors">
+              <Sparkles size={16} className="text-slate-400" />
             </div>
-
-            <Button
-              variant="outline"
-              size="default"
-              onClick={onGenerate}
-              disabled={isGenerating || !!summaries}
-              className={`text-xs font-medium px-4 h-8 transition-all ${
-                summaries 
-                  ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default' 
-                  : 'border-brand-500/40 hover:bg-brand-500/10 text-brand-400'
-              }`}
-              data-testid="button-generate-summary"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw size={14} className="mr-2 animate-spin" />
-                  Analyzing...
-                </>
-              ) : summaries ? (
-                <>
-                  <Check size={14} className="mr-2 text-emerald-500" />
-                  Summarized
-                </>
-              ) : (
-                <>
-                  <Sparkles size={14} className="mr-2" />
-                  Generate Summary
-                </>
-              )}
-            </Button>
-            {summaries && !isGenerating && (
-              <TooltipProvider>
-                <Tooltip delayDuration={200}>
-                  <TooltipTrigger asChild>
-                    <div className="p-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors cursor-help">
-                      <Info size={14} />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                    <p className="text-[10px] text-slate-300 leading-relaxed">
-                      Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
+            <div className="min-w-0 text-left">
+              <div className="flex items-center justify-start gap-2 flex-wrap">
+                <span className="text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
+                  {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
+                </span>
+                {viewingHistorical ? (
+                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                ) : (
+                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {viewingHistorical 
+                  ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
+                  : `${totalSignals} signals collected across ${availableChannels.length} channels`
+                }
+              </p>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-2 shrink-0 border-l border-slate-700/50 pl-4 ml-2">
-            {viewingHistorical ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClearHistoricalView}
-                className="text-xs text-slate-400 hover:bg-brand-500/10"
-                data-testid="button-close-historical"
-              >
-                <X size={14} className="mr-1.5" />
-                Close
-              </Button>
+
+          <Button
+            variant="outline"
+            size="default"
+            onClick={(e) => {
+              e.stopPropagation();
+              onGenerate();
+            }}
+            disabled={isGenerating || !!summaries}
+            className={`text-xs font-medium px-4 h-8 transition-all ${
+              summaries 
+                ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default' 
+                : 'border-brand-500/40 hover:bg-brand-500/10 text-brand-400'
+            }`}
+            data-testid="button-generate-summary"
+          >
+            {isGenerating ? (
+              <>
+                <RefreshCw size={14} className="mr-2 animate-spin" />
+                Analyzing...
+              </>
+            ) : summaries ? (
+              <>
+                <Check size={14} className="mr-2 text-emerald-500" />
+                Summarized
+              </>
             ) : (
               <>
-                {historicalSummaries.length > 0 && (
-                  <div className="relative">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowHistory(!showHistory)}
-                      className="text-xs text-slate-400 hover:bg-brand-500/10"
-                      data-testid="button-show-history"
-                    >
-                      <History size={14} className="mr-1.5" />
-                      History
-                      <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
-                        {historicalSummaries.length}
-                      </Badge>
-                    </Button>
-                    
-                    {showHistory && (
-                      <div className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden">
-                        <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
-                        </div>
-          <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-            {historicalSummaries.map(hist => (
-              <div 
-                key={hist.id}
-                onClick={() => {
-                  onViewHistorical(hist);
-                  setShowHistory(false);
-                }}
-                className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
-                  <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
-                </div>
-                <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
-              </div>
-            ))}
-          </div>
-                      </div>
-                    )}
+                <Sparkles size={14} className="mr-2" />
+                Generate Summary
+              </>
+            )}
+          </Button>
+          {summaries && !isGenerating && (
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="p-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors cursor-help"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Info size={14} />
                   </div>
-                )}
-                {summaries && (
+                </TooltipTrigger>
+                <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
+                  <p className="text-[10px] text-slate-300 leading-relaxed">
+                    Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-2 shrink-0 border-l border-slate-700/50 pl-4 ml-2">
+          {viewingHistorical ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClearHistoricalView();
+              }}
+              className="text-xs text-slate-400 hover:bg-brand-500/10"
+              data-testid="button-close-historical"
+            >
+              <X size={14} className="mr-1.5" />
+              Close
+            </Button>
+          ) : (
+            <>
+              {historicalSummaries.length > 0 && (
+                <div className="relative">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setIsExpanded(!isExpanded)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowHistory(!showHistory);
+                    }}
                     className="text-xs text-slate-400 hover:bg-brand-500/10"
-                    data-testid="button-toggle-summary"
+                    data-testid="button-show-history"
                   >
-                    {isExpanded ? 'Hide' : 'Show'}
-                    <ChevronDown size={14} className={`ml-1.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    <History size={14} className="mr-1.5" />
+                    History
+                    <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
+                      {historicalSummaries.length}
+                    </Badge>
                   </Button>
-                )}
-              </>
-            )}
-          </div>
+                  
+                  {showHistory && (
+                    <div 
+                      className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                      </div>
+                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                        {historicalSummaries.map(hist => (
+                          <div 
+                            key={hist.id}
+                            onClick={() => {
+                              onViewHistorical(hist);
+                              setShowHistory(false);
+                            }}
+                            className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                              <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
+                            </div>
+                            <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {summaries && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                  }}
+                  className="text-xs text-slate-400 hover:bg-brand-500/10"
+                  data-testid="button-toggle-summary"
+                >
+                  {isExpanded ? 'Hide' : 'Show'}
+                  <ChevronDown size={14} className={`ml-1.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                </Button>
+              )}
+            </>
+          )}
         </div>
+      </div>
 
         {displayExpanded && displaySummaries && (
           <div className="mt-4 grid gap-2">
