@@ -1008,21 +1008,23 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
             <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
-            {/* AI Confidence/Tier indicator aligned with value filters */}
-            <TooltipProvider>
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
-                    <BrainCircuit size={7} />
-                    {tierFilterConfig.shortLabel}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-[10px] text-slate-300 font-medium">{tierFilterConfig.label}</p>
-                  <p className="text-[9px] text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* AI Confidence/Tier indicator aligned with value filters - only show in All view */}
+            {valueFilter === 'all' && (
+              <TooltipProvider>
+                <Tooltip delayDuration={200}>
+                  <TooltipTrigger asChild>
+                    <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
+                      <BrainCircuit size={7} />
+                      {tierFilterConfig.shortLabel}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
+                    <p className="text-[10px] text-slate-300 font-medium">{tierFilterConfig.label}</p>
+                    <p className="text-[9px] text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             {insight.userOverride && (
               <span className="text-[7px] text-slate-500 italic">adjusted</span>
             )}
