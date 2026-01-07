@@ -972,7 +972,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
       )}
       
       <div className="flex items-start gap-2.5">
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${chConfig?.bgColor} border ${chConfig?.borderColor}`}>
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700`}>
           <ChIcon size={14} className={chConfig?.color} />
         </div>
         
@@ -1721,10 +1721,10 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
 
   return (
     <div className="h-full flex flex-col">
-      <div className={`p-4 border-b border-slate-800/50 ${chConfig?.bgColor}`}>
+      <div className={`p-4 border-b border-slate-800/50 bg-slate-900/50`}>
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-start gap-3">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${chConfig?.bgColor} border ${chConfig?.borderColor}`}>
+            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700`}>
               <ChIcon size={18} className={chConfig?.color} />
             </div>
             <div>
