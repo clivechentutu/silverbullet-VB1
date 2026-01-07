@@ -952,9 +952,10 @@ interface InsightCardProps {
   onClick: () => void;
   onDemote?: (id: string) => void;
   setCardRef?: (el: HTMLDivElement | null) => void;
+  isAllView: boolean;
 }
 
-const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: InsightCardProps) => {
+const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAllView }: InsightCardProps) => {
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
   const effectiveTier = insight.userOverride || insight.tier;
@@ -1009,7 +1010,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: Ins
             <span className="text-[8px] text-slate-600">|</span>
             <span className="text-[8px] text-slate-500">{insight.time}</span>
             {/* AI Confidence/Tier indicator aligned with value filters - only show in All view */}
-            {valueFilter === 'all' && (
+            {isAllView && (
               <TooltipProvider>
                 <Tooltip delayDuration={200}>
                   <TooltipTrigger asChild>
@@ -1571,6 +1572,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                 onClick={() => handleSelect(insight.id)}
                 onDemote={onDemote}
                 setCardRef={(el) => setCardRef(insight.id, el)}
+                isAllView={valueFilter === 'all'}
               />
             ))}
           </div>
