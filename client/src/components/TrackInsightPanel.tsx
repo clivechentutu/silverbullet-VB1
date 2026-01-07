@@ -198,7 +198,7 @@ const SessionCatchUp = ({
             {sinceLastVisit.highlights > 0 && (
               <div className="flex items-center gap-1">
                 <Sparkles size={10} className="text-amber-400" />
-                <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights} focus</span>
+                <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
               </div>
             )}
             {sinceLastVisit.notable > 0 && (
