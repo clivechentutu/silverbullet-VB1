@@ -954,7 +954,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
       onClick={onClick}
       className={`relative p-2.5 rounded-lg cursor-pointer transition-all ${
         isSelected 
-          ? `${chConfig?.bgColor} border ${chConfig?.borderColor}` 
+          ? `bg-slate-800 border-brand-500` 
           : isHighlight && !insight.isRead
             ? `bg-amber-500/5 border border-amber-500/30 shadow-lg ${tier.glowColor}`
             : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
