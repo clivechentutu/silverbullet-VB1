@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { 
   Sparkles, Zap, ChevronRight, ChevronDown,
   ExternalLink, Globe, LinkIcon, Search, Users, FileText, Megaphone,
@@ -954,9 +954,10 @@ interface InsightCardProps {
   isSelected: boolean;
   onClick: () => void;
   onDemote?: (id: string) => void;
+  setCardRef?: (el: HTMLDivElement | null) => void;
 }
 
-const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProps) => {
+const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef }: InsightCardProps) => {
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
   const effectiveTier = insight.userOverride || insight.tier;
@@ -972,10 +973,11 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote }: InsightCardProp
 
   return (
     <div 
+      ref={setCardRef}
       onClick={onClick}
       className={`relative p-2.5 rounded-lg cursor-pointer transition-all ${
         isSelected 
-          ? `bg-slate-800 border-brand-500` 
+          ? `bg-slate-800 border border-brand-500` 
           : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
       }`}
       data-testid={`insight-card-${insight.id}`}
@@ -1222,9 +1224,10 @@ interface InsightFeedProps {
   onChannelFilterChange: (channel: string | null) => void;
   availableChannels: string[];
   lastVisitDays: number;
+  onSelectedCardRef?: (ref: HTMLDivElement | null) => void;
 }
 
-const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, channelFilter, onChannelFilterChange, availableChannels, lastVisitDays }: InsightFeedProps) => {
+const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, channelFilter, onChannelFilterChange, availableChannels, lastVisitDays, onSelectedCardRef }: InsightFeedProps) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('14d');
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
@@ -1232,6 +1235,22 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
   const [displayLimit, setDisplayLimit] = useState(50);
   const [valueFilter, setValueFilter] = useState<ValueFilter>('high');
   const [isValueFilterExpanded, setIsValueFilterExpanded] = useState(false);
+  
+  const cardRefsMap = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  
+  const setCardRef = useCallback((id: string, el: HTMLDivElement | null) => {
+    cardRefsMap.current.set(id, el);
+    if (id === selectedId && onSelectedCardRef) {
+      onSelectedCardRef(el);
+    }
+  }, [selectedId, onSelectedCardRef]);
+  
+  useEffect(() => {
+    if (selectedId && onSelectedCardRef) {
+      const el = cardRefsMap.current.get(selectedId);
+      onSelectedCardRef(el || null);
+    }
+  }, [selectedId, onSelectedCardRef]);
 
   const activeInsights = insights.filter(i => !i.isResolved);
   const resolvedInsights = insights.filter(i => i.isResolved);
@@ -1560,6 +1579,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                 isSelected={selectedId === insight.id}
                 onClick={() => handleSelect(insight.id)}
                 onDemote={onDemote}
+                setCardRef={(el) => setCardRef(insight.id, el)}
               />
             ))}
           </div>
@@ -2133,6 +2153,50 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
   const [isCatchUpExpanded, setIsCatchUpExpanded] = useState(false);
   const [historicalSummaries, setHistoricalSummaries] = useState<HistoricalSummary[]>([]);
   const [viewingHistorical, setViewingHistorical] = useState<HistoricalSummary | null>(null);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const detailPanelRef = useRef<HTMLDivElement>(null);
+  const [selectedCardEl, setSelectedCardEl] = useState<HTMLDivElement | null>(null);
+  const [connectorPath, setConnectorPath] = useState<string>('');
+  
+  const updateConnectorPath = useCallback(() => {
+    if (!selectedCardEl || !detailPanelRef.current || !containerRef.current) {
+      setConnectorPath('');
+      return;
+    }
+    
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const cardRect = selectedCardEl.getBoundingClientRect();
+    const panelRect = detailPanelRef.current.getBoundingClientRect();
+    
+    const startX = cardRect.right - containerRect.left;
+    const startY = cardRect.top + cardRect.height / 2 - containerRect.top;
+    const endX = panelRect.left - containerRect.left;
+    const endY = Math.min(panelRect.top + 40, panelRect.bottom) - containerRect.top;
+    
+    const gap = endX - startX;
+    const controlOffset = Math.min(gap * 0.4, 60);
+    
+    const path = `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
+    setConnectorPath(path);
+  }, [selectedCardEl]);
+  
+  useEffect(() => {
+    updateConnectorPath();
+    
+    const handleScroll = () => {
+      requestAnimationFrame(updateConnectorPath);
+    };
+    
+    const scrollContainer = containerRef.current?.querySelector('.overflow-y-auto');
+    scrollContainer?.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    return () => {
+      scrollContainer?.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [updateConnectorPath, selectedInsightId]);
 
   const availableChannels = ['website', 'seo', 'backlinks', 'social', 'news', 'talent', 'ads'];
   const lastLoginTime = '2 days ago';
@@ -2585,7 +2649,37 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
           />
           
           {/* Core insight area - fixed height, not affected by bottom expansion */}
-          <div className="shrink-0 h-[calc(100vh-420px)] min-h-[200px] flex">
+          <div ref={containerRef} className="shrink-0 h-[calc(100vh-420px)] min-h-[200px] flex relative">
+            {/* SVG Connector Line */}
+            {connectorPath && (
+              <svg 
+                className="absolute inset-0 pointer-events-none z-10"
+                style={{ width: '100%', height: '100%' }}
+              >
+                <defs>
+                  <linearGradient id="connectorGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="rgb(14, 165, 233)" stopOpacity="0.6" />
+                    <stop offset="100%" stopColor="rgb(56, 189, 248)" stopOpacity="0.4" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d={connectorPath}
+                  fill="none"
+                  stroke="url(#connectorGradient)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="transition-all duration-200"
+                />
+                <circle
+                  cx={connectorPath.split(' ')[1]}
+                  cy={connectorPath.split(' ')[2]}
+                  r="4"
+                  fill="rgb(14, 165, 233)"
+                  className="animate-pulse"
+                />
+              </svg>
+            )}
+            
             <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
               <InsightFeed 
                 insights={insights}
@@ -2597,10 +2691,11 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
                 onChannelFilterChange={setChannelFilter}
                 availableChannels={availableChannels}
                 lastVisitDays={lastVisitDays}
+                onSelectedCardRef={setSelectedCardEl}
               />
             </div>
 
-            <div className="flex-1 bg-slate-950/30 overflow-hidden">
+            <div ref={detailPanelRef} className="flex-1 bg-slate-950/30 overflow-hidden">
               <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
             </div>
           </div>
