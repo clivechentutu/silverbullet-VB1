@@ -2705,7 +2705,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                         className="px-3 py-1.5 text-[11px] font-medium rounded-md bg-brand-900/50 hover:bg-brand-800/50 text-brand-400 hover:text-brand-300 transition-colors border border-brand-500/30 flex items-center gap-1"
                         data-testid={`button-research-${signal.id}`}
                       >
-                        <Bot size={12} /> Research
+                        <Lightbulb size={12} /> Research
                       </button>
                     </div>
                   </td>
