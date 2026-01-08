@@ -80,14 +80,14 @@ export const LandingPage = () => {
       star.style.top = `${y}%`;
       star.style.backgroundColor = color.base;
       star.style.opacity = '0';
-      star.style.boxShadow = `0 0 6px 1px ${color.glow}`; // Softer glow
+      star.style.boxShadow = `0 0 8px 2px ${color.glow}`; // Slightly stronger glow
       
       starContainer.appendChild(star);
 
       const starAnimation = star.animate([
-        { opacity: 0, transform: 'scale(0.5)' },
-        { opacity: 1, transform: 'scale(1.1)' },
-        { opacity: 0, transform: 'scale(0.5)' }
+        { opacity: 0, transform: 'scale(0.4)' },
+        { opacity: 1, transform: 'scale(1.2)' },
+        { opacity: 0, transform: 'scale(0.4)' }
       ], {
         duration: duration,
         easing: 'ease-in-out'
