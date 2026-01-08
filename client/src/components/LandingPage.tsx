@@ -52,34 +52,67 @@ export const LandingPage = () => {
       starContainer.appendChild(star);
     }
 
-    // Function to create a twinkling star
+    // Function to create a twinkling star with signal pulse effect
     const createTwinkle = () => {
       const star = document.createElement('div');
       const size = Math.random() * 3 + 1;
       const x = Math.random() * 100;
       const y = Math.random() * 100;
       const duration = Math.random() * 2000 + 1500;
+      
+      // Multi-colored stars (White, Teal/Brand, Purple, Blue)
+      const colors = [
+        { base: 'rgba(255, 255, 255, 1)', glow: 'rgba(255, 255, 255, 0.8)' }, // White
+        { base: 'rgba(20, 184, 166, 1)', glow: 'rgba(20, 184, 166, 0.8)' },  // Teal (Brand)
+        { base: 'rgba(147, 51, 234, 1)', glow: 'rgba(147, 51, 234, 0.8)' },  // Purple
+        { base: 'rgba(59, 130, 246, 1)', glow: 'rgba(59, 130, 246, 0.8)' }   // Blue
+      ];
+      const color = colors[Math.floor(Math.random() * colors.length)];
 
-      star.className = 'absolute rounded-full bg-white blur-[1px]';
+      star.className = 'absolute rounded-full blur-[0.5px]';
       star.style.width = `${size}px`;
       star.style.height = `${size}px`;
       star.style.left = `${x}%`;
       star.style.top = `${y}%`;
+      star.style.backgroundColor = color.base;
       star.style.opacity = '0';
-      star.style.boxShadow = '0 0 8px 1px rgba(255, 255, 255, 0.8)';
+      star.style.boxShadow = `0 0 10px 2px ${color.glow}`;
       
       starContainer.appendChild(star);
 
-      const animation = star.animate([
-        { opacity: 0, transform: 'scale(0.5)' },
-        { opacity: 0.8, transform: 'scale(1.2)' },
-        { opacity: 0, transform: 'scale(0.5)' }
+      // Create "Signal Pulse" ring
+      const ring = document.createElement('div');
+      ring.className = 'absolute rounded-full border';
+      ring.style.borderColor = color.glow;
+      ring.style.left = `${x}%`;
+      ring.style.top = `${y}%`;
+      ring.style.width = `${size}px`;
+      ring.style.height = `${size}px`;
+      ring.style.transform = 'translate(-50%, -50%)'; // Center on star
+      ring.style.marginLeft = `${size/2}px`;
+      ring.style.marginTop = `${size/2}px`;
+      ring.style.opacity = '0';
+      starContainer.appendChild(ring);
+
+      const starAnimation = star.animate([
+        { opacity: 0, transform: 'scale(0.3)' },
+        { opacity: 1, transform: 'scale(1.2)' },
+        { opacity: 0, transform: 'scale(0.3)' }
       ], {
         duration: duration,
         easing: 'ease-in-out'
       });
 
-      animation.onfinish = () => star.remove();
+      const ringAnimation = ring.animate([
+        { opacity: 0.8, transform: 'translate(-50%, -50%) scale(1)', borderWidth: '1px' },
+        { opacity: 0, transform: 'translate(-50%, -50%) scale(8)', borderWidth: '0px' }
+      ], {
+        duration: duration,
+        easing: 'ease-out'
+      });
+
+      starAnimation.onfinish = () => star.remove();
+      ringAnimation.onfinish = () => ring.remove();
     };
 
     const interval = setInterval(createTwinkle, 300);
