@@ -28,6 +28,43 @@ export const LandingPage = () => {
   const [radarUrl, setRadarUrl] = useState('');
   const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string; description: string}>>([]);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
+
+  // Add supernova background effect
+  useEffect(() => {
+    const createBurst = () => {
+      const burst = document.createElement('div');
+      const size = Math.random() * 150 + 50;
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const duration = Math.random() * 3000 + 2000;
+
+      burst.className = 'fixed pointer-events-none -z-20 rounded-full';
+      burst.style.left = `${x}%`;
+      burst.style.top = `${y}%`;
+      burst.style.width = `${size}px`;
+      burst.style.height = `${size}px`;
+      burst.style.backgroundColor = Math.random() > 0.5 ? 'rgba(20, 184, 166, 0.15)' : 'rgba(147, 51, 234, 0.1)';
+      burst.style.filter = 'blur(60px)';
+      burst.style.opacity = '0';
+      burst.style.transform = 'scale(0.5)';
+      
+      document.body.appendChild(burst);
+
+      const animation = burst.animate([
+        { opacity: 0, transform: 'scale(0.5)' },
+        { opacity: 0.4, transform: 'scale(1.2)' },
+        { opacity: 0, transform: 'scale(1.5)' }
+      ], {
+        duration: duration,
+        easing: 'ease-out'
+      });
+
+      animation.onfinish = () => burst.remove();
+    };
+
+    const interval = setInterval(createBurst, 2000);
+    return () => clearInterval(interval);
+  }, []);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Tracker Modal States
