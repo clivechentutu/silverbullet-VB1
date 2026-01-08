@@ -60,12 +60,16 @@ export const LandingPage = () => {
       const y = Math.random() * 100;
       const duration = Math.random() * 3000 + 1500; // Slower twinkle
       
-      // Multi-colored stars (White, Teal/Brand, Purple, Blue)
+      // More vibrant and diverse star colors
       const colors = [
-        { base: 'rgba(255, 255, 255, 0.9)', glow: 'rgba(255, 255, 255, 0.5)' }, 
-        { base: 'rgba(20, 184, 166, 0.8)', glow: 'rgba(20, 184, 166, 0.4)' },  
-        { base: 'rgba(147, 51, 234, 0.7)', glow: 'rgba(147, 51, 234, 0.3)' },  
-        { base: 'rgba(59, 130, 246, 0.7)', glow: 'rgba(59, 130, 246, 0.3)' }   
+        { base: 'rgba(255, 255, 255, 0.95)', glow: 'rgba(255, 255, 255, 0.6)' }, // Pure White
+        { base: 'rgba(20, 184, 166, 0.9)', glow: 'rgba(20, 184, 166, 0.5)' },   // Teal (Brand)
+        { base: 'rgba(147, 51, 234, 0.9)', glow: 'rgba(147, 51, 234, 0.5)' },   // Purple
+        { base: 'rgba(59, 130, 246, 0.9)', glow: 'rgba(59, 130, 246, 0.5)' },   // Blue
+        { base: 'rgba(244, 63, 94, 0.9)', glow: 'rgba(244, 63, 94, 0.5)' },     // Rose/Pink
+        { base: 'rgba(245, 158, 11, 0.9)', glow: 'rgba(245, 158, 11, 0.5)' },   // Amber
+        { base: 'rgba(16, 185, 129, 0.9)', glow: 'rgba(16, 185, 129, 0.5)' },   // Emerald
+        { base: 'rgba(236, 72, 153, 0.9)', glow: 'rgba(236, 72, 153, 0.5)' }    // Pink
       ];
       const color = colors[Math.floor(Math.random() * colors.length)];
 
@@ -92,7 +96,7 @@ export const LandingPage = () => {
       starAnimation.onfinish = () => star.remove();
     };
 
-    const interval = setInterval(createTwinkle, 300);
+    const interval = setInterval(createTwinkle, 200); // More frequent for variety
     return () => {
       clearInterval(interval);
       starContainer.remove();
