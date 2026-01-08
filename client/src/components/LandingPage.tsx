@@ -33,27 +33,32 @@ export const LandingPage = () => {
   useEffect(() => {
     const createBurst = () => {
       const burst = document.createElement('div');
-      const size = Math.random() * 150 + 50;
+      const size = Math.random() * 200 + 100; // Increased size
       const x = Math.random() * 100;
       const y = Math.random() * 100;
       const duration = Math.random() * 3000 + 2000;
 
-      burst.className = 'fixed pointer-events-none -z-20 rounded-full';
+      // Higher z-index but still behind content
+      burst.className = 'fixed pointer-events-none rounded-full';
+      burst.style.zIndex = '-5'; 
       burst.style.left = `${x}%`;
       burst.style.top = `${y}%`;
       burst.style.width = `${size}px`;
       burst.style.height = `${size}px`;
-      burst.style.backgroundColor = Math.random() > 0.5 ? 'rgba(20, 184, 166, 0.15)' : 'rgba(147, 51, 234, 0.1)';
-      burst.style.filter = 'blur(60px)';
+      
+      // Much higher opacity for visibility
+      const isTeal = Math.random() > 0.5;
+      burst.style.backgroundColor = isTeal ? 'rgba(20, 184, 166, 0.4)' : 'rgba(147, 51, 234, 0.3)';
+      burst.style.filter = 'blur(80px)';
       burst.style.opacity = '0';
-      burst.style.transform = 'scale(0.5)';
+      burst.style.transform = 'scale(0.3)';
       
       document.body.appendChild(burst);
 
       const animation = burst.animate([
-        { opacity: 0, transform: 'scale(0.5)' },
-        { opacity: 0.4, transform: 'scale(1.2)' },
-        { opacity: 0, transform: 'scale(1.5)' }
+        { opacity: 0, transform: 'scale(0.3)', filter: 'blur(80px)' },
+        { opacity: 0.6, transform: 'scale(1.1)', filter: 'blur(40px)' }, // Brighter in middle
+        { opacity: 0, transform: 'scale(1.5)', filter: 'blur(100px)' }
       ], {
         duration: duration,
         easing: 'ease-out'
@@ -62,7 +67,10 @@ export const LandingPage = () => {
       animation.onfinish = () => burst.remove();
     };
 
-    const interval = setInterval(createBurst, 2000);
+    // Create more frequently initially
+    for(let i=0; i<3; i++) setTimeout(createBurst, i * 500);
+    
+    const interval = setInterval(createBurst, 1500); // Faster frequency
     return () => clearInterval(interval);
   }, []);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
