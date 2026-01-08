@@ -33,12 +33,11 @@ export const LandingPage = () => {
   useEffect(() => {
     const createBurst = () => {
       const burst = document.createElement('div');
-      const size = Math.random() * 200 + 100; // Increased size
+      const size = Math.random() * 250 + 150; 
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const duration = Math.random() * 3000 + 2000;
+      const duration = Math.random() * 2500 + 1500;
 
-      // Higher z-index but still behind content
       burst.className = 'fixed pointer-events-none rounded-full';
       burst.style.zIndex = '-5'; 
       burst.style.left = `${x}%`;
@@ -46,31 +45,46 @@ export const LandingPage = () => {
       burst.style.width = `${size}px`;
       burst.style.height = `${size}px`;
       
-      // Much higher opacity for visibility
       const isTeal = Math.random() > 0.5;
-      burst.style.backgroundColor = isTeal ? 'rgba(20, 184, 166, 0.4)' : 'rgba(147, 51, 234, 0.3)';
-      burst.style.filter = 'blur(80px)';
+      // Added a inner core for "signal" sharpness
+      burst.style.background = isTeal 
+        ? 'radial-gradient(circle, rgba(20, 184, 166, 0.8) 0%, rgba(20, 184, 166, 0.2) 40%, transparent 70%)' 
+        : 'radial-gradient(circle, rgba(147, 51, 234, 0.6) 0%, rgba(147, 51, 234, 0.1) 40%, transparent 70%)';
+      burst.style.filter = 'blur(40px)'; // Reduced blur for sharpness
       burst.style.opacity = '0';
-      burst.style.transform = 'scale(0.3)';
+      burst.style.transform = 'scale(0.1)';
+      
+      // Add a scan-line ring
+      const ring = document.createElement('div');
+      ring.className = 'absolute inset-0 border border-white/20 rounded-full scale-0 opacity-0';
+      burst.appendChild(ring);
       
       document.body.appendChild(burst);
 
-      const animation = burst.animate([
-        { opacity: 0, transform: 'scale(0.3)', filter: 'blur(80px)' },
-        { opacity: 0.6, transform: 'scale(1.1)', filter: 'blur(40px)' }, // Brighter in middle
-        { opacity: 0, transform: 'scale(1.5)', filter: 'blur(100px)' }
+      const burstAnim = burst.animate([
+        { opacity: 0, transform: 'scale(0.1)', filter: 'blur(40px)' },
+        { opacity: 0.8, transform: 'scale(1)', filter: 'blur(20px)' }, 
+        { opacity: 0, transform: 'scale(1.4)', filter: 'blur(60px)' }
       ], {
         duration: duration,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)' // Sharper entrance
+      });
+
+      const ringAnim = ring.animate([
+        { transform: 'scale(0)', opacity: 0 },
+        { transform: 'scale(1.2)', opacity: 0.4 },
+        { transform: 'scale(2)', opacity: 0 }
+      ], {
+        duration: duration * 0.8,
         easing: 'ease-out'
       });
 
-      animation.onfinish = () => burst.remove();
+      burstAnim.onfinish = () => burst.remove();
     };
 
-    // Create more frequently initially
-    for(let i=0; i<3; i++) setTimeout(createBurst, i * 500);
+    for(let i=0; i<4; i++) setTimeout(createBurst, i * 400);
     
-    const interval = setInterval(createBurst, 1500); // Faster frequency
+    const interval = setInterval(createBurst, 1200); 
     return () => clearInterval(interval);
   }, []);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
