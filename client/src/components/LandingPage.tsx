@@ -29,49 +29,64 @@ export const LandingPage = () => {
   const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string; description: string}>>([]);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
 
-  // Add supernova background effect
+  // Add starry background effect
   useEffect(() => {
-    const createBurst = () => {
-      const burst = document.createElement('div');
-      const size = Math.random() * 200 + 100; // Increased size
+    const starContainer = document.createElement('div');
+    starContainer.className = 'fixed inset-0 pointer-events-none -z-20 overflow-hidden';
+    document.body.appendChild(starContainer);
+
+    // Create 150 static stars
+    for (let i = 0; i < 150; i++) {
+      const star = document.createElement('div');
+      const size = Math.random() * 2;
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const duration = Math.random() * 3000 + 2000;
+      const opacity = Math.random() * 0.5 + 0.2;
 
-      // Higher z-index but still behind content
-      burst.className = 'fixed pointer-events-none rounded-full';
-      burst.style.zIndex = '-5'; 
-      burst.style.left = `${x}%`;
-      burst.style.top = `${y}%`;
-      burst.style.width = `${size}px`;
-      burst.style.height = `${size}px`;
-      
-      // Much higher opacity for visibility
-      const isTeal = Math.random() > 0.5;
-      burst.style.backgroundColor = isTeal ? 'rgba(20, 184, 166, 0.4)' : 'rgba(147, 51, 234, 0.3)';
-      burst.style.filter = 'blur(80px)';
-      burst.style.opacity = '0';
-      burst.style.transform = 'scale(0.3)';
-      
-      document.body.appendChild(burst);
+      star.className = 'absolute rounded-full bg-white';
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${x}%`;
+      star.style.top = `${y}%`;
+      star.style.opacity = `${opacity}`;
+      starContainer.appendChild(star);
+    }
 
-      const animation = burst.animate([
-        { opacity: 0, transform: 'scale(0.3)', filter: 'blur(80px)' },
-        { opacity: 0.6, transform: 'scale(1.1)', filter: 'blur(40px)' }, // Brighter in middle
-        { opacity: 0, transform: 'scale(1.5)', filter: 'blur(100px)' }
+    // Function to create a twinkling star
+    const createTwinkle = () => {
+      const star = document.createElement('div');
+      const size = Math.random() * 3 + 1;
+      const x = Math.random() * 100;
+      const y = Math.random() * 100;
+      const duration = Math.random() * 2000 + 1500;
+
+      star.className = 'absolute rounded-full bg-white blur-[1px]';
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.left = `${x}%`;
+      star.style.top = `${y}%`;
+      star.style.opacity = '0';
+      star.style.boxShadow = '0 0 8px 1px rgba(255, 255, 255, 0.8)';
+      
+      starContainer.appendChild(star);
+
+      const animation = star.animate([
+        { opacity: 0, transform: 'scale(0.5)' },
+        { opacity: 0.8, transform: 'scale(1.2)' },
+        { opacity: 0, transform: 'scale(0.5)' }
       ], {
         duration: duration,
-        easing: 'ease-out'
+        easing: 'ease-in-out'
       });
 
-      animation.onfinish = () => burst.remove();
+      animation.onfinish = () => star.remove();
     };
 
-    // Create more frequently initially
-    for(let i=0; i<3; i++) setTimeout(createBurst, i * 500);
-    
-    const interval = setInterval(createBurst, 1500); // Faster frequency
-    return () => clearInterval(interval);
+    const interval = setInterval(createTwinkle, 300);
+    return () => {
+      clearInterval(interval);
+      starContainer.remove();
+    };
   }, []);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
