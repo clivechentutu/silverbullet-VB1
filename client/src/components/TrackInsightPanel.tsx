@@ -187,22 +187,22 @@ const SessionCatchUp = ({
         <div className="px-3 py-2 mb-2 rounded-md border border-blue-500/20 bg-blue-500/5">
           <div className="flex items-center gap-2">
             <History size={12} className="text-blue-400" />
-            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
-            <span className="text-[9px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
+            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
+            <span className="text-[11px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
           </div>
             {sinceLastVisit.totalInsights > 0 && (
               <div className="flex items-center gap-1">
                 <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
-                <span className="text-[9px] text-slate-400">new insights</span>
+                <span className="text-[11px] text-slate-400">new insights</span>
               </div>
             )}
             {sinceLastVisit.highlights > 0 && (
               <div className="flex items-center gap-1">
                 <Sparkles size={10} className="text-amber-400" />
-                <span className="text-[10px] text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
+                <span className="text-xs text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
               </div>
             )}
-          <p className="text-[9px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
+          <p className="text-[11px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
         </div>
       )}
       
@@ -228,12 +228,12 @@ const SessionCatchUp = ({
                   {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                 </span>
                 {viewingHistorical ? (
-                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                  <span className="text-xs text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
                 ) : (
-                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
+                  <span className="text-xs text-slate-500">Last visit: {lastLoginTime}</span>
                 )}
               </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {viewingHistorical 
                   ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
                   : `${totalSignals} signals collected across ${availableChannels.length} channels`
@@ -286,7 +286,7 @@ const SessionCatchUp = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-[10px] text-slate-300 leading-relaxed">
+                  <p className="text-xs text-slate-300 leading-relaxed">
                     Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
                   </p>
                 </TooltipContent>

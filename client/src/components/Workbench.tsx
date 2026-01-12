@@ -160,58 +160,58 @@ const SignalDetailHoverContent = ({ title, time, description, priority, type, do
   return (
     <div className="space-y-4 max-w-[320px] overflow-hidden">
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Signal Title</p>
-        <p className="text-sm text-white leading-snug font-medium break-words">{title}</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Signal Title</p>
+        <p className="text-base text-white leading-snug font-bold break-words">{title}</p>
       </div>
       
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-6">
         <div>
-          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Source</p>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700 shrink-0">
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Source</p>
+          <div className="flex items-center gap-2.5">
+            <div className="w-5 h-5 rounded bg-white p-0.5 flex items-center justify-center border border-slate-700 shrink-0">
               <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} className="w-full h-full object-contain" alt={domain} />
             </div>
-            <span className="text-xs text-brand-400 font-medium truncate">{domain}</span>
+            <span className="text-sm text-brand-400 font-semibold truncate">{domain}</span>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Time</p>
-          <p className="text-[10px] text-slate-400">{time}</p>
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Time</p>
+          <p className="text-xs text-slate-400 font-medium">{time}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-6">
         <div>
-          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Priority</p>
-          <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] font-bold ${config.bg} ${config.text} border ${config.border}`}>
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Priority</p>
+          <span className={`inline-block px-2 py-1 rounded text-[10px] font-bold ${config.bg} ${config.text} border ${config.border} uppercase tracking-tight`}>
             {config.label}
           </span>
         </div>
         <div>
-          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Category</p>
-          <span className="inline-block px-1.5 py-0.5 text-[9px] font-medium bg-slate-800 text-slate-400 rounded border border-slate-700">
+          <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Category</p>
+          <span className="inline-block px-2 py-1 text-[10px] font-bold bg-slate-800 text-slate-400 rounded border border-slate-700 uppercase tracking-tight">
             {type}
           </span>
         </div>
       </div>
 
       <div>
-        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Description</p>
-        <p className="text-[11px] text-slate-300 leading-relaxed break-words">{description}</p>
+        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-2">Description</p>
+        <p className="text-sm text-slate-300 leading-relaxed break-words font-medium">{description}</p>
       </div>
 
-      <div className="space-y-3 pt-2 border-t border-slate-800">
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-          <p className="text-[10px] font-bold text-brand-400 mb-2 flex items-center gap-1.5">
-            <BrainCircuit size={12} /> Strategic Impact
+      <div className="space-y-4 pt-4 border-t border-slate-800">
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+          <p className="text-xs font-bold text-brand-400 mb-2.5 flex items-center gap-2 uppercase tracking-wide">
+            <BrainCircuit size={14} /> Strategic Impact
           </p>
-          <p className="text-xs text-slate-300 leading-relaxed">This signal indicates a strategic shift in their market positioning. Monitor for follow-up actions.</p>
+          <p className="text-sm text-slate-300 leading-relaxed font-medium">This signal indicates a strategic shift in their market positioning. Monitor for follow-up actions.</p>
         </div>
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3">
-          <p className="text-[10px] font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
-            <TrendingUp size={12} /> Trend Direction
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+          <p className="text-xs font-bold text-emerald-400 mb-2.5 flex items-center gap-2 uppercase tracking-wide">
+            <TrendingUp size={14} /> Trend Direction
           </p>
-          <p className="text-xs text-slate-300 leading-relaxed">Strong upward momentum detected. This competitor is actively expanding capabilities in this area.</p>
+          <p className="text-sm text-slate-300 leading-relaxed font-medium">Strong upward momentum detected. This competitor is actively expanding capabilities in this area.</p>
         </div>
       </div>
     </div>
@@ -1511,13 +1511,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'new':
-        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">New</span>;
+        return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-brand-500/20 text-brand-400 border border-brand-500/30">New</span>;
       case 'monitoring':
-        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">Monitoring</span>;
+        return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">Monitoring</span>;
       case 'review':
-        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Under Review</span>;
+        return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Under Review</span>;
       case 'archived':
-        return <span className="px-2 py-0.5 text-[10px] font-medium rounded bg-slate-500/20 text-slate-400 border border-slate-500/30">Archived</span>;
+        return <span className="px-2 py-0.5 text-xs font-semibold rounded bg-slate-500/20 text-slate-400 border border-slate-500/30">Archived</span>;
       default:
         return null;
     }
@@ -1697,14 +1697,14 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <DialogContent className="bg-[#020617] border-slate-800 text-white max-w-xl p-0 overflow-hidden">
               <div className="p-8">
                 <div className="flex justify-center mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-                    <Globe className="text-brand-500" size={32} />
+                  <div className="w-20 h-20 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+                    <Globe className="text-brand-500" size={40} />
                   </div>
                 </div>
 
                 <div className="text-center mb-10">
-                  <DialogTitle className="text-2xl font-bold text-white mb-2">Radar Configuration</DialogTitle>
-                  <DialogDescription className="text-slate-400">
+                  <DialogTitle className="text-2xl font-bold text-white mb-2.5">Radar Configuration</DialogTitle>
+                  <DialogDescription className="text-base text-slate-400">
                     Update discovery notifications and tracking settings
                   </DialogDescription>
                 </div>
@@ -1811,12 +1811,12 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         {/* Header */}
         <div className="px-4 py-2.5 border-b border-slate-800/50">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Radar size={14} className="text-brand-400" />
-              <span className="text-xs font-bold text-white">Radar Summary</span>
-              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 status-icon-active" />
-                <span className="text-[8px] font-medium text-emerald-400">Monitoring</span>
+            <div className="flex items-center gap-2.5">
+              <Radar size={16} className="text-brand-400" />
+              <span className="text-sm font-bold text-white">Radar Summary</span>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 status-icon-active" />
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">Monitoring</span>
               </div>
             </div>
             
@@ -1833,18 +1833,18 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 const activeDays = recentEntries.length;
                 return (
                   <>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-sm font-bold text-white">{weekTotal}</span>
-                      <span className="text-[9px] text-slate-500">discoveries</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-base font-bold text-white">{weekTotal}</span>
+                      <span className="text-xs text-slate-500 font-medium">discoveries</span>
                     </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-sm font-bold text-amber-400">{weekHigh}</span>
-                      <span className="text-[9px] text-slate-500">high priority</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-base font-bold text-amber-400">{weekHigh}</span>
+                      <span className="text-xs text-slate-500 font-medium">high priority</span>
                     </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-[9px] text-slate-500">past</span>
-                      <span className="text-sm font-bold text-slate-300">{activeDays}</span>
-                      <span className="text-[9px] text-slate-500">days</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-xs text-slate-500 font-medium">past</span>
+                      <span className="text-base font-bold text-slate-300">{activeDays}</span>
+                      <span className="text-xs text-slate-500 font-medium">days</span>
                     </div>
                   </>
                 );
@@ -1912,7 +1912,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 <>
                   <button
                     onClick={() => setShowSinceLastVisit(true)}
-                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                    className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-all ${
                       showSinceLastVisit 
                         ? 'bg-brand-500/20 text-brand-400' 
                         : 'text-slate-500 hover:text-slate-300'
@@ -1926,7 +1926,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               )}
               <button
                 onClick={() => setShowSinceLastVisit(false)}
-                className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-all ${
+                className={`text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-all ${
                   !showSinceLastVisit || !previousRadarVisit
                     ? 'bg-brand-500/20 text-brand-400' 
                     : 'text-slate-500 hover:text-slate-300'
@@ -1965,10 +1965,10 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                     }`}
                     data-testid={`date-nav-${format(date, 'yyyy-MM-dd')}`}
                   >
-                    <span className={`text-[8px] ${isSelected && !showSinceLastVisit ? 'text-brand-400' : 'text-slate-600'}`}>
+                    <span className={`text-xs ${isSelected && !showSinceLastVisit ? 'text-brand-400' : 'text-slate-600'}`}>
                       {isToday ? 'Today' : format(date, 'EEE')}
                     </span>
-                    <span className={`text-[10px] font-bold ${isSelected && !showSinceLastVisit ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
+                    <span className={`text-sm font-bold ${isSelected && !showSinceLastVisit ? 'text-white' : hasSummary ? 'text-slate-400' : 'text-slate-700'}`}>
                       {dayNum}
                     </span>
                   </button>
@@ -2018,44 +2018,44 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   const isToday = new Date().toDateString() === latestDate.toDateString();
                   
                   return (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-800/30">
-                        <Clock size={12} className="text-slate-500" />
-                        <span className="text-[9px] text-slate-400">
-                          No new updates since {format(previousRadarVisit, 'MMM d, h:mm a')}
-                        </span>
-                        <span className="text-[8px] text-slate-600 ml-auto">
-                          Showing latest: {isToday ? 'Today' : format(latestDate, 'MMM d')}
-                        </span>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-800/30">
+                    <Clock size={14} className="text-slate-500" />
+                    <span className="text-xs text-slate-400 font-medium">
+                      No new updates since {format(previousRadarVisit, 'MMM d, h:mm a')}
+                    </span>
+                    <span className="text-xs text-slate-600 ml-auto font-medium">
+                      Showing latest: {isToday ? 'Today' : format(latestDate, 'MMM d')}
+                    </span>
+                  </div>
+                  {latestSummary.scopeInsights.map((insight, idx) => (
+                    <div key={idx} className="pt-3.5 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <TargetIcon size={12} className="text-slate-500" />
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{insight.scope}</span>
                       </div>
-                      {latestSummary.scopeInsights.map((insight, idx) => (
-                        <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <TargetIcon size={9} className="text-slate-500" />
-                            <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 leading-relaxed">
-                            {insight.text.map((part, partIdx) => {
-                              const matchedProduct = insight.products.find(p => p.name === part);
-                              if (matchedProduct) {
-                                return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
-                              }
-                              return <span key={partIdx}>{part}</span>;
-                            })}
-                          </p>
-                        </div>
-                      ))}
+                      <p className="text-sm text-slate-400 leading-relaxed font-medium">
+                        {insight.text.map((part, partIdx) => {
+                          const matchedProduct = insight.products.find(p => p.name === part);
+                          if (matchedProduct) {
+                            return <span key={partIdx} className={`font-bold ${matchedProduct.color}`}>{part}</span>;
+                          }
+                          return <span key={partIdx}>{part}</span>;
+                        })}
+                      </p>
                     </div>
+                  ))}
+                </div>
                   );
                 }
               }
               
               return (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800/30">
-                    <div className="flex items-center gap-2">
-                      <Clock size={12} className="text-brand-400" />
-                      <span className="text-[9px] text-slate-400">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-800/30">
+                    <div className="flex items-center gap-2.5">
+                      <Clock size={14} className="text-brand-400" />
+                      <span className="text-xs text-slate-400 font-medium">
                         {daysSinceLastVisit === 0 
                           ? 'Since earlier today' 
                           : daysSinceLastVisit === 1 
@@ -2063,25 +2063,25 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                             : `Past ${daysSinceLastVisit} days`}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-bold text-brand-400">{sinceLastVisitInsights.length}</span>
-                      <span className="text-[9px] text-slate-500">new insights</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-base font-bold text-brand-400">{sinceLastVisitInsights.length}</span>
+                      <span className="text-xs text-slate-500 font-medium">new insights</span>
                     </div>
                   </div>
                   {sinceLastVisitInsights.slice(0, 5).map((insight, idx) => (
-                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <TargetIcon size={9} className="text-slate-500" />
-                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
-                        <span className="text-[8px] text-slate-600">-</span>
-                        <span className="text-[8px] text-slate-500">
+                    <div key={idx} className="pt-3.5 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <TargetIcon size={12} className="text-slate-500" />
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{insight.scope}</span>
+                        <span className="text-xs text-slate-600">-</span>
+                        <span className="text-xs text-slate-500 font-medium">
                           {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
                         </span>
-                        <Badge variant="outline" className="text-[7px] px-1 py-0 border-brand-500/30 text-brand-400 ml-auto">
+                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 border-brand-500/30 text-brand-400 ml-auto font-bold">
                           NEW
                         </Badge>
                       </div>
-                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                      <p className="text-sm text-slate-400 leading-relaxed font-medium">
                         {insight.text.map((part, partIdx) => {
                           const matchedProduct = insight.products.find(p => p.name === part);
                           if (matchedProduct) {
@@ -2104,21 +2104,21 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             if (isShowingSpecificDate) {
               const isToday = new Date().toDateString() === selectedSummaryDate.toDateString();
               return (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[9px] text-slate-500">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs text-slate-500 font-medium">
                       {isToday ? 'Today' : format(selectedSummaryDate, 'EEEE, MMM d')}
                     </span>
-                    <span className="text-[9px] text-slate-600">-</span>
-                    <span className="text-[9px] text-white font-medium">{selectedDaySummary.total} discoveries</span>
+                    <span className="text-xs text-slate-600">-</span>
+                    <span className="text-xs text-white font-bold">{selectedDaySummary.total} discoveries</span>
                   </div>
                   {selectedDaySummary.scopeInsights.map((insight, idx) => (
-                    <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <TargetIcon size={9} className="text-slate-500" />
-                        <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
+                    <div key={idx} className="pt-3.5 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <TargetIcon size={12} className="text-slate-500" />
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{insight.scope}</span>
                       </div>
-                      <p className="text-[10px] text-slate-400 leading-relaxed">
+                      <p className="text-sm text-slate-400 leading-relaxed font-medium">
                         {insight.text.map((part, partIdx) => {
                           const matchedProduct = insight.products.find(p => p.name === part);
                           if (matchedProduct) {
@@ -2153,25 +2153,25 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             
             if (allInsights.length === 0) {
               return (
-                <div className="text-center py-4">
-                  <p className="text-[10px] text-slate-500">Radar is actively scanning. Discoveries will appear here.</p>
+                <div className="text-center py-6">
+                  <p className="text-sm text-slate-500 font-medium">Radar is actively scanning. Discoveries will appear here.</p>
                 </div>
               );
             }
             
             return (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {allInsights.map((insight, idx) => (
-                  <div key={idx} className="pt-2 border-t border-slate-800/30 first:border-t-0 first:pt-0">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <TargetIcon size={9} className="text-slate-500" />
-                      <span className="text-[9px] font-bold text-slate-400">{insight.scope}</span>
-                      <span className="text-[8px] text-slate-600">-</span>
-                      <span className="text-[8px] text-slate-500">
+                  <div key={idx} className="pt-3.5 border-t border-slate-800/30 first:border-t-0 first:pt-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <TargetIcon size={12} className="text-slate-500" />
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">{insight.scope}</span>
+                      <span className="text-xs text-slate-600">-</span>
+                      <span className="text-xs text-slate-500 font-medium">
                         {insight.isToday ? 'Today' : format(new Date(insight.date), 'MMM d')}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                    <p className="text-sm text-slate-400 leading-relaxed font-medium">
                       {insight.text.map((part, partIdx) => {
                         const matchedProduct = insight.products.find(p => p.name === part);
                         if (matchedProduct) {
@@ -2210,7 +2210,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
               >
                 <button
                   onClick={() => setActiveScope(scope.name)}
-                  className={`px-4 py-2 rounded-l-xl text-sm font-medium transition-all flex items-center gap-2 ${
+                  className={`px-5 py-2.5 rounded-l-xl text-base font-semibold transition-all flex items-center gap-2.5 ${
                     activeScope === scope.name
                       ? 'text-brand-400'
                       : 'text-slate-400 hover:text-white'
@@ -2219,7 +2219,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 >
                   {scope.name}
                   {scopeStatuses[scope.name] === 'active' && (
-                    <Activity size={14} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
+                    <Activity size={16} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
                   )}
                   {scopeStatuses[scope.name] === 'paused' && (
                     <Pause size={14} className="text-yellow-400" data-testid={`status-icon-paused-${scope.name}`} />
@@ -2522,14 +2522,14 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg p-0.5 h-8">
               <button 
                 onClick={() => setSortBy('similarity')}
-                className={`px-3 h-full text-[10px] font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'similarity' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`px-3 h-full text-xs font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'similarity' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
                 data-testid="sort-similarity"
               >
                 Similarity
               </button>
               <button 
                 onClick={() => setSortBy('newest')}
-                className={`px-3 h-full text-[10px] font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'newest' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`px-3 h-full text-xs font-bold uppercase tracking-wider rounded transition-all ${sortBy === 'newest' ? 'bg-slate-800 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}
                 data-testid="sort-newest"
               >
                 Newest
@@ -2541,7 +2541,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Filter:</span>
             <button
               onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
-              className={`flex items-center gap-2 px-3 h-8 text-[10px] font-bold uppercase tracking-wider rounded-lg border transition-all ${showOnlyFavorites ? 'bg-brand-500/10 border-brand-500/50 text-brand-400' : 'bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300'}`}
+              className={`flex items-center gap-2 px-3 h-8 text-xs font-bold uppercase tracking-wider rounded-lg border transition-all ${showOnlyFavorites ? 'bg-brand-500/10 border-brand-500/50 text-brand-400' : 'bg-slate-900 border-slate-700 text-slate-500 hover:text-slate-300'}`}
               data-testid="filter-favorites"
             >
               <Star size={12} className={showOnlyFavorites ? 'fill-brand-400' : ''} />
@@ -2570,7 +2570,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             placeholder="Search alternatives, features..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
+            className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
             data-testid="input-search-radar"
           />
         </div>
@@ -2582,13 +2582,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             <thead>
               <tr className="border-b border-slate-800 text-left">
                 <th className="px-4 py-3 w-10"></th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Alternatives</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Trend</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Traffic Volume</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Alternatives</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-center">Similarity</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Key Features</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Discovered</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Traffic Trend</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Traffic Volume</th>
+                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
