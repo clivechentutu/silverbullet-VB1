@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6583,77 +6584,71 @@ export const Workbench: React.FC = () => {
 
         <div className="flex-1 px-1.5 space-y-0.5 overflow-y-auto custom-scrollbar">
           {NAV_ITEMS.map(item => (
-            <div key={item.id} className="relative group/tooltip">
-              <button
-                onClick={() => setActiveView(item.id)}
-                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
-                  ${activeView === item.id 
-                    ? 'bg-slate-800/80 text-white' 
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                  }
-                `}
-              >
-                <item.icon 
-                  size={14} 
-                  className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
-                />
-                <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
-                {item.id === WorkbenchView.RESEARCH && runningResearchTasks > 0 && (
-                  <span className="flex items-center gap-1 px-1 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[8px] font-bold shrink-0">
-                    <Loader2 size={8} className="animate-spin" />
-                    {runningResearchTasks}
-                  </span>
-                )}
-                
-                {activeView === item.id && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
-                )}
-              </button>
-              
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
-                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap flex items-center">
-                  <p className="text-xs text-slate-300">{item.description}</p>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700"></div>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-[-1px] border-4 border-transparent border-r-slate-900"></div>
-                </div>
-              </div>
-            </div>
+            <Tooltip key={item.id} delayDuration={300}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setActiveView(item.id)}
+                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
+                    ${activeView === item.id 
+                      ? 'bg-slate-800/80 text-white' 
+                      : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                    }
+                  `}
+                >
+                  <item.icon 
+                    size={14} 
+                    className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+                  />
+                  <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
+                  {item.id === WorkbenchView.RESEARCH && runningResearchTasks > 0 && (
+                    <span className="flex items-center gap-1 px-1 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[8px] font-bold shrink-0">
+                      <Loader2 size={8} className="animate-spin" />
+                      {runningResearchTasks}
+                    </span>
+                  )}
+                  
+                  {activeView === item.id && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-slate-900 border-slate-700 text-slate-300 text-xs max-w-xs">
+                {item.description}
+              </TooltipContent>
+            </Tooltip>
           ))}
         </div>
 
         <div className="p-1.5 space-y-0.5 border-t border-slate-800">
           {BOTTOM_NAV_ITEMS.map(item => (
-            <div key={item.id} className="relative group/tooltip">
-              <button
-                onClick={() => setActiveView(item.id)}
-                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
-                  ${activeView === item.id 
-                    ? 'bg-slate-800/80 text-white' 
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                  }
-                `}
-              >
-                <item.icon 
-                  size={14} 
-                  className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
-                />
-                <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
-                
-                {activeView === item.id && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
-                )}
-              </button>
-              
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
-                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap flex items-center">
-                  <p className="text-xs text-slate-300">{item.description}</p>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700"></div>
-                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-[-1px] border-4 border-transparent border-r-slate-900"></div>
-                </div>
-              </div>
-            </div>
+            <Tooltip key={item.id} delayDuration={300}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setActiveView(item.id)}
+                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
+                    ${activeView === item.id 
+                      ? 'bg-slate-800/80 text-white' 
+                      : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+                    }
+                  `}
+                >
+                  <item.icon 
+                    size={14} 
+                    className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
+                  />
+                  <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
+                  
+                  {activeView === item.id && (
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="bg-slate-900 border-slate-700 text-slate-300 text-xs max-w-xs">
+                {item.description}
+              </TooltipContent>
+            </Tooltip>
           ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
