@@ -3974,17 +3974,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                   {t.name}
                 </h4>
-                <div className={`w-2 h-2 rounded-full shrink-0 ${
-                  t.status === 'active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
-                  t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
-                  t.status === 'stopped' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
-                  'bg-slate-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]'
-                }`} title={
-                  t.status === 'active' ? 'Active' : 
-                  t.status === 'paused' ? 'Paused' : 
-                  t.status === 'stopped' ? 'Stopped' : 
-                  'Archived'
-                } />
+                {t.status !== 'active' && (
+                  <div className={`w-2 h-2 rounded-full shrink-0 ${
+                    t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
+                    t.status === 'stopped' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
+                    'bg-slate-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]'
+                  }`} title={
+                    t.status === 'paused' ? 'Paused' : 
+                    t.status === 'stopped' ? 'Stopped' : 
+                    'Archived'
+                  } />
+                )}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -3996,39 +3996,31 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-slate-900 border-slate-800 text-slate-300">
-                  <DropdownMenuItem 
-                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'active' });
-                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                    }}
-                  >
-                    <Activity size={14} className="text-emerald-500" />
-                    <span>Activate</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'paused' });
-                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                    }}
-                  >
-                    <Pause size={14} className="text-amber-500" />
-                    <span>Pause Tracking</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'stopped' });
-                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                    }}
-                  >
-                    <X size={14} className="text-red-500" />
-                    <span>Stop Tracking</span>
-                  </DropdownMenuItem>
+                  {t.status === 'active' ? (
+                    <DropdownMenuItem 
+                      className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'paused' });
+                        queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                      }}
+                    >
+                      <Pause size={14} className="text-amber-500" />
+                      <span>Pause Tracking</span>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem 
+                      className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'active' });
+                        queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                      }}
+                    >
+                      <Activity size={14} className="text-emerald-500" />
+                      <span>Activate</span>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem 
                     className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
                     onClick={async (e) => {
