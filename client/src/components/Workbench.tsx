@@ -6592,19 +6592,19 @@ export const Workbench: React.FC = () => {
         setEditFrequencyType={setEditFrequencyType}
       />
 
-      <nav className="w-64 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
-        <div className="p-6 flex items-center gap-2 group cursor-pointer">
-          <Hexagon className="text-brand-500 fill-brand-500/20 group-hover:rotate-90 transition-transform duration-500" size={28} />
-          <span className="text-lg font-bold tracking-tight text-white">Competi<span className="text-brand-500">Scope</span></span>
+      <nav className="w-56 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+        <div className="p-4 flex items-center gap-2 group cursor-pointer">
+          <Hexagon className="text-brand-500 fill-brand-500/20 group-hover:rotate-90 transition-transform duration-500" size={24} />
+          <span className="text-base font-bold tracking-tight text-white">Competi<span className="text-brand-500">Scope</span></span>
         </div>
 
-        <div className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar">
           {NAV_ITEMS.map(item => (
             <div key={item.id} className="relative group/tooltip">
               <button
                 onClick={() => setActiveView(item.id)}
                 data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all group relative
                   ${activeView === item.id 
                     ? 'bg-slate-800/80 text-white' 
                     : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
@@ -6612,10 +6612,10 @@ export const Workbench: React.FC = () => {
                 `}
               >
                 <item.icon 
-                  size={18} 
+                  size={16} 
                   className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
                 />
-                <span className="text-sm font-medium flex-1">{item.label}</span>
+                <span className="text-sm font-medium flex-1 truncate">{item.label}</span>
                 {item.id === WorkbenchView.RESEARCH && runningResearchTasks > 0 && (
                   <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[9px] font-bold shrink-0">
                     <Loader2 size={10} className="animate-spin" />
@@ -6623,7 +6623,7 @@ export const Workbench: React.FC = () => {
                   </span>
                 )}
                 <HelpCircle 
-                  size={14} 
+                  size={12} 
                   className={`shrink-0 transition-colors ${
                     activeView === item.id 
                       ? 'text-brand-400/60 group-hover:text-brand-400' 
@@ -6633,7 +6633,7 @@ export const Workbench: React.FC = () => {
                 />
                 
                 {activeView === item.id && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
                 )}
               </button>
               
@@ -6646,13 +6646,13 @@ export const Workbench: React.FC = () => {
           ))}
         </div>
 
-        <div className="p-3 space-y-1 border-t border-slate-800">
+        <div className="p-2 space-y-0.5 border-t border-slate-800">
           {BOTTOM_NAV_ITEMS.map(item => (
             <div key={item.id} className="relative group/tooltip">
               <button
                 onClick={() => setActiveView(item.id)}
                 data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all group relative
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all group relative
                   ${activeView === item.id 
                     ? 'bg-slate-800/80 text-white' 
                     : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
@@ -6660,12 +6660,12 @@ export const Workbench: React.FC = () => {
                 `}
               >
                 <item.icon 
-                  size={18} 
+                  size={16} 
                   className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
                 />
-                <span className="text-sm font-medium flex-1">{item.label}</span>
+                <span className="text-sm font-medium flex-1 truncate">{item.label}</span>
                 <HelpCircle 
-                  size={14} 
+                  size={12} 
                   className={`shrink-0 transition-colors ${
                     activeView === item.id 
                       ? 'text-brand-400/60 group-hover:text-brand-400' 
@@ -6675,7 +6675,7 @@ export const Workbench: React.FC = () => {
                 />
                 
                 {activeView === item.id && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-brand-500 rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
                 )}
               </button>
               
@@ -6688,17 +6688,17 @@ export const Workbench: React.FC = () => {
           ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-settings"
           >
-            <Settings size={18} className="text-slate-500" />
+            <Settings size={16} className="text-slate-500" />
             <span className="text-sm font-medium">Settings</span>
           </button>
           <button 
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-profile"
           >
-            <div className="w-6 h-6 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[10px] font-bold">
+            <div className="w-5 h-5 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[9px] font-bold">
               AI
             </div>
             <span className="text-sm font-medium">AI Strategist</span>
@@ -6707,28 +6707,28 @@ export const Workbench: React.FC = () => {
       </nav>
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 border-b border-slate-800 bg-[#020617] flex items-center justify-between px-8">
+        <header className="h-14 border-b border-slate-800 bg-[#020617] flex items-center justify-between px-6">
           <div>
-            <h1 className="text-xl font-bold text-white" data-testid="text-view-title">{NAV_ITEMS.find(n => n.id === activeView)?.label}</h1>
-            <p className="text-xs text-slate-500">{NAV_ITEMS.find(n => n.id === activeView)?.description}</p>
+            <h1 className="text-lg font-bold text-white" data-testid="text-view-title">{NAV_ITEMS.find(n => n.id === activeView)?.label}</h1>
+            <p className="text-[10px] text-slate-500">{NAV_ITEMS.find(n => n.id === activeView)?.description}</p>
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setShowBillingModal(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 hover:border-slate-600 transition-colors hover-elevate" 
+              className="flex items-center gap-2 px-2.5 py-1 bg-slate-800/50 border border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 hover:border-slate-600 transition-colors hover-elevate" 
               data-testid="container-credits"
             >
-              <Sparkles size={14} className="text-brand-400" />
+              <Sparkles size={12} className="text-brand-400" />
               <span className="text-xs font-bold text-white">2,450</span>
               <span className="text-[10px] text-slate-500 font-medium">Credits</span>
             </button>
-            <button className="px-4 py-2 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" data-testid="button-help">
+            <button className="px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800 border border-slate-700 rounded-lg hover:bg-slate-700 transition-colors" data-testid="button-help">
               Help & Docs
             </button>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#0b0c0f]">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[#0b0c0f]">
           {renderContent()}
         </div>
       </main>
