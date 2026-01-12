@@ -3938,7 +3938,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   return (
     <div className="flex flex-col lg:flex-row min-h-0 -m-8 animate-fade-in-up gap-0">
       {/* LEFT: Monitored Products */}
-      <div className="w-full lg:w-40 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
+      <div className="w-full lg:w-44 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
         <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
           <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Targets</h3>
           <button 
@@ -3963,13 +3963,13 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             <div 
               key={t.id} 
               onClick={() => setSelectedTargetId(t.id)}
-              className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
+              className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all group ${t.id === selectedTargetId ? 'bg-slate-800' : 'hover:bg-slate-900'}`}
               data-testid={`target-item-${t.id}`}
             >
-              <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative">
+              <div className="w-7 h-7 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative shrink-0">
                 <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
-              <div className="flex-1 min-w-0 flex items-center gap-2">
+              <div className="flex-1 min-w-0 flex items-center gap-1.5">
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                   {t.name}
                 </h4>
