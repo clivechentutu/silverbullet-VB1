@@ -6417,6 +6417,7 @@ export const Workbench: React.FC = () => {
   const [feedFilter, setFeedFilter] = useState('all');
   const [selectedSignalId, setSelectedSignalId] = useState<string | null>(null);
   const [runningResearchTasks, setRunningResearchTasks] = useState<number>(0);
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
   
   // Global notification settings state (shared with SettingsModal)
   const [radarNotifyEmail, setRadarNotifyEmail] = useState('');
