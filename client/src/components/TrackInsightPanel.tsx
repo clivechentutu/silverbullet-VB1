@@ -326,7 +326,7 @@ const SessionCatchUp = ({
                   >
                     <History size={14} className="mr-1.5" />
                     History
-                    <Badge variant="secondary" className="ml-2 text-[9px] px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-2 text-[11px] px-1.5 py-0">
                       {historicalSummaries.length}
                     </Badge>
                   </Button>
@@ -336,27 +336,27 @@ const SessionCatchUp = ({
                       className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                  <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                    {historicalSummaries.map(hist => (
+                      <div 
+                        key={hist.id}
+                        onClick={() => {
+                          onViewHistorical(hist);
+                          setShowHistory(false);
+                        }}
+                        className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                          <span className="text-xs text-slate-500">{hist.totalSignals} signals</span>
+                        </div>
+                        <span className="text-xs text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
                       </div>
-                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                        {historicalSummaries.map(hist => (
-                          <div 
-                            key={hist.id}
-                            onClick={() => {
-                              onViewHistorical(hist);
-                              setShowHistory(false);
-                            }}
-                            className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
-                              <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
-                            </div>
-                            <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
-                          </div>
-                        ))}
-                      </div>
+                    ))}
+                  </div>
                     </div>
                   )}
                 </div>
@@ -396,13 +396,13 @@ const SessionCatchUp = ({
                   <div className="flex items-center gap-2 mb-2">
                     <Icon size={14} className={config.color} />
                     <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
-                    <span className="text-[9px] text-slate-500 ml-auto">{summary.signalCount} signals</span>
+                    <span className="text-[11px] text-slate-500 ml-auto">{summary.signalCount} signals</span>
                   </div>
-                  <p className="text-[11px] text-slate-300 leading-relaxed mb-2">{summary.summary}</p>
+                  <p className="text-xs text-slate-300 leading-relaxed mb-2">{summary.summary}</p>
                   {summary.keyPoints.length > 0 && (
                     <ul className="space-y-1">
                       {summary.keyPoints.map((point, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5 text-[10px] text-slate-400">
+                        <li key={idx} className="flex items-start gap-1.5 text-xs text-slate-400">
                           <span className="text-slate-600 mt-0.5">-</span>
                           {point}
                         </li>
@@ -490,17 +490,17 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
             <div className="flex items-center gap-2">
               <Database size={14} className="text-slate-400" />
-              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
-              <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
+              <Badge variant="secondary" className="text-[11px] px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
                 {totalSignals}
               </Badge>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
+              <span className="text-xs text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
                 Monitoring {availableChannels.length} Channels
               </span>
               <div className="flex items-center gap-1 text-brand-400 group-hover:text-brand-300 transition-colors">
-                <span className="text-[10px] font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
+                <span className="text-xs font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
                 <ChevronDown size={14} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
               </div>
             </div>
