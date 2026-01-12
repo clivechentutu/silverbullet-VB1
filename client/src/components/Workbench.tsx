@@ -93,9 +93,9 @@ const URLPreview = ({ url }: { url: string }) => {
         {url} <ExternalLink size={10} />
       </a>
       
-      {showPreview && (
+      {showPreview && createPortal(
         <div 
-          className="fixed inset-0 z-[150] flex items-center justify-center p-4 pointer-events-none"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
         >
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md pointer-events-none" />
           <div 
@@ -122,7 +122,8 @@ const URLPreview = ({ url }: { url: string }) => {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950/20" />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
