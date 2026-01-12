@@ -5224,6 +5224,33 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                         <span>{session.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
                                      </DropdownMenuItem>
                                      <DropdownMenuItem 
+                                       className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          const newTitle = prompt('Enter new title:', session.title);
+                                          if (newTitle && newTitle.trim()) {
+                                            apiRequest('PATCH', `/api/sessions/${session.id}`, { title: newTitle.trim() })
+                                              .then(() => queryClient.invalidateQueries({ queryKey: ['/api/sessions'] }));
+                                          }
+                                       }}
+                                     >
+                                        <Pencil size={14} />
+                                        <span>Rename</span>
+                                     </DropdownMenuItem>
+                                     <DropdownMenuItem 
+                                       className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          const url = window.location.origin + `/workbench?session=${session.id}`;
+                                          navigator.clipboard.writeText(url);
+                                          toast({ title: "Link Copied", description: "Session link copied to clipboard" });
+                                       }}
+                                     >
+                                        <Send size={14} />
+                                        <span>Share</span>
+                                     </DropdownMenuItem>
+                                     <DropdownMenuSeparator className="bg-slate-800" />
+                                     <DropdownMenuItem 
                                        className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
                                        onClick={async (e) => {
                                           e.stopPropagation();
