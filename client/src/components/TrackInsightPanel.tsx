@@ -2084,12 +2084,12 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           </div>
         </div>
 
-        <div className="shrink-0 p-3 border-t border-slate-800 bg-slate-900/40">
+        <div className="shrink-0 p-2 border-t border-slate-800 bg-slate-900/40">
           <div 
-            className="flex items-center justify-between mb-2 cursor-pointer hover:bg-slate-800/50 p-1.5 rounded-md transition-colors"
+            className="flex items-center justify-between mb-1 cursor-pointer hover:bg-slate-800/50 p-1 rounded-md transition-colors"
             onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
           >
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <ChIcon size={11} className={chConfig?.color} />
               <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
@@ -2099,11 +2099,11 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             </div>
           </div>
           {isSignalsExpanded && (
-            <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {displayedSignals.map(signal => (
                 <div 
                   key={signal.id}
-                  className="flex items-start gap-2 p-2.5 rounded-lg bg-slate-950/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors cursor-pointer group"
+                  className="flex items-start gap-2 p-2 rounded-lg bg-slate-950/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors cursor-pointer group"
                 >
                   <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
                     <ChIcon size={10} className={chConfig?.color} />
