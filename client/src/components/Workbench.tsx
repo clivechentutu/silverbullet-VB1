@@ -3936,9 +3936,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   }
 
   return (
-    <div className="flex h-full -m-8 animate-fade-in-up gap-0">
+    <div className="flex flex-col lg:flex-row min-h-0 -m-8 animate-fade-in-up gap-0">
       {/* LEFT: Monitored Products */}
-      <div className="w-48 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+      <div className="w-full lg:w-48 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
         <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
           <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Monitored Products</h3>
           <button 
@@ -4064,9 +4064,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
       </div>
 
       {/* MIDDLE: Target Details */}
-      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-hidden p-4 flex flex-col">
+      <div className="flex-1 border-r border-slate-800 bg-[#0b0c0f] overflow-y-auto p-4 flex flex-col min-h-0">
         {selectedTarget ? (
-          <div className="flex flex-col h-full gap-4">
+          <div className="flex flex-col gap-4">
             {/* Header with logo and info */}
             <div className="flex items-start justify-between shrink-0">
               <div className="flex items-center gap-4">
@@ -4139,7 +4139,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
 
             {/* AI Insight Panel - Refactored Track Interface */}
-            <div className="flex-1 bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden min-h-0">
+            <div className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden">
               <TrackInsightPanel 
                 targetName={selectedTarget.name} 
                 targetDomain={safeGetHostname(selectedTarget.url)}

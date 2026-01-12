@@ -2641,8 +2641,8 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             sinceLastVisit={sinceLastVisit}
           />
           
-          {/* Core insight area - fixed height, not affected by bottom expansion */}
-          <div ref={containerRef} className="shrink-0 h-[calc(100vh-420px)] min-h-[200px] flex relative">
+          {/* Core insight area - adaptive height for small screens */}
+          <div ref={containerRef} className="flex flex-col lg:flex-row min-h-[400px] relative">
             {/* SVG Connector Line */}
             {connectorPath && (
               <svg 
@@ -2673,7 +2673,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
               </svg>
             )}
             
-            <div className="w-[420px] shrink-0 border-r border-slate-800/50 flex flex-col overflow-hidden">
+            <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 flex flex-col overflow-hidden">
               <InsightFeed 
                 insights={insights}
                 selectedId={selectedInsightId}
