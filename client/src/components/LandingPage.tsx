@@ -626,9 +626,14 @@ export const LandingPage = () => {
               {/* Discovered Competitors Section */}
               {discoveredCompetitors.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">
-                    Discovered Competitors ({discoveredCompetitors.length})
-                  </label>
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-slate-300">
+                      快速发现了 {discoveredCompetitors.length} 个相似对象
+                    </label>
+                    <p className="text-xs text-slate-500 mt-1">
+                      点击下方 Start Discovery 按钮，我们将持续为您发现更多相似竞品并进行深度分析。
+                    </p>
+                  </div>
                   <div className="grid grid-cols-1 gap-2">
                     {discoveredCompetitors.map((competitor) => (
                       <div
