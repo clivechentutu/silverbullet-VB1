@@ -27,6 +27,7 @@ export const LandingPage = () => {
   const [radarTaskName, setRadarTaskName] = useState('');
   const [radarUrl, setRadarUrl] = useState('');
   const [discoveredCompetitors, setDiscoveredCompetitors] = useState<Array<{id: string; name: string; url: string; favicon: string; description: string}>>([]);
+  const [totalDiscoveredCount, setTotalDiscoveredCount] = useState<number>(0);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
 
   // Add starry background effect
@@ -198,6 +199,7 @@ export const LandingPage = () => {
   };
 
   // Generate sample discovered competitors based on domain
+  // Returns preview list (5 items) and total count (simulated larger number)
   const generateDiscoveredCompetitors = (domain: string) => {
     const baseDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0];
     const sampleCompetitors = [
@@ -207,7 +209,9 @@ export const LandingPage = () => {
       { id: '4', name: 'IntelliMarket', url: 'https://intellimarket.ai', favicon: 'https://www.google.com/s2/favicons?domain=intellimarket.ai&sz=32', description: 'Enterprise market research platform using AI to analyze industry trends, customer sentiment, and competitive positioning.' },
       { id: '5', name: 'Stratego Analytics', url: 'https://strategoanalytics.com', favicon: 'https://www.google.com/s2/favicons?domain=strategoanalytics.com&sz=32', description: 'Strategic planning and competitive intelligence software for executive teams and business strategists.' },
     ];
-    return sampleCompetitors.slice(0, 5);
+    // Simulate discovering more than shown (e.g., 8-15 total)
+    const simulatedTotal = Math.floor(Math.random() * 8) + 8; // 8 to 15
+    return { preview: sampleCompetitors.slice(0, 5), total: simulatedTotal };
   };
 
   const removeDiscoveredCompetitor = (id: string) => {
@@ -262,7 +266,9 @@ export const LandingPage = () => {
       setTimeout(() => {
         setIsRadarLoading(false);
         setRadarTaskName(generateAIAnalysis(url).discoveryPrompt);
-        setDiscoveredCompetitors(generateDiscoveredCompetitors(url));
+        const { preview, total } = generateDiscoveredCompetitors(url);
+        setDiscoveredCompetitors(preview);
+        setTotalDiscoveredCount(total);
         setShowRadarModal(true);
       }, 3500);
     } else if (activeMode === 'tracker') {
@@ -627,11 +633,13 @@ export const LandingPage = () => {
               {discoveredCompetitors.length > 0 && (
                 <div>
                   <div className="mb-3">
-                    <label className="block text-sm font-medium text-slate-300">
-                      Instantly discovered {discoveredCompetitors.length} similar products
-                    </label>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Sign in to launch continuous tracking and unlock deeper market intelligence.
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm font-medium text-slate-300">Instantly discovered</span>
+                      <span className="text-2xl font-bold text-brand-400">{totalDiscoveredCount}</span>
+                      <span className="text-sm font-medium text-slate-300">similar products</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1.5">
+                      Showing top {discoveredCompetitors.length} results. Click <span className="text-brand-400 font-medium">Start Discovery</span> to sign up free and view all {totalDiscoveredCount} competitors.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
