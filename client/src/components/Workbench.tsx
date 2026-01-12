@@ -14,7 +14,7 @@ import {
   MessageSquare, History, Loader2, BrainCircuit, Paperclip, ArrowRight,
   FileText, Star, ArrowUpDown, MessageSquareText, Swords, LayoutGrid,
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
-  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle, Lock, Send
+  Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle, Lock, Send, ArrowLeft
 } from 'lucide-react';
 import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch, SiSlack, SiWhatsapp, SiTelegram, SiLinkedin } from 'react-icons/si';
 import { format } from 'date-fns';
@@ -5891,6 +5891,15 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                             title="Download Report"
                           >
                             <Download size={18} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onJumpToResearch(selectedReportData.title)}
+                            className="text-slate-400 hover:text-brand-400 hover:bg-brand-500/10"
+                            title="Back to task"
+                          >
+                            <ArrowLeft size={18} />
                           </Button>
                           <Button
                             variant="ghost"
