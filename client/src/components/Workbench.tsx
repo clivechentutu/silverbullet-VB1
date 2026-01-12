@@ -100,7 +100,14 @@ const URLPreview = ({ url }: { url: string }) => {
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm -z-10" />
           <div 
             className="bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200 flex flex-col max-w-[90vw] max-h-[90vh]" 
-            style={{ width: '800px', height: '500px' }}
+            style={{ 
+              width: '800px', 
+              height: '500px',
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
           >
             <div className="px-4 py-2 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
               <div className="flex items-center gap-2">
