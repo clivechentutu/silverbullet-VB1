@@ -496,21 +496,17 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
     <div ref={collapsibleRef} className="border-t border-slate-800/50 bg-slate-900/50 shrink-0">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
-            <div className="flex items-center gap-2">
-              <Database size={14} className="text-slate-400" />
-              <span className="text-sm font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
-              <Badge variant="secondary" className="text-sm px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
-                {totalSignals}
-              </Badge>
+          <div className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
+            <div className="flex items-center gap-1.5">
+              <Database size={12} className="text-slate-500" />
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Activity Stream</span>
+              <span className="text-xs text-slate-600">{totalSignals}</span>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
-                Monitoring {availableChannels.length} Channels
-              </span>
-              <div className="flex items-center gap-1 text-brand-400 group-hover:text-brand-300 transition-colors">
-                <span className="text-sm font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
-                <ChevronDown size={14} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-500">{availableChannels.length} Channels</span>
+              <div className="flex items-center gap-1 text-brand-400">
+                <span className="text-xs font-medium uppercase">{isExpanded ? 'Collapse' : 'Expand'}</span>
+                <ChevronDown size={12} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
               </div>
             </div>
           </div>
