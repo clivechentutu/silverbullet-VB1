@@ -4933,6 +4933,8 @@ interface ResearchViewProps {
   initialPrompt?: string;
   researchType?: string;
   onTypeReset?: () => void;
+  jumpToSessionTitle?: string;
+  onJumpComplete?: () => void;
 }
 
 interface ReasoningStep {
@@ -4962,11 +4964,12 @@ interface ResearchSession {
   isFavorite?: boolean;
 }
 
-const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchViewProps) => {
+const ResearchView = ({ initialPrompt, researchType, onTypeReset, jumpToSessionTitle, onJumpComplete }: ResearchViewProps) => {
   const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
@@ -4982,6 +4985,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
         setInput(initialPrompt);
     }
   }, [initialPrompt]);
+
+  const [jumpedToSession, setJumpedToSession] = useState(false);
 
   const [favoriteSessionIds, setFavoriteSessionIds] = useState<Set<string>>(new Set());
 
@@ -5011,6 +5016,42 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
   });
 
   const [activeSession, setActiveSession] = useState<ResearchSession | null>(null);
+
+  // Effect to jump to a specific session by title (from Library view)
+  useEffect(() => {
+    if (jumpToSessionTitle && history.length > 0 && !jumpedToSession) {
+      // Find session that matches the report title (exact or partial match)
+      const matchingSession = history.find(s => 
+        s.title.toLowerCase().includes(jumpToSessionTitle.toLowerCase()) ||
+        jumpToSessionTitle.toLowerCase().includes(s.title.toLowerCase())
+      );
+      
+      if (matchingSession) {
+        setActiveSession(matchingSession);
+        const parsedId = parseInt(matchingSession.id);
+        setCurrentSessionId(!isNaN(parsedId) ? parsedId : null);
+        setJumpedToSession(true);
+        
+        // Scroll to output after a short delay to let the DOM render
+        setTimeout(() => {
+          if (outputRef.current) {
+            outputRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+        
+        if (onJumpComplete) {
+          onJumpComplete();
+        }
+      }
+    }
+  }, [jumpToSessionTitle, history, jumpedToSession, onJumpComplete]);
+
+  // Reset jumpedToSession when jumpToSessionTitle changes
+  useEffect(() => {
+    if (!jumpToSessionTitle) {
+      setJumpedToSession(false);
+    }
+  }, [jumpToSessionTitle]);
 
   const chatMutation = useMutation({
     mutationFn: async ({ sessionId, message }: { sessionId?: number; message: string }) => {
@@ -5330,7 +5371,9 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                 </div>
              ) : (
                 <div className="max-w-3xl mx-auto space-y-8 pb-32">
-                   {activeSession.messages.map((msg) => (
+                   {activeSession.messages.map((msg, msgIndex) => {
+                      const isFirstAgentMessage = msg.role !== 'user' && activeSession.messages.findIndex(m => m.role !== 'user') === msgIndex;
+                      return (
                       <div key={msg.id} className="animate-fade-in-up">
                          {msg.role === 'user' ? (
                             <div className="flex justify-end mb-8">
@@ -5339,7 +5382,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                </div>
                             </div>
                          ) : (
-                            <div className="flex gap-4 items-start">
+                            <div ref={isFirstAgentMessage ? outputRef : undefined} className="flex gap-4 items-start">
                                <div className="w-8 h-8 rounded-lg bg-amber-900/20 border border-amber-500/20 flex items-center justify-center shrink-0 mt-1">
                                   <Lightbulb size={16} className="text-amber-400" />
                                </div>
@@ -5380,7 +5423,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                             </div>
                          )}
                       </div>
-                   ))}
+                   );
+                   })}
                    <div ref={chatEndRef} />
                 </div>
              )}
@@ -6862,6 +6906,7 @@ export const Workbench: React.FC = () => {
   const { toast } = useToast();
   const [activeView, setActiveView] = useState<WorkbenchView>(WorkbenchView.RADAR);
   const [researchPrompt, setResearchPrompt] = useState<string>('');
+  const [jumpToSessionTitle, setJumpToSessionTitle] = useState<string>('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showBillingModal, setShowBillingModal] = useState(false);
   const [selectedTargetId, setSelectedTargetId] = useState<number | null>(null);
@@ -6964,9 +7009,14 @@ export const Workbench: React.FC = () => {
   };
 
   const handleJumpToResearch = (reportTitle: string) => {
-      setResearchPrompt(`Follow up on: ${reportTitle}`);
+      setJumpToSessionTitle(reportTitle);
+      setResearchPrompt('');
       setResearchInitialType('acts');
       setActiveView(WorkbenchView.RESEARCH);
+  };
+
+  const handleJumpComplete = () => {
+      setJumpToSessionTitle('');
   };
 
   const handleTrackResearch = (targetName: string) => {
@@ -6998,6 +7048,8 @@ export const Workbench: React.FC = () => {
             initialPrompt={researchPrompt} 
             researchType={researchInitialType}
             onTypeReset={() => setResearchInitialType('general')}
+            jumpToSessionTitle={jumpToSessionTitle}
+            onJumpComplete={handleJumpComplete}
           />
         );
       case WorkbenchView.LIBRARY:
