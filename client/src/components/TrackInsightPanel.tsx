@@ -5,7 +5,7 @@ import {
   Briefcase, Clock, Radio, RefreshCw, AlertTriangle, Activity,
   BrainCircuit, Archive, Check, Eye, TrendingUp, History, X,
   Calendar, LayoutList, Rows3, Info, Database, Layers, Star, Lightbulb,
-  Building2, DollarSign, Code2, Handshake, MapPin, Award,
+  Building2, DollarSign, Code2, Handshake, MapPin, Award, Target,
   Newspaper, Trophy, Share2, MessageSquare, ThumbsUp, ThumbsDown, Settings
 } from 'lucide-react';
 import { SiX, SiYoutube } from 'react-icons/si';
@@ -955,32 +955,36 @@ interface InsightCardProps {
   onDemote?: (id: string) => void;
   setCardRef?: (el: HTMLDivElement | null) => void;
   isAllView: boolean;
+  onResearch?: (prompt: string) => void;
 }
 
-const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAllView }: InsightCardProps) => {
+const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAllView, onResearch }: InsightCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
   const effectiveTier = insight.userOverride || insight.tier;
-  const tier = tierConfig[effectiveTier];
-  const TierIcon = tier.icon;
   const isHighlight = effectiveTier === 'highlight';
-  const confConfig = confidenceConfig[insight.confidence];
-
-  const handleDemote = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDemote?.(insight.id);
-  };
 
   const mappedTier = 
     effectiveTier === 'highlight' ? 'high' : 
     effectiveTier === 'notable' ? 'medium' : 'low';
   const tierFilterConfig = valueFilterConfig[mappedTier];
 
+  const handleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleResearch = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const prompt = `Analyze: "${insight.title}"\n\nKey Finding: ${insight.keyInfo}\nImpact: ${insight.impact}\nAction: ${insight.action}`;
+    onResearch?.(prompt);
+  };
+
   return (
     <div 
       ref={setCardRef}
-      onClick={onClick}
-      className={`relative p-2.5 rounded-lg cursor-pointer transition-all ${
+      className={`relative rounded-lg transition-all ${
         isSelected 
           ? `bg-slate-800 border border-brand-500` 
           : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
@@ -992,51 +996,110 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
         <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-500 rounded-full" />
       )}
       
-      {/* Read/Unread indicator */}
-      <div className="absolute top-3 right-3">
-        {!insight.isRead ? (
-          <span className="flex w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        ) : (
-          <Check size={10} className="text-emerald-500" />
-        )}
-      </div>
-      
-      <div className="flex items-start gap-2.5">
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700`}>
-          <ChIcon size={14} className={chConfig?.color} />
+      {/* Compact header - always visible */}
+      <div 
+        onClick={onClick}
+        className="p-2 cursor-pointer"
+      >
+        <div className="flex items-center gap-2">
+          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+            <ChIcon size={10} className={chConfig?.color} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
+              <span className="text-xs text-slate-600">{insight.time}</span>
+              {isAllView && (
+                <span className={`text-xs px-1 rounded ${tierFilterConfig.bgColor} ${tierFilterConfig.color}`}>
+                  {tierFilterConfig.shortLabel}
+                </span>
+              )}
+              {!insight.isRead && (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              )}
+            </div>
+            <h4 className="text-sm font-semibold text-white truncate">{insight.title}</h4>
+          </div>
+          <button
+            onClick={handleExpand}
+            className="p-1 hover:bg-slate-700/50 rounded transition-colors shrink-0"
+          >
+            <ChevronDown size={14} className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
         </div>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            <span className={`text-sm font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
-            <span className="text-sm text-slate-600">|</span>
-            <span className="text-sm text-slate-500">{insight.time}</span>
-            {/* AI Confidence/Tier indicator aligned with value filters - only show in All view */}
-            {isAllView && (
-              <TooltipProvider>
-                <Tooltip delayDuration={200}>
-                  <TooltipTrigger asChild>
-                    <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-sm border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
-                      <BrainCircuit size={7} />
-                      {tierFilterConfig.shortLabel}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                    <p className="text-sm text-slate-300 font-medium">{tierFilterConfig.label}</p>
-                    <p className="text-sm text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
-            {insight.userOverride && (
-              <span className="text-sm text-slate-500 italic">adjusted</span>
-            )}
+        {/* Inline summary - Key Finding, Impact, Action in compact format */}
+        <div className="mt-1.5 pl-7 space-y-1">
+          <div className="flex items-start gap-1.5">
+            <Target size={10} className="text-cyan-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-300 line-clamp-1">{insight.keyInfo}</p>
           </div>
-          
-          <h4 className="text-sm font-bold mb-0.5 leading-snug text-white">{insight.title}</h4>
-          <p className="text-sm text-slate-400 line-clamp-2 leading-snug">{insight.summary}</p>
+          <div className="flex items-start gap-1.5">
+            <TrendingUp size={10} className="text-purple-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-400 line-clamp-1">{insight.impact}</p>
+          </div>
+          <div className="flex items-start gap-1.5">
+            <Zap size={10} className="text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-400 line-clamp-1">{insight.action}</p>
+          </div>
         </div>
       </div>
+      
+      {/* Expanded details */}
+      {isExpanded && (
+        <div className="px-2 pb-2 pt-0 border-t border-slate-800/50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="pl-7 space-y-2 mt-2">
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <Target size={11} className="text-cyan-400" />
+                <span className="text-xs font-medium text-cyan-400 uppercase tracking-wide">Key Finding</span>
+              </div>
+              <p className="text-sm text-slate-200 leading-relaxed">{insight.keyInfo}</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <TrendingUp size={11} className="text-purple-400" />
+                <span className="text-xs font-medium text-purple-400 uppercase tracking-wide">Impact</span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{insight.impact}</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <Zap size={11} className="text-amber-400" />
+                <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">Action</span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{insight.action}</p>
+            </div>
+            
+            {/* Quick actions */}
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-800/30">
+              {onResearch && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResearch}
+                  className="h-6 px-2 text-xs bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
+                >
+                  <Lightbulb size={10} className="mr-1" />
+                  Research
+                </Button>
+              )}
+              {onDemote && effectiveTier !== 'update' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); onDemote(insight.id); }}
+                  className="h-6 px-2 text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-700/50"
+                >
+                  <ChevronDown size={10} className="mr-1" />
+                  Demote
+                </Button>
+              )}
+              <span className="text-xs text-slate-600 ml-auto">{insight.signals.length} signals</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1192,9 +1255,10 @@ interface InsightFeedProps {
   availableChannels: string[];
   lastVisitDays: number;
   onSelectedCardRef?: (ref: HTMLDivElement | null) => void;
+  onResearch?: (prompt: string) => void;
 }
 
-const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, channelFilter, onChannelFilterChange, availableChannels, lastVisitDays, onSelectedCardRef }: InsightFeedProps) => {
+const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, channelFilter, onChannelFilterChange, availableChannels, lastVisitDays, onSelectedCardRef, onResearch }: InsightFeedProps) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('14d');
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [showTimeRangeMenu, setShowTimeRangeMenu] = useState(false);
@@ -1548,6 +1612,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                 onDemote={onDemote}
                 setCardRef={(el) => setCardRef(insight.id, el)}
                 isAllView={valueFilter === 'all'}
+                onResearch={onResearch}
               />
             ))}
           </div>
@@ -2656,6 +2721,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
                 availableChannels={availableChannels}
                 lastVisitDays={lastVisitDays}
                 onSelectedCardRef={setSelectedCardEl}
+                onResearch={onResearch}
               />
             </div>
 
