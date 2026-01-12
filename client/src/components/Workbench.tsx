@@ -5137,6 +5137,35 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
           </div>
           
           <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
+             {history.some(s => (s as any).isFavorite) && (
+                <div data-testid="container-favorites">
+                   <h4 className="px-2 text-[10px] font-bold text-brand-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <Star size={10} className="fill-brand-500" /> Favorites
+                   </h4>
+                   <div className="space-y-1">
+                      {history.filter(s => (s as any).isFavorite).map(session => (
+                         <div 
+                           key={`fav-${session.id}`}
+                           onClick={() => { setActiveSession(session); setCurrentSessionId(parseInt(session.id) || null); }}
+                           className={`p-2.5 rounded-lg text-sm cursor-pointer transition-colors truncate flex items-center gap-3 group ${String(currentSessionId) === session.id ? 'bg-brand-500/10 text-white' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-300'}`}
+                           data-testid={`favorite-session-${session.id}`}
+                         >
+                            {session.type === 'radar' ? (
+                               <Radar size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : session.type === 'acts' ? (
+                               <Library size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : session.type === 'track' ? (
+                               <Crosshair size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            ) : (
+                               <MessageSquare size={14} className={String(currentSessionId) === session.id ? 'text-brand-400' : 'text-slate-600 group-hover:text-slate-500'} />
+                            )}
+                            <span className="truncate flex-1">{session.title}</span>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+             )}
+
              {['Today', 'Yesterday'].map(group => (
                 <div key={group}>
                    <h4 className="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">{group}</h4>
