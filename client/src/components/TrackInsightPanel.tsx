@@ -2641,8 +2641,8 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             sinceLastVisit={sinceLastVisit}
           />
           
-          {/* Core insight area - adaptive height for small screens */}
-          <div ref={containerRef} className="flex flex-col lg:flex-row min-h-[400px] relative">
+          {/* Core insight area - fixed height with scroll */}
+          <div ref={containerRef} className="flex flex-col lg:flex-row h-[calc(100vh-380px)] min-h-[300px] relative">
             {/* SVG Connector Line */}
             {connectorPath && (
               <svg 
