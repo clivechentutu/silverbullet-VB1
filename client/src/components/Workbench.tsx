@@ -6611,8 +6611,8 @@ export const Workbench: React.FC = () => {
                 )}
               </button>
               
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block z-50 pointer-events-none">
-                <div className="bg-slate-950 border border-slate-700 rounded-lg p-3 shadow-xl animate-in fade-in zoom-in-95 duration-200 w-48">
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
+                <div className="bg-slate-950 border border-slate-700 rounded-lg p-3 shadow-xl animate-in fade-in zoom-in-95 slide-in-from-left-2 duration-200 w-48">
                   <p className="text-xs text-slate-300 leading-relaxed">{item.description}</p>
                 </div>
               </div>
@@ -6644,8 +6644,8 @@ export const Workbench: React.FC = () => {
                 )}
               </button>
               
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover/tooltip:block z-50 pointer-events-none">
-                <div className="bg-slate-950 border border-slate-700 rounded-lg p-3 shadow-xl animate-in fade-in zoom-in-95 duration-200 w-48">
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
+                <div className="bg-slate-950 border border-slate-700 rounded-lg p-3 shadow-xl animate-in fade-in zoom-in-95 slide-in-from-left-2 duration-200 w-48">
                   <p className="text-xs text-slate-300 leading-relaxed">{item.description}</p>
                 </div>
               </div>
