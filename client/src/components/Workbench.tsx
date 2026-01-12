@@ -2557,17 +2557,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
           />
         </div>
         <div className="flex-1" />
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
-          <input 
-            type="text"
-            placeholder="Search alternatives, features..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-1.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 w-56"
-            data-testid="input-search-radar"
-          />
-        </div>
       </div>
 
       <div className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden">
