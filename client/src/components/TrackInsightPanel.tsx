@@ -187,22 +187,22 @@ const SessionCatchUp = ({
         <div className="px-3 py-2 mb-2 rounded-md border border-blue-500/20 bg-blue-500/5">
           <div className="flex items-center gap-2">
             <History size={12} className="text-blue-400" />
-            <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
-            <span className="text-[11px] text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
+            <span className="text-sm font-bold text-blue-400 uppercase tracking-wider">Since Your Last Visit</span>
+            <span className="text-sm text-slate-500">{sinceLastVisit.lastVisitDays} days ago</span>
           </div>
             {sinceLastVisit.totalInsights > 0 && (
               <div className="flex items-center gap-1">
                 <span className="text-sm font-bold text-white">{sinceLastVisit.totalInsights}</span>
-                <span className="text-[11px] text-slate-400">new insights</span>
+                <span className="text-sm text-slate-400">new insights</span>
               </div>
             )}
             {sinceLastVisit.highlights > 0 && (
               <div className="flex items-center gap-1">
                 <Sparkles size={10} className="text-amber-400" />
-                <span className="text-xs text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
+                <span className="text-sm text-amber-400 font-medium">{sinceLastVisit.highlights}</span>
               </div>
             )}
-          <p className="text-[11px] text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
+          <p className="text-sm text-slate-500 mt-1">Use Focus Now filter to see priority items from this period</p>
         </div>
       )}
       
@@ -228,12 +228,12 @@ const SessionCatchUp = ({
                   {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                 </span>
                 {viewingHistorical ? (
-                  <span className="text-xs text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                  <span className="text-sm text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
                 ) : (
-                  <span className="text-xs text-slate-500">Last visit: {lastLoginTime}</span>
+                  <span className="text-sm text-slate-500">Last visit: {lastLoginTime}</span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm text-slate-500 mt-0.5">
                 {viewingHistorical 
                   ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
                   : `${totalSignals} signals collected across ${availableChannels.length} channels`
@@ -250,7 +250,7 @@ const SessionCatchUp = ({
               onGenerate();
             }}
             disabled={isGenerating || !!summaries}
-            className={`text-xs font-medium px-4 h-8 transition-all ${
+            className={`text-sm font-medium px-4 h-8 transition-all ${
               summaries 
                 ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default' 
                 : 'border-brand-500/40 hover:bg-brand-500/10 text-brand-400'
@@ -286,7 +286,7 @@ const SessionCatchUp = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-sm text-slate-300 leading-relaxed">
                     Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
                   </p>
                 </TooltipContent>
@@ -304,7 +304,7 @@ const SessionCatchUp = ({
                 e.stopPropagation();
                 onClearHistoricalView();
               }}
-              className="text-xs text-slate-400 hover:bg-brand-500/10"
+              className="text-sm text-slate-400 hover:bg-brand-500/10"
               data-testid="button-close-historical"
             >
               <X size={14} className="mr-1.5" />
@@ -321,12 +321,12 @@ const SessionCatchUp = ({
                       e.stopPropagation();
                       setShowHistory(!showHistory);
                     }}
-                    className="text-xs text-slate-400 hover:bg-brand-500/10"
+                    className="text-sm text-slate-400 hover:bg-brand-500/10"
                     data-testid="button-show-history"
                   >
                     <History size={14} className="mr-1.5" />
                     History
-                    <Badge variant="secondary" className="ml-2 text-[11px] px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-2 text-sm px-1.5 py-0">
                       {historicalSummaries.length}
                     </Badge>
                   </Button>
@@ -337,7 +337,7 @@ const SessionCatchUp = ({
                       onClick={(e) => e.stopPropagation()}
                     >
                   <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
                   </div>
                   <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                     {historicalSummaries.map(hist => (
@@ -350,10 +350,10 @@ const SessionCatchUp = ({
                         className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
                       >
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
-                          <span className="text-xs text-slate-500">{hist.totalSignals} signals</span>
+                          <span className="text-sm font-medium text-white">{hist.generatedAt}</span>
+                          <span className="text-sm text-slate-500">{hist.totalSignals} signals</span>
                         </div>
-                        <span className="text-xs text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+                        <span className="text-sm text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
                       </div>
                     ))}
                   </div>
@@ -369,7 +369,7 @@ const SessionCatchUp = ({
                     e.stopPropagation();
                     setIsExpanded(!isExpanded);
                   }}
-                  className="text-xs text-slate-400 hover:bg-brand-500/10"
+                  className="text-sm text-slate-400 hover:bg-brand-500/10"
                   data-testid="button-toggle-summary"
                 >
                   {isExpanded ? 'Hide' : 'Show'}
@@ -395,14 +395,14 @@ const SessionCatchUp = ({
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Icon size={14} className={config.color} />
-                    <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
-                    <span className="text-[11px] text-slate-500 ml-auto">{summary.signalCount} signals</span>
+                    <span className={`text-sm font-bold ${config.color}`}>{config.name}</span>
+                    <span className="text-sm text-slate-500 ml-auto">{summary.signalCount} signals</span>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed mb-2">{summary.summary}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed mb-2">{summary.summary}</p>
                   {summary.keyPoints.length > 0 && (
                     <ul className="space-y-1">
                       {summary.keyPoints.map((point, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5 text-xs text-slate-400">
+                        <li key={idx} className="flex items-start gap-1.5 text-sm text-slate-400">
                           <span className="text-slate-600 mt-0.5">-</span>
                           {point}
                         </li>
@@ -499,17 +499,17 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
             <div className="flex items-center gap-2">
               <Database size={14} className="text-slate-400" />
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
-              <Badge variant="secondary" className="text-[11px] px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
+              <span className="text-sm font-bold text-slate-300 uppercase tracking-wider">Activity Stream & Signals</span>
+              <Badge variant="secondary" className="text-sm px-1.5 py-0 ml-1 bg-slate-800 text-slate-400 border-slate-700">
                 {totalSignals}
               </Badge>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
+              <span className="text-sm text-slate-500 font-medium bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-700/50">
                 Monitoring {availableChannels.length} Channels
               </span>
               <div className="flex items-center gap-1 text-brand-400 group-hover:text-brand-300 transition-colors">
-                <span className="text-xs font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
+                <span className="text-sm font-bold uppercase tracking-widest">{isExpanded ? 'Collapse' : 'Expand View'}</span>
                 <ChevronDown size={14} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
               </div>
             </div>
@@ -543,15 +543,15 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                     >
                       <div className="flex items-center gap-2">
                         <Icon size={14} className={config.color} />
-                        <span className={`text-xs font-bold ${config.color}`}>{config.name}</span>
+                        <span className={`text-sm font-bold ${config.color}`}>{config.name}</span>
                         {/* Channel active/scanning indicator */}
                         <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/30">
                           <Zap size={9} className="text-emerald-400 animate-pulse" />
-                          <span className="text-[8px] text-emerald-400 font-medium">Monitoring</span>
+                          <span className="text-sm text-emerald-400 font-medium">Monitoring</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] text-slate-500">{signals.length}</span>
+                        <span className="text-sm text-slate-500">{signals.length}</span>
                         <ChevronDown size={12} className={`text-slate-500 transition-transform ${isChannelExpanded ? 'rotate-180' : ''}`} />
                       </div>
                     </div>
@@ -561,7 +561,7 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                       <div className="border-t border-slate-800/30 p-2 space-y-1.5 max-h-[200px] overflow-y-auto custom-scrollbar flex-1">
                         {signals.length === 0 ? (
                           <div className="text-center py-4">
-                            <p className="text-[10px] text-slate-600">No signals yet</p>
+                            <p className="text-sm text-slate-600">No signals yet</p>
                           </div>
                         ) : (
                           <>
@@ -572,12 +572,12 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                               >
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between gap-2 mb-0.5">
-                                    <span className={`text-[8px] font-bold uppercase tracking-wider ${config.color}`}>
+                                    <span className={`text-sm font-bold uppercase tracking-wider ${config.color}`}>
                                       {signal.type}
                                     </span>
-                                    <span className="text-[8px] text-slate-600">{signal.time}</span>
+                                    <span className="text-sm text-slate-600">{signal.time}</span>
                                   </div>
-                                  <p className="text-[10px] text-slate-300 leading-relaxed line-clamp-2">{signal.content}</p>
+                                  <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">{signal.content}</p>
                                 </div>
                                 <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5 cursor-pointer hover:text-slate-400" />
                               </div>
@@ -589,7 +589,7 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
                                   e.stopPropagation();
                                   loadMoreSignals(channelId);
                                 }}
-                                className="w-full py-1.5 text-[9px] text-slate-500 hover:text-slate-300 bg-slate-900/30 hover:bg-slate-800/30 rounded transition-colors"
+                                className="w-full py-1.5 text-sm text-slate-500 hover:text-slate-300 bg-slate-900/30 hover:bg-slate-800/30 rounded transition-colors"
                               >
                                 +{signals.length - limit} more
                               </button>
@@ -642,7 +642,7 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
             <span className="absolute inset-0 bg-emerald-500 rounded-full" />
             <span className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-50" />
           </div>
-          <span className="text-[9px] font-medium text-slate-500 uppercase tracking-wide">Live</span>
+          <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">Live</span>
         </div>
         
         <span className="text-slate-700">|</span>
@@ -655,14 +655,14 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
           </div>
           <span 
             key={activityIndex}
-            className="text-[9px] text-slate-500 animate-fade-in"
+            className="text-sm text-slate-500 animate-fade-in"
           >
             {activities[activityIndex].action} {activities[activityIndex].target}
           </span>
         </div>
       </div>
       
-      <div className="flex items-center gap-3 text-[9px] text-slate-600">
+      <div className="flex items-center gap-3 text-sm text-slate-600">
         <span>{totalInsights} signals</span>
         <span className="text-slate-700">|</span>
         <span className="font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
@@ -804,33 +804,33 @@ const ProfileCard = ({
     <div className={`bg-slate-900/50 border border-slate-800/50 rounded-lg overflow-hidden hover:border-slate-700/50 transition-colors flex flex-col ${!hasData ? 'min-h-[160px]' : ''}`}>
       <div className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-800/30 bg-slate-950/30">
         <Icon size={14} className="text-brand-400" />
-        <span className="text-xs font-bold text-white">{config.title}</span>
+        <span className="text-sm font-bold text-white">{config.title}</span>
       </div>
       
       <div className={`p-4 flex-1 ${!hasData ? 'flex flex-col items-center justify-center text-center' : ''}`}>
         {hasData ? (
           <div className="space-y-3">
-            <p className="text-xs text-slate-300 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               {renderContentWithLinks(data.content!, data.sources)}
             </p>
             
             {data.sources.length > 0 && (
               <div className="pt-3 border-t border-slate-800/30">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[9px] text-slate-500 uppercase tracking-wider">Sources:</span>
+                  <span className="text-sm text-slate-500 uppercase tracking-wider">Sources:</span>
                   {data.sources.slice(0, 4).map((source, idx) => (
                     <a
                       key={idx}
                       href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[9px] px-1.5 py-0.5 bg-slate-800/50 border border-slate-700/50 rounded text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/30 transition-colors"
+                      className="text-sm px-1.5 py-0.5 bg-slate-800/50 border border-slate-700/50 rounded text-cyan-400 hover:text-cyan-300 hover:border-cyan-500/30 transition-colors"
                     >
                       {source.text}
                     </a>
                   ))}
                   {data.sources.length > 4 && (
-                    <span className="text-[9px] text-slate-500">+{data.sources.length - 4} more</span>
+                    <span className="text-sm text-slate-500">+{data.sources.length - 4} more</span>
                   )}
                 </div>
               </div>
@@ -841,7 +841,7 @@ const ProfileCard = ({
             <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center mx-auto">
               <Search size={18} className="text-slate-500" />
             </div>
-            <p className="text-[11px] text-slate-500 max-w-[180px]">{config.emptyMessage}</p>
+            <p className="text-sm text-slate-500 max-w-[180px]">{config.emptyMessage}</p>
           </div>
         )}
       </div>
@@ -939,7 +939,7 @@ const CompanyProfileSection = ({ companyName }: { companyName: string }) => {
           <Building2 size={18} className="text-brand-400" />
           Company Overview
         </h2>
-        <p className="text-xs text-slate-400 mt-1">AI-aggregated data classification and overview from multi-source streams</p>
+        <p className="text-sm text-slate-400 mt-1">AI-aggregated data classification and overview from multi-source streams</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -1015,37 +1015,37 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-            <span className={`text-[9px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
-            <span className="text-[8px] text-slate-600">|</span>
-            <span className="text-[8px] text-slate-500">{insight.time}</span>
+            <span className={`text-sm font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
+            <span className="text-sm text-slate-600">|</span>
+            <span className="text-sm text-slate-500">{insight.time}</span>
             {/* AI Confidence/Tier indicator aligned with value filters - only show in All view */}
             {isAllView && (
               <TooltipProvider>
                 <Tooltip delayDuration={200}>
                   <TooltipTrigger asChild>
-                    <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
+                    <span className={`flex items-center gap-0.5 px-1 py-0.5 rounded text-sm border ${tierFilterConfig.bgColor} ${tierFilterConfig.color} ${tierFilterConfig.borderColor}`}>
                       <BrainCircuit size={7} />
                       {tierFilterConfig.shortLabel}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                    <p className="text-[10px] text-slate-300 font-medium">{tierFilterConfig.label}</p>
-                    <p className="text-[9px] text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
+                    <p className="text-sm text-slate-300 font-medium">{tierFilterConfig.label}</p>
+                    <p className="text-sm text-slate-500 mt-0.5">AI-assigned priority. Not certain? Demote it.</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
             {insight.userOverride && (
-              <span className="text-[7px] text-slate-500 italic">adjusted</span>
+              <span className="text-sm text-slate-500 italic">adjusted</span>
             )}
           </div>
           
-          <h4 className="text-[11px] font-bold mb-0.5 leading-snug text-white">{insight.title}</h4>
-          <p className="text-[10px] text-slate-400 line-clamp-1 leading-snug">{insight.summary}</p>
+          <h4 className="text-sm font-bold mb-0.5 leading-snug text-white">{insight.title}</h4>
+          <p className="text-sm text-slate-400 line-clamp-1 leading-snug">{insight.summary}</p>
           
           <div className="flex items-center justify-between mt-1.5 gap-2">
             <div className="flex items-center gap-2">
-              <span className="text-[8px] text-slate-600">{insight.signals.length} signals</span>
+              <span className="text-sm text-slate-600">{insight.signals.length} signals</span>
               {/* Demote button - show until item reaches update tier */}
               {effectiveTier !== 'update' && (
                 <TooltipProvider>
@@ -1053,7 +1053,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
                     <TooltipTrigger asChild>
                       <button
                         onClick={handleDemote}
-                        className="flex items-center gap-0.5 px-1 py-0.5 rounded text-[7px] text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors"
+                        className="flex items-center gap-0.5 px-1 py-0.5 rounded text-sm text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors"
                         data-testid={`demote-${insight.id}`}
                         aria-label="Demote this insight to lower priority"
                       >
@@ -1062,7 +1062,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[180px]">
-                      <p className="text-[9px] text-slate-400">AI got it wrong? Click to lower priority.</p>
+                      <p className="text-sm text-slate-400">AI got it wrong? Click to lower priority.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -1091,7 +1091,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
           <TooltipTrigger asChild>
             <button
               onClick={() => onFilterChange(null)}
-              className={`px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+              className={`px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeFilter === null 
                   ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30' 
                   : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
@@ -1102,7 +1102,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
-            <p className="text-[10px] text-slate-400">Show all intelligence channels</p>
+            <p className="text-sm text-slate-400">Show all intelligence channels</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -1112,7 +1112,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
           <TooltipTrigger asChild>
             <button
               onClick={() => onFilterChange('saved')}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                 activeFilter === 'saved' 
                   ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
                   : 'bg-slate-900/50 text-slate-400 border border-slate-800/50 hover:border-slate-700'
@@ -1124,7 +1124,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
             </button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-slate-900 border-slate-700 p-2">
-            <p className="text-[10px] text-slate-400">View saved insights</p>
+            <p className="text-sm text-slate-400">View saved insights</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -1142,7 +1142,7 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
               <TooltipTrigger asChild>
                 <button
                   onClick={() => onFilterChange(channelId)}
-                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-[9px] font-medium transition-colors ${
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-sm font-medium transition-colors ${
                     isActive 
                       ? `${config.bgColor} ${config.color} border ${config.borderColor}` 
                       : 'bg-slate-900/50 text-slate-500 border border-slate-800/50 hover:border-slate-700'
@@ -1160,9 +1160,9 @@ const ChannelFilter = ({ channels, activeFilter, onFilterChange, insightCounts, 
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <Icon size={12} className={config.color} />
-                    <span className="text-xs font-bold text-white uppercase">{config.name}</span>
+                    <span className="text-sm font-bold text-white uppercase">{config.name}</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 leading-relaxed">
+                  <p className="text-sm text-slate-400 leading-relaxed">
                     {config.description}
                   </p>
                 </div>
@@ -1371,14 +1371,14 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
       <div className="px-3 py-2 border-b border-slate-800/50">
         <div className="flex items-center gap-2 mb-1.5">
           <Sparkles size={12} className="text-brand-400" />
-          <span className="text-xs font-bold text-white">AI Insights</span>
+          <span className="text-sm font-bold text-white">AI Insights</span>
           <div className="flex items-center gap-1 ml-auto">
             <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowTimeRangeMenu(!showTimeRangeMenu)}
-                className="h-6 px-2 text-[9px] text-slate-400 hover:bg-slate-800"
+                className="h-6 px-2 text-sm text-slate-400 hover:bg-slate-800"
                 data-testid="button-time-range"
               >
                 <Calendar size={10} className="mr-1" />
@@ -1390,7 +1390,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                     <div 
                       key={range}
                       onClick={() => { setTimeRange(range); setShowTimeRangeMenu(false); }}
-                      className={`px-3 py-1.5 text-[10px] cursor-pointer transition-colors ${
+                      className={`px-3 py-1.5 text-sm cursor-pointer transition-colors ${
                         timeRange === range ? 'bg-brand-500/20 text-brand-400' : 'text-slate-400 hover:bg-slate-800'
                       }`}
                     >
@@ -1413,7 +1413,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         </div>
         {/* Value tier info */}
         <div className="flex items-center gap-1.5 mb-1.5">
-          <span className="text-[9px] text-slate-500">{filteredInsights.length} {valueFilter !== 'all' ? 'matching' : 'active'}</span>
+          <span className="text-sm text-slate-500">{filteredInsights.length} {valueFilter !== 'all' ? 'matching' : 'active'}</span>
         </div>
         <ChannelFilter 
           channels={availableChannels}
@@ -1440,13 +1440,13 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                   }`}
                   data-testid="filter-value-all"
                 >
-                  <span className={`text-[9px] ${valueFilter === 'all' ? 'text-slate-300' : 'text-slate-600'}`}>
+                  <span className={`text-sm ${valueFilter === 'all' ? 'text-slate-300' : 'text-slate-600'}`}>
                     All
                   </span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2">
-                <p className="text-[10px] text-slate-400">Show all insights</p>
+                <p className="text-sm text-slate-400">Show all insights</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -1469,11 +1469,11 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                       }`}
                       data-testid={`filter-value-${tier}`}
                     >
-                      <span className={`text-[10px] font-bold ${isActive ? config.color : 'text-slate-500'}`}>
+                      <span className={`text-sm font-bold ${isActive ? config.color : 'text-slate-500'}`}>
                         {config.shortLabel}
                       </span>
                       {count > 0 && (
-                        <span className={`text-[8px] mt-0.5 ${isActive ? config.color : 'text-slate-600'}`}>
+                        <span className={`text-sm mt-0.5 ${isActive ? config.color : 'text-slate-600'}`}>
                           {count}
                         </span>
                       )}
@@ -1483,8 +1483,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                     </button>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="bg-slate-900 border-slate-700 p-2 max-w-[180px]">
-                    <p className="text-[10px] font-medium text-white">{config.label}</p>
-                    <p className="text-[9px] text-slate-400 mt-0.5">{config.description}</p>
+                    <p className="text-sm font-medium text-white">{config.label}</p>
+                    <p className="text-sm text-slate-400 mt-0.5">{config.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -1498,7 +1498,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
             <div className="text-center py-12">
               <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
               <p className="text-sm text-slate-500 font-medium">No insights found</p>
-              <p className="text-xs text-slate-600 mt-1">Try a different filter</p>
+              <p className="text-sm text-slate-600 mt-1">Try a different filter</p>
             </div>
           ) : viewMode === 'compact' ? (
           (Object.keys(groupedInsights) as TimeGroup[]).map(group => {
@@ -1512,9 +1512,9 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                   onClick={() => toggleGroup(group)}
                   className="flex items-center justify-between px-1 py-1.5 cursor-pointer hover:bg-slate-900/30 rounded transition-colors"
                 >
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">{timeGroupLabels[group]}</span>
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{timeGroupLabels[group]}</span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] text-slate-600">{groupInsights.length}</span>
+                    <span className="text-sm text-slate-600">{groupInsights.length}</span>
                     <ChevronDown size={10} className={`text-slate-500 transition-transform ${isCollapsed ? '' : 'rotate-180'}`} />
                   </div>
                 </div>
@@ -1559,10 +1559,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                           )}
                           
                           <ChIcon size={12} className={chConfig?.color} />
-                          <span className={`text-[10px] line-clamp-1 flex-1 ${isHighlight && !insight.isRead ? 'text-white font-medium' : 'text-white'}`}>
+                          <span className={`text-sm line-clamp-1 flex-1 ${isHighlight && !insight.isRead ? 'text-white font-medium' : 'text-white'}`}>
                             {insight.title}
                           </span>
-                          <span className="text-[8px] text-slate-600 shrink-0">{insight.time}</span>
+                          <span className="text-sm text-slate-600 shrink-0">{insight.time}</span>
                         </div>
                       );
                     })}
@@ -1590,7 +1590,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         {viewMode === 'default' && hasMoreInsights && (
           <button 
             onClick={() => setDisplayLimit(prev => prev + 20)}
-            className="w-full py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
+            className="w-full py-2 text-sm text-slate-500 hover:text-slate-300 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-800/50 transition-colors"
           >
             Load more ({sortedInsights.length - displayLimit} remaining)
           </button>
@@ -1602,10 +1602,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
               <div className="flex items-center justify-between px-1 py-2 cursor-pointer hover:bg-slate-900/30 rounded transition-colors mt-3 border-t border-slate-800/50 pt-4">
                 <div className="flex items-center gap-1.5">
                   <Archive size={10} className="text-slate-500" />
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Resolved</span>
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Resolved</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] text-slate-600">{filteredResolved.length}</span>
+                  <span className="text-sm text-slate-600">{filteredResolved.length}</span>
                   <ChevronDown size={10} className="text-slate-500" />
                 </div>
               </div>
@@ -1628,8 +1628,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
                       <div className="flex items-center gap-2">
                         <Check size={10} className="text-emerald-500 shrink-0" />
                         <ChIcon size={10} className={chConfig?.color} />
-                        <span className="text-[10px] text-slate-400 line-clamp-1 flex-1">{insight.title}</span>
-                        <span className="text-[8px] text-slate-600">{insight.time}</span>
+                        <span className="text-sm text-slate-400 line-clamp-1 flex-1">{insight.title}</span>
+                        <span className="text-sm text-slate-600">{insight.time}</span>
                       </div>
                     </div>
                   );
@@ -1753,7 +1753,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
         <div>
           <Eye size={32} className="text-slate-700 mx-auto mb-3" />
           <p className="text-sm text-slate-500 font-medium">Select an insight</p>
-          <p className="text-xs text-slate-600 mt-1">View analysis and supporting signals</p>
+          <p className="text-sm text-slate-600 mt-1">View analysis and supporting signals</p>
         </div>
       </div>
     );
@@ -1774,8 +1774,8 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className={`text-[10px] font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
-                <span className="text-[9px] text-slate-500">{insight.time}</span>
+                <span className={`text-sm font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
+                <span className="text-sm text-slate-500">{insight.time}</span>
               </div>
               <h3 className="text-sm font-bold text-white leading-snug">{insight.title}</h3>
             </div>
@@ -1795,7 +1795,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
-                  <p className="text-[10px]">This insight was helpful</p>
+                  <p className="text-sm">This insight was helpful</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1813,7 +1813,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
-                  <p className="text-[10px]">This insight needs improvement</p>
+                  <p className="text-sm">This insight needs improvement</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1821,7 +1821,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
               variant="ghost" 
               size="sm" 
               onClick={onMarkResolved}
-              className={`h-7 px-2 text-[10px] transition-all duration-200 ${
+              className={`h-7 px-2 text-sm transition-all duration-200 ${
                 insight.isResolved 
                   ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' 
                   : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700/50'
@@ -1832,7 +1832,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             </Button>
           </div>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{insight.summary}</p>
+        <p className="text-sm text-slate-300 leading-relaxed">{insight.summary}</p>
       </div>
 
       <Dialog open={showFeedbackDialog} onOpenChange={(open) => {
@@ -1852,11 +1852,11 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           
           <Tabs value={dialogTab} onValueChange={(v) => setDialogTab(v as 'feedback' | 'prompts')} className="flex-1 flex flex-col min-h-0">
             <TabsList className="grid w-full grid-cols-2 bg-slate-800 border border-slate-700 rounded-lg p-1 shrink-0">
-              <TabsTrigger value="feedback" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-xs">
+              <TabsTrigger value="feedback" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-sm">
                 <ThumbsDown size={12} />
                 Submit Feedback
               </TabsTrigger>
-              <TabsTrigger value="prompts" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-xs">
+              <TabsTrigger value="prompts" className="flex items-center gap-2 data-[state=active]:bg-brand-500 data-[state=active]:text-white rounded-md transition-all text-sm">
                 <Code2 size={12} />
                 View Prompts
               </TabsTrigger>
@@ -1864,19 +1864,19 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
             
             <TabsContent value="feedback" className="flex-1 overflow-y-auto mt-4 space-y-4">
               <div className="space-y-2">
-                <Label className="text-xs text-slate-300">Your feedback</Label>
+                <Label className="text-sm text-slate-300">Your feedback</Label>
                 <Textarea
                   value={feedbackReason}
                   onChange={(e) => setFeedbackReason(e.target.value)}
                   placeholder="e.g. This insight is not relevant to my goals. I care more about pricing changes than hiring activity. Please prioritize website and pricing-related signals..."
-                  className="bg-slate-950 border-slate-700 text-slate-300 text-xs min-h-[120px] resize-none"
+                  className="bg-slate-950 border-slate-700 text-slate-300 text-sm min-h-[120px] resize-none"
                   data-testid="input-feedback-reason"
                 />
               </div>
 
               <div className="flex items-start gap-2 p-3 rounded-md bg-brand-500/10 border border-brand-500/20">
                 <Sparkles size={14} className="text-brand-400 shrink-0 mt-0.5" />
-                <p className="text-[10px] text-brand-300 leading-relaxed">
+                <p className="text-sm text-brand-300 leading-relaxed">
                   AI will analyze your feedback and automatically optimize tracking prompts. After submission, switch to "View Prompts" tab to review and edit changes.
                 </p>
               </div>
@@ -1918,23 +1918,23 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                 {/* Signal Detection Prompt */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <Label className="text-sm text-slate-300 flex items-center gap-1.5">
                       <Radio size={10} className="text-brand-400" />
                       Signal Detection
                     </Label>
-                    <Badge variant="outline" className="text-[9px] border-slate-700 text-slate-500">Official + Custom</Badge>
+                    <Badge variant="outline" className="text-sm border-slate-700 text-slate-500">Official + Custom</Badge>
                   </div>
                   <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
-                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
-                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.signalDetection}</pre>
+                    <p className="text-sm text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-sm text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.signalDetection}</pre>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <p className="text-sm text-slate-500 font-medium">Your Modifications:</p>
                     <Textarea
                       value={userPrompts.signalDetection}
                       onChange={(e) => setUserPrompts(prev => ({ ...prev, signalDetection: e.target.value }))}
                       placeholder="Add your customizations here... (e.g., Focus more on pricing signals, ignore social media)"
-                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-sm min-h-[60px] resize-none font-mono"
                       data-testid="input-prompt-signal-detection"
                     />
                   </div>
@@ -1943,25 +1943,25 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                 {/* Insight Generation Prompt */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <Label className="text-sm text-slate-300 flex items-center gap-1.5">
                       <BrainCircuit size={10} className="text-amber-400" />
                       Insight Generation
                     </Label>
                     {userPrompts.insightGeneration && (
-                      <Badge className="text-[9px] bg-brand-500/20 text-brand-400 border-brand-500/30">Modified</Badge>
+                      <Badge className="text-sm bg-brand-500/20 text-brand-400 border-brand-500/30">Modified</Badge>
                     )}
                   </div>
                   <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
-                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
-                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.insightGeneration}</pre>
+                    <p className="text-sm text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-sm text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.insightGeneration}</pre>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <p className="text-sm text-slate-500 font-medium">Your Modifications:</p>
                     <Textarea
                       value={userPrompts.insightGeneration}
                       onChange={(e) => setUserPrompts(prev => ({ ...prev, insightGeneration: e.target.value }))}
                       placeholder="Add your customizations here... (e.g., Always include competitor comparison)"
-                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-sm min-h-[60px] resize-none font-mono"
                       data-testid="input-prompt-insight-generation"
                     />
                   </div>
@@ -1970,22 +1970,22 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                 {/* Prioritization Prompt */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <Label className="text-sm text-slate-300 flex items-center gap-1.5">
                       <Layers size={10} className="text-emerald-400" />
                       Prioritization
                     </Label>
                   </div>
                   <div className="bg-slate-950/50 border border-slate-800 rounded-md p-2">
-                    <p className="text-[10px] text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
-                    <pre className="text-[10px] text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.prioritization}</pre>
+                    <p className="text-sm text-slate-500 mb-2 font-medium">Official Prompt (read-only):</p>
+                    <pre className="text-sm text-slate-400 whitespace-pre-wrap font-mono leading-relaxed">{officialPrompts.prioritization}</pre>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-[10px] text-slate-500 font-medium">Your Modifications:</p>
+                    <p className="text-sm text-slate-500 font-medium">Your Modifications:</p>
                     <Textarea
                       value={userPrompts.prioritization}
                       onChange={(e) => setUserPrompts(prev => ({ ...prev, prioritization: e.target.value }))}
                       placeholder="Add your customizations here... (e.g., Prioritize pricing changes above all else)"
-                      className="bg-slate-950 border-slate-700 text-slate-300 text-[10px] min-h-[60px] resize-none font-mono"
+                      className="bg-slate-950 border-slate-700 text-slate-300 text-sm min-h-[60px] resize-none font-mono"
                       data-testid="input-prompt-prioritization"
                     />
                   </div>
@@ -1994,7 +1994,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
 
               <div className="flex items-start gap-2 p-3 rounded-md bg-slate-800/50 border border-slate-700/50">
                 <Info size={14} className="text-slate-500 shrink-0 mt-0.5" />
-                <p className="text-[10px] text-slate-400 leading-relaxed">
+                <p className="text-sm text-slate-400 leading-relaxed">
                   Your modifications are combined with official prompts during analysis. Changes take effect on the next scan.
                 </p>
               </div>
@@ -2045,24 +2045,24 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
             <div className="flex items-center gap-2 mb-2">
               <BrainCircuit size={12} className={chConfig?.color} />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Finding</span>
+              <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Key Finding</span>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">{insight.keyInfo}</p>
+            <p className="text-sm text-slate-300 leading-relaxed">{insight.keyInfo}</p>
           </div>
 
           <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={12} className="text-brand-400" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Potential Impact</span>
+              <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Potential Impact</span>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">{insight.impact}</p>
+            <p className="text-sm text-slate-300 leading-relaxed">{insight.impact}</p>
           </div>
 
           <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <Zap size={12} className="text-brand-400" />
-                <span className="text-[10px] font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
+                <span className="text-sm font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
               </div>
               {onResearch && (
                 <Button
@@ -2072,7 +2072,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     const prompt = `Analyze the competitive insight: "${insight.title}"\n\nContext: ${insight.summary}\n\nKey Finding: ${insight.keyInfo}\n\nPotential Impact: ${insight.impact}\n\nSuggested Action: ${insight.action}\n\nPlease provide a deeper analysis and strategic recommendations.`;
                     onResearch(prompt);
                   }}
-                  className="h-6 px-2 text-[10px] bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
+                  className="h-6 px-2 text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
                   data-testid="button-research-insight"
                 >
                   <Lightbulb size={10} className="mr-1" />
@@ -2080,7 +2080,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                 </Button>
               )}
             </div>
-            <p className="text-xs text-brand-200/80 leading-relaxed">{insight.action}</p>
+            <p className="text-sm text-brand-200/80 leading-relaxed">{insight.action}</p>
           </div>
         </div>
 
@@ -2091,10 +2091,10 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           >
             <div className="flex items-center gap-1">
               <ChIcon size={11} className={chConfig?.color} />
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
+              <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[8px] text-slate-600 font-medium">{insight.signals.length} detected</span>
+              <span className="text-sm text-slate-600 font-medium">{insight.signals.length} detected</span>
               <ChevronDown size={11} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
             </div>
           </div>
@@ -2110,12 +2110,12 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className={`text-[8px] font-bold uppercase tracking-wider ${chConfig?.color}`}>
+                      <span className={`text-sm font-bold uppercase tracking-wider ${chConfig?.color}`}>
                         {signal.type}
                       </span>
-                      <span className="text-[8px] text-slate-600">{signal.time}</span>
+                      <span className="text-sm text-slate-600">{signal.time}</span>
                     </div>
-                    <p className="text-[9px] text-slate-400 leading-tight line-clamp-2">{signal.content}</p>
+                    <p className="text-sm text-slate-400 leading-tight line-clamp-2">{signal.content}</p>
                   </div>
                   <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
                 </div>
@@ -2126,7 +2126,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     e.stopPropagation();
                     setSignalLimit(prev => prev + 10);
                   }}
-                  className="w-full mt-3 py-2 text-[10px] text-slate-500 hover:text-slate-300 bg-slate-950/30 hover:bg-slate-900/50 rounded border border-slate-800/30 transition-colors"
+                  className="w-full mt-3 py-2 text-sm text-slate-500 hover:text-slate-300 bg-slate-950/30 hover:bg-slate-900/50 rounded border border-slate-800/30 transition-colors"
                 >
                   Load {Math.min(10, insight.signals.length - signalLimit)} more
                 </button>
@@ -2605,9 +2605,9 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             >
               <div className="flex items-center gap-2">
                 <Sparkles size={14} />
-                <span className="text-xs font-medium">AI Insights</span>
+                <span className="text-sm font-medium">AI Insights</span>
                 {unreadCount > 0 && (
-                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-500/20 border border-brand-500/30 text-[9px] font-bold text-brand-400">
+                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-brand-500/20 border border-brand-500/30 text-sm font-bold text-brand-400">
                     {unreadCount}
                   </span>
                 )}
@@ -2620,7 +2620,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             >
               <div className="flex items-center gap-2">
                 <Building2 size={14} />
-                <span className="text-xs font-medium">Target Profile</span>
+                <span className="text-sm font-medium">Target Profile</span>
               </div>
             </TabsTrigger>
           </TabsList>
