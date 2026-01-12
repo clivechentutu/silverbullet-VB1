@@ -958,53 +958,148 @@ interface InsightCardProps {
   onResearch?: (prompt: string) => void;
 }
 
-const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAllView }: InsightCardProps) => {
+const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAllView, onResearch }: InsightCardProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const chConfig = channelConfig[insight.channel];
   const ChIcon = chConfig?.icon || Globe;
   const effectiveTier = insight.userOverride || insight.tier;
   const isHighlight = effectiveTier === 'highlight';
-  const isNotable = effectiveTier === 'notable';
 
   const mappedTier = 
     effectiveTier === 'highlight' ? 'high' : 
     effectiveTier === 'notable' ? 'medium' : 'low';
   const tierFilterConfig = valueFilterConfig[mappedTier];
 
+  const handleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleResearch = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const prompt = `Analyze: "${insight.title}"\n\nKey Finding: ${insight.keyInfo}\nImpact: ${insight.impact}\nAction: ${insight.action}`;
+    onResearch?.(prompt);
+  };
+
   return (
     <div 
       ref={setCardRef}
-      onClick={onClick}
-      className={`relative px-2.5 py-2 rounded cursor-pointer transition-all ${
+      className={`relative rounded-lg transition-all ${
         isSelected 
-          ? `bg-slate-800 border-l-2 border-l-brand-500 border-y border-r border-y-brand-500/30 border-r-brand-500/30` 
-          : isHighlight && !insight.isRead
-            ? 'bg-amber-500/5 border-l-2 border-l-amber-500 hover:bg-amber-500/10'
-            : isNotable && !insight.isRead
-              ? 'bg-brand-500/5 border-l-2 border-l-brand-500/50 hover:bg-brand-500/10'
-              : 'bg-slate-900/30 border-l-2 border-l-transparent hover:bg-slate-800/50 hover:border-l-slate-600'
+          ? `bg-slate-800 border border-brand-500` 
+          : 'bg-slate-900/50 border border-slate-800/50 hover:border-slate-700'
       }`}
       data-testid={`insight-card-${insight.id}`}
     >
-      {/* Row 1: Channel, Title, Time, Unread */}
-      <div className="flex items-center gap-1.5 mb-0.5">
-        <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
-          <ChIcon size={9} className={chConfig?.color} />
+      {/* Tier indicator strip on the left */}
+      {isHighlight && (
+        <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-500 rounded-full" />
+      )}
+      
+      {/* Compact header - always visible */}
+      <div 
+        onClick={onClick}
+        className="p-2 cursor-pointer"
+      >
+        <div className="flex items-center gap-2">
+          <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+            <ChIcon size={10} className={chConfig?.color} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
+              <span className="text-xs text-slate-600">{insight.time}</span>
+              {isAllView && (
+                <span className={`text-xs px-1 rounded ${tierFilterConfig.bgColor} ${tierFilterConfig.color}`}>
+                  {tierFilterConfig.shortLabel}
+                </span>
+              )}
+              {!insight.isRead && (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              )}
+            </div>
+            <h4 className="text-sm font-semibold text-white truncate">{insight.title}</h4>
+          </div>
+          <button
+            onClick={handleExpand}
+            className="p-1 hover:bg-slate-700/50 rounded transition-colors shrink-0"
+          >
+            <ChevronDown size={14} className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+          </button>
         </div>
-        <span className={`text-xs font-medium ${chConfig?.color} shrink-0`}>{chConfig?.name}</span>
-        {isAllView && (
-          <span className={`text-xs px-1 rounded ${tierFilterConfig.bgColor} ${tierFilterConfig.color}`}>
-            {tierFilterConfig.shortLabel}
-          </span>
-        )}
-        <h4 className="text-sm font-medium text-white truncate flex-1">{insight.title}</h4>
-        <span className="text-xs text-slate-600 shrink-0">{insight.time}</span>
-        {!insight.isRead && (
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-        )}
+        
+        {/* Inline summary - Key Finding, Impact, Action in compact format */}
+        <div className="mt-1.5 pl-7 space-y-1">
+          <div className="flex items-start gap-1.5">
+            <Target size={10} className="text-cyan-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-300 line-clamp-1">{insight.keyInfo}</p>
+          </div>
+          <div className="flex items-start gap-1.5">
+            <TrendingUp size={10} className="text-purple-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-400 line-clamp-1">{insight.impact}</p>
+          </div>
+          <div className="flex items-start gap-1.5">
+            <Zap size={10} className="text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-xs text-slate-400 line-clamp-1">{insight.action}</p>
+          </div>
+        </div>
       </div>
       
-      {/* Row 2: Key finding summary */}
-      <p className="text-xs text-slate-400 line-clamp-1 pl-5">{insight.keyInfo}</p>
+      {/* Expanded details */}
+      {isExpanded && (
+        <div className="px-2 pb-2 pt-0 border-t border-slate-800/50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="pl-7 space-y-2 mt-2">
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <Target size={11} className="text-cyan-400" />
+                <span className="text-xs font-medium text-cyan-400 uppercase tracking-wide">Key Finding</span>
+              </div>
+              <p className="text-sm text-slate-200 leading-relaxed">{insight.keyInfo}</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <TrendingUp size={11} className="text-purple-400" />
+                <span className="text-xs font-medium text-purple-400 uppercase tracking-wide">Impact</span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{insight.impact}</p>
+            </div>
+            <div>
+              <div className="flex items-center gap-1 mb-0.5">
+                <Zap size={11} className="text-amber-400" />
+                <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">Action</span>
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed">{insight.action}</p>
+            </div>
+            
+            {/* Quick actions */}
+            <div className="flex items-center gap-2 pt-2 border-t border-slate-800/30">
+              {onResearch && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleResearch}
+                  className="h-6 px-2 text-xs bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
+                >
+                  <Lightbulb size={10} className="mr-1" />
+                  Research
+                </Button>
+              )}
+              {onDemote && effectiveTier !== 'update' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); onDemote(insight.id); }}
+                  className="h-6 px-2 text-xs text-slate-500 hover:text-slate-300 hover:bg-slate-700/50"
+                >
+                  <ChevronDown size={10} className="mr-1" />
+                  Demote
+                </Button>
+              )}
+              <span className="text-xs text-slate-600 ml-auto">{insight.signals.length} signals</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1428,7 +1523,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         </div>
         
         {/* Insight list */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-2.5">
           {sortedInsights.length === 0 ? (
             <div className="text-center py-12">
               <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
@@ -1507,7 +1602,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
             );
           })
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-2">
             {sortedInsights.slice(0, displayLimit).map(insight => (
               <InsightCard
                 key={insight.id}
@@ -1584,10 +1679,9 @@ interface EvidencePanelProps {
   insight: ChannelInsight | null;
   onMarkResolved: () => void;
   onResearch?: (prompt: string) => void;
-  onDemote?: (id: string) => void;
 }
 
-const EvidencePanel = ({ insight, onMarkResolved, onResearch, onDemote }: EvidencePanelProps) => {
+const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelProps) => {
   const [signalLimit, setSignalLimit] = useState(5);
   const [isSignalsExpanded, setIsSignalsExpanded] = useState(false);
   const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
@@ -1763,26 +1857,6 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch, onDemote }: Eviden
             >
               <Star size={12} className={insight.isResolved ? 'fill-amber-500' : ''} />
             </Button>
-            {onDemote && (insight.userOverride || insight.tier) !== 'update' && (
-              <TooltipProvider>
-                <Tooltip delayDuration={200}>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => onDemote(insight.id)}
-                      className="h-6 w-6 text-slate-500 hover:text-slate-300 hover:bg-slate-700"
-                      data-testid="button-demote-insight"
-                    >
-                      <ChevronDown size={12} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
-                    <p className="text-sm">Demote priority</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </div>
         </div>
         <p className="text-sm text-slate-400 leading-snug line-clamp-2">{insight.summary}</p>
@@ -2652,7 +2726,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
             </div>
 
             <div ref={detailPanelRef} className="flex-1 bg-slate-950/30 overflow-hidden">
-              <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} onDemote={handleDemote} />
+              <EvidencePanel insight={selectedInsight} onMarkResolved={handleMarkResolved} onResearch={onResearch} />
             </div>
           </div>
           
