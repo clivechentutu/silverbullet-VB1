@@ -6611,11 +6611,11 @@ export const Workbench: React.FC = () => {
                 )}
               </button>
               
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
-                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap">
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
+                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap flex items-center">
                   <p className="text-xs text-slate-300">{item.description}</p>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-700"></div>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-[-1px] border-4 border-transparent border-t-slate-900"></div>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700"></div>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-[-1px] border-4 border-transparent border-r-slate-900"></div>
                 </div>
               </div>
             </div>
@@ -6646,11 +6646,11 @@ export const Workbench: React.FC = () => {
                 )}
               </button>
               
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
-                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap">
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 hidden group-hover/tooltip:block z-[60] pointer-events-none">
+                <div className="relative bg-slate-900 border border-slate-700 rounded-md px-2.5 py-1.5 shadow-lg whitespace-nowrap flex items-center">
                   <p className="text-xs text-slate-300">{item.description}</p>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-700"></div>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-[-1px] border-4 border-transparent border-t-slate-900"></div>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-700"></div>
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-[-1px] border-4 border-transparent border-r-slate-900"></div>
                 </div>
               </div>
             </div>
