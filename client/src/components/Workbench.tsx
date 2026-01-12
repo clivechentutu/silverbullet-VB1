@@ -95,10 +95,11 @@ const URLPreview = ({ url }: { url: string }) => {
       
       {showPreview && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm pointer-events-none"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none"
         >
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm -z-10" />
           <div 
-            className="bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200 flex flex-col" 
+            className="bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200 flex flex-col max-w-[90vw] max-h-[90vh]" 
             style={{ width: '800px', height: '500px' }}
           >
             <div className="px-4 py-2 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
@@ -6688,14 +6689,14 @@ export const Workbench: React.FC = () => {
           ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-settings"
           >
             <Settings size={16} className="text-slate-500" />
             <span className="text-sm font-medium">Settings</span>
           </button>
           <button 
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-profile"
           >
             <div className="w-5 h-5 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[9px] font-bold">
