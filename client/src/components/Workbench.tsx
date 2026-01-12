@@ -2264,17 +2264,6 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                       <Pause size={14} className="text-yellow-400" />
                       {scopeStatuses[scope.name] === 'paused' ? 'Resume' : 'Pause'}
                     </button>
-                    <button 
-                      className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-800 rounded-lg flex items-center gap-2 transition-colors"
-                      data-testid={`action-stop-${scope.name}`}
-                      onClick={() => {
-                        setScopeStatuses(prev => ({...prev, [scope.name]: prev[scope.name] === 'stopped' ? 'active' : 'stopped'}));
-                        setShowScopeActions(null);
-                      }}
-                    >
-                      <Square size={14} className="text-orange-400" />
-                      {scopeStatuses[scope.name] === 'stopped' ? 'Restart' : 'Stop'}
-                    </button>
                   </div>
                   <div className="border-t border-slate-800 p-1">
                     <button 
