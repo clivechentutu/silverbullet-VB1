@@ -3955,8 +3955,8 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
     <div className="flex flex-col lg:flex-row min-h-0 -m-8 animate-fade-in-up gap-0">
       {/* LEFT: Monitored Products */}
       <div className="w-full lg:w-44 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
-        <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
-          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Targets</h3>
+        <div className="p-4 border-b border-slate-800/50 flex items-center justify-between h-[57px]">
+          <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider flex-1 text-center">Targets</h3>
           <button 
             onClick={() => {
               setNewTargetName('');
@@ -3964,7 +3964,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               setNewTaskTrackers(['website', 'backlinks', 'seo']);
               setShowCreateTaskModal(true);
             }} 
-            className="text-slate-500 hover:text-brand-400 transition-colors" 
+            className="text-slate-500 hover:text-brand-400 transition-colors shrink-0" 
             data-testid="button-create-tracking-task"
             title="Create Tracking Task"
           >
