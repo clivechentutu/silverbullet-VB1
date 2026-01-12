@@ -628,10 +628,10 @@ export const LandingPage = () => {
                 <div>
                   <div className="mb-3">
                     <label className="block text-sm font-medium text-slate-300">
-                      快速发现了 {discoveredCompetitors.length} 个相似对象
+                      Found {discoveredCompetitors.length} similar products
                     </label>
                     <p className="text-xs text-slate-500 mt-1">
-                      点击下方 Start Discovery 按钮，我们将持续为您发现更多相似竞品并进行深度分析。
+                      Click Start Discovery to continuously track similar competitors and generate deep intelligence.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
