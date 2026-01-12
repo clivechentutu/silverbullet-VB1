@@ -635,34 +635,31 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-4 py-1.5 bg-slate-900/40 border-b border-slate-800/30">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5">
-          <div className="relative w-2 h-2">
+    <div className="flex items-center justify-between px-3 py-0.5 bg-slate-900/40 border-b border-slate-800/30">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <div className="relative w-1.5 h-1.5">
             <span className="absolute inset-0 bg-emerald-500 rounded-full" />
             <span className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-50" />
           </div>
-          <span className="text-sm font-medium text-slate-500 uppercase tracking-wide">Live</span>
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">Live</span>
         </div>
-        
         <span className="text-slate-700">|</span>
-        
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <div className="flex gap-0.5">
-            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
-            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-            <span className="w-0.5 h-2 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+            <span className="w-0.5 h-1.5 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+            <span className="w-0.5 h-1.5 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+            <span className="w-0.5 h-1.5 bg-slate-600 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
           </div>
           <span 
             key={activityIndex}
-            className="text-sm text-slate-500 animate-fade-in"
+            className="text-xs text-slate-500 animate-fade-in"
           >
             {activities[activityIndex].action} {activities[activityIndex].target}
           </span>
         </div>
       </div>
-      
-      <div className="flex items-center gap-3 text-sm text-slate-600">
+      <div className="flex items-center gap-2 text-xs text-slate-600">
         <span>{totalInsights} signals</span>
         <span className="text-slate-700">|</span>
         <span className="font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</span>
