@@ -5672,9 +5672,14 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
       isFavorite: localFavorites.has(r.id)
     }));
 
+    const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+    const [viewDialogOpen, setViewDialogOpen] = useState(false);
+
     const [filter, setFilter] = useState<'all' | 'favorites'>('all');
     const [sort, setSort] = useState<'latest' | 'oldest'>('latest');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const selectedReportData = dbReports.find(r => r.id === selectedReportId);
 
     const toggleFavorite = (id: number) => {
         setLocalFavorites(prev => {
@@ -5775,7 +5780,15 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
 
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {filteredReports.map(report => (
-                    <div key={report.id} className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-3 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col min-h-[220px] overflow-hidden shadow-2xl" data-testid={`report-card-${report.id}`}>
+                    <div 
+                      key={report.id} 
+                      onClick={() => {
+                        setSelectedReportId(report.id);
+                        setViewDialogOpen(true);
+                      }}
+                      className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-3 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col min-h-[220px] overflow-hidden shadow-2xl" 
+                      data-testid={`report-card-${report.id}`}
+                    >
                         <FileText className="absolute -right-4 -bottom-4 text-slate-800/10 group-hover:text-brand-500/5 w-24 h-24 transition-colors pointer-events-none" />
 
                         <div className="flex justify-between items-start mb-2 relative z-10">
@@ -5855,6 +5868,79 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                     )}
                 </div>
             )}
+
+            <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+              <DialogContent className="bg-slate-950 border-slate-800 max-w-4xl max-h-[85vh] overflow-y-auto custom-scrollbar p-0 overflow-hidden shadow-2xl">
+                {selectedReportData && (
+                  <div className="flex flex-col h-full">
+                    <div className="sticky top-0 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 p-6 z-10">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex flex-col">
+                          <span className="px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-[10px] font-bold text-brand-400 uppercase tracking-wider w-fit mb-2">
+                            {safeGetHostname(selectedReportData.url)}
+                          </span>
+                          <h2 className="text-2xl font-bold text-white leading-tight">
+                            {selectedReportData.title}
+                          </h2>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${selectedReportData.id}/export/text`, '_blank'); }}
+                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                            title="Export Text"
+                          >
+                            <Download size={18} />
+                          </button>
+                          <button 
+                            onClick={() => setViewDialogOpen(false)}
+                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-slate-500 text-sm font-medium">
+                        Analyzed on {new Date(selectedReportData.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    </div>
+                    
+                    <div className="p-8 pb-12">
+                      <div className="prose prose-invert prose-brand max-w-none">
+                        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 mb-8">
+                          <h3 className="text-brand-400 text-lg font-bold mb-3 flex items-center gap-2">
+                            <Sparkles size={20} /> Executive Summary
+                          </h3>
+                          <p className="text-slate-300 leading-relaxed text-base italic">
+                            {selectedReportData.summary}
+                          </p>
+                        </div>
+
+                        {selectedReportData.fullReport && (
+                          <div className="space-y-8">
+                            {selectedReportData.fullReport.split('\n').map((line: string, i: number) => {
+                              if (line.startsWith('###')) {
+                                return <h4 key={i} className="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-slate-800">{line.replace(/^###\s/, '')}</h4>
+                              }
+                              if (line.startsWith('##')) {
+                                return <h3 key={i} className="text-2xl font-bold text-brand-400 mt-12 mb-6">{line.replace(/^##\s/, '')}</h3>
+                              }
+                              if (line.startsWith('#')) {
+                                return <h2 key={i} className="text-3xl font-black text-white mt-16 mb-8">{line.replace(/^#\s/, '')}</h2>
+                              }
+                              if (line.trim().startsWith('-') || line.trim().startsWith('*')) {
+                                return <li key={i} className="text-slate-300 ml-4 mb-2">{line.replace(/^[-*]\s/, '')}</li>
+                              }
+                              if (line.trim() === '') return <div key={i} className="h-4" />;
+                              return <p key={i} className="text-slate-300 leading-relaxed mb-4 text-base">{line}</p>
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
         </div>
     );
 };
