@@ -5249,8 +5249,12 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        onClick={(e) => {
                                           e.stopPropagation();
                                           setShareSessionId(session.id);
-                                          setLinkCopied(false);
+                                          setLinkCopied(true);
                                           setShareDialogOpen(true);
+                                          const url = `${window.location.origin}/workbench?session=${session.id}`;
+                                          navigator.clipboard.writeText(url);
+                                          toast({ title: "Link Copied", description: "Session link copied to clipboard" });
+                                          setTimeout(() => setLinkCopied(false), 2000);
                                        }}
                                      >
                                         <Send size={14} />
