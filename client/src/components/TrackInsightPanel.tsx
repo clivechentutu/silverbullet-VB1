@@ -493,20 +493,20 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
   };
 
   return (
-    <div ref={collapsibleRef} className="border-t border-slate-800/50 bg-slate-900/50 shrink-0">
+    <div ref={collapsibleRef} className="border-t border-slate-800/50 bg-slate-900/50 shrink-0 mt-auto">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between px-3 py-1 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
+          <div className="flex items-center justify-between px-3 py-0.5 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
             <div className="flex items-center gap-1.5">
-              <Database size={12} className="text-slate-500" />
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Activity Stream</span>
-              <span className="text-xs text-slate-600">{totalSignals}</span>
+              <Database size={10} className="text-slate-500" />
+              <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Activity Stream</span>
+              <span className="text-[10px] text-slate-600">{totalSignals}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">{availableChannels.length} Channels</span>
+              <span className="text-[10px] text-slate-600">{availableChannels.length} Channels</span>
               <div className="flex items-center gap-1 text-brand-400">
-                <span className="text-xs font-medium uppercase">{isExpanded ? 'Collapse' : 'Expand'}</span>
-                <ChevronDown size={12} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                <span className="text-[10px] font-bold uppercase">{isExpanded ? 'Collapse' : 'Expand'}</span>
+                <ChevronDown size={10} className={`transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
               </div>
             </div>
           </div>
