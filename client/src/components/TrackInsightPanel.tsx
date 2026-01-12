@@ -433,6 +433,15 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedChannels, setExpandedChannels] = useState<Set<string>>(new Set(availableChannels));
   const [channelLimits, setChannelLimits] = useState<Record<string, number>>({});
+  const collapsibleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isExpanded && collapsibleRef.current) {
+      setTimeout(() => {
+        collapsibleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [isExpanded]);
   
   // When main section expands, expand all channels by default
   useEffect(() => {
@@ -484,7 +493,7 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
   };
 
   return (
-    <div className="border-t border-slate-800/50 bg-slate-900/50 shrink-0">
+    <div ref={collapsibleRef} className="border-t border-slate-800/50 bg-slate-900/50 shrink-0">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
           <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
