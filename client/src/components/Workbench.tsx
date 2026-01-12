@@ -1001,6 +1001,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   // Historical Summary States
   const [selectedSummaryDate, setSelectedSummaryDate] = useState<Date>(new Date());
   const [showRadarNotifications, setShowRadarNotifications] = useState(false);
+  const [summaryExpanded, setSummaryExpanded] = useState(true);
   const [radarNotifyHighPriority, setRadarNotifyHighPriority] = useState(true);
   const [radarNotifyDailyDigest, setRadarNotifyDailyDigest] = useState(true);
   const [radarNotifyEmail, setRadarNotifyEmail] = useState('');
@@ -1825,8 +1826,11 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
       {/* AI Intelligence Summary - Rolling View */}
       <div className="bg-slate-900/60 border border-slate-800/50 rounded-xl mb-6 overflow-hidden">
         {/* Header */}
-        <div className="px-4 py-2.5 border-b border-slate-800/50">
-          <div className="flex items-center justify-between gap-4">
+        <div 
+          className="px-4 py-2.5 border-b border-slate-800/50 cursor-pointer hover:bg-slate-800/20 transition-colors"
+          onClick={() => setSummaryExpanded(!summaryExpanded)}
+        >
+          <div className="flex items-center justify-between gap-4 pointer-events-none">
             <div className="flex items-center gap-2.5">
               <Radar size={16} className="text-brand-400" />
               <span className="text-sm font-bold text-white">Radar Summary</span>
@@ -1837,7 +1841,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
             </div>
             
             {/* Week Stats Summary - Limited to last 7 days */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
               {(() => {
                 const sevenDaysAgo = new Date();
                 sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -1920,7 +1924,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
         </div>
         
         {/* Latest Discoveries - Session-aware Rolling View */}
-        <div className="p-4">
+        <div className={`p-4 transition-all duration-300 ease-in-out ${summaryExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0 p-0 overflow-hidden'}`}>
           <div className="flex items-center justify-between mb-3">
             {/* View Toggle: Since Last Visit vs All Recent */}
             <div className="flex items-center gap-2">
