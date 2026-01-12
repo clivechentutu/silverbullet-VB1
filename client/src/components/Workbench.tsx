@@ -4036,17 +4036,6 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                       <span>Activate</span>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem 
-                    className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      await apiRequest('PATCH', `/api/targets/${t.id}`, { status: 'archived' });
-                      queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                    }}
-                  >
-                    <Archive size={14} className="text-slate-500" />
-                    <span>Archive</span>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-slate-800" />
                   <DropdownMenuItem 
                     className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
