@@ -1041,34 +1041,7 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
           </div>
           
           <h4 className="text-sm font-bold mb-0.5 leading-snug text-white">{insight.title}</h4>
-          <p className="text-sm text-slate-400 line-clamp-1 leading-snug">{insight.summary}</p>
-          
-          <div className="flex items-center justify-between mt-1.5 gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600">{insight.signals.length} signals</span>
-              {/* Demote button - show until item reaches update tier */}
-              {effectiveTier !== 'update' && (
-                <TooltipProvider>
-                  <Tooltip delayDuration={200}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={handleDemote}
-                        className="flex items-center gap-0.5 px-1 py-0.5 rounded text-sm text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-colors"
-                        data-testid={`demote-${insight.id}`}
-                        aria-label="Demote this insight to lower priority"
-                      >
-                        <ChevronDown size={8} />
-                        demote
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[180px]">
-                      <p className="text-sm text-slate-400">AI got it wrong? Click to lower priority.</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-            </div>
-          </div>
+          <p className="text-sm text-slate-400 line-clamp-2 leading-snug">{insight.summary}</p>
         </div>
       </div>
     </div>
