@@ -575,7 +575,7 @@ export const LandingPage = () => {
 
         {/* Radar Configuration Modal */}
         <Dialog open={showRadarModal} onOpenChange={setShowRadarModal}>
-          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
                 <RadarIcon className="text-brand-500" size={20} />
@@ -737,7 +737,7 @@ export const LandingPage = () => {
 
         {/* Tracker Configuration Modal */}
         <Dialog open={showTrackerModal} onOpenChange={setShowTrackerModal}>
-          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl">
+          <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center">
                 <Target className="text-brand-500" size={20} />
