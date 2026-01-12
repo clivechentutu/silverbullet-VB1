@@ -2673,7 +2673,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
               </svg>
             )}
             
-            <div className="w-full lg:w-[420px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 flex flex-col overflow-hidden">
+            <div className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 flex flex-col overflow-hidden">
               <InsightFeed 
                 insights={insights}
                 selectedId={selectedInsightId}
