@@ -5821,20 +5821,12 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                                 <span className="text-[8px] text-slate-600 font-mono font-medium truncate">{report.date}</span>
                                 <div className="flex items-center gap-0.5">
                                     <button 
-                                        onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/csv`, '_blank'); }}
-                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-green-400 hover:border-green-900/50"
-                                        title="Export CSV"
-                                        data-testid={`button-export-csv-${report.id}`}
-                                    >
-                                        <Download size={10} />
-                                    </button>
-                                    <button 
                                         onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/text`, '_blank'); }}
-                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-blue-400 hover:border-blue-900/50"
-                                        title="Export Text"
-                                        data-testid={`button-export-text-${report.id}`}
+                                        className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/download"
+                                        title="Download Report"
+                                        data-testid={`button-download-report-${report.id}`}
                                     >
-                                        <FileText size={10} />
+                                        <Download size={12} className="group-hover/download:scale-110 transition-transform" />
                                     </button>
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
@@ -5927,9 +5919,9 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
 
                         {/* Full Report Content */}
                         <div className="prose prose-invert prose-brand max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-lg prose-li:text-slate-300 prose-li:text-lg prose-strong:text-white">
-                          {selectedReportData.fullReport && (
+                          {(selectedReportData as any).fullReport && (
                             <div className="space-y-12">
-                              {selectedReportData.fullReport.split('\n').map((line: string, i: number) => {
+                              {(selectedReportData as any).fullReport.split('\n').map((line: string, i: number) => {
                                 const trimmedLine = line.trim();
                                 if (trimmedLine === '') return <div key={i} className="h-4" />;
                                 
