@@ -3938,7 +3938,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   return (
     <div className="flex flex-col lg:flex-row min-h-0 -m-8 animate-fade-in-up gap-0">
       {/* LEFT: Monitored Products */}
-      <div className="w-full lg:w-48 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
+      <div className="w-full lg:w-40 border-b lg:border-b-0 lg:border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 max-h-48 lg:max-h-none lg:h-auto">
         <div className="p-4 border-b border-slate-800/50 flex items-center justify-between">
           <h3 className="font-bold text-slate-400 text-[10px] uppercase tracking-wider">Targets</h3>
           <button 
