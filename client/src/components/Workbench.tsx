@@ -5831,9 +5831,10 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); onJumpToResearch(report.title); }}
                                         className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/jump"
-                                        title="Research"
+                                        title="Back to task"
+                                        data-testid={`button-back-to-task-${report.id}`}
                                     >
-                                        <MessageSquareText size={12} className="group-hover/jump:scale-110 transition-transform" />
+                                        <ArrowLeft size={12} className="group-hover/jump:-translate-x-0.5 transition-transform" />
                                     </button>
                                 </div>
                             </div>
