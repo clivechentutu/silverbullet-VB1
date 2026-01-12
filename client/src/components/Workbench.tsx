@@ -16,7 +16,7 @@ import {
   PieChart, BarChart3, Chrome, ChevronDown, ChevronRight, Target as TargetIcon, Calendar,
   Edit2, MoreVertical, Lightbulb, ChevronUp, Pause, Archive, Eye, Square, AlertTriangle, HelpCircle, Rocket, Pin, GripVertical, Users, Circle, RefreshCw, Mail, Pencil, Bell, Clock, Puzzle, Lock, Send
 } from 'lucide-react';
-import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch } from 'react-icons/si';
+import { SiX, SiYoutube, SiInstagram, SiG2, SiTrustpilot, SiReddit, SiTechcrunch, SiSlack, SiWhatsapp, SiTelegram, SiLinkedin } from 'react-icons/si';
 import { format } from 'date-fns';
 import { 
   Sheet, 
@@ -5495,69 +5495,156 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
        </Dialog>
 
        <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-         <DialogContent className="bg-slate-900 border-slate-800 max-w-md">
-           <DialogHeader>
-             <DialogTitle className="text-white flex items-center gap-2">
-               <Send size={18} className="text-brand-400" />
-               Share Session
-             </DialogTitle>
-             <DialogDescription className="text-slate-400">
-               Share this research session with others using the link below.
-             </DialogDescription>
-           </DialogHeader>
-           <div className="space-y-4 pt-2">
-             <div className="flex items-center gap-2">
-               <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-slate-300 text-sm font-mono truncate">
-                 {window.location.origin}/workbench?session={shareSessionId}
-               </div>
-               <Button
-                 onClick={() => {
-                   navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
-                   setLinkCopied(true);
-                   setTimeout(() => setLinkCopied(false), 2000);
-                 }}
-                 className={`shrink-0 ${linkCopied ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-brand-600 hover:bg-brand-500'} text-white`}
-                 data-testid="button-copy-share-link"
-               >
-                 {linkCopied ? (
-                   <>
-                     <Check size={16} className="mr-1" />
-                     Copied
-                   </>
-                 ) : (
-                   'Copy Link'
-                 )}
-               </Button>
+         <DialogContent className="bg-slate-900 border-slate-800 max-w-sm p-0 gap-0">
+           <div className="p-5 pb-4">
+             <DialogHeader className="mb-4">
+               <DialogTitle className="text-white text-base font-semibold">
+                 Share
+               </DialogTitle>
+             </DialogHeader>
+             
+             <div className="relative mb-5">
+               <input
+                 type="text"
+                 readOnly
+                 value={`${window.location.origin}/workbench?session=${shareSessionId}`}
+                 className="w-full bg-slate-950 border border-slate-700 rounded-lg pl-3 pr-10 py-2.5 text-slate-300 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-brand-500"
+                 data-testid="input-share-link"
+               />
+               <Tooltip>
+                 <TooltipTrigger asChild>
+                   <button
+                     onClick={() => {
+                       navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
+                       setLinkCopied(true);
+                       toast({ title: "Link copied to clipboard" });
+                       setTimeout(() => setLinkCopied(false), 2000);
+                     }}
+                     className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all ${linkCopied ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+                     data-testid="button-copy-share-link"
+                   >
+                     {linkCopied ? <Check size={14} /> : <LinkIcon size={14} />}
+                   </button>
+                 </TooltipTrigger>
+                 <TooltipContent side="top" className="bg-slate-800 text-white text-xs border-slate-700">
+                   {linkCopied ? 'Copied!' : 'Copy link'}
+                 </TooltipContent>
+               </Tooltip>
              </div>
-             <div className="pt-2 border-t border-slate-800">
-               <p className="text-xs text-slate-500 mb-3">Or share via:</p>
-               <div className="flex items-center gap-2">
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
+
+             <div className="grid grid-cols-4 gap-3">
+               {[
+                 { 
+                   icon: LinkIcon, 
+                   label: 'Copy Link', 
+                   color: 'bg-slate-700 hover:bg-slate-600 text-white',
+                   onClick: () => {
+                     navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
+                     setLinkCopied(true);
+                     toast({ title: "Link copied to clipboard" });
+                     setTimeout(() => { setLinkCopied(false); setShareDialogOpen(false); }, 800);
+                   }
+                 },
+                 { 
+                   icon: SiWhatsapp, 
+                   label: 'WhatsApp', 
+                   color: 'bg-[#25D366] hover:bg-[#20BD5A] text-white',
+                   onClick: () => {
                      const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
-                     window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Check out this research session')}`, '_blank');
-                   }}
-                   className="flex-1 border-slate-700 hover:bg-slate-800 text-slate-300"
-                 >
-                   <SiX size={14} className="mr-2" />
-                   X / Twitter
-                 </Button>
-                 <Button
-                   variant="outline"
-                   size="sm"
-                   onClick={() => {
+                     window.open(`https://wa.me/?text=${encodeURIComponent(url)}`, '_blank');
+                   }
+                 },
+                 { 
+                   icon: SiTelegram, 
+                   label: 'Telegram', 
+                   color: 'bg-[#0088cc] hover:bg-[#0077b5] text-white',
+                   onClick: () => {
                      const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
-                     window.open(`mailto:?subject=${encodeURIComponent('Research Session')}&body=${encodeURIComponent(url)}`, '_blank');
-                   }}
-                   className="flex-1 border-slate-700 hover:bg-slate-800 text-slate-300"
-                 >
-                   <Mail size={14} className="mr-2" />
-                   Email
-                 </Button>
-               </div>
+                     window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}`, '_blank');
+                   }
+                 },
+                 { 
+                   icon: SiX, 
+                   label: 'X', 
+                   color: 'bg-black hover:bg-slate-900 text-white border border-slate-700',
+                   onClick: () => {
+                     const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
+                     window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`, '_blank');
+                   }
+                 },
+                 { 
+                   icon: SiSlack, 
+                   label: 'Slack', 
+                   color: 'bg-[#4A154B] hover:bg-[#3D1140] text-white',
+                   onClick: () => {
+                     navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
+                     toast({ title: "Link copied - paste in Slack" });
+                     setShareDialogOpen(false);
+                   }
+                 },
+                 { 
+                   icon: SiLinkedin, 
+                   label: 'LinkedIn', 
+                   color: 'bg-[#0A66C2] hover:bg-[#0958a8] text-white',
+                   onClick: () => {
+                     const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
+                     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
+                   }
+                 },
+                 { 
+                   icon: Mail, 
+                   label: 'Email', 
+                   color: 'bg-slate-700 hover:bg-slate-600 text-white',
+                   onClick: () => {
+                     const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
+                     window.open(`mailto:?subject=${encodeURIComponent('Check out this research')}&body=${encodeURIComponent(url)}`, '_blank');
+                   }
+                 },
+                 { 
+                   icon: MoreVertical, 
+                   label: 'More', 
+                   color: 'bg-slate-800 hover:bg-slate-700 text-slate-300',
+                   onClick: () => {
+                     if (navigator.share) {
+                       navigator.share({
+                         title: 'Research Session',
+                         url: `${window.location.origin}/workbench?session=${shareSessionId}`
+                       });
+                     } else {
+                       navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
+                       toast({ title: "Link copied to clipboard" });
+                     }
+                   }
+                 },
+               ].map((channel) => (
+                 <Tooltip key={channel.label}>
+                   <TooltipTrigger asChild>
+                     <button
+                       onClick={channel.onClick}
+                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all ${channel.color}`}
+                       data-testid={`share-${channel.label.toLowerCase().replace(/\s/g, '-')}`}
+                     >
+                       <channel.icon size={20} />
+                       <span className="text-[10px] font-medium">{channel.label}</span>
+                     </button>
+                   </TooltipTrigger>
+                   <TooltipContent side="bottom" className="bg-slate-800 text-white text-xs border-slate-700">
+                     Share via {channel.label}
+                   </TooltipContent>
+                 </Tooltip>
+               ))}
              </div>
+           </div>
+
+           <div className="border-t border-slate-800 px-5 py-3 flex justify-end">
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={() => setShareDialogOpen(false)}
+               className="text-slate-400 hover:text-white hover:bg-slate-800"
+             >
+               Close
+             </Button>
            </div>
          </DialogContent>
        </Dialog>
