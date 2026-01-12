@@ -4967,6 +4967,15 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [renameSessionId, setRenameSessionId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareSessionId, setShareSessionId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   useEffect(() => {
     if (initialPrompt) {
@@ -5227,11 +5236,9 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
                                        onClick={(e) => {
                                           e.stopPropagation();
-                                          const newTitle = prompt('Enter new title:', session.title);
-                                          if (newTitle && newTitle.trim()) {
-                                            apiRequest('PATCH', `/api/sessions/${session.id}`, { title: newTitle.trim() })
-                                              .then(() => queryClient.invalidateQueries({ queryKey: ['/api/sessions'] }));
-                                          }
+                                          setRenameSessionId(session.id);
+                                          setRenameValue(session.title);
+                                          setRenameDialogOpen(true);
                                        }}
                                      >
                                         <Pencil size={14} />
@@ -5241,9 +5248,9 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
                                        onClick={(e) => {
                                           e.stopPropagation();
-                                          const url = window.location.origin + `/workbench?session=${session.id}`;
-                                          navigator.clipboard.writeText(url);
-                                          toast({ title: "Link Copied", description: "Session link copied to clipboard" });
+                                          setShareSessionId(session.id);
+                                          setLinkCopied(false);
+                                          setShareDialogOpen(true);
                                        }}
                                      >
                                         <Send size={14} />
@@ -5425,6 +5432,135 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              </div>
           </div>
        </div>
+
+       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
+         <DialogContent className="bg-slate-900 border-slate-800 max-w-md">
+           <DialogHeader>
+             <DialogTitle className="text-white flex items-center gap-2">
+               <Pencil size={18} className="text-brand-400" />
+               Rename Session
+             </DialogTitle>
+             <DialogDescription className="text-slate-400">
+               Enter a new name for this research session.
+             </DialogDescription>
+           </DialogHeader>
+           <div className="space-y-4 pt-2">
+             <input
+               type="text"
+               value={renameValue}
+               onChange={(e) => setRenameValue(e.target.value)}
+               placeholder="Session name"
+               className="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent placeholder-slate-500"
+               autoFocus
+               onKeyDown={(e) => {
+                 if (e.key === 'Enter' && renameValue.trim()) {
+                   apiRequest('PATCH', `/api/sessions/${renameSessionId}`, { title: renameValue.trim() })
+                     .then(() => {
+                       queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                       setRenameDialogOpen(false);
+                       toast({ title: "Renamed", description: "Session renamed successfully" });
+                     });
+                 }
+               }}
+               data-testid="input-rename-session"
+             />
+             <div className="flex justify-end gap-2">
+               <Button 
+                 variant="ghost" 
+                 onClick={() => setRenameDialogOpen(false)}
+                 className="text-slate-400 hover:text-white hover:bg-slate-800"
+               >
+                 Cancel
+               </Button>
+               <Button 
+                 onClick={() => {
+                   if (renameValue.trim()) {
+                     apiRequest('PATCH', `/api/sessions/${renameSessionId}`, { title: renameValue.trim() })
+                       .then(() => {
+                         queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                         setRenameDialogOpen(false);
+                         toast({ title: "Renamed", description: "Session renamed successfully" });
+                       });
+                   }
+                 }}
+                 disabled={!renameValue.trim()}
+                 className="bg-brand-600 hover:bg-brand-500 text-white"
+                 data-testid="button-confirm-rename"
+               >
+                 Save
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+
+       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+         <DialogContent className="bg-slate-900 border-slate-800 max-w-md">
+           <DialogHeader>
+             <DialogTitle className="text-white flex items-center gap-2">
+               <Send size={18} className="text-brand-400" />
+               Share Session
+             </DialogTitle>
+             <DialogDescription className="text-slate-400">
+               Share this research session with others using the link below.
+             </DialogDescription>
+           </DialogHeader>
+           <div className="space-y-4 pt-2">
+             <div className="flex items-center gap-2">
+               <div className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 text-slate-300 text-sm font-mono truncate">
+                 {window.location.origin}/workbench?session={shareSessionId}
+               </div>
+               <Button
+                 onClick={() => {
+                   navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
+                   setLinkCopied(true);
+                   setTimeout(() => setLinkCopied(false), 2000);
+                 }}
+                 className={`shrink-0 ${linkCopied ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-brand-600 hover:bg-brand-500'} text-white`}
+                 data-testid="button-copy-share-link"
+               >
+                 {linkCopied ? (
+                   <>
+                     <Check size={16} className="mr-1" />
+                     Copied
+                   </>
+                 ) : (
+                   'Copy Link'
+                 )}
+               </Button>
+             </div>
+             <div className="pt-2 border-t border-slate-800">
+               <p className="text-xs text-slate-500 mb-3">Or share via:</p>
+               <div className="flex items-center gap-2">
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => {
+                     const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
+                     window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent('Check out this research session')}`, '_blank');
+                   }}
+                   className="flex-1 border-slate-700 hover:bg-slate-800 text-slate-300"
+                 >
+                   <SiX size={14} className="mr-2" />
+                   X / Twitter
+                 </Button>
+                 <Button
+                   variant="outline"
+                   size="sm"
+                   onClick={() => {
+                     const url = `${window.location.origin}/workbench?session=${shareSessionId}`;
+                     window.open(`mailto:?subject=${encodeURIComponent('Research Session')}&body=${encodeURIComponent(url)}`, '_blank');
+                   }}
+                   className="flex-1 border-slate-700 hover:bg-slate-800 text-slate-300"
+                 >
+                   <Mail size={14} className="mr-2" />
+                   Email
+                 </Button>
+               </div>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
     </div>
   );
 };
