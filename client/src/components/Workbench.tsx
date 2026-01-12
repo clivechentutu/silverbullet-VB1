@@ -5870,71 +5870,117 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
             )}
 
             <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-              <DialogContent className="bg-slate-950 border-slate-800 max-w-4xl max-h-[85vh] overflow-y-auto custom-scrollbar p-0 overflow-hidden shadow-2xl">
+              <DialogContent className="bg-slate-950 border-slate-800 max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl">
                 {selectedReportData && (
-                  <div className="flex flex-col h-full">
-                    <div className="sticky top-0 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 p-6 z-10">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex flex-col">
-                          <span className="px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-[10px] font-bold text-brand-400 uppercase tracking-wider w-fit mb-2">
-                            {safeGetHostname(selectedReportData.url)}
-                          </span>
-                          <h2 className="text-2xl font-bold text-white leading-tight">
+                  <div className="flex flex-col h-full bg-slate-950">
+                    {/* Manus-style Floating Header */}
+                    <div className="flex-none bg-slate-950/80 backdrop-blur-xl border-b border-slate-800 p-6 z-20">
+                      <div className="max-w-3xl mx-auto flex justify-between items-start">
+                        <div className="flex flex-col gap-2 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-brand-500/10 border border-brand-500/20 text-[10px] font-bold text-brand-400 uppercase tracking-wider">
+                              {safeGetHostname(selectedReportData.url)}
+                            </span>
+                            <span className="text-slate-500 text-[10px] font-mono uppercase tracking-widest">
+                              {new Date(selectedReportData.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </span>
+                          </div>
+                          <h2 className="text-2xl md:text-3xl font-bold text-white leading-tight truncate">
                             {selectedReportData.title}
                           </h2>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${selectedReportData.id}/export/text`, '_blank'); }}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-                            title="Export Text"
+                        <div className="flex items-center gap-2 ml-4">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => window.open(`/api/reports/${selectedReportData.id}/export/text`, '_blank')}
+                            className="text-slate-400 hover:text-brand-400 hover:bg-brand-500/10"
+                            title="Download Report"
                           >
                             <Download size={18} />
-                          </button>
-                          <button 
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setViewDialogOpen(false)}
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                            className="text-slate-400 hover:text-white hover:bg-slate-800"
                           >
-                            <X size={18} />
-                          </button>
+                            <X size={20} />
+                          </Button>
                         </div>
                       </div>
-                      <p className="text-slate-500 text-sm font-medium">
-                        Analyzed on {new Date(selectedReportData.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                      </p>
                     </div>
                     
-                    <div className="p-8 pb-12">
-                      <div className="prose prose-invert prose-brand max-w-none">
-                        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 mb-8">
-                          <h3 className="text-brand-400 text-lg font-bold mb-3 flex items-center gap-2">
-                            <Sparkles size={20} /> Executive Summary
+                    {/* Scrollable Content with Manus-style Typography */}
+                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-950 selection:bg-brand-500/30">
+                      <div className="max-w-3xl mx-auto px-6 py-12 md:py-20">
+                        {/* Summary Section */}
+                        <div className="relative mb-16">
+                          <div className="absolute -left-4 top-0 bottom-0 w-1 bg-brand-500 rounded-full opacity-50"></div>
+                          <h3 className="text-sm font-bold text-brand-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                            <Sparkles size={16} /> Abstract
                           </h3>
-                          <p className="text-slate-300 leading-relaxed text-base italic">
+                          <p className="text-lg md:text-xl text-slate-200 leading-relaxed font-medium italic">
                             {selectedReportData.summary}
                           </p>
                         </div>
 
-                        {selectedReportData.fullReport && (
-                          <div className="space-y-8">
-                            {selectedReportData.fullReport.split('\n').map((line: string, i: number) => {
-                              if (line.startsWith('###')) {
-                                return <h4 key={i} className="text-xl font-bold text-white mt-10 mb-4 pb-2 border-b border-slate-800">{line.replace(/^###\s/, '')}</h4>
-                              }
-                              if (line.startsWith('##')) {
-                                return <h3 key={i} className="text-2xl font-bold text-brand-400 mt-12 mb-6">{line.replace(/^##\s/, '')}</h3>
-                              }
-                              if (line.startsWith('#')) {
-                                return <h2 key={i} className="text-3xl font-black text-white mt-16 mb-8">{line.replace(/^#\s/, '')}</h2>
-                              }
-                              if (line.trim().startsWith('-') || line.trim().startsWith('*')) {
-                                return <li key={i} className="text-slate-300 ml-4 mb-2">{line.replace(/^[-*]\s/, '')}</li>
-                              }
-                              if (line.trim() === '') return <div key={i} className="h-4" />;
-                              return <p key={i} className="text-slate-300 leading-relaxed mb-4 text-base">{line}</p>
-                            })}
+                        {/* Full Report Content */}
+                        <div className="prose prose-invert prose-brand max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-lg prose-li:text-slate-300 prose-li:text-lg prose-strong:text-white">
+                          {selectedReportData.fullReport && (
+                            <div className="space-y-12">
+                              {selectedReportData.fullReport.split('\n').map((line: string, i: number) => {
+                                const trimmedLine = line.trim();
+                                if (trimmedLine === '') return <div key={i} className="h-4" />;
+                                
+                                if (line.startsWith('###')) {
+                                  return (
+                                    <h4 key={i} className="text-xl font-bold text-white pt-8 border-t border-slate-900 mt-12 mb-6 flex items-center gap-3">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-brand-500"></div>
+                                      {line.replace(/^###\s/, '')}
+                                    </h4>
+                                  );
+                                }
+                                if (line.startsWith('##')) {
+                                  return (
+                                    <h3 key={i} className="text-2xl md:text-3xl font-bold text-brand-400 mt-16 mb-8 group flex items-center gap-4">
+                                      <span className="text-slate-800 group-hover:text-brand-900 transition-colors font-mono text-sm">/0{Math.min(i, 9)}</span>
+                                      {line.replace(/^##\s/, '')}
+                                    </h3>
+                                  );
+                                }
+                                if (line.startsWith('#')) {
+                                  return (
+                                    <h2 key={i} className="text-4xl md:text-5xl font-black text-white mt-24 mb-12 tracking-tighter">
+                                      {line.replace(/^#\s/, '')}
+                                    </h2>
+                                  );
+                                }
+                                if (trimmedLine.startsWith('-') || trimmedLine.startsWith('*')) {
+                                  return (
+                                    <li key={i} className="text-slate-300 ml-2 pl-4 mb-3 border-l border-slate-800 hover:border-brand-500/50 transition-colors list-none relative">
+                                      <span className="absolute left-0 top-3 w-1.5 h-[1px] bg-slate-700"></span>
+                                      {line.replace(/^[-*]\s/, '')}
+                                    </li>
+                                  );
+                                }
+                                
+                                return <p key={i} className="text-slate-300 leading-relaxed mb-6 text-lg font-normal">{line}</p>
+                              })}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Footer decorative element */}
+                        <div className="mt-32 pt-12 border-t border-slate-900 flex flex-col items-center gap-6">
+                          <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-brand-500">
+                            <FileText size={24} />
                           </div>
-                        )}
+                          <div className="text-center">
+                            <p className="text-slate-500 text-sm font-medium">End of Analysis Report</p>
+                            <p className="text-slate-600 text-xs mt-1 italic">Generated by CompetiScope AI Intelligence Engine</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
