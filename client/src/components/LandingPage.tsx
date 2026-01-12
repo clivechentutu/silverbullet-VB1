@@ -628,10 +628,10 @@ export const LandingPage = () => {
                 <div>
                   <div className="mb-3">
                     <label className="block text-sm font-medium text-slate-300">
-                      Found {discoveredCompetitors.length} similar products
+                      Instantly discovered {discoveredCompetitors.length} similar products
                     </label>
                     <p className="text-xs text-slate-500 mt-1">
-                      Click Start Discovery to continuously track similar competitors and generate deep intelligence.
+                      Sign in to launch continuous tracking and unlock deeper market intelligence.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
