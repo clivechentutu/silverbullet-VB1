@@ -2050,56 +2050,56 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           </div>
         </div>
 
-        <div className="shrink-0 p-2 border-t border-slate-800 bg-slate-900/40">
-          <div 
-            className="flex items-center justify-between mb-1 cursor-pointer hover:bg-slate-800/50 p-1 rounded-md transition-colors"
-            onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
-          >
-            <div className="flex items-center gap-1">
-              <ChIcon size={11} className={chConfig?.color} />
-              <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
+        <div 
+          className="shrink-0 px-3 py-1 border-t border-slate-800/50 bg-slate-950/50 cursor-pointer hover:bg-slate-900/50 transition-colors"
+          onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <ChIcon size={10} className={chConfig?.color} />
+              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-600 font-medium">{insight.signals.length} detected</span>
-              <ChevronDown size={11} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-slate-600">{insight.signals.length} detected</span>
+              <ChevronDown size={10} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
             </div>
           </div>
-          {isSignalsExpanded && (
-            <div className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {displayedSignals.map(signal => (
-                <div 
-                  key={signal.id}
-                  className="flex items-start gap-2 p-2 rounded-lg bg-slate-950/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors cursor-pointer group"
-                >
-                  <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
-                    <ChIcon size={10} className={chConfig?.color} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <span className={`text-sm font-bold uppercase tracking-wider ${chConfig?.color}`}>
-                        {signal.type}
-                      </span>
-                      <span className="text-sm text-slate-600">{signal.time}</span>
-                    </div>
-                    <p className="text-sm text-slate-400 leading-tight line-clamp-2">{signal.content}</p>
-                  </div>
-                  <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
-                </div>
-              ))}
-              {hasMoreSignals && (
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSignalLimit(prev => prev + 10);
-                  }}
-                  className="w-full mt-3 py-2 text-sm text-slate-500 hover:text-slate-300 bg-slate-950/30 hover:bg-slate-900/50 rounded border border-slate-800/30 transition-colors"
-                >
-                  Load {Math.min(10, insight.signals.length - signalLimit)} more
-                </button>
-              )}
-            </div>
-          )}
         </div>
+        {isSignalsExpanded && (
+          <div className="shrink-0 px-3 pb-2 bg-slate-950/50 space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-300 max-h-48 overflow-y-auto custom-scrollbar">
+            {displayedSignals.map(signal => (
+              <div 
+                key={signal.id}
+                className="flex items-start gap-2 p-2 rounded-lg bg-slate-900/50 border border-slate-800/30 hover:border-slate-700/50 transition-colors cursor-pointer group"
+              >
+                <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+                  <ChIcon size={8} className={chConfig?.color} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-xs font-bold uppercase tracking-wider ${chConfig?.color}`}>
+                      {signal.type}
+                    </span>
+                    <span className="text-xs text-slate-600">{signal.time}</span>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-tight line-clamp-1">{signal.content}</p>
+                </div>
+                <ExternalLink size={8} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+              </div>
+            ))}
+            {hasMoreSignals && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSignalLimit(prev => prev + 10);
+                }}
+                className="w-full py-1 text-xs text-slate-500 hover:text-slate-300 bg-slate-900/30 hover:bg-slate-900/50 rounded border border-slate-800/30 transition-colors"
+              >
+                Load {Math.min(10, insight.signals.length - signalLimit)} more
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
