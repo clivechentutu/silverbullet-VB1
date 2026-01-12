@@ -6575,19 +6575,19 @@ export const Workbench: React.FC = () => {
         setEditFrequencyType={setEditFrequencyType}
       />
 
-      <nav className="w-56 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
-        <div className="p-4 flex items-center gap-2 group cursor-pointer">
-          <Hexagon className="text-brand-500 fill-brand-500/20 group-hover:rotate-90 transition-transform duration-500" size={24} />
-          <span className="text-base font-bold tracking-tight text-white">Competi<span className="text-brand-500">Scope</span></span>
+      <nav className="w-44 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0">
+        <div className="p-3 flex items-center gap-2 group cursor-pointer">
+          <Hexagon className="text-brand-500 fill-brand-500/20 group-hover:rotate-90 transition-transform duration-500" size={20} />
+          <span className="text-sm font-bold tracking-tight text-white">Competi<span className="text-brand-500">Scope</span></span>
         </div>
 
-        <div className="flex-1 px-2 space-y-1 overflow-y-auto custom-scrollbar">
+        <div className="flex-1 px-1.5 space-y-0.5 overflow-y-auto custom-scrollbar">
           {NAV_ITEMS.map(item => (
             <div key={item.id} className="relative group/tooltip">
               <button
                 onClick={() => setActiveView(item.id)}
                 data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all group relative
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
                   ${activeView === item.id 
                     ? 'bg-slate-800/80 text-white' 
                     : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
@@ -6595,25 +6595,16 @@ export const Workbench: React.FC = () => {
                 `}
               >
                 <item.icon 
-                  size={16} 
+                  size={14} 
                   className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
                 />
-                <span className="text-sm font-medium flex-1 truncate">{item.label}</span>
+                <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
                 {item.id === WorkbenchView.RESEARCH && runningResearchTasks > 0 && (
-                  <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[9px] font-bold shrink-0">
-                    <Loader2 size={10} className="animate-spin" />
+                  <span className="flex items-center gap-1 px-1 py-0.5 rounded-full bg-brand-500/20 text-brand-400 text-[8px] font-bold shrink-0">
+                    <Loader2 size={8} className="animate-spin" />
                     {runningResearchTasks}
                   </span>
                 )}
-                <HelpCircle 
-                  size={12} 
-                  className={`shrink-0 transition-colors ${
-                    activeView === item.id 
-                      ? 'text-brand-400/60 group-hover:text-brand-400' 
-                      : 'text-slate-600 group-hover:text-slate-400'
-                  }`}
-                  data-testid={`help-icon-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                />
                 
                 {activeView === item.id && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
@@ -6629,13 +6620,13 @@ export const Workbench: React.FC = () => {
           ))}
         </div>
 
-        <div className="p-2 space-y-0.5 border-t border-slate-800">
+        <div className="p-1.5 space-y-0.5 border-t border-slate-800">
           {BOTTOM_NAV_ITEMS.map(item => (
             <div key={item.id} className="relative group/tooltip">
               <button
                 onClick={() => setActiveView(item.id)}
                 data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all group relative
+                className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all group relative
                   ${activeView === item.id 
                     ? 'bg-slate-800/80 text-white' 
                     : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
@@ -6643,19 +6634,10 @@ export const Workbench: React.FC = () => {
                 `}
               >
                 <item.icon 
-                  size={16} 
+                  size={14} 
                   className={activeView === item.id ? 'text-brand-500' : 'text-slate-500 group-hover:text-slate-400'} 
                 />
-                <span className="text-sm font-medium flex-1 truncate">{item.label}</span>
-                <HelpCircle 
-                  size={12} 
-                  className={`shrink-0 transition-colors ${
-                    activeView === item.id 
-                      ? 'text-brand-400/60 group-hover:text-brand-400' 
-                      : 'text-slate-600 group-hover:text-slate-400'
-                  }`}
-                  data-testid={`help-icon-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                />
+                <span className="text-xs font-medium flex-1 truncate">{item.label}</span>
                 
                 {activeView === item.id && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-brand-500 rounded-r-full"></div>
@@ -6671,20 +6653,20 @@ export const Workbench: React.FC = () => {
           ))}
           <button 
             onClick={() => setIsSettingsOpen(true)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-settings"
           >
-            <Settings size={16} className="text-slate-500" />
-            <span className="text-sm font-medium">Settings</span>
+            <Settings size={14} className="text-slate-500" />
+            <span className="text-xs font-medium">Settings</span>
           </button>
           <button 
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
+            className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all"
             data-testid="nav-profile"
           >
-            <div className="w-5 h-5 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[9px] font-bold">
+            <div className="w-4 h-4 rounded-full bg-brand-900/30 border border-brand-500/30 flex items-center justify-center text-brand-400 text-[8px] font-bold">
               AI
             </div>
-            <span className="text-sm font-medium">AI Strategist</span>
+            <span className="text-xs font-medium">AI Strategist</span>
           </button>
         </div>
       </nav>
