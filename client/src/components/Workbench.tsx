@@ -5524,10 +5524,10 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                        toast({ title: "Link copied to clipboard" });
                        setTimeout(() => setLinkCopied(false), 2000);
                      }}
-                     className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all ${linkCopied ? 'bg-emerald-500/20 text-emerald-400' : 'hover:bg-slate-800 text-slate-400 hover:text-white'}`}
+                     className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-300 ${linkCopied ? 'bg-emerald-500/20 text-emerald-400 scale-110 rotate-[360deg]' : 'hover:bg-slate-800 text-slate-400 hover:text-white scale-100 rotate-0'}`}
                      data-testid="button-copy-share-link"
                    >
-                     {linkCopied ? <Check size={14} /> : <LinkIcon size={14} />}
+                     {linkCopied ? <Check size={14} className="animate-in zoom-in duration-300" /> : <LinkIcon size={14} />}
                    </button>
                  </TooltipTrigger>
                  <TooltipContent side="top" className="bg-slate-800 text-white text-xs border-slate-700">
