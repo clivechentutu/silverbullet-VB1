@@ -1739,21 +1739,17 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
 
   return (
     <div className="h-full flex flex-col">
-      <div className={`p-4 border-b border-slate-800/50 bg-slate-900/50`}>
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-start gap-3">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700`}>
-              <ChIcon size={18} className={chConfig?.color} />
+      <div className={`px-3 py-2 border-b border-slate-800/50 bg-slate-900/50`}>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
+              <ChIcon size={14} className={chConfig?.color} />
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`text-sm font-medium ${chConfig?.color}`}>{chConfig?.name}</span>
-                <span className="text-sm text-slate-500">{insight.time}</span>
-              </div>
-              <h3 className="text-sm font-bold text-white leading-snug">{insight.title}</h3>
-            </div>
+            <span className={`text-sm font-medium ${chConfig?.color} shrink-0`}>{chConfig?.name}</span>
+            <span className="text-sm text-slate-500 shrink-0">{insight.time}</span>
+            <h3 className="text-sm font-bold text-white truncate">{insight.title}</h3>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 shrink-0">
             <TooltipProvider>
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
@@ -1761,14 +1757,14 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     variant="ghost" 
                     size="icon"
                     onClick={handlePositiveFeedback}
-                    className="h-7 w-7 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10"
+                    className="h-6 w-6 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10"
                     data-testid="button-feedback-positive"
                   >
-                    <ThumbsUp size={14} />
+                    <ThumbsUp size={12} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
-                  <p className="text-sm">This insight was helpful</p>
+                  <p className="text-sm">Helpful</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1779,33 +1775,33 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     variant="ghost" 
                     size="icon"
                     onClick={handleNegativeFeedback}
-                    className="h-7 w-7 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                    className="h-6 w-6 text-slate-500 hover:text-red-400 hover:bg-red-500/10"
                     data-testid="button-feedback-negative"
                   >
-                    <ThumbsDown size={14} />
+                    <ThumbsDown size={12} />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="bg-slate-900 border-slate-700">
-                  <p className="text-sm">This insight needs improvement</p>
+                  <p className="text-sm">Not helpful</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <Button 
               variant="ghost" 
-              size="sm" 
+              size="icon"
               onClick={onMarkResolved}
-              className={`h-7 px-2 text-sm transition-all duration-200 ${
+              className={`h-6 w-6 ${
                 insight.isResolved 
-                  ? 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-amber-500/20' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border-slate-700/50'
-              } border`}
+                  ? 'text-amber-500 hover:bg-amber-500/20' 
+                  : 'text-slate-500 hover:bg-slate-700'
+              }`}
+              data-testid="button-save-insight"
             >
-              <Star size={12} className={`mr-1 ${insight.isResolved ? 'fill-amber-500' : ''}`} />
-              {insight.isResolved ? 'Saved' : 'Save'}
+              <Star size={12} className={insight.isResolved ? 'fill-amber-500' : ''} />
             </Button>
           </div>
         </div>
-        <p className="text-sm text-slate-300 leading-relaxed">{insight.summary}</p>
+        <p className="text-sm text-slate-400 leading-snug line-clamp-2">{insight.summary}</p>
       </div>
 
       <Dialog open={showFeedbackDialog} onOpenChange={(open) => {
