@@ -2772,6 +2772,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
   const { toast } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [targetToDelete, setTargetToDelete] = useState<Target | null>(null);
   const [newTargetName, setNewTargetName] = useState('');
   const [newTargetUrl, setNewTargetUrl] = useState('');
   const [editTargetName, setEditTargetName] = useState('');
