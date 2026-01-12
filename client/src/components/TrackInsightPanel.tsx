@@ -2075,18 +2075,18 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
           </div>
         </div>
 
-        <div className="shrink-0 p-4 border-t border-slate-800 bg-slate-900/40">
+        <div className="shrink-0 p-3 border-t border-slate-800 bg-slate-900/40">
           <div 
-            className="flex items-center justify-between mb-3 cursor-pointer hover:bg-slate-800/50 p-1.5 rounded-md transition-colors"
+            className="flex items-center justify-between mb-2 cursor-pointer hover:bg-slate-800/50 p-1.5 rounded-md transition-colors"
             onClick={() => setIsSignalsExpanded(!isSignalsExpanded)}
           >
             <div className="flex items-center gap-1.5">
               <ChIcon size={11} className={chConfig?.color} />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Source Signals</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[9px] text-slate-600 font-medium">{insight.signals.length} detected</span>
-              <ChevronDown size={12} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
+              <span className="text-[8px] text-slate-600 font-medium">{insight.signals.length} detected</span>
+              <ChevronDown size={11} className={`text-slate-500 transition-transform duration-200 ${isSignalsExpanded ? 'rotate-180' : ''}`} />
             </div>
           </div>
           {isSignalsExpanded && (
@@ -2106,7 +2106,7 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                       </span>
                       <span className="text-[8px] text-slate-600">{signal.time}</span>
                     </div>
-                    <p className="text-[10px] text-slate-300 leading-relaxed">{signal.content}</p>
+                    <p className="text-[9px] text-slate-400 leading-tight line-clamp-2">{signal.content}</p>
                   </div>
                   <ExternalLink size={10} className="text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
                 </div>
