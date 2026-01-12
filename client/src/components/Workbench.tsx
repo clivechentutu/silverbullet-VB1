@@ -39,6 +39,16 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -4035,15 +4045,9 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                   <DropdownMenuSeparator className="bg-slate-800" />
                   <DropdownMenuItem 
                     className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
-                    onClick={async (e) => {
+                    onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm('Are you sure you want to delete this target?')) {
-                        await apiRequest('DELETE', `/api/targets/${t.id}`);
-                        queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
-                        if (selectedTargetId === t.id) {
-                          setSelectedTargetId(null);
-                        }
-                      }
+                      setTargetToDelete(t);
                     }}
                   >
                     <Trash2 size={14} />
@@ -6690,6 +6694,37 @@ export const Workbench: React.FC = () => {
       </main>
 
       <BillingPopover isOpen={showBillingModal} onClose={() => setShowBillingModal(false)} />
+
+      <AlertDialog open={!!targetToDelete} onOpenChange={(open) => !open && setTargetToDelete(null)}>
+        <AlertDialogContent className="bg-slate-900 border-slate-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this target?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              This action cannot be undone. This will permanently delete the tracking target
+              {targetToDelete && <span className="text-white font-medium"> "{targetToDelete.name}" </span>}
+              and all its associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (targetToDelete) {
+                  await apiRequest('DELETE', `/api/targets/${targetToDelete.id}`);
+                  queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                  if (selectedTargetId === targetToDelete.id) {
+                    setSelectedTargetId(null);
+                  }
+                  setTargetToDelete(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
