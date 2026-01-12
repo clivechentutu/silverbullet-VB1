@@ -206,34 +206,34 @@ const SessionCatchUp = ({
         </div>
       )}
       
-    <div className="rounded-lg border border-brand-500/20 bg-brand-500/5 p-4 shadow-sm shadow-brand-500/5 relative overflow-hidden group">
+    <div className="rounded-lg border border-brand-500/20 bg-brand-500/5 p-2 shadow-sm shadow-brand-500/5 relative overflow-hidden group">
       {/* Decorative AI background element */}
-      <div className="absolute -right-8 -top-8 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl group-hover:bg-brand-500/15 transition-colors pointer-events-none" />
+      <div className="absolute -right-8 -top-8 w-24 h-24 bg-brand-500/10 rounded-full blur-2xl group-hover:bg-brand-500/15 transition-colors pointer-events-none" />
       
       <div 
-        className={`flex items-center justify-between gap-4 relative z-10 ${summaries && !isGenerating ? 'cursor-pointer' : ''}`}
+        className={`flex items-center justify-between gap-3 relative z-10 ${summaries && !isGenerating ? 'cursor-pointer' : ''}`}
         onClick={() => {
           if (viewingHistorical || isGenerating || !summaries) return;
           setIsExpanded(!isExpanded);
         }}
       >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 min-w-0 group">
-            <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0 group-hover:bg-brand-500/20 transition-colors">
-              <Sparkles size={16} className="text-brand-400" />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0 group">
+            <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0 group-hover:bg-brand-500/20 transition-colors">
+              <Sparkles size={14} className="text-brand-400" />
             </div>
             <div className="min-w-0 text-left">
-              <div className="flex items-center justify-start gap-2 flex-wrap">
-                <span className="text-sm font-semibold text-white group-hover:text-slate-200 transition-colors">
+              <div className="flex items-center justify-start gap-1.5 flex-wrap">
+                <span className="text-xs font-semibold text-white group-hover:text-slate-200 transition-colors">
                   {viewingHistorical ? 'Historical Summary' : 'Session Catch-Up'}
                 </span>
                 {viewingHistorical ? (
-                  <span className="text-sm text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
+                  <span className="text-[10px] text-slate-500">Generated: {viewingHistorical.generatedAt}</span>
                 ) : (
-                  <span className="text-sm text-slate-500">Last visit: {lastLoginTime}</span>
+                  <span className="text-[10px] text-slate-500">Last visit: {lastLoginTime}</span>
                 )}
               </div>
-              <p className="text-sm text-slate-500 mt-0.5">
+              <p className="text-[10px] text-slate-500 mt-0">
                 {viewingHistorical 
                   ? `${viewingHistorical.totalSignals} signals from ${viewingHistorical.periodStart} to ${viewingHistorical.periodEnd}`
                   : `${totalSignals} signals collected across ${availableChannels.length} channels`
@@ -244,13 +244,13 @@ const SessionCatchUp = ({
 
           <Button
             variant="outline"
-            size="default"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onGenerate();
             }}
             disabled={isGenerating || !!summaries}
-            className={`text-sm font-medium px-4 h-8 transition-all ${
+            className={`text-xs font-medium px-3 h-7 transition-all ${
               summaries 
                 ? 'border-slate-700 bg-slate-900/50 text-slate-500 cursor-default' 
                 : 'border-brand-500/40 hover:bg-brand-500/10 text-brand-400'
@@ -259,17 +259,17 @@ const SessionCatchUp = ({
           >
             {isGenerating ? (
               <>
-                <RefreshCw size={14} className="mr-2 animate-spin" />
+                <RefreshCw size={12} className="mr-1.5 animate-spin" />
                 Analyzing...
               </>
             ) : summaries ? (
               <>
-                <Check size={14} className="mr-2 text-emerald-500" />
+                <Check size={12} className="mr-1.5 text-emerald-500" />
                 Summarized
               </>
             ) : (
               <>
-                <Sparkles size={14} className="mr-2" />
+                <Sparkles size={12} className="mr-1.5" />
                 Generate Summary
               </>
             )}
@@ -279,14 +279,14 @@ const SessionCatchUp = ({
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
                   <div 
-                    className="p-1.5 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors cursor-help"
+                    className="p-1 rounded-full bg-slate-900/50 border border-slate-800 text-slate-500 hover:text-slate-300 transition-colors cursor-help"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Info size={14} />
+                    <Info size={12} />
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="bg-slate-900 border-slate-700 p-2 max-w-[200px]">
-                  <p className="text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs text-slate-300 leading-relaxed">
                     Full analysis for this session is complete. You can generate a new comprehensive summary across all signals when you return for your next session.
                   </p>
                 </TooltipContent>
@@ -295,7 +295,7 @@ const SessionCatchUp = ({
           )}
         </div>
         
-        <div className="flex items-center gap-2 shrink-0 border-l border-brand-500/20 pl-4 ml-2">
+        <div className="flex items-center gap-1.5 shrink-0 border-l border-brand-500/20 pl-3 ml-1">
           {viewingHistorical ? (
             <Button
               variant="ghost"
@@ -304,10 +304,10 @@ const SessionCatchUp = ({
                 e.stopPropagation();
                 onClearHistoricalView();
               }}
-              className="text-sm text-slate-400 hover:bg-brand-500/10"
+              className="text-xs h-7 text-slate-400 hover:bg-brand-500/10"
               data-testid="button-close-historical"
             >
-              <X size={14} className="mr-1.5" />
+              <X size={12} className="mr-1" />
               Close
             </Button>
           ) : (
@@ -321,25 +321,25 @@ const SessionCatchUp = ({
                       e.stopPropagation();
                       setShowHistory(!showHistory);
                     }}
-                    className="text-sm text-slate-400 hover:bg-brand-500/10"
+                    className="text-xs h-7 text-slate-400 hover:bg-brand-500/10"
                     data-testid="button-show-history"
                   >
-                    <History size={14} className="mr-1.5" />
+                    <History size={12} className="mr-1" />
                     History
-                    <Badge variant="secondary" className="ml-2 text-sm px-1.5 py-0">
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1 py-0">
                       {historicalSummaries.length}
                     </Badge>
                   </Button>
                   
                   {showHistory && (
                     <div 
-                      className="absolute right-0 top-full mt-2 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden"
+                      className="absolute right-0 top-full mt-1.5 w-64 bg-slate-900 border border-slate-700 rounded-lg shadow-2xl z-50 overflow-hidden"
                       onClick={(e) => e.stopPropagation()}
                     >
-                  <div className="px-3 py-2 border-b border-slate-800 bg-slate-900/80">
-                    <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
+                  <div className="px-2 py-1.5 border-b border-slate-800 bg-slate-900/80">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Past Summaries</span>
                   </div>
-                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                  <div className="max-h-[240px] overflow-y-auto custom-scrollbar">
                     {historicalSummaries.map(hist => (
                       <div 
                         key={hist.id}
@@ -347,13 +347,13 @@ const SessionCatchUp = ({
                           onViewHistorical(hist);
                           setShowHistory(false);
                         }}
-                        className="px-3 py-2.5 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
+                        className="px-2.5 py-2 hover:bg-slate-800/50 cursor-pointer border-b border-slate-800/50 last:border-0"
                       >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-white">{hist.generatedAt}</span>
-                          <span className="text-sm text-slate-500">{hist.totalSignals} signals</span>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-xs font-medium text-white">{hist.generatedAt}</span>
+                          <span className="text-[10px] text-slate-500">{hist.totalSignals} signals</span>
                         </div>
-                        <span className="text-sm text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
+                        <span className="text-[10px] text-slate-500">{hist.periodStart} - {hist.periodEnd}</span>
                       </div>
                     ))}
                   </div>
@@ -369,11 +369,11 @@ const SessionCatchUp = ({
                     e.stopPropagation();
                     setIsExpanded(!isExpanded);
                   }}
-                  className="text-sm text-slate-400 hover:bg-brand-500/10"
+                  className="text-xs h-7 text-slate-400 hover:bg-brand-500/10"
                   data-testid="button-toggle-summary"
                 >
                   {isExpanded ? 'Hide' : 'Show'}
-                  <ChevronDown size={14} className={`ml-1.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={12} className={`ml-1 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </Button>
               )}
             </>
