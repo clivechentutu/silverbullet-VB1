@@ -223,7 +223,15 @@ export const LandingPage = () => {
   };
 
   const handleStart = async () => {
-    if (!url) return;
+    // Validate empty input first
+    if (!url.trim()) {
+      if (activeMode === 'research') {
+        setErrors(prev => ({ ...prev, url: 'Please enter a research question' }));
+      } else {
+        setErrors(prev => ({ ...prev, url: 'Please enter a URL' }));
+      }
+      return;
+    }
     
     // Different validation based on mode
     if (activeMode === 'research') {
