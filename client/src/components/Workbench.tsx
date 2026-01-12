@@ -5253,7 +5253,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                           setShareDialogOpen(true);
                                           const url = `${window.location.origin}/workbench?session=${session.id}`;
                                           navigator.clipboard.writeText(url);
-                                          // toast({ title: "Link Copied", description: "Session link copied to clipboard" });
+                                          toast({ title: "Link Copied", description: "Session link copied to clipboard" });
                                           setTimeout(() => setLinkCopied(false), 2000);
                                        }}
                                      >
@@ -5521,7 +5521,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                      onClick={() => {
                        navigator.clipboard.writeText(`${window.location.origin}/workbench?session=${shareSessionId}`);
                        setLinkCopied(true);
-                       // toast({ title: "Link copied to clipboard" });
+                       toast({ title: "Link copied to clipboard" });
                        setTimeout(() => setLinkCopied(false), 2000);
                      }}
                      className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-all duration-300 ${linkCopied ? 'bg-emerald-500/20 text-emerald-400 scale-110 rotate-[360deg]' : 'hover:bg-slate-800 text-slate-400 hover:text-white scale-100 rotate-0'}`}
