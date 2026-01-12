@@ -4959,6 +4959,7 @@ interface ResearchSession {
   group: 'Today' | 'Yesterday' | 'Previous';
   status: 'active' | 'completed';
   messages: ChatMessage[];
+  isFavorite?: boolean;
 }
 
 const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchViewProps) => {
@@ -4972,6 +4973,8 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
         setInput(initialPrompt);
     }
   }, [initialPrompt]);
+
+  const [favoriteSessionIds, setFavoriteSessionIds] = useState<Set<string>>(new Set());
 
   const { data: sessionsData = [] } = useQuery<DBResearchSession[]>({
     queryKey: ['/api/sessions'],
@@ -4994,6 +4997,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
       group: isToday ? 'Today' : isYesterday ? 'Yesterday' : 'Previous',
       status: s.status as 'active' | 'completed',
       messages: (s.messages || []) as ChatMessage[],
+      isFavorite: favoriteSessionIds.has(String(s.id))
     };
   });
 
@@ -5205,13 +5209,19 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
                                        className="flex items-center gap-2 cursor-pointer hover:bg-slate-800 focus:bg-slate-800"
                                        onClick={(e) => {
                                           e.stopPropagation();
-                                          // Toggle favorite logic (UI only for now)
-                                          (session as any).isFavorite = !(session as any).isFavorite;
-                                          queryClient.invalidateQueries({ queryKey: ['/api/sessions'] });
+                                          setFavoriteSessionIds(prev => {
+                                            const next = new Set(prev);
+                                            if (next.has(session.id)) {
+                                              next.delete(session.id);
+                                            } else {
+                                              next.add(session.id);
+                                            }
+                                            return next;
+                                          });
                                        }}
                                      >
-                                        <Star size={14} className={(session as any).isFavorite ? "fill-yellow-400 text-yellow-400" : ""} />
-                                        <span>Favorite</span>
+                                        <Star size={14} className={session.isFavorite ? "fill-yellow-400 text-yellow-400" : ""} />
+                                        <span>{session.isFavorite ? 'Unfavorite' : 'Favorite'}</span>
                                      </DropdownMenuItem>
                                      <DropdownMenuItem 
                                        className="flex items-center gap-2 cursor-pointer hover:bg-red-900/20 focus:bg-red-900/20 text-red-400 focus:text-red-400"
