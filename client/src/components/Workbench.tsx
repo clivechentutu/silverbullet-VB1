@@ -4894,6 +4894,37 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!targetToDelete} onOpenChange={(open) => !open && setTargetToDelete(null)}>
+        <AlertDialogContent className="bg-slate-900 border-slate-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this target?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              This action cannot be undone. This will permanently delete the tracking target
+              {targetToDelete && <span className="text-white font-medium"> "{targetToDelete.name}" </span>}
+              and all its associated data including signals, history, and configurations.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={async () => {
+                if (targetToDelete) {
+                  await apiRequest('DELETE', `/api/targets/${targetToDelete.id}`);
+                  queryClient.invalidateQueries({ queryKey: ['/api/targets'] });
+                  if (selectedTargetId === targetToDelete.id) {
+                    setSelectedTargetId(null);
+                  }
+                  setTargetToDelete(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
