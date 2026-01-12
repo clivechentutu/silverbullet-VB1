@@ -5288,10 +5288,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset }: ResearchView
              ))}
           </div>
 
-          <div className="p-4 border-t border-slate-800 flex items-center justify-between text-slate-500">
-             <div className="flex items-center gap-2 text-xs hover:text-white cursor-pointer transition-colors">
-                <History size={14} /> Archived
-             </div>
+          <div className="p-4 border-t border-slate-800 flex items-center justify-end text-slate-500">
              <Settings size={14} className="hover:text-white cursor-pointer transition-colors" />
           </div>
        </div>
