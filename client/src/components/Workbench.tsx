@@ -3974,17 +3974,17 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                   {t.name}
                 </h4>
-                {t.status !== 'active' && (
-                  <div className={`w-2 h-2 rounded-full shrink-0 ${
-                    t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
-                    t.status === 'stopped' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
-                    'bg-slate-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]'
-                  }`} title={
-                    t.status === 'paused' ? 'Paused' : 
-                    t.status === 'stopped' ? 'Stopped' : 
-                    'Archived'
-                  } />
-                )}
+                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                  t.status === 'active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
+                  t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
+                  t.status === 'stopped' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
+                  'bg-slate-500 shadow-[0_0_8px_rgba(107,114,128,0.5)]'
+                }`} title={
+                  t.status === 'active' ? 'Active' : 
+                  t.status === 'paused' ? 'Paused' : 
+                  t.status === 'stopped' ? 'Stopped' : 
+                  'Archived'
+                } />
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
