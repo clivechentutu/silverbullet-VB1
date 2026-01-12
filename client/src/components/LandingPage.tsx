@@ -632,14 +632,14 @@ export const LandingPage = () => {
               {/* Discovered Competitors Section */}
               {discoveredCompetitors.length > 0 && (
                 <div>
-                  <div className="mb-3">
+                  <div className="mb-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-medium text-slate-300">Instantly discovered</span>
-                      <span className="text-2xl font-bold text-brand-400">{totalDiscoveredCount}</span>
-                      <span className="text-sm font-medium text-slate-300">similar products</span>
+                      <span className="text-sm font-medium text-slate-400">Instantly discovered</span>
+                      <span className="text-3xl font-black text-brand-400 tabular-nums">{totalDiscoveredCount}</span>
+                      <span className="text-sm font-medium text-slate-400">similar targets</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1.5">
-                      Showing top {discoveredCompetitors.length} results. Click <span className="text-brand-400 font-medium">Start Discovery</span> to sign up free and view all {totalDiscoveredCount} competitors.
+                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                      Displaying top {discoveredCompetitors.length} high-probability matches. <span className="text-brand-400 font-medium italic">Sign up free</span> to view all {totalDiscoveredCount} discoveries and unlock continuous AI monitoring.
                     </p>
                   </div>
                   <div className="grid grid-cols-1 gap-2">
@@ -706,15 +706,6 @@ export const LandingPage = () => {
                             <span className="text-brand-400 font-bold tabular-nums">1.2M+</span>
                           </div>
                         </div>
-
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => removeDiscoveredCompetitor(competitor.id)}
-                          className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
-                          data-testid={`button-remove-competitor-${competitor.id}`}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
                     ))}
                   </div>
