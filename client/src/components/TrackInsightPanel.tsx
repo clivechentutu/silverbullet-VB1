@@ -1028,48 +1028,25 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
           </button>
         </div>
         
-        {/* Inline summary - Key Finding, Impact, Action in compact format */}
-        <div className="mt-1.5 pl-7 space-y-1">
-          <div className="flex items-start gap-1.5">
-            <Target size={10} className="text-cyan-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-300 line-clamp-1">{insight.keyInfo}</p>
-          </div>
-          <div className="flex items-start gap-1.5">
-            <TrendingUp size={10} className="text-purple-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-400 line-clamp-1">{insight.impact}</p>
-          </div>
-          <div className="flex items-start gap-1.5">
-            <Zap size={10} className="text-amber-400 shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-400 line-clamp-1">{insight.action}</p>
-          </div>
-        </div>
+        {/* Inline summary - Plain text description */}
+        <p className="mt-1.5 pl-7 text-xs text-slate-400 leading-relaxed line-clamp-2">
+          {insight.keyInfo} {insight.impact} {insight.action}
+        </p>
       </div>
       
       {/* Expanded details */}
       {isExpanded && (
         <div className="px-2 pb-2 pt-0 border-t border-slate-800/50 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="pl-7 space-y-2 mt-2">
-            <div>
-              <div className="flex items-center gap-1 mb-0.5">
-                <Target size={11} className="text-cyan-400" />
-                <span className="text-xs font-medium text-cyan-400 uppercase tracking-wide">Key Finding</span>
-              </div>
-              <p className="text-sm text-slate-200 leading-relaxed">{insight.keyInfo}</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1 mb-0.5">
-                <TrendingUp size={11} className="text-purple-400" />
-                <span className="text-xs font-medium text-purple-400 uppercase tracking-wide">Impact</span>
-              </div>
-              <p className="text-sm text-slate-300 leading-relaxed">{insight.impact}</p>
-            </div>
-            <div>
-              <div className="flex items-center gap-1 mb-0.5">
-                <Zap size={11} className="text-amber-400" />
-                <span className="text-xs font-medium text-amber-400 uppercase tracking-wide">Action</span>
-              </div>
-              <p className="text-sm text-slate-300 leading-relaxed">{insight.action}</p>
-            </div>
+          <div className="pl-7 space-y-3 mt-2">
+            <p className="text-sm text-slate-300 leading-relaxed">
+              {insight.keyInfo}
+            </p>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              {insight.impact}
+            </p>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              {insight.action}
+            </p>
             
             {/* Quick actions */}
             <div className="flex items-center gap-2 pt-2 border-t border-slate-800/30">
