@@ -4130,7 +4130,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
             </div>
 
             {/* AI Insight Panel - Refactored Track Interface */}
-            <div className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden">
+            <div className="bg-slate-900/30 border border-slate-800 rounded-xl overflow-hidden min-h-[720px]">
               <TrackInsightPanel 
                 targetName={selectedTarget.name} 
                 targetDomain={safeGetHostname(selectedTarget.url)}
