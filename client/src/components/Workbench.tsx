@@ -95,18 +95,14 @@ const URLPreview = ({ url }: { url: string }) => {
       
       {showPreview && (
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-none"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 pointer-events-auto"
         >
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm -z-10" />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div 
-            className="bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl pointer-events-auto animate-in zoom-in-95 duration-200 flex flex-col max-w-[90vw] max-h-[90vh]" 
+            className="relative bg-slate-950 border border-slate-700 rounded-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex flex-col max-w-[90vw] max-h-[90vh]" 
             style={{ 
               width: '800px', 
-              height: '500px',
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
+              height: '500px'
             }}
           >
             <div className="px-4 py-2 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
