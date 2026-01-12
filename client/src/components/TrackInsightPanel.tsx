@@ -2010,27 +2010,27 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
       </Dialog>
 
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
-          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
-            <div className="flex items-center gap-2 mb-2">
-              <BrainCircuit size={12} className={chConfig?.color} />
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
+          <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/50">
+            <div className="flex items-center gap-2 mb-3">
+              <BrainCircuit size={14} className={chConfig?.color} />
               <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Key Finding</span>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">{insight.keyInfo}</p>
+            <p className="text-base text-slate-300 leading-relaxed">{insight.keyInfo}</p>
           </div>
 
-          <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp size={12} className="text-brand-400" />
+          <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/50">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp size={14} className="text-brand-400" />
               <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Potential Impact</span>
             </div>
-            <p className="text-sm text-slate-300 leading-relaxed">{insight.impact}</p>
+            <p className="text-base text-slate-300 leading-relaxed">{insight.impact}</p>
           </div>
 
-          <div className="p-3 rounded-lg bg-brand-500/5 border border-brand-500/20">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="p-4 rounded-lg bg-brand-500/5 border border-brand-500/20">
+            <div className="flex items-center gap-2 mb-3">
               <div className="flex items-center gap-2">
-                <Zap size={12} className="text-brand-400" />
+                <Zap size={14} className="text-brand-400" />
                 <span className="text-sm font-bold text-brand-500/80 uppercase tracking-wider">Suggested Action</span>
               </div>
               {onResearch && (
@@ -2041,15 +2041,15 @@ const EvidencePanel = ({ insight, onMarkResolved, onResearch }: EvidencePanelPro
                     const prompt = `Analyze the competitive insight: "${insight.title}"\n\nContext: ${insight.summary}\n\nKey Finding: ${insight.keyInfo}\n\nPotential Impact: ${insight.impact}\n\nSuggested Action: ${insight.action}\n\nPlease provide a deeper analysis and strategic recommendations.`;
                     onResearch(prompt);
                   }}
-                  className="h-6 px-2 text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
+                  className="h-7 px-3 text-sm bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border border-amber-500/20"
                   data-testid="button-research-insight"
                 >
-                  <Lightbulb size={10} className="mr-1" />
+                  <Lightbulb size={12} className="mr-1" />
                   Research
                 </Button>
               )}
             </div>
-            <p className="text-sm text-brand-200/80 leading-relaxed">{insight.action}</p>
+            <p className="text-base text-brand-200/80 leading-relaxed">{insight.action}</p>
           </div>
         </div>
 
