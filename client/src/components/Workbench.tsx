@@ -5863,7 +5863,8 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
             )}
 
             <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-              <DialogContent className="bg-slate-950 border-slate-800 max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl">
+              <DialogContent className="bg-slate-950 border-slate-800 max-w-4xl h-[90vh] flex flex-col p-0 overflow-hidden shadow-2xl" aria-describedby={undefined}>
+                <DialogTitle className="sr-only">Report: {selectedReportData?.title || 'Intelligence Report'}</DialogTitle>
                 {selectedReportData && (
                   <div className="flex flex-col h-full bg-slate-950">
                     {/* Manus-style Floating Header */}
