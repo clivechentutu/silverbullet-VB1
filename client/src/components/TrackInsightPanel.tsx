@@ -1374,8 +1374,8 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
   const displayedCount = Math.min(displayLimit, sortedInsights.length);
 
   return (
-    <div className="h-full flex flex-col min-h-0">
-      <div className="px-3 py-2 border-b border-slate-800/50 shrink-0">
+    <div className="flex flex-col">
+      <div className="px-3 py-1.5 border-b border-slate-800/50">
         <div className="flex items-center gap-2 mb-1.5">
           <Sparkles size={12} className="text-brand-400" />
           <span className="text-sm font-bold text-white">AI Insights</span>
@@ -1431,7 +1431,7 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden min-h-0">
+      <div className="flex overflow-hidden">
         {/* Vertical value tier filter tabs */}
         <div className="flex flex-col border-r border-slate-800/50 bg-slate-950/50 shrink-0">
           {/* All option */}
@@ -1499,8 +1499,11 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
           })}
         </div>
         
-        {/* Insight list - fills available space, scrolls when content exceeds */}
-        <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-3 space-y-2">
+        {/* Insight list - fixed height for 5 cards, scrolls when content exceeds */}
+        <div 
+          className="overflow-y-auto custom-scrollbar p-2 space-y-1.5"
+          style={{ maxHeight: 'calc(5 * 68px + 16px)' }}
+        >
           {sortedInsights.length === 0 ? (
             <div className="text-center py-12">
               <Sparkles size={32} className="text-slate-700 mx-auto mb-3" />
@@ -2686,7 +2689,7 @@ export const TrackInsightPanel = ({ targetName, targetDomain, onResearch }: Trac
               </svg>
             )}
             
-            <div className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50 flex flex-col overflow-hidden min-h-0">
+            <div className="w-full lg:w-[340px] shrink-0 border-b lg:border-b-0 lg:border-r border-slate-800/50">
               <InsightFeed 
                 insights={insights}
                 selectedId={selectedInsightId}
