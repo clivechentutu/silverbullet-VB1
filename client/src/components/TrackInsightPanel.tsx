@@ -1026,12 +1026,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
             </div>
             <h4 className="text-sm font-semibold text-white truncate">{insight.title}</h4>
           </div>
-          <button
-            onClick={handleExpand}
-            className="p-1 hover:bg-slate-700/50 rounded transition-colors shrink-0"
-          >
-            <ChevronDown size={14} className={`text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
         </div>
         
         {/* Inline summary - Plain text description */}
