@@ -996,10 +996,19 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
         <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-amber-500 rounded-full" />
       )}
       
+      {/* Read/Unread status indicator - top right corner */}
+      <div className="absolute top-2 right-2">
+        {!insight.isRead ? (
+          <span className="w-2 h-2 rounded-full bg-emerald-500 block" />
+        ) : (
+          <Check size={12} className="text-slate-500" />
+        )}
+      </div>
+      
       {/* Compact header - always visible */}
       <div 
         onClick={onClick}
-        className="p-2 cursor-pointer"
+        className="p-2 cursor-pointer pr-6"
       >
         <div className="flex items-center gap-2">
           <div className={`w-5 h-5 rounded flex items-center justify-center shrink-0 ${chConfig?.bgColor}`}>
@@ -1013,9 +1022,6 @@ const InsightCard = ({ insight, isSelected, onClick, onDemote, setCardRef, isAll
                 <span className={`text-xs px-1 rounded ${tierFilterConfig.bgColor} ${tierFilterConfig.color}`}>
                   {tierFilterConfig.shortLabel}
                 </span>
-              )}
-              {!insight.isRead && (
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
               )}
             </div>
             <h4 className="text-sm font-semibold text-white truncate">{insight.title}</h4>
