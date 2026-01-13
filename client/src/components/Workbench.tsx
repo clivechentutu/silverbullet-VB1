@@ -4982,12 +4982,15 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset, jumpToSessionT
   const [jumpedToSession, setJumpedToSession] = useState(false);
 
   const [favoriteSessionIds, setFavoriteSessionIds] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: sessionsData = [] } = useQuery<DBResearchSession[]>({
     queryKey: ['/api/sessions'],
   });
 
-  const history: ResearchSession[] = sessionsData.map((s) => {
+  const history: ResearchSession[] = sessionsData
+    .filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .map((s) => {
     const createdAt = new Date(s.createdAt);
     const today = new Date();
     const isToday = createdAt.toDateString() === today.toDateString();
@@ -5173,7 +5176,7 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset, jumpToSessionT
   return (
     <div className="flex h-[calc(100%+4rem)] -m-8 overflow-hidden bg-[#020617] animate-fade-in-up"> 
        <div className="w-52 border-r border-slate-800 bg-[#020617] flex flex-col shrink-0 z-20">
-          <div className="p-4 border-b border-slate-800/50">
+          <div className="p-4 border-b border-slate-800/50 space-y-3">
              <button 
                onClick={startNewSession}
                className="w-full flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg text-sm font-medium transition-all shadow-[0_0_15px_rgba(13,148,136,0.2)]"
@@ -5181,6 +5184,26 @@ const ResearchView = ({ initialPrompt, researchType, onTypeReset, jumpToSessionT
              >
                 <Plus size={16} /> New Research
              </button>
+
+             <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  type="text"
+                  placeholder="Search history..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-900/50 border border-slate-800 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder-slate-600 transition-all"
+                  data-testid="input-search-history"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-500 hover:text-slate-300 transition-colors"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+             </div>
           </div>
           
           <div className="flex-1 overflow-y-auto p-3 space-y-6 custom-scrollbar">
