@@ -1499,10 +1499,10 @@ const InsightFeed = ({ insights, selectedId, onSelect, onMarkRead, onDemote, cha
           })}
         </div>
         
-        {/* Insight list - fixed height for 5 cards, scrolls when content exceeds */}
+        {/* Insight list - fixed height for 5 cards (~110px each + gaps + padding), scrolls when content exceeds */}
         <div 
           className="overflow-y-auto custom-scrollbar p-2 space-y-1.5"
-          style={{ maxHeight: 'calc(5 * 68px + 16px)' }}
+          style={{ maxHeight: '580px' }}
         >
           {sortedInsights.length === 0 ? (
             <div className="text-center py-12">
