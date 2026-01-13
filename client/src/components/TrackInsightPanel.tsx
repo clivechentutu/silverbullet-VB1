@@ -496,7 +496,7 @@ const RawSignalFeed = ({ insights, availableChannels, scanningChannel }: RawSign
     <div ref={collapsibleRef} className="border-t border-slate-800/50 bg-slate-900/50 shrink-0 mt-auto">
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
-          <div className="flex items-center justify-between px-3 py-0.5 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
+          <div className="flex items-center justify-between px-3 py-1.5 cursor-pointer hover:bg-slate-800/50 transition-colors bg-slate-900/80">
             <div className="flex items-center gap-1.5">
               <Database size={10} className="text-slate-500" />
               <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest">Activity Stream</span>
@@ -631,7 +631,7 @@ const LiveStatusBar = ({ scanningChannel, totalInsights, unreadCount }: { scanni
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-3 py-0.5 bg-slate-900/40 border-b border-slate-800/20">
+    <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900/40 border-b border-slate-800/20">
       <div className="flex items-center gap-1.5">
         <div className="flex items-center gap-1">
           <div className="relative w-1 h-1">
