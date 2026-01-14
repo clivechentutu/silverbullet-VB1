@@ -2230,9 +2230,16 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 >
                   {scope.name}
                   {scope.isDemo && (
-                    <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[14px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none z-10 shadow-sm border border-amber-600">
-                      Demo
-                    </span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[14px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none z-10 shadow-sm border border-amber-600 cursor-help">
+                          Demo
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" className="max-w-[240px] text-xs bg-slate-900 border-slate-700 text-slate-300">
+                        <p>This is a sample task to help you explore our product. It will be removed once you create your own task. No credits used.</p>
+                      </TooltipContent>
+                    </Tooltip>
                   )}
                   {scopeStatuses[scope.name] === 'active' && (
                     <Activity size={16} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
@@ -3985,9 +3992,16 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               data-testid={`target-item-${t.id}`}
             >
               {t.isDemo && (
-                <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[9px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none shadow-sm border border-amber-600 z-10">
-                  Demo
-                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[9px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none shadow-sm border border-amber-600 z-10 cursor-help">
+                      Demo
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-[240px] text-xs bg-slate-900 border-slate-700 text-slate-300">
+                    <p>This is a sample task to help you explore our product. It will be removed once you create your own task. No credits used.</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
               <div className="w-7 h-7 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative shrink-0">
                 <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
