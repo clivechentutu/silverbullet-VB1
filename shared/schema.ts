@@ -146,6 +146,7 @@ export interface TargetCompany {
   url: string;
   icon: string;
   status: 'active' | 'paused' | 'stopped' | 'archived';
+  isDemo?: boolean;
 }
 
 export interface ReasoningStep {
