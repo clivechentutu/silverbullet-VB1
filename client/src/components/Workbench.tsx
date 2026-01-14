@@ -972,16 +972,16 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
   const { toast } = useToast();
-  const [activeScope, setActiveScope] = useState<string>('ChampSignal');
+  const [activeScope, setActiveScope] = useState<string>('Vizard');
   const [scopeStatuses, setScopeStatuses] = useState<Record<string, 'active' | 'paused' | 'stopped'>>({
-    'ChampSignal': 'active',
-    'OpusClip': 'active'
+    'Vizard': 'active'
   });
   const [showScopeActions, setShowScopeActions] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  const [targetScopes, setTargetScopes] = useState([
-    { name: 'ChampSignal', url: 'champsignal.com' },
-    { name: 'OpusClip', url: 'opus.pro' }
+  // Demo task for new users - Vizard.ai
+  const DEMO_SCOPE = { name: 'Vizard', url: 'vizard.ai', isDemo: true };
+  const [targetScopes, setTargetScopes] = useState<Array<{ name: string; url: string; isDemo?: boolean }>>([
+    DEMO_SCOPE
   ]);
   const [draggedScope, setDraggedScope] = useState<string | null>(null);
   const [editingScopeName, setEditingScopeName] = useState<string | null>(null);
@@ -1071,22 +1071,17 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const historicalSummaryCache = useMemo(() => {
     const cache: Record<string, { date: string; total: number; high: number; scopeInsights: Array<{ scope: string; products: Array<{ name: string; color: string }>; text: string[] }> }> = {};
     
-    // Today's summary
+    // Today's summary - Vizard.ai demo data
     const today = new Date();
     cache[format(today, 'yyyy-MM-dd')] = {
       date: format(today, 'MMM d'),
-      total: 12,
-      high: 3,
+      total: 10,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Figma AI', color: 'text-red-400' }, { name: 'Canva Magic', color: 'text-amber-400' }],
-          text: ['Discovered 2 high-similarity competitors: ', 'Figma AI', ' (92% match, collaborative design focus) and ', 'Canva Magic', ' (87% match, AI template generation).']
-        },
-        { 
-          scope: 'OpusClip', 
-          products: [{ name: 'Descript', color: 'text-purple-400' }],
-          text: ['Found 1 high-similarity competitor: ', 'Descript', ' (89% match, AI-powered video editing with transcript-based workflow).']
+          scope: 'Vizard', 
+          products: [{ name: 'OpusClip', color: 'text-red-400' }, { name: 'Descript', color: 'text-amber-400' }],
+          text: ['Discovered 2 high-similarity competitors: ', 'OpusClip', ' (96% match, AI-powered clip selection with virality scoring) and ', 'Descript', ' (94% match, transcript-based video editing).']
         }
       ]
     };
@@ -1096,13 +1091,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     yesterday.setDate(yesterday.getDate() - 1);
     cache[format(yesterday, 'yyyy-MM-dd')] = {
       date: format(yesterday, 'MMM d'),
-      total: 9,
+      total: 8,
       high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Sketch Pro', color: 'text-blue-400' }],
-          text: ['Detected 1 emerging competitor: ', 'Sketch Pro', ' (85% match, vector-first design approach with cloud sync).']
+          scope: 'Vizard', 
+          products: [{ name: 'Munch', color: 'text-blue-400' }, { name: 'Kapwing', color: 'text-purple-400' }],
+          text: ['Detected 2 emerging competitors: ', 'Munch', ' (91% match, long-form to shorts automation) and ', 'Kapwing', ' (87% match, collaborative browser editing).']
         }
       ]
     };
@@ -1112,13 +1107,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     cache[format(twoDaysAgo, 'yyyy-MM-dd')] = {
       date: format(twoDaysAgo, 'MMM d'),
-      total: 11,
-      high: 2,
+      total: 6,
+      high: 1,
       scopeInsights: [
         { 
-          scope: 'OpusClip', 
-          products: [{ name: 'CapCut', color: 'text-purple-400' }],
-          text: ['Identified ', 'CapCut', ' (93% match, mobile-first short video editor with viral effects library).']
+          scope: 'Vizard', 
+          products: [{ name: 'Pictory', color: 'text-emerald-400' }],
+          text: ['Identified ', 'Pictory', ' (84% match, article-to-video conversion with AI voiceover).']
         }
       ]
     };
@@ -1128,13 +1123,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
     cache[format(threeDaysAgo, 'yyyy-MM-dd')] = {
       date: format(threeDaysAgo, 'MMM d'),
-      total: 8,
-      high: 1,
+      total: 7,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Miro', color: 'text-amber-400' }],
-          text: ['Discovered ', 'Miro', ' (79% match, collaborative whiteboard with design integration).']
+          scope: 'Vizard', 
+          products: [{ name: 'Veed.io', color: 'text-amber-400' }, { name: 'Runway', color: 'text-purple-400' }],
+          text: ['Discovered ', 'Veed.io', ' (79% match, browser-based editing) and ', 'Runway', ' (76% match, Gen-2 AI video generation).']
         }
       ]
     };
@@ -1144,18 +1139,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
     cache[format(fiveDaysAgo, 'yyyy-MM-dd')] = {
       date: format(fiveDaysAgo, 'MMM d'),
-      total: 18,
-      high: 4,
+      total: 5,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Adobe Express', color: 'text-red-400' }, { name: 'Penpot', color: 'text-emerald-400' }],
-          text: ['Identified 2 competitors: ', 'Adobe Express', ' (90% match, enterprise integration) and ', 'Penpot', ' (82% match, open-source alternative).']
-        },
-        { 
-          scope: 'OpusClip', 
-          products: [{ name: 'Runway', color: 'text-purple-400' }],
-          text: ['Discovered ', 'Runway', ' (91% match, AI video generation and editing platform).']
+          scope: 'Vizard', 
+          products: [{ name: 'InVideo', color: 'text-green-400' }, { name: 'HeyGen', color: 'text-blue-400' }],
+          text: ['Identified 2 competitors: ', 'InVideo', ' (82% match, template-driven video creation) and ', 'HeyGen', ' (73% match, AI avatar videos).']
         }
       ]
     };
@@ -1165,13 +1155,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     cache[format(sevenDaysAgo, 'yyyy-MM-dd')] = {
       date: format(sevenDaysAgo, 'MMM d'),
-      total: 22,
-      high: 5,
+      total: 4,
+      high: 1,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Framer', color: 'text-amber-400' }, { name: 'Webflow', color: 'text-blue-400' }],
-          text: ['Key discoveries: ', 'Framer', ' (88% match, code-export) and ', 'Webflow', ' (84% match, no-code website builder).']
+          scope: 'Vizard', 
+          products: [{ name: 'Synthesia', color: 'text-purple-400' }],
+          text: ['Key discovery: ', 'Synthesia', ' (68% match, AI presenters with enterprise focus).']
         }
       ]
     };
@@ -1181,13 +1171,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
     cache[format(eightDaysAgo, 'yyyy-MM-dd')] = {
       date: format(eightDaysAgo, 'MMM d'),
-      total: 14,
-      high: 3,
+      total: 6,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'OpusClip', 
-          products: [{ name: 'InVideo', color: 'text-green-400' }],
-          text: ['Found ', 'InVideo', ' (88% match, template-driven video creation platform).']
+          scope: 'Vizard', 
+          products: [{ name: 'Fliki', color: 'text-amber-400' }],
+          text: ['Found ', 'Fliki', ' (71% match, text-to-video with AI voices).']
         }
       ]
     };
@@ -1197,13 +1187,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
     cache[format(tenDaysAgo, 'yyyy-MM-dd')] = {
       date: format(tenDaysAgo, 'MMM d'),
-      total: 19,
-      high: 4,
+      total: 8,
+      high: 3,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Canva', color: 'text-cyan-400' }],
-          text: ['Major activity from ', 'Canva', ' (95% match, launched new AI design features).']
+          scope: 'Vizard', 
+          products: [{ name: 'Lumen5', color: 'text-cyan-400' }],
+          text: ['Major update from ', 'Lumen5', ' (76% match, launched new AI storyboard features).']
         }
       ]
     };
@@ -1213,18 +1203,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
     cache[format(fourteenDaysAgo, 'yyyy-MM-dd')] = {
       date: format(fourteenDaysAgo, 'MMM d'),
-      total: 26,
-      high: 6,
+      total: 9,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Figma', color: 'text-red-400' }],
-          text: ['High priority: ', 'Figma', ' (96% match, announced major platform update).']
-        },
-        { 
-          scope: 'OpusClip', 
-          products: [{ name: 'Kapwing', color: 'text-green-400' }],
-          text: ['Detected ', 'Kapwing', ' (86% match, browser-based editing suite expansion).']
+          scope: 'Vizard', 
+          products: [{ name: 'Clipchamp', color: 'text-red-400' }, { name: 'CapCut', color: 'text-emerald-400' }],
+          text: ['Detected ', 'Clipchamp', ' (74% match, Microsoft-backed browser editor) and ', 'CapCut', ' (85% match, mobile-first short video editor).']
         }
       ]
     };
@@ -1234,13 +1219,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
     cache[format(fifteenDaysAgo, 'yyyy-MM-dd')] = {
       date: format(fifteenDaysAgo, 'MMM d'),
-      total: 15,
-      high: 3,
+      total: 5,
+      high: 1,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Pixlr', color: 'text-pink-400' }],
-          text: ['Emerging player: ', 'Pixlr', ' (75% match, AI-powered photo editing suite).']
+          scope: 'Vizard', 
+          products: [{ name: 'Animoto', color: 'text-pink-400' }],
+          text: ['Emerging player: ', 'Animoto', ' (65% match, slideshow and promo video maker).']
         }
       ]
     };
@@ -1250,13 +1235,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     twentyOneDaysAgo.setDate(twentyOneDaysAgo.getDate() - 21);
     cache[format(twentyOneDaysAgo, 'yyyy-MM-dd')] = {
       date: format(twentyOneDaysAgo, 'MMM d'),
-      total: 31,
-      high: 7,
+      total: 7,
+      high: 2,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Adobe XD', color: 'text-red-400' }, { name: 'Sketch', color: 'text-amber-400' }],
-          text: ['Weekly highlights: ', 'Adobe XD', ' (89% match) and ', 'Sketch', ' (87% match) both released updates.']
+          scope: 'Vizard', 
+          products: [{ name: 'Wave.video', color: 'text-blue-400' }, { name: 'Promo.com', color: 'text-amber-400' }],
+          text: ['Weekly highlights: ', 'Wave.video', ' (69% match) and ', 'Promo.com', ' (62% match) both released updates.']
         }
       ]
     };
@@ -1266,18 +1251,13 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     twentyEightDaysAgo.setDate(twentyEightDaysAgo.getDate() - 28);
     cache[format(twentyEightDaysAgo, 'yyyy-MM-dd')] = {
       date: format(twentyEightDaysAgo, 'MMM d'),
-      total: 42,
-      high: 9,
+      total: 12,
+      high: 3,
       scopeInsights: [
         { 
-          scope: 'ChampSignal', 
-          products: [{ name: 'Lunacy', color: 'text-cyan-400' }],
-          text: ['Month-start summary: ', 'Lunacy', ' (81% match, free alternative to Sketch gaining traction).']
-        },
-        { 
-          scope: 'OpusClip', 
-          products: [{ name: 'Lumen5', color: 'text-purple-400' }],
-          text: ['Discovered ', 'Lumen5', ' (77% match, AI video creation for marketing).']
+          scope: 'Vizard', 
+          products: [{ name: 'Biteable', color: 'text-cyan-400' }, { name: 'Magisto', color: 'text-purple-400' }],
+          text: ['Month-start summary: ', 'Biteable', ' (64% match, template-focused video maker) and ', 'Magisto', ' (61% match, AI-powered video editing for social).']
         }
       ]
     };
@@ -1379,11 +1359,21 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     
     const newScope = {
       name: editableTaskName.trim(),
-      url: newTaskUrl.startsWith('http') ? new URL(newTaskUrl).hostname.replace('www.', '') : newTaskUrl.replace('www.', '')
+      url: newTaskUrl.startsWith('http') ? new URL(newTaskUrl).hostname.replace('www.', '') : newTaskUrl.replace('www.', ''),
+      isDemo: false
     };
     
-    setTargetScopes(prev => [...prev, newScope]);
-    setScopeStatuses(prev => ({ ...prev, [newScope.name]: 'active' }));
+    // Remove demo task when user creates their first real task
+    setTargetScopes(prev => {
+      const withoutDemo = prev.filter(s => !s.isDemo);
+      return [...withoutDemo, newScope];
+    });
+    setScopeStatuses(prev => {
+      const newStatuses = { ...prev, [newScope.name]: 'active' as const };
+      // Clean up demo status
+      delete newStatuses['Vizard'];
+      return newStatuses;
+    });
     setActiveScope(newScope.name);
     
     // Reset modal state
@@ -1452,17 +1442,18 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     setShowScopeActions(null);
   };
 
+  // Demo data for Vizard.ai - AI video editing competitors
   const allSignals = [
-    { id: 101, name: "CompetiShark", website: "competishark.com", features: ["Real-time pricing", "Feature comparison", "Automated reports"], score: 92, trafficData: [15000, 22000, 45000, 52000, 48000], date: "2h ago", status: "new" as const, scope: "ChampSignal" },
-    { id: 102, name: "MarketMind", website: "marketmind.io", features: ["Predictive analytics", "Sentiment analysis", "Competitive alerts"], score: 85, trafficData: [8000, 8500, 9200, 9800, 10200], date: "Yesterday", status: "review" as const, scope: "ChampSignal" },
-    { id: 103, name: "VisionaryLens", website: "visionarylens.ai", features: ["Visual recognition", "Ad tracking", "Trend forecasting"], score: 78, trafficData: [12000, 11000, 13500, 14200, 15000], date: "3 days ago", status: "monitoring" as const, scope: "ChampSignal" },
-    { id: 104, name: "DataDrivers", website: "datadrivers.io", features: ["Data aggregation", "Market sizing", "Competitor profiling"], score: 72, trafficData: [5000, 5200, 4800, 5500, 5300], date: "1 week ago", status: "archived" as const, scope: "ChampSignal" },
-    { id: 201, name: "Vizard.ai", website: "vizard.ai", features: ["AI video editing", "Social clips", "Virality scoring"], score: 98, trafficData: [450000, 680000, 890000, 1050000, 1200000], date: "1d ago", status: "monitoring" as const, scope: "OpusClip" },
-    { id: 202, name: "Munch", website: "getmunch.com", features: ["Long-form to shorts", "Generative AI", "Auto-captioning"], score: 94, trafficData: [300000, 350000, 420000, 510000, 580000], date: "1d ago", status: "monitoring" as const, scope: "OpusClip" },
-    { id: 203, name: "TrendSpotter", website: "trendspotter.com", features: ["Predictive analytics", "Sentiment analysis", "Competitive alerts"], score: 80, trafficData: [25000, 28000, 32000, 29000, 35000], date: "3 days ago", status: "monitoring" as const, scope: "OpusClip" },
-    { id: 204, name: "InsightEdge", website: "insightedge.io", features: ["Predictive analytics", "Ad tracking", "Competitor profiling"], score: 78, trafficData: [18000, 19500, 21000, 20000, 22500], date: "3 days ago", status: "review" as const, scope: "OpusClip" },
-    { id: 205, name: "RivalWatch", website: "rivalwatch.com", features: ["Real-time pricing", "Feature comparison", "Automated alerts"], score: 63, trafficData: [9000, 8500, 9200, 8800, 9500], date: "3 days ago", status: "monitoring" as const, scope: "OpusClip" },
-    { id: 206, name: "AlphaScope", website: "alphascope.ai", features: ["Data aggregation", "Market sizing", "Competitor profiling"], score: 62, trafficData: [7000, 7200, 6800, 7500, 7300], date: "1 week ago", status: "monitoring" as const, scope: "ChampSignal" },
+    { id: 101, name: "OpusClip", website: "opus.pro", features: ["AI clip selection", "Virality score", "Auto-captions"], score: 96, trafficData: [520000, 680000, 850000, 1020000, 1180000], date: "2h ago", status: "new" as const, scope: "Vizard" },
+    { id: 102, name: "Descript", website: "descript.com", features: ["Transcript editing", "AI voice clone", "Screen recording"], score: 94, trafficData: [380000, 420000, 510000, 590000, 680000], date: "5h ago", status: "new" as const, scope: "Vizard" },
+    { id: 103, name: "Munch", website: "getmunch.com", features: ["Long-form to shorts", "Generative AI", "Auto-captioning"], score: 91, trafficData: [300000, 350000, 420000, 510000, 580000], date: "Yesterday", status: "monitoring" as const, scope: "Vizard" },
+    { id: 104, name: "Kapwing", website: "kapwing.com", features: ["Collaborative editing", "AI subtitles", "Template library"], score: 87, trafficData: [250000, 280000, 320000, 380000, 420000], date: "Yesterday", status: "monitoring" as const, scope: "Vizard" },
+    { id: 105, name: "Pictory", website: "pictory.ai", features: ["Article to video", "AI voiceover", "Brand kit"], score: 84, trafficData: [180000, 210000, 250000, 290000, 340000], date: "2 days ago", status: "review" as const, scope: "Vizard" },
+    { id: 106, name: "InVideo", website: "invideo.io", features: ["Template engine", "Stock library", "AI script"], score: 82, trafficData: [420000, 450000, 480000, 520000, 560000], date: "2 days ago", status: "monitoring" as const, scope: "Vizard" },
+    { id: 107, name: "Veed.io", website: "veed.io", features: ["Browser editing", "Auto transcribe", "Social export"], score: 79, trafficData: [280000, 310000, 350000, 390000, 430000], date: "3 days ago", status: "monitoring" as const, scope: "Vizard" },
+    { id: 108, name: "Runway", website: "runwayml.com", features: ["Gen-2 AI video", "Inpainting", "Motion brush"], score: 76, trafficData: [150000, 180000, 230000, 290000, 380000], date: "3 days ago", status: "monitoring" as const, scope: "Vizard" },
+    { id: 109, name: "HeyGen", website: "heygen.com", features: ["AI avatar", "Video translation", "Script to video"], score: 73, trafficData: [120000, 150000, 200000, 280000, 380000], date: "1 week ago", status: "monitoring" as const, scope: "Vizard" },
+    { id: 110, name: "Synthesia", website: "synthesia.io", features: ["AI presenters", "Multi-language", "Enterprise focus"], score: 68, trafficData: [95000, 110000, 140000, 180000, 230000], date: "1 week ago", status: "monitoring" as const, scope: "Vizard" },
   ];
 
   const filteredSignals = allSignals
@@ -2238,6 +2229,11 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                   data-testid={`tab-scope-${scope.name}`}
                 >
                   {scope.name}
+                  {scope.isDemo && (
+                    <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
+                      Demo
+                    </span>
+                  )}
                   {scopeStatuses[scope.name] === 'active' && (
                     <Activity size={16} className="status-icon-active text-brand-400" data-testid={`status-icon-active-${scope.name}`} />
                   )}
