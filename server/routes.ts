@@ -118,10 +118,23 @@ export async function registerRoutes(
     }
   });
 
-  // Get all targets
+  // Get all targets (ensures demo target exists if none)
   app.get("/api/targets", async (req, res) => {
     try {
-      const targets = await storage.getTargets();
+      let targets = await storage.getTargets();
+      
+      // If no targets exist, create the demo target for new users
+      if (targets.length === 0) {
+        const demoTarget = await storage.createTarget({
+          name: 'Vizard Demo',
+          url: 'vizard.ai',
+          icon: 'video',
+          status: 'active',
+          isDemo: true,
+        });
+        targets = [demoTarget];
+      }
+      
       res.json(targets);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -131,8 +144,17 @@ export async function registerRoutes(
   app.post("/api/targets", async (req, res) => {
     try {
       const validatedData = insertTargetSchema.parse(req.body);
-      const target = await storage.createTarget(validatedData);
-      res.json(target);
+      
+      // When user creates their first real target, mark that demo can be deleted
+      const existingTargets = await storage.getTargets();
+      const hasOnlyDemo = existingTargets.length === 1 && existingTargets[0].isDemo;
+      
+      const target = await storage.createTarget({
+        ...validatedData,
+        isDemo: false, // User-created targets are never demos
+      });
+      
+      res.json({ target, canDeleteDemo: hasOnlyDemo });
     } catch (error: any) {
       if (error.name === "ZodError") {
         return res.status(400).json({ error: "Invalid target data", details: error.errors });
