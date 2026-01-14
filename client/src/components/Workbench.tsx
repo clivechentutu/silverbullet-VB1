@@ -2230,7 +2230,7 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
                 >
                   {scope.name}
                   {scope.isDemo && (
-                    <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[7px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none z-10 shadow-sm border border-amber-600">
+                    <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[14px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none z-10 shadow-sm border border-amber-600">
                       Demo
                     </span>
                   )}
