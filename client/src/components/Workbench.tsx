@@ -3994,7 +3994,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               {t.isDemo && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <span className="absolute -top-1 -right-1 px-1 py-0.5 text-[9px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none shadow-sm border border-amber-600 z-10 cursor-help">
+                    <span className="absolute -top-1.5 -right-1.5 px-1 py-0.5 text-[14px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none shadow-sm border border-amber-600 z-10 cursor-help">
                       Demo
                     </span>
                   </TooltipTrigger>
