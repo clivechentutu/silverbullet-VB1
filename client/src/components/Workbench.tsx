@@ -5841,40 +5841,40 @@ const LibraryView = ({ onJumpToResearch }: { onJumpToResearch: (reportTitle: str
                         setSelectedReportId(report.id);
                         setViewDialogOpen(true);
                       }}
-                      className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-3 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col min-h-[220px] overflow-hidden shadow-2xl" 
+                      className="group relative bg-slate-900/40 border border-slate-800 hover:border-brand-500/50 rounded-lg p-4 transition-all hover:bg-slate-900/60 cursor-pointer flex flex-col min-h-[260px] overflow-hidden shadow-2xl" 
                       data-testid={`report-card-${report.id}`}
                     >
                         <FileText className="absolute -right-4 -bottom-4 text-slate-800/10 group-hover:text-brand-500/5 w-24 h-24 transition-colors pointer-events-none" />
 
-                        <div className="flex justify-between items-start mb-2 relative z-10">
-                            <span className="px-1.5 py-0.5 rounded bg-slate-950 border border-slate-800 text-[8px] font-bold text-slate-400 uppercase tracking-tight group-hover:border-brand-500/30 group-hover:text-brand-400 transition-colors">
+                        <div className="flex justify-between items-start mb-3 relative z-10">
+                            <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[9px] font-bold text-slate-400 uppercase tracking-tight group-hover:border-brand-500/30 group-hover:text-brand-400 transition-colors">
                                 {report.product}
                             </span>
                             
                             <button 
                                 onClick={(e) => { e.stopPropagation(); toggleFavorite(report.id); }}
-                                className={`p-0.5 rounded transition-colors hover:bg-slate-800 ${report.isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
+                                className={`p-1 rounded transition-colors hover:bg-slate-800 ${report.isFavorite ? 'text-yellow-400' : 'text-slate-600 hover:text-slate-400'}`}
                             >
-                                <Star size={12} className={report.isFavorite ? 'fill-yellow-400' : ''} />
+                                <Star size={14} className={report.isFavorite ? 'fill-yellow-400' : ''} />
                             </button>
                         </div>
 
                         <div className="flex-1 relative z-10 flex flex-col">
-                            <div className="p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-brand-400 group-hover:border-brand-900/50 transition-colors w-fit mb-2">
-                                <FileText size={14} />
+                            <div className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-500 group-hover:text-brand-400 group-hover:border-brand-900/50 transition-colors w-fit mb-3">
+                                <FileText size={16} />
                             </div>
                             
-                            <h3 className="text-xs font-bold text-white group-hover:text-brand-100 transition-colors line-clamp-2 leading-tight mb-1.5">
+                            <h3 className="text-base font-bold text-white group-hover:text-brand-100 transition-colors line-clamp-2 leading-tight mb-2">
                                 {report.title}
                             </h3>
                             
-                            <p className="text-[9px] text-slate-500 line-clamp-3 group-hover:text-slate-400 transition-colors leading-relaxed">
+                            <p className="text-sm text-slate-500 line-clamp-3 group-hover:text-slate-400 transition-colors leading-relaxed">
                                 {report.summary}
                             </p>
 
-                            <div className="mt-auto pt-2 flex items-center justify-between gap-1">
-                                <span className="text-[8px] text-slate-600 font-mono font-medium truncate">{report.date}</span>
-                                <div className="flex items-center gap-0.5">
+                            <div className="mt-auto pt-4 flex items-center justify-between gap-2">
+                                <span className="text-xs text-slate-600 font-mono font-medium truncate">{report.date}</span>
+                                <div className="flex items-center gap-1">
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); window.open(`/api/reports/${report.id}/export/text`, '_blank'); }}
                                         className="p-1 rounded-md transition-all bg-slate-950 border border-slate-800 text-slate-500 hover:text-brand-400 hover:border-brand-900/50 group/download"
