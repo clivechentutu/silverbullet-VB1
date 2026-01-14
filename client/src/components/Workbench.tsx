@@ -4006,7 +4006,7 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <div className="w-7 h-7 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative shrink-0">
                 <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
-              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+              <div className="flex-1 min-w-0 flex items-center justify-between gap-1.5">
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                   {t.name}
                 </h4>
