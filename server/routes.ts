@@ -131,6 +131,17 @@ export async function registerRoutes(
   app.post("/api/targets", async (req, res) => {
     try {
       const validatedData = insertTargetSchema.parse(req.body);
+      
+      // Remove demo targets when user creates their first real target
+      const existingTargets = await storage.getTargets();
+      const demoTargets = existingTargets.filter(t => t.isDemo);
+      if (demoTargets.length > 0) {
+        // Delete all demo targets
+        for (const demoTarget of demoTargets) {
+          await storage.deleteTarget(demoTarget.id);
+        }
+      }
+      
       const target = await storage.createTarget(validatedData);
       res.json(target);
     } catch (error: any) {
@@ -482,116 +493,56 @@ ${report.battleCard.objectionHandling.map(o => `  * ${o}`).join('\n')}
         });
       }
 
-      // Create sample targets
+      // Create Vizard.ai demo target for new users
       const targets = await Promise.all([
         storage.createTarget({
-          name: "Figma",
-          url: "https://figma.com",
-          icon: "F"
-        }),
-        storage.createTarget({
-          name: "Sketch",
-          url: "https://sketch.com",
-          icon: "S"
-        }),
-        storage.createTarget({
-          name: "Adobe XD",
-          url: "https://adobe.com/products/xd",
-          icon: "A"
-        }),
-        storage.createTarget({
-          name: "Framer",
-          url: "https://framer.com",
-          icon: "F"
-        }),
-        storage.createTarget({
-          name: "Miro",
-          url: "https://miro.com",
-          icon: "M"
+          name: "Vizard",
+          url: "https://vizard.ai",
+          icon: "V",
+          isDemo: true
         })
       ]);
 
-      // Create sample reports
-      await Promise.all([
-        storage.createReport({
-          url: "https://figma.com",
-          title: "Figma Competitive Analysis",
-          summary: "Figma remains the market leader in collaborative design tools with strong product-market fit.",
-          competitors: ["Sketch", "Adobe XD", "Framer", "Penpot"],
-          swot: {
-            strengths: ["Excellent collaboration features", "Intuitive interface", "Strong community"],
-            weaknesses: ["Higher pricing than competitors", "Limited design assets"],
-            opportunities: ["Enterprise market expansion", "AI-powered features"],
-            threats: ["Adobe's aggressive pricing", "Open-source alternatives"]
-          },
-          battleCard: {
-            killPoints: ["Real-time multiplayer editing", "Seamless web-based workflow", "Best-in-class prototyping"],
-            objectionHandling: ["Pricing: Industry-standard for premium features", "Learning curve: Comprehensive tutorials available"]
-          },
-          scenarios: ["product", "pricing"]
-        }),
-        storage.createReport({
-          url: "https://sketch.com",
-          title: "Sketch Market Position Analysis",
-          summary: "Sketch maintains strong presence in Mac-first design community but facing pressure from web-based alternatives.",
-          competitors: ["Figma", "Adobe XD", "Framer"],
-          swot: {
-            strengths: ["Mac performance", "Strong plugin ecosystem", "Design-focused tools"],
-            weaknesses: ["Limited collaboration", "Mac-only platform", "Expensive plugins"],
-            opportunities: ["Web version launch", "Enterprise partnerships"],
-            threats: ["Figma's collaboration dominance", "Cross-platform solutions"]
-          },
-          battleCard: {
-            killPoints: ["Superior Mac performance", "Advanced plugins", "Design professional focus"],
-            objectionHandling: ["Collaboration: Native support coming soon", "Platform: Strategic expansion planned"]
-          },
-          scenarios: ["product", "marketing"]
-        })
-      ]);
+      // Create sample report for Vizard demo
+      await storage.createReport({
+        url: "https://vizard.ai",
+        title: "Vizard.ai Competitive Analysis",
+        summary: "Vizard.ai is a leading AI-powered video editing platform specializing in automated clip selection and social media content repurposing.",
+        competitors: ["OpusClip", "Descript", "Munch", "Kapwing", "Pictory"],
+        swot: {
+          strengths: ["AI-powered clip selection", "Multi-platform export", "Fast processing", "User-friendly interface"],
+          weaknesses: ["Limited advanced editing features", "Subscription pricing", "Newer brand recognition"],
+          opportunities: ["Enterprise video marketing", "AI avatar integration", "Podcast to video conversion"],
+          threats: ["Descript's transcript-based editing", "OpusClip's virality scoring", "CapCut's free tier"]
+        },
+        battleCard: {
+          killPoints: ["Fastest AI clip extraction", "Automatic social formatting", "One-click repurposing for 5+ platforms"],
+          objectionHandling: ["Pricing: ROI through time savings", "Features: Focus on core video repurposing excellence"]
+        },
+        scenarios: ["product", "marketing"]
+      });
 
-      // Create sample research sessions
-      await Promise.all([
-        storage.createSession({
-          title: "Figma Pricing Strategy Analysis",
-          agent: "market-analyst",
-          type: "general",
-          status: "active",
-          messages: [
-            {
-              id: "1",
-              role: "user",
-              content: "What are Figma's current pricing tiers and how do they compare to competitors?",
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: "2",
-              role: "agent",
-              content: "Figma offers three main tiers: Free ($0), Professional ($12/month), and Organization (custom pricing). Their pricing strategy focuses on value-based tiers targeting different user segments.",
-              timestamp: new Date().toISOString()
-            }
-          ]
-        }),
-        storage.createSession({
-          title: "Market Expansion Opportunities",
-          agent: "growth-strategist",
-          type: "general",
-          status: "active",
-          messages: [
-            {
-              id: "1",
-              role: "user",
-              content: "Analyze key market expansion opportunities for design collaboration tools in enterprise sector.",
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: "2",
-              role: "agent",
-              content: "Enterprise opportunities include: 1) Vertical-specific solutions for fashion, architecture, engineering. 2) AI-powered design automation. 3) Governance and compliance features for regulated industries.",
-              timestamp: new Date().toISOString()
-            }
-          ]
-        })
-      ]);
+      // Create sample research session for Vizard
+      await storage.createSession({
+        title: "Vizard Competitor Landscape Analysis",
+        agent: "market-analyst",
+        type: "track",
+        status: "active",
+        messages: [
+          {
+            id: "1",
+            role: "user",
+            content: "Who are Vizard.ai's main competitors in the AI video editing space?",
+            timestamp: new Date().toISOString()
+          },
+          {
+            id: "2",
+            role: "agent",
+            content: "Vizard.ai's primary competitors include: 1) OpusClip - specializes in AI virality scoring. 2) Descript - transcript-based editing with AI voice clone. 3) Munch - long-form to shorts automation. 4) Kapwing - collaborative browser-based editing. 5) Pictory - article-to-video conversion.",
+            timestamp: new Date().toISOString()
+          }
+        ]
+      });
 
       res.json({ message: "Demo data initialized successfully", targetsCount: targets.length });
     } catch (error: any) {

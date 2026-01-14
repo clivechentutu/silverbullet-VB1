@@ -35,6 +35,7 @@ export const targets = pgTable("targets", {
   url: text("url").notNull(),
   icon: text("icon").notNull(),
   status: text("status").notNull().default("active"),
+  isDemo: boolean("is_demo").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

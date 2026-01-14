@@ -3987,10 +3987,15 @@ const TargetsView = ({ targets, selectedTargetId, setSelectedTargetId, onAddTarg
               <div className="w-7 h-7 rounded-lg bg-white p-1 flex items-center justify-center border border-slate-700 overflow-hidden relative shrink-0">
                 <img src={`https://www.google.com/s2/favicons?domain=${safeGetHostname(t.url)}&sz=128`} className="w-full h-full object-contain" alt={t.name} />
               </div>
-              <div className="flex-1 min-w-0 flex items-center gap-1.5">
+              <div className="flex-1 min-w-0 flex items-center gap-1.5 relative">
                 <h4 className={`text-sm font-medium truncate ${t.id === selectedTargetId ? 'text-white' : 'text-slate-400 group-hover:text-slate-300'}`}>
                   {t.name}
                 </h4>
+                {t.isDemo && (
+                  <span className="px-1.5 py-0.5 text-[10px] font-black uppercase tracking-tighter bg-amber-500 text-slate-950 rounded-sm leading-none shadow-sm border border-amber-600 shrink-0">
+                    Demo
+                  </span>
+                )}
                 <div className={`w-2 h-2 rounded-full shrink-0 ${
                   t.status === 'active' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
                   t.status === 'paused' ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 
