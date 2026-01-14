@@ -28,14 +28,13 @@ export const users = pgTable("users", {
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 
-// Target companies being tracked (Radar scopes)
+// Target companies being tracked
 export const targets = pgTable("targets", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   url: text("url").notNull(),
   icon: text("icon").notNull(),
   status: text("status").notNull().default("active"),
-  isDemo: boolean("is_demo").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

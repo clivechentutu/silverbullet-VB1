@@ -972,25 +972,17 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
   const [searchQuery, setSearchQuery] = useState('');
   const [similarityMin, setSimilarityMin] = useState(60);
   const { toast } = useToast();
-  const [activeScope, setActiveScope] = useState<string>('');
-  const [scopeStatuses, setScopeStatuses] = useState<Record<string, 'active' | 'paused' | 'stopped'>>({});
+  const [activeScope, setActiveScope] = useState<string>('ChampSignal');
+  const [scopeStatuses, setScopeStatuses] = useState<Record<string, 'active' | 'paused' | 'stopped'>>({
+    'ChampSignal': 'active',
+    'OpusClip': 'active'
+  });
   const [showScopeActions, setShowScopeActions] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  
-  // Fetch targets from API (includes demo target for new users)
-  const { data: dbTargets = [], refetch: refetchTargets } = useQuery<Array<{ id: number; name: string; url: string; icon: string; status: string; isDemo: boolean; createdAt: string }>>({
-    queryKey: ['/api/targets'],
-  });
-  
-  // Map DB targets to scope format for UI
-  const targetScopes = dbTargets.map(t => ({
-    id: t.id,
-    name: t.name,
-    url: t.url,
-    isDemo: t.isDemo,
-    status: t.status as 'active' | 'paused' | 'stopped',
-  }));
-  
+  const [targetScopes, setTargetScopes] = useState([
+    { name: 'ChampSignal', url: 'champsignal.com' },
+    { name: 'OpusClip', url: 'opus.pro' }
+  ]);
   const [draggedScope, setDraggedScope] = useState<string | null>(null);
   const [editingScopeName, setEditingScopeName] = useState<string | null>(null);
   
@@ -1382,51 +1374,25 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     }
   };
 
-  const handleLaunchTask = async () => {
+  const handleLaunchTask = () => {
     if (!editableTaskName.trim() || !analysisResult) return;
     
-    const targetUrl = newTaskUrl.startsWith('http') ? new URL(newTaskUrl).hostname.replace('www.', '') : newTaskUrl.replace('www.', '');
+    const newScope = {
+      name: editableTaskName.trim(),
+      url: newTaskUrl.startsWith('http') ? new URL(newTaskUrl).hostname.replace('www.', '') : newTaskUrl.replace('www.', '')
+    };
     
-    try {
-      const response = await fetch('/api/targets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editableTaskName.trim(),
-          url: targetUrl,
-          icon: 'target',
-          status: 'active',
-        }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to create target');
-      
-      const data = await response.json();
-      
-      // If this was the first real task, delete the demo
-      if (data.canDeleteDemo) {
-        const demoTarget = targetScopes.find(t => t.isDemo);
-        if (demoTarget) {
-          await fetch(`/api/targets/${demoTarget.id}`, { method: 'DELETE' });
-        }
-      }
-      
-      await refetchTargets();
-      setActiveScope(editableTaskName.trim());
-      setScopeStatuses(prev => ({ ...prev, [editableTaskName.trim()]: 'active' }));
-      
-      // Reset modal state
-      setShowNewTaskModal(false);
-      setNewTaskUrl('');
-      setAnalysisResult(null);
-      setEditableTaskName('');
-      setEditablePrompt('');
-      setAnalysisError(null);
-      
-      toast({ title: "Task Created", description: `${editableTaskName.trim()} is now being monitored` });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "Failed to create task", variant: "destructive" });
-    }
+    setTargetScopes(prev => [...prev, newScope]);
+    setScopeStatuses(prev => ({ ...prev, [newScope.name]: 'active' }));
+    setActiveScope(newScope.name);
+    
+    // Reset modal state
+    setShowNewTaskModal(false);
+    setNewTaskUrl('');
+    setAnalysisResult(null);
+    setEditableTaskName('');
+    setEditablePrompt('');
+    setAnalysisError(null);
   };
 
   const handleCloseModal = () => {
@@ -1471,44 +1437,22 @@ const RadarView = ({ onTrackSignal, onResearch }: { onTrackSignal: (signal: any)
     setDraggedScope(null);
   };
 
-  const handleDeleteScope = async (scopeName: string) => {
-    const targetToDelete = targetScopes.find(s => s.name === scopeName);
-    if (!targetToDelete) return;
-    
-    try {
-      await fetch(`/api/targets/${targetToDelete.id}`, { method: 'DELETE' });
-      await refetchTargets();
-      
-      setScopeStatuses(prev => {
-        const newStatuses = {...prev};
-        delete newStatuses[scopeName];
-        return newStatuses;
-      });
-      
-      const remaining = targetScopes.filter(s => s.name !== scopeName);
-      if (activeScope === scopeName && remaining.length > 0) {
-        setActiveScope(remaining[0]?.name || '');
-      }
-      
-      toast({ title: "Task Deleted", description: `${scopeName} has been removed` });
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to delete task", variant: "destructive" });
+  const handleDeleteScope = (scopeName: string) => {
+    const remaining = targetScopes.filter(s => s.name !== scopeName);
+    setTargetScopes(remaining);
+    setScopeStatuses(prev => {
+      const newStatuses = {...prev};
+      delete newStatuses[scopeName];
+      return newStatuses;
+    });
+    if (activeScope === scopeName && remaining.length > 0) {
+      setActiveScope(remaining[0]?.name || '');
     }
-    
     setShowDeleteConfirm(null);
     setShowScopeActions(null);
   };
 
   const allSignals = [
-    // Vizard Demo scope - real competitors in AI video editing space
-    { id: 301, name: "OpusClip", website: "opus.pro", features: ["AI video repurposing", "Virality score", "Auto-captioning", "Multi-platform export"], score: 96, trafficData: [520000, 680000, 890000, 1150000, 1380000], date: "2h ago", status: "new" as const, scope: "Vizard Demo" },
-    { id: 302, name: "Descript", website: "descript.com", features: ["Transcript editing", "Screen recording", "AI voice", "Filler word removal"], score: 93, trafficData: [890000, 920000, 980000, 1050000, 1120000], date: "1d ago", status: "monitoring" as const, scope: "Vizard Demo" },
-    { id: 303, name: "Kapwing", website: "kapwing.com", features: ["Browser-based editing", "AI subtitle generator", "Template library", "Team collaboration"], score: 89, trafficData: [410000, 450000, 520000, 580000, 640000], date: "1d ago", status: "monitoring" as const, scope: "Vizard Demo" },
-    { id: 304, name: "Runway", website: "runwayml.com", features: ["AI video generation", "Gen-3 Alpha", "Motion brush", "Text-to-video"], score: 87, trafficData: [680000, 780000, 920000, 1100000, 1350000], date: "Yesterday", status: "review" as const, scope: "Vizard Demo" },
-    { id: 305, name: "InVideo", website: "invideo.io", features: ["5000+ templates", "AI script generator", "Stock media", "Brand kit"], score: 82, trafficData: [320000, 350000, 390000, 420000, 460000], date: "3 days ago", status: "monitoring" as const, scope: "Vizard Demo" },
-    { id: 306, name: "Synthesia", website: "synthesia.io", features: ["AI avatars", "160+ languages", "Enterprise video", "Custom avatars"], score: 79, trafficData: [280000, 310000, 350000, 390000, 430000], date: "3 days ago", status: "monitoring" as const, scope: "Vizard Demo" },
-    { id: 307, name: "Pictory", website: "pictory.ai", features: ["Blog to video", "AI highlights", "Auto-transcription", "Brand customization"], score: 75, trafficData: [180000, 195000, 210000, 225000, 245000], date: "1 week ago", status: "archived" as const, scope: "Vizard Demo" },
-    // Legacy scopes for existing data
     { id: 101, name: "CompetiShark", website: "competishark.com", features: ["Real-time pricing", "Feature comparison", "Automated reports"], score: 92, trafficData: [15000, 22000, 45000, 52000, 48000], date: "2h ago", status: "new" as const, scope: "ChampSignal" },
     { id: 102, name: "MarketMind", website: "marketmind.io", features: ["Predictive analytics", "Sentiment analysis", "Competitive alerts"], score: 85, trafficData: [8000, 8500, 9200, 9800, 10200], date: "Yesterday", status: "review" as const, scope: "ChampSignal" },
     { id: 103, name: "VisionaryLens", website: "visionarylens.ai", features: ["Visual recognition", "Ad tracking", "Trend forecasting"], score: 78, trafficData: [12000, 11000, 13500, 14200, 15000], date: "3 days ago", status: "monitoring" as const, scope: "ChampSignal" },
