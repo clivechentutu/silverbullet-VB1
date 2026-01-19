@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X, Mail, Gift, CheckCircle, ExternalLink, Trash2 } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, AlertCircle, BarChart3, Target, Radar as RadarIcon, Crosshair, Bot, X, Mail, Gift, CheckCircle, ExternalLink, Trash2, Lock, FileText, Layers, Settings, Plus, TrendingUp } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Header } from './Header';
 import { ScenarioSelector } from './ScenarioSelector';
@@ -440,6 +440,147 @@ export const LandingPage = () => {
                 <AlertCircle size={14} /> {errors.url || errorMsg}
               </div>
             )}
+          </div>
+
+          {/* Product Preview Section */}
+          <div className="mt-20 w-full max-w-5xl mx-auto relative">
+            {/* Gradient Glow Effects */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-brand-500/20 via-purple-500/10 to-brand-500/20 rounded-3xl blur-2xl opacity-60"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-brand-500/15 rounded-full blur-[100px]"></div>
+            
+            {/* Browser Window Frame */}
+            <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+              {/* Browser Chrome */}
+              <div className="bg-slate-800/80 border-b border-slate-700/50 px-4 py-3 flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                </div>
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="bg-slate-900/60 rounded-lg px-4 py-1.5 flex items-center gap-2 text-xs text-slate-400 border border-slate-700/50 max-w-md w-full">
+                    <Lock size={10} className="text-green-400" />
+                    <span className="truncate">app.competiscope.io/workbench</span>
+                  </div>
+                </div>
+                <div className="w-16"></div>
+              </div>
+              
+              {/* Product Interface Preview */}
+              <div className="relative" style={{ height: '480px' }}>
+                {/* Gradient Overlay for Fade Effect */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-950 z-10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent z-10 pointer-events-none"></div>
+                
+                {/* Simulated Product Interface */}
+                <div className="flex h-full">
+                  {/* Left Sidebar */}
+                  <div className="w-14 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-4 gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-xs font-bold">CS</div>
+                    <div className="flex-1 flex flex-col gap-2 mt-4">
+                      {[RadarIcon, Target, Bot, FileText, Layers, Settings].map((Icon, i) => (
+                        <div key={i} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${i === 0 ? 'bg-brand-500/20 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}>
+                          <Icon size={18} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Main Content Area */}
+                  <div className="flex-1 flex">
+                    {/* Task List Panel */}
+                    <div className="w-48 bg-slate-900/50 border-r border-slate-800 p-3">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Discovery Tasks</span>
+                        <div className="w-5 h-5 rounded bg-brand-500/20 flex items-center justify-center">
+                          <Plus size={12} className="text-brand-400" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {['Vizard.ai', 'Descript', 'OpusClip'].map((name, i) => (
+                          <div key={name} className={`flex items-center gap-2 p-2 rounded-lg ${i === 0 ? 'bg-slate-800' : 'hover:bg-slate-800/50'} transition-colors`}>
+                            <div className="w-6 h-6 rounded bg-white flex items-center justify-center text-[10px] font-bold text-slate-900">{name[0]}</div>
+                            <span className={`text-xs font-medium ${i === 0 ? 'text-white' : 'text-slate-400'}`}>{name}</span>
+                            <div className={`w-1.5 h-1.5 rounded-full ml-auto ${i === 0 ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]' : 'bg-slate-600'}`}></div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Results Panel */}
+                    <div className="flex-1 p-4 overflow-hidden">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                          <img src="https://www.google.com/s2/favicons?domain=vizard.ai&sz=128" alt="Vizard" className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-white">Vizard.ai</h3>
+                          <span className="text-xs text-slate-500">vizard.ai</span>
+                        </div>
+                        <div className="ml-auto flex items-center gap-2">
+                          <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded">ACTIVE</span>
+                        </div>
+                      </div>
+                      
+                      {/* Competitor Cards Grid */}
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { name: 'OpusClip', match: 94 },
+                          { name: 'Descript', match: 89 },
+                          { name: 'Munch', match: 85 },
+                          { name: 'Kapwing', match: 82 },
+                          { name: 'Pictory', match: 78 },
+                          { name: 'Synthesia', match: 75 }
+                        ].map((comp) => (
+                          <div key={comp.name} className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3 hover:border-slate-600 transition-all">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-6 h-6 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white">{comp.name[0]}</div>
+                              <span className="text-xs font-medium text-white">{comp.name}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] text-slate-500">Match Score</span>
+                              <span className="text-xs font-bold text-brand-400">{comp.match}%</span>
+                            </div>
+                            <div className="mt-1.5 h-1 bg-slate-700 rounded-full overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style={{ width: `${comp.match}%` }}></div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Right Insight Panel */}
+                    <div className="w-64 bg-slate-900/30 border-l border-slate-800 p-4">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Sparkles size={14} className="text-brand-400" />
+                        <span className="text-xs font-bold text-white">AI Insights</span>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp size={12} className="text-emerald-400" />
+                            <span className="text-[10px] font-bold text-emerald-400">OPPORTUNITY</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed">AI video editing market growing 34% YoY. Position against enterprise segment.</p>
+                        </div>
+                        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertCircle size={12} className="text-amber-400" />
+                            <span className="text-[10px] font-bold text-amber-400">THREAT</span>
+                          </div>
+                          <p className="text-[11px] text-slate-300 leading-relaxed">Descript launching new AI features next quarter. Monitor closely.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Caption */}
+            <p className="text-center text-slate-500 text-sm mt-6">
+              Real-time competitive intelligence at your fingertips
+            </p>
           </div>
         </div>
 
