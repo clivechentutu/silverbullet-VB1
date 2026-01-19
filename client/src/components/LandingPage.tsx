@@ -103,6 +103,117 @@ export const LandingPage = () => {
       starContainer.remove();
     };
   }, []);
+
+  // Light trail effect flowing towards product preview
+  useEffect(() => {
+    const trailContainer = document.createElement('div');
+    trailContainer.className = 'fixed inset-0 pointer-events-none -z-10 overflow-hidden';
+    trailContainer.id = 'light-trails';
+    document.body.appendChild(trailContainer);
+
+    const colors = [
+      { trail: 'rgba(20, 184, 166, 0.8)', glow: 'rgba(20, 184, 166, 0.4)' },   // Teal
+      { trail: 'rgba(147, 51, 234, 0.8)', glow: 'rgba(147, 51, 234, 0.4)' },   // Purple
+      { trail: 'rgba(59, 130, 246, 0.8)', glow: 'rgba(59, 130, 246, 0.4)' },   // Blue
+      { trail: 'rgba(236, 72, 153, 0.8)', glow: 'rgba(236, 72, 153, 0.4)' },   // Pink
+      { trail: 'rgba(16, 185, 129, 0.8)', glow: 'rgba(16, 185, 129, 0.4)' },   // Emerald
+      { trail: 'rgba(245, 158, 11, 0.8)', glow: 'rgba(245, 158, 11, 0.4)' },   // Amber
+    ];
+
+    const createLightTrail = () => {
+      const trail = document.createElement('div');
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      
+      // Start from random edge positions
+      const side = Math.floor(Math.random() * 4);
+      let startX: number, startY: number;
+      
+      switch(side) {
+        case 0: // top
+          startX = Math.random() * 100;
+          startY = -5;
+          break;
+        case 1: // right
+          startX = 105;
+          startY = Math.random() * 100;
+          break;
+        case 2: // bottom
+          startX = Math.random() * 100;
+          startY = 105;
+          break;
+        default: // left
+          startX = -5;
+          startY = Math.random() * 100;
+      }
+      
+      // Target: center of screen (where product preview is)
+      const targetX = 50 + (Math.random() - 0.5) * 30;
+      const targetY = 65 + (Math.random() - 0.5) * 15;
+      
+      const trailLength = Math.random() * 40 + 20;
+      const duration = Math.random() * 2000 + 1500;
+      
+      // Calculate angle for trail rotation
+      const angle = Math.atan2(targetY - startY, targetX - startX) * (180 / Math.PI);
+      
+      trail.style.cssText = `
+        position: absolute;
+        left: ${startX}%;
+        top: ${startY}%;
+        width: ${trailLength}px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, ${color.trail});
+        border-radius: 2px;
+        transform: rotate(${angle}deg);
+        transform-origin: left center;
+        box-shadow: 0 0 10px 2px ${color.glow}, 0 0 20px 4px ${color.glow};
+        opacity: 0;
+      `;
+      
+      trailContainer.appendChild(trail);
+      
+      const animation = trail.animate([
+        { 
+          left: `${startX}%`, 
+          top: `${startY}%`, 
+          opacity: 0,
+          transform: `rotate(${angle}deg) scaleX(0.3)`
+        },
+        { 
+          left: `${startX + (targetX - startX) * 0.3}%`, 
+          top: `${startY + (targetY - startY) * 0.3}%`, 
+          opacity: 0.9,
+          transform: `rotate(${angle}deg) scaleX(1)`
+        },
+        { 
+          left: `${startX + (targetX - startX) * 0.7}%`, 
+          top: `${startY + (targetY - startY) * 0.7}%`, 
+          opacity: 0.7,
+          transform: `rotate(${angle}deg) scaleX(1)`
+        },
+        { 
+          left: `${targetX}%`, 
+          top: `${targetY}%`, 
+          opacity: 0,
+          transform: `rotate(${angle}deg) scaleX(0.5)`
+        }
+      ], {
+        duration: duration,
+        easing: 'ease-out'
+      });
+      
+      animation.onfinish = () => trail.remove();
+    };
+
+    // Create trails at intervals
+    const trailInterval = setInterval(createLightTrail, 400);
+    
+    return () => {
+      clearInterval(trailInterval);
+      trailContainer.remove();
+    };
+  }, []);
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // Tracker Modal States
