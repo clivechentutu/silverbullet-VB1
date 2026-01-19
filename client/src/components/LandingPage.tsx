@@ -474,112 +474,229 @@ export const LandingPage = () => {
                 
                 {/* Simulated Product Interface */}
                 <div className="flex h-full">
-                  {/* Left Sidebar */}
-                  <div className="w-14 bg-slate-900 border-r border-slate-800 flex flex-col items-center py-4 gap-3">
+                  {/* Left Sidebar - matches actual product nav */}
+                  <div className="w-14 bg-[#020617] border-r border-slate-800 flex flex-col items-center py-4 gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-xs font-bold">CS</div>
                     <div className="flex-1 flex flex-col gap-2 mt-4">
-                      {[RadarIcon, Target, Bot, FileText, Layers, Settings].map((Icon, i) => (
-                        <div key={i} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${i === 0 ? 'bg-brand-500/20 text-brand-400' : 'text-slate-500 hover:text-slate-300'}`}>
-                          <Icon size={18} />
+                      {[
+                        { Icon: RadarIcon, active: activeMode === 'radar' },
+                        { Icon: Target, active: activeMode === 'tracker' },
+                        { Icon: Bot, active: activeMode === 'research' },
+                        { Icon: FileText, active: false },
+                        { Icon: Layers, active: false },
+                        { Icon: Settings, active: false }
+                      ].map((item, i) => (
+                        <div key={i} className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${item.active ? 'bg-brand-500/20 text-brand-400' : 'text-slate-500'}`}>
+                          <item.Icon size={18} />
                         </div>
                       ))}
                     </div>
                   </div>
                   
-                  {/* Main Content Area */}
-                  <div className="flex-1 flex">
-                    {/* Task List Panel */}
-                    <div className="w-48 bg-slate-900/50 border-r border-slate-800 p-3">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Discovery Tasks</span>
-                        <div className="w-5 h-5 rounded bg-brand-500/20 flex items-center justify-center">
-                          <Plus size={12} className="text-brand-400" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        {['Vizard.ai', 'Descript', 'OpusClip'].map((name, i) => (
-                          <div key={name} className={`flex items-center gap-2 p-2 rounded-lg ${i === 0 ? 'bg-slate-800' : 'hover:bg-slate-800/50'} transition-colors`}>
-                            <div className="w-6 h-6 rounded bg-white flex items-center justify-center text-[10px] font-bold text-slate-900">{name[0]}</div>
-                            <span className={`text-xs font-medium ${i === 0 ? 'text-white' : 'text-slate-400'}`}>{name}</span>
-                            <div className={`w-1.5 h-1.5 rounded-full ml-auto ${i === 0 ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]' : 'bg-slate-600'}`}></div>
+                  {/* Dynamic Content based on activeMode */}
+                  {activeMode === 'radar' && (
+                    <div className="flex-1 flex">
+                      {/* Radar: Scope Tabs - matches actual Radar layout */}
+                      <div className="w-56 bg-[#020617] border-r border-slate-800 flex flex-col">
+                        <div className="p-3 border-b border-slate-800">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-bold text-slate-300">Discovery Scopes</span>
+                            <div className="w-5 h-5 rounded bg-brand-500/20 flex items-center justify-center">
+                              <Plus size={12} className="text-brand-400" />
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Results Panel */}
-                    <div className="flex-1 p-4 overflow-hidden">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                          <img src="https://www.google.com/s2/favicons?domain=vizard.ai&sz=128" alt="Vizard" className="w-6 h-6" />
                         </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-white">Vizard.ai</h3>
-                          <span className="text-xs text-slate-500">vizard.ai</span>
-                        </div>
-                        <div className="ml-auto flex items-center gap-2">
-                          <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded">ACTIVE</span>
+                        <div className="flex-1 p-2 space-y-1">
+                          {[
+                            { name: 'AI Video Editing', active: true },
+                            { name: 'Video Automation', active: false },
+                            { name: 'Content Repurposing', active: false }
+                          ].map((scope, i) => (
+                            <div key={scope.name} className={`relative flex items-center gap-2 px-3 py-2.5 rounded-lg ${scope.active ? 'bg-slate-800 text-white' : 'text-slate-400'}`}>
+                              <span className="text-sm font-medium truncate">{scope.name}</span>
+                              {scope.active && <div className="w-2 h-2 rounded-full bg-emerald-500 ml-auto shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>}
+                            </div>
+                          ))}
                         </div>
                       </div>
                       
-                      {/* Competitor Cards Grid */}
-                      <div className="grid grid-cols-3 gap-3">
-                        {[
-                          { name: 'OpusClip', match: 94 },
-                          { name: 'Descript', match: 89 },
-                          { name: 'Munch', match: 85 },
-                          { name: 'Kapwing', match: 82 },
-                          { name: 'Pictory', match: 78 },
-                          { name: 'Synthesia', match: 75 }
-                        ].map((comp) => (
-                          <div key={comp.name} className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-3 hover:border-slate-600 transition-all">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-6 h-6 rounded bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white">{comp.name[0]}</div>
-                              <span className="text-xs font-medium text-white">{comp.name}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] text-slate-500">Match Score</span>
-                              <span className="text-xs font-bold text-brand-400">{comp.match}%</span>
-                            </div>
-                            <div className="mt-1.5 h-1 bg-slate-700 rounded-full overflow-hidden">
-                              <div className="h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full" style={{ width: `${comp.match}%` }}></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    {/* Right Insight Panel */}
-                    <div className="w-64 bg-slate-900/30 border-l border-slate-800 p-4">
-                      <div className="flex items-center gap-2 mb-4">
-                        <Sparkles size={14} className="text-brand-400" />
-                        <span className="text-xs font-bold text-white">AI Insights</span>
-                      </div>
-                      <div className="space-y-3">
-                        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <TrendingUp size={12} className="text-emerald-400" />
-                            <span className="text-[10px] font-bold text-emerald-400">OPPORTUNITY</span>
-                          </div>
-                          <p className="text-[11px] text-slate-300 leading-relaxed">AI video editing market growing 34% YoY. Position against enterprise segment.</p>
+                      {/* Radar: Main Results - competitor list */}
+                      <div className="flex-1 bg-[#0b0c0f] p-4 overflow-hidden">
+                        <div className="flex items-center gap-3 mb-4">
+                          <h3 className="text-lg font-bold text-white">AI Video Editing</h3>
+                          <span className="px-2 py-0.5 bg-brand-500/20 text-brand-400 text-[10px] font-bold rounded">12 Found</span>
                         </div>
-                        <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-2">
-                            <AlertCircle size={12} className="text-amber-400" />
-                            <span className="text-[10px] font-bold text-amber-400">THREAT</span>
-                          </div>
-                          <p className="text-[11px] text-slate-300 leading-relaxed">Descript launching new AI features next quarter. Monitor closely.</p>
+                        <div className="space-y-2">
+                          {[
+                            { name: 'Vizard.ai', url: 'vizard.ai', match: 94 },
+                            { name: 'OpusClip', url: 'opus.pro', match: 89 },
+                            { name: 'Descript', url: 'descript.com', match: 85 },
+                            { name: 'Munch', url: 'getmunch.com', match: 82 },
+                            { name: 'Kapwing', url: 'kapwing.com', match: 78 }
+                          ].map((comp, i) => (
+                            <div key={comp.name} className={`flex items-center gap-3 p-3 rounded-lg border ${i === 0 ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-900/50 border-slate-800 hover:bg-slate-800/50'} transition-all`}>
+                              <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden">
+                                <img src={`https://www.google.com/s2/favicons?domain=${comp.url}&sz=64`} alt={comp.name} className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-white">{comp.name}</p>
+                                <p className="text-[11px] text-slate-500 truncate">{comp.url}</p>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-xs font-bold text-brand-400">{comp.match}%</span>
+                                <p className="text-[10px] text-slate-500">match</p>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {activeMode === 'tracker' && (
+                    <div className="flex-1 flex">
+                      {/* Track: Target List */}
+                      <div className="w-44 bg-[#020617] border-r border-slate-800 flex flex-col">
+                        <div className="p-3 border-b border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-300">Targets</span>
+                            <div className="w-5 h-5 rounded bg-brand-500/20 flex items-center justify-center">
+                              <Plus size={12} className="text-brand-400" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-1 p-2 space-y-1">
+                          {[
+                            { name: 'Vizard', active: true },
+                            { name: 'Descript', active: false },
+                            { name: 'OpusClip', active: false }
+                          ].map((target) => (
+                            <div key={target.name} className={`relative flex items-center gap-2 p-2 rounded-lg ${target.active ? 'bg-slate-800' : 'hover:bg-slate-800/50'}`}>
+                              <div className="w-7 h-7 rounded-lg bg-white p-1 flex items-center justify-center">
+                                <span className="text-[10px] font-bold text-slate-900">{target.name[0]}</span>
+                              </div>
+                              <span className={`text-sm font-medium flex-1 ${target.active ? 'text-white' : 'text-slate-400'}`}>{target.name}</span>
+                              <div className={`w-2 h-2 rounded-full ${target.active ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-600'}`}></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Track: Main Content with Header */}
+                      <div className="flex-1 bg-[#0b0c0f] border-r border-slate-800 p-4">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-12 h-12 rounded-lg bg-white p-1 flex items-center justify-center">
+                            <img src="https://www.google.com/s2/favicons?domain=vizard.ai&sz=128" alt="Vizard" className="w-8 h-8" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-white">Vizard</h3>
+                            <span className="text-xs text-slate-500">vizard.ai</span>
+                          </div>
+                        </div>
+                        {/* AI Insights Tabs */}
+                        <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Sparkles size={14} className="text-brand-400" />
+                            <span className="text-xs font-bold text-white">AI Insights</span>
+                          </div>
+                          <div className="flex gap-2 mb-3">
+                            {['All', 'Website', 'Social', 'SEO'].map((ch, i) => (
+                              <span key={ch} className={`px-2 py-1 rounded text-[10px] font-medium ${i === 0 ? 'bg-brand-500/20 text-brand-400' : 'bg-slate-800 text-slate-500'}`}>{ch}</span>
+                            ))}
+                          </div>
+                          <div className="space-y-2">
+                            <div className="bg-slate-800/50 border border-emerald-500/30 rounded-lg p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <TrendingUp size={12} className="text-emerald-400" />
+                                <span className="text-[10px] font-bold text-emerald-400">NEW FEATURE</span>
+                              </div>
+                              <p className="text-[11px] text-slate-300">Vizard launched AI auto-captions with 95% accuracy.</p>
+                            </div>
+                            <div className="bg-slate-800/50 border border-amber-500/30 rounded-lg p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <AlertCircle size={12} className="text-amber-400" />
+                                <span className="text-[10px] font-bold text-amber-400">PRICING CHANGE</span>
+                              </div>
+                              <p className="text-[11px] text-slate-300">Pro plan increased from $19 to $24/month.</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeMode === 'research' && (
+                    <div className="flex-1 flex">
+                      {/* Research: Session List */}
+                      <div className="w-64 bg-[#020617] border-r border-slate-800 flex flex-col">
+                        <div className="p-3 border-b border-slate-800">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-300">Research Sessions</span>
+                            <div className="w-5 h-5 rounded bg-brand-500/20 flex items-center justify-center">
+                              <Plus size={12} className="text-brand-400" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-1 p-2 space-y-1">
+                          {[
+                            { title: 'AI Video Market Analysis', date: 'Today', active: true },
+                            { title: 'Pricing Strategy Research', date: 'Yesterday', active: false },
+                            { title: 'Competitor Feature Comparison', date: 'Jan 15', active: false }
+                          ].map((session) => (
+                            <div key={session.title} className={`p-2.5 rounded-lg ${session.active ? 'bg-slate-800' : 'hover:bg-slate-800/50'}`}>
+                              <p className={`text-xs font-medium truncate ${session.active ? 'text-white' : 'text-slate-400'}`}>{session.title}</p>
+                              <p className="text-[10px] text-slate-600 mt-0.5">{session.date}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Research: Chat Interface */}
+                      <div className="flex-1 bg-[#0b0c0f] flex flex-col">
+                        <div className="flex-1 p-4 space-y-4 overflow-hidden">
+                          {/* User Message */}
+                          <div className="flex justify-end">
+                            <div className="max-w-[70%] bg-brand-600 rounded-2xl rounded-br-md px-4 py-3">
+                              <p className="text-sm text-white">What are the key differentiators between Vizard and Descript?</p>
+                            </div>
+                          </div>
+                          {/* AI Response */}
+                          <div className="flex gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shrink-0">
+                              <Bot size={16} className="text-white" />
+                            </div>
+                            <div className="max-w-[80%] bg-slate-800 rounded-2xl rounded-tl-md px-4 py-3">
+                              <p className="text-sm text-slate-200 leading-relaxed">Based on my analysis, the key differentiators are:</p>
+                              <ul className="mt-2 space-y-1 text-sm text-slate-300">
+                                <li className="flex gap-2"><span className="text-brand-400">1.</span> Vizard focuses on AI-powered short-form content</li>
+                                <li className="flex gap-2"><span className="text-brand-400">2.</span> Descript offers full podcast/video editing suite</li>
+                                <li className="flex gap-2"><span className="text-brand-400">3.</span> Vizard has lower entry pricing at $19/mo</li>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Input Bar */}
+                        <div className="p-4 border-t border-slate-800">
+                          <div className="flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3">
+                            <Bot size={18} className="text-slate-500" />
+                            <span className="text-sm text-slate-500 flex-1">Ask about competitors, markets, strategies...</span>
+                            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+                              <ArrowRight size={16} className="text-white" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
             
             {/* Caption */}
             <p className="text-center text-slate-500 text-sm mt-6">
-              Real-time competitive intelligence at your fingertips
+              {activeMode === 'radar' && 'Discover competitors with AI-powered market scanning'}
+              {activeMode === 'tracker' && 'Monitor competitor moves with real-time AI insights'}
+              {activeMode === 'research' && 'Deep research with your AI-powered competitive analyst'}
             </p>
           </div>
         </div>
