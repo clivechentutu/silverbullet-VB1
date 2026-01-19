@@ -30,11 +30,19 @@ export const LandingPage = () => {
   const [totalDiscoveredCount, setTotalDiscoveredCount] = useState<number>(0);
   const [hoveredCompetitor, setHoveredCompetitor] = useState<string | null>(null);
 
-  // Add starry background effect
+  // Combined starry background with light trails originating from visible stars
   useEffect(() => {
     const starContainer = document.createElement('div');
     starContainer.className = 'fixed inset-0 pointer-events-none -z-20 overflow-hidden';
     document.body.appendChild(starContainer);
+
+    const trailContainer = document.createElement('div');
+    trailContainer.className = 'fixed inset-0 pointer-events-none -z-10 overflow-hidden';
+    trailContainer.id = 'light-trails';
+    document.body.appendChild(trailContainer);
+
+    // Registry of active twinkling stars with their positions and colors
+    const activeStars: Array<{ element: HTMLDivElement; x: number; y: number; color: { trail: string; glow: string } }> = [];
 
     // Create 150 static stars
     for (let i = 0; i < 150; i++) {
@@ -53,25 +61,163 @@ export const LandingPage = () => {
       starContainer.appendChild(star);
     }
 
-    // Function to create a twinkling star
+    // Star colors with matching trail colors
+    const colors = [
+      { base: 'rgba(255, 255, 255, 0.95)', glow: 'rgba(255, 255, 255, 0.6)', trail: 'rgba(255, 255, 255, 0.6)', trailGlow: 'rgba(255, 255, 255, 0.3)' },
+      { base: 'rgba(20, 184, 166, 0.9)', glow: 'rgba(20, 184, 166, 0.5)', trail: 'rgba(20, 184, 166, 0.7)', trailGlow: 'rgba(20, 184, 166, 0.35)' },
+      { base: 'rgba(147, 51, 234, 0.9)', glow: 'rgba(147, 51, 234, 0.5)', trail: 'rgba(147, 51, 234, 0.7)', trailGlow: 'rgba(147, 51, 234, 0.35)' },
+      { base: 'rgba(59, 130, 246, 0.9)', glow: 'rgba(59, 130, 246, 0.5)', trail: 'rgba(59, 130, 246, 0.7)', trailGlow: 'rgba(59, 130, 246, 0.35)' },
+      { base: 'rgba(244, 63, 94, 0.9)', glow: 'rgba(244, 63, 94, 0.5)', trail: 'rgba(244, 63, 94, 0.7)', trailGlow: 'rgba(244, 63, 94, 0.35)' },
+      { base: 'rgba(245, 158, 11, 0.9)', glow: 'rgba(245, 158, 11, 0.5)', trail: 'rgba(245, 158, 11, 0.7)', trailGlow: 'rgba(245, 158, 11, 0.35)' },
+      { base: 'rgba(16, 185, 129, 0.9)', glow: 'rgba(16, 185, 129, 0.5)', trail: 'rgba(16, 185, 129, 0.7)', trailGlow: 'rgba(16, 185, 129, 0.35)' },
+      { base: 'rgba(236, 72, 153, 0.9)', glow: 'rgba(236, 72, 153, 0.5)', trail: 'rgba(236, 72, 153, 0.7)', trailGlow: 'rgba(236, 72, 153, 0.35)' }
+    ];
+
+    // Function to create entry pulse effect at preview boundary
+    const createEntryPulse = (x: number, y: number, color: string) => {
+      const pulse = document.createElement('div');
+      pulse.style.cssText = `
+        position: absolute;
+        left: ${x}px;
+        top: ${y}px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: radial-gradient(circle, ${color} 0%, transparent 70%);
+        transform: translate(-50%, -50%) scale(0.5);
+        pointer-events: none;
+      `;
+      trailContainer.appendChild(pulse);
+
+      const pulseAnim = pulse.animate([
+        { transform: 'translate(-50%, -50%) scale(0.5)', opacity: 1 },
+        { transform: 'translate(-50%, -50%) scale(2.5)', opacity: 0 }
+      ], {
+        duration: 600,
+        easing: 'ease-out'
+      });
+
+      pulseAnim.onfinish = () => pulse.remove();
+    };
+
+    // Function to create light trail from a star
+    const createLightTrailFromStar = (starData: { x: number; y: number; color: { trail: string; glow: string } }) => {
+      const trail = document.createElement('div');
+      
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      // Start position from the star (in pixels)
+      const startX = (starData.x / 100) * viewportWidth;
+      const startY = (starData.y / 100) * viewportHeight;
+      
+      // Find the product preview element position
+      const previewEl = document.querySelector('[data-preview-frame]');
+      let targetX: number, targetY: number;
+      
+      if (previewEl) {
+        const rect = previewEl.getBoundingClientRect();
+        // Target a random point on the preview frame border
+        const side = Math.floor(Math.random() * 4);
+        switch(side) {
+          case 0: // top edge
+            targetX = rect.left + Math.random() * rect.width;
+            targetY = rect.top;
+            break;
+          case 1: // right edge
+            targetX = rect.right;
+            targetY = rect.top + Math.random() * rect.height;
+            break;
+          case 2: // bottom edge
+            targetX = rect.left + Math.random() * rect.width;
+            targetY = rect.bottom;
+            break;
+          default: // left edge
+            targetX = rect.left;
+            targetY = rect.top + Math.random() * rect.height;
+        }
+      } else {
+        // Fallback to center of viewport
+        targetX = viewportWidth / 2 + (Math.random() - 0.5) * 300;
+        targetY = viewportHeight * 0.65 + (Math.random() - 0.5) * 100;
+      }
+      
+      const trailLength = Math.random() * 60 + 40; // 40-100px trail
+      const duration = Math.random() * 3000 + 4000; // 4-7 seconds (slow)
+      
+      // Calculate angle for trail rotation
+      const angle = Math.atan2(targetY - startY, targetX - startX) * (180 / Math.PI);
+      
+      trail.style.cssText = `
+        position: fixed;
+        left: ${startX}px;
+        top: ${startY}px;
+        width: ${trailLength}px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent 0%, ${starData.color.trail} 50%, ${starData.color.trail} 100%);
+        border-radius: 1px;
+        transform: rotate(${angle}deg);
+        transform-origin: left center;
+        box-shadow: 0 0 6px 1px ${starData.color.glow}, 0 0 12px 2px ${starData.color.glow};
+        opacity: 0;
+        pointer-events: none;
+      `;
+      
+      trailContainer.appendChild(trail);
+      
+      const animation = trail.animate([
+        { 
+          left: `${startX}px`, 
+          top: `${startY}px`, 
+          opacity: 0,
+          transform: `rotate(${angle}deg) scaleX(0.2)`
+        },
+        { 
+          left: `${startX}px`, 
+          top: `${startY}px`, 
+          opacity: 0.8,
+          transform: `rotate(${angle}deg) scaleX(1)`,
+          offset: 0.1
+        },
+        { 
+          left: `${startX + (targetX - startX) * 0.5}px`, 
+          top: `${startY + (targetY - startY) * 0.5}px`, 
+          opacity: 0.6,
+          transform: `rotate(${angle}deg) scaleX(1)`,
+          offset: 0.6
+        },
+        { 
+          left: `${targetX}px`, 
+          top: `${targetY}px`, 
+          opacity: 0.4,
+          transform: `rotate(${angle}deg) scaleX(0.8)`,
+          offset: 0.95
+        },
+        { 
+          left: `${targetX}px`, 
+          top: `${targetY}px`, 
+          opacity: 0,
+          transform: `rotate(${angle}deg) scaleX(0.3)`
+        }
+      ], {
+        duration: duration,
+        easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)'
+      });
+      
+      animation.onfinish = () => {
+        trail.remove();
+        // Create entry pulse at target
+        createEntryPulse(targetX, targetY, starData.color.trail);
+      };
+    };
+
+    // Function to create a twinkling star that can spawn trails
     const createTwinkle = () => {
       const star = document.createElement('div');
-      const size = Math.random() * 2.5 + 0.5; // Slightly smaller and varied
+      const size = Math.random() * 2.5 + 0.5;
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const duration = Math.random() * 3000 + 1500; // Slower twinkle
-      
-      // More vibrant and diverse star colors
-      const colors = [
-        { base: 'rgba(255, 255, 255, 0.95)', glow: 'rgba(255, 255, 255, 0.6)' }, // Pure White
-        { base: 'rgba(20, 184, 166, 0.9)', glow: 'rgba(20, 184, 166, 0.5)' },   // Teal (Brand)
-        { base: 'rgba(147, 51, 234, 0.9)', glow: 'rgba(147, 51, 234, 0.5)' },   // Purple
-        { base: 'rgba(59, 130, 246, 0.9)', glow: 'rgba(59, 130, 246, 0.5)' },   // Blue
-        { base: 'rgba(244, 63, 94, 0.9)', glow: 'rgba(244, 63, 94, 0.5)' },     // Rose/Pink
-        { base: 'rgba(245, 158, 11, 0.9)', glow: 'rgba(245, 158, 11, 0.5)' },   // Amber
-        { base: 'rgba(16, 185, 129, 0.9)', glow: 'rgba(16, 185, 129, 0.5)' },   // Emerald
-        { base: 'rgba(236, 72, 153, 0.9)', glow: 'rgba(236, 72, 153, 0.5)' }    // Pink
-      ];
+      const duration = Math.random() * 3000 + 1500;
       const color = colors[Math.floor(Math.random() * colors.length)];
 
       star.className = 'absolute rounded-full';
@@ -81,9 +227,18 @@ export const LandingPage = () => {
       star.style.top = `${y}%`;
       star.style.backgroundColor = color.base;
       star.style.opacity = '0';
-      star.style.boxShadow = `0 0 8px 2px ${color.glow}`; // Slightly stronger glow
+      star.style.boxShadow = `0 0 8px 2px ${color.glow}`;
       
       starContainer.appendChild(star);
+
+      // Register this star in the active registry
+      const starData = { 
+        element: star, 
+        x, 
+        y, 
+        color: { trail: color.trail, glow: color.trailGlow } 
+      };
+      activeStars.push(starData);
 
       const starAnimation = star.animate([
         { opacity: 0, transform: 'scale(0.4)' },
@@ -94,122 +249,30 @@ export const LandingPage = () => {
         easing: 'ease-in-out'
       });
 
-      starAnimation.onfinish = () => star.remove();
+      starAnimation.onfinish = () => {
+        // Remove from registry
+        const index = activeStars.indexOf(starData);
+        if (index > -1) activeStars.splice(index, 1);
+        star.remove();
+      };
     };
 
-    const interval = setInterval(createTwinkle, 200); // More frequent for variety
-    return () => {
-      clearInterval(interval);
-      starContainer.remove();
-    };
-  }, []);
-
-  // Light trail effect flowing towards product preview
-  useEffect(() => {
-    const trailContainer = document.createElement('div');
-    trailContainer.className = 'fixed inset-0 pointer-events-none -z-10 overflow-hidden';
-    trailContainer.id = 'light-trails';
-    document.body.appendChild(trailContainer);
-
-    const colors = [
-      { trail: 'rgba(20, 184, 166, 0.8)', glow: 'rgba(20, 184, 166, 0.4)' },   // Teal
-      { trail: 'rgba(147, 51, 234, 0.8)', glow: 'rgba(147, 51, 234, 0.4)' },   // Purple
-      { trail: 'rgba(59, 130, 246, 0.8)', glow: 'rgba(59, 130, 246, 0.4)' },   // Blue
-      { trail: 'rgba(236, 72, 153, 0.8)', glow: 'rgba(236, 72, 153, 0.4)' },   // Pink
-      { trail: 'rgba(16, 185, 129, 0.8)', glow: 'rgba(16, 185, 129, 0.4)' },   // Emerald
-      { trail: 'rgba(245, 158, 11, 0.8)', glow: 'rgba(245, 158, 11, 0.4)' },   // Amber
-    ];
-
-    const createLightTrail = () => {
-      const trail = document.createElement('div');
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      
-      // Start from random edge positions
-      const side = Math.floor(Math.random() * 4);
-      let startX: number, startY: number;
-      
-      switch(side) {
-        case 0: // top
-          startX = Math.random() * 100;
-          startY = -5;
-          break;
-        case 1: // right
-          startX = 105;
-          startY = Math.random() * 100;
-          break;
-        case 2: // bottom
-          startX = Math.random() * 100;
-          startY = 105;
-          break;
-        default: // left
-          startX = -5;
-          startY = Math.random() * 100;
+    // Create light trail from a random active star
+    const tryCreateTrail = () => {
+      if (activeStars.length > 0) {
+        // Pick a random active star
+        const randomStar = activeStars[Math.floor(Math.random() * activeStars.length)];
+        createLightTrailFromStar(randomStar);
       }
-      
-      // Target: center of screen (where product preview is)
-      const targetX = 50 + (Math.random() - 0.5) * 30;
-      const targetY = 65 + (Math.random() - 0.5) * 15;
-      
-      const trailLength = Math.random() * 40 + 20;
-      const duration = Math.random() * 2000 + 1500;
-      
-      // Calculate angle for trail rotation
-      const angle = Math.atan2(targetY - startY, targetX - startX) * (180 / Math.PI);
-      
-      trail.style.cssText = `
-        position: absolute;
-        left: ${startX}%;
-        top: ${startY}%;
-        width: ${trailLength}px;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, ${color.trail});
-        border-radius: 2px;
-        transform: rotate(${angle}deg);
-        transform-origin: left center;
-        box-shadow: 0 0 10px 2px ${color.glow}, 0 0 20px 4px ${color.glow};
-        opacity: 0;
-      `;
-      
-      trailContainer.appendChild(trail);
-      
-      const animation = trail.animate([
-        { 
-          left: `${startX}%`, 
-          top: `${startY}%`, 
-          opacity: 0,
-          transform: `rotate(${angle}deg) scaleX(0.3)`
-        },
-        { 
-          left: `${startX + (targetX - startX) * 0.3}%`, 
-          top: `${startY + (targetY - startY) * 0.3}%`, 
-          opacity: 0.9,
-          transform: `rotate(${angle}deg) scaleX(1)`
-        },
-        { 
-          left: `${startX + (targetX - startX) * 0.7}%`, 
-          top: `${startY + (targetY - startY) * 0.7}%`, 
-          opacity: 0.7,
-          transform: `rotate(${angle}deg) scaleX(1)`
-        },
-        { 
-          left: `${targetX}%`, 
-          top: `${targetY}%`, 
-          opacity: 0,
-          transform: `rotate(${angle}deg) scaleX(0.5)`
-        }
-      ], {
-        duration: duration,
-        easing: 'ease-out'
-      });
-      
-      animation.onfinish = () => trail.remove();
     };
 
-    // Create trails at intervals
-    const trailInterval = setInterval(createLightTrail, 400);
+    const twinkleInterval = setInterval(createTwinkle, 200);
+    const trailInterval = setInterval(tryCreateTrail, 1200); // Slower interval for trails
     
     return () => {
+      clearInterval(twinkleInterval);
       clearInterval(trailInterval);
+      starContainer.remove();
       trailContainer.remove();
     };
   }, []);
@@ -560,7 +623,7 @@ export const LandingPage = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-brand-500/15 rounded-full blur-[100px]"></div>
             
             {/* Browser Window Frame */}
-            <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+            <div data-preview-frame className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
               {/* Browser Chrome */}
               <div className="bg-slate-800/80 border-b border-slate-700/50 px-4 py-3 flex items-center gap-3">
                 <div className="flex items-center gap-1.5">
